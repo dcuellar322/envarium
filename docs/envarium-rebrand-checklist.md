@@ -63,9 +63,11 @@ access to systems outside this checkout or an explicit product/brand decision.
       immediate blocker is a proxied CNAME for `envarium.davidcuellar.tech` to
       `envarium-dcuellar.pages.dev`; the retained Pages token cannot read or edit
       the DNS zone.
-- [x] Redirect every former public URL path-for-path where control is retained;
-      `switchyard.davidcuellar.tech/<path>` now returns a permanent redirect to
-      `envarium.davidcuellar.tech/<path>`.
+- [x] Redirect every former public URL path-for-path where control is retained.
+      While canonical DNS/TLS activation is pending, the legacy hostname uses a
+      temporary redirect to `envarium-dcuellar.pages.dev/<path>`. Deployment switches
+      it to a permanent redirect to `envarium.davidcuellar.tech/<path>` after that
+      hostname responds successfully over HTTPS.
 - [ ] Update social accounts, community links, package-directory listings,
       screenshots, videos, launch posts, press assets, and SEO title/description data.
 

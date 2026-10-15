@@ -61,4 +61,23 @@ func TestObserverCoalescesHostInspectionWithinShortCacheWindow(t *testing.T) {
 	if calls != 1 || len(second.Warnings) != 0 {
 		t.Fatalf("calls = %d, cached warnings = %#v", calls, second.Warnings)
 	}
+	at = at.Add(6 * time.Second)
+	_ = observer.Observe(context.Background())
+	if calls != 1 {
+		t.Fatal("Docker disk usage was repeated with every CPU/memory refresh")
+	}
+}
+
+func TestSlowStorageDoesNotMarkConnectedEngineOffline(t *testing.T) {
+	t.Parallel()
+	observer := &Observer{
+		cpu:    func(context.Context, time.Duration, bool) ([]float64, error) { return []float64{1}, nil },
+		memory: func(context.Context) (*mem.VirtualMemoryStat, error) { return &mem.VirtualMemoryStat{}, nil },
+		docker: func(context.Context) (int64, int64, error) { return 0, 0, errDockerStorageUnavailable },
+		now:    time.Now,
+	}
+	got := observer.Observe(context.Background())
+	if !got.Docker.Connected || got.Docker.StorageBytes != nil || len(got.Warnings) != 1 {
+		t.Fatalf("partial Docker observation = %#v", got)
+	}
 }

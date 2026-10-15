@@ -252,7 +252,11 @@ func (s *HealthService) runCheck(ctx context.Context, project runtime.ProjectRun
 		if result.Status == observability.StatusHealthy || attempt+1 == attempts {
 			break
 		}
-		if err := sleepContext(ctx, 200*time.Millisecond); err != nil {
+		interval := time.Duration(check.IntervalSeconds) * time.Second
+		if interval <= 0 {
+			interval = time.Second
+		}
+		if err := sleepContext(ctx, interval); err != nil {
 			result.Status, result.Message = observability.StatusUnknown, "health evaluation cancelled"
 			break
 		}
@@ -265,6 +269,17 @@ func (s *HealthService) runCheck(ctx context.Context, project runtime.ProjectRun
 
 func aggregateHealth(projectID string, observation runtime.Observation, results []observability.HealthResult, now time.Time) observability.ProjectHealth {
 	status := observability.StatusHealthy
+	switch observation.State {
+	case runtime.StateStopped, runtime.StatePaused:
+		return observability.ProjectHealth{
+			ProjectID: projectID, Status: observability.StatusUnknown,
+			ObserverState: observability.ObserverConnected, Results: []observability.HealthResult{}, ObservedAt: observation.ObservedAt,
+		}
+	case runtime.StateFailed, runtime.StateDegraded, runtime.StatePartiallyRunning:
+		status = observability.StatusUnhealthy
+	case runtime.StateUnknown, runtime.StateStarting, runtime.StateRunning, runtime.StateRunningExternal, runtime.StateStopping:
+		// Observer availability and declared readiness checks refine this below.
+	}
 	observer := observability.ObserverConnected
 	if observation.State == runtime.StateUnknown || observation.Engine != nil && !observation.Engine.Connected {
 		status, observer = observability.StatusUnknown, observability.ObserverDisconnected

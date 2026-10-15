@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import type { ManifestProposal, Project } from '../../../api/generated/types.gen'
 import { loadDaemonSettings } from '../../system/settingsApi'
@@ -15,8 +15,9 @@ const objectArray = (value: unknown): Array<JSONObject> =>
 
 export function useProjectOnboarding() {
   const router = useRouter()
+  const route = useRoute()
   const queryClient = useQueryClient()
-  const repositoryPath = ref('')
+  const repositoryPath = ref(typeof route.query.path === 'string' ? route.query.path : '')
   const allowOutsideRoots = ref(false)
   const settings = useQuery({ queryKey: ['daemon-settings'], queryFn: loadDaemonSettings })
   const projects = ref<Array<Project>>([])

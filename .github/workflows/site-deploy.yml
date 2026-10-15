@@ -146,6 +146,7 @@ jobs:
           fi
       - name: Ensure canonical DNS record
         if: steps.deployment.outputs.configured == 'true'
+        continue-on-error: true
         run: |
           if getent ahosts "$ENVARIUM_DOMAIN" >/dev/null 2>&1; then
             echo "$ENVARIUM_DOMAIN already resolves; no DNS API call is required."
@@ -197,22 +198,44 @@ jobs:
               --data "$payload")"
           fi
           jq -e '.success == true' <<< "$response" >/dev/null
+      - name: Select reachable public origin
+        if: steps.deployment.outputs.configured == 'true'
+        id: public-origin
+        run: |
+          origin="https://$CLOUDFLARE_PROJECT_NAME.pages.dev"
+          redirect_status=302
+          if curl --fail --silent --show-error --head --max-time 15 "https://$ENVARIUM_DOMAIN/" >/dev/null 2>&1; then
+            origin="https://$ENVARIUM_DOMAIN"
+            redirect_status=301
+            echo "Canonical hostname is active." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::Canonical hostname is not active. Using the Envarium Pages hostname until DNS and TLS are ready."
+            echo "Canonical DNS/TLS is pending. The public site and legacy redirect use $origin until activation." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "url=$origin" >> "$GITHUB_OUTPUT"
+          echo "redirect-status=$redirect_status" >> "$GITHUB_OUTPUT"
       - name: Redirect legacy Switchyard hostname
         if: steps.deployment.outputs.configured == 'true'
+        env:
+          PUBLIC_SITE_ORIGIN: ${{ steps.public-origin.outputs.url }}
+          REDIRECT_STATUS: ${{ steps.public-origin.outputs.redirect-status }}
         run: |
           legacy_directory="$RUNNER_TEMP/envarium-legacy-redirect"
           mkdir -p "$legacy_directory"
-          printf '/* https://%s/:splat 301\n' "$ENVARIUM_DOMAIN" > "$legacy_directory/_redirects"
+          printf '/* %s/:splat %s\n' "$PUBLIC_SITE_ORIGIN" "$REDIRECT_STATUS" > "$legacy_directory/_redirects"
           pnpm --dir site exec wrangler pages deploy "$legacy_directory" --project-name "$LEGACY_CLOUDFLARE_PROJECT_NAME" --branch master --commit-dirty=true
-      - name: Smoke canonical domain
+      - name: Smoke reachable public site
         if: steps.deployment.outputs.configured == 'true'
+        env:
+          SMOKE_SITE_URL: ${{ steps.public-origin.outputs.url }}
+          SMOKE_CANONICAL_URL: https://envarium.davidcuellar.tech
         run: |
           for attempt in $(seq 1 30); do
             if pnpm --dir site smoke; then
               exit 0
             fi
             if [[ "$attempt" -lt 30 ]]; then
-              echo "Canonical domain is not ready yet; retrying in 10 seconds ($attempt/30)."
+              echo "Public site is not ready yet; retrying in 10 seconds ($attempt/30)."
               sleep 10
             fi
           done

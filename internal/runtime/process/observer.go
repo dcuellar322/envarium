@@ -143,6 +143,9 @@ func (d *Driver) recordRecoveredMembers(ctx context.Context, run domain.RunRecor
 		}
 		for _, member := range members {
 			member.RunID = run.ID
+			if containsIdentity(run.Processes, member) {
+				continue
+			}
 			_ = d.store.RecordProcess(context.WithoutCancel(ctx), member)
 		}
 	}

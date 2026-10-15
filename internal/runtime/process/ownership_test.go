@@ -61,6 +61,42 @@ type memberSourceOwnershipFake struct {
 	calls int
 }
 
+func TestGroupTrackingPersistsNewAndChangedIdentitiesOnly(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	started := time.Now().UTC()
+	identity := domain.ProcessIdentity{PID: 10, ProcessGroup: 10, StartedAt: started, Fingerprint: "initial"}
+	inspector := inspectorFake{snapshots: map[int32]domain.ProcessIdentity{10: identity}}
+	store := &countingRunStore{memoryRunStore: newMemoryRunStore()}
+	if err := store.CreateRun(ctx, domain.RunRecord{ID: "run-1"}); err != nil {
+		t.Fatal(err)
+	}
+	driver := newDriver(ctx, store, inspector, &secretResolverFake{})
+	managed := &managedRun{run: domain.RunRecord{ID: "run-1"}, group: 10,
+		ownership: &memberSourceOwnershipFake{group: 10, pids: []int32{10}}}
+	driver.recordGroupMembers(ctx, managed)
+	driver.recordGroupMembers(ctx, managed)
+	if store.writes != 1 {
+		t.Fatalf("unchanged identity writes = %d", store.writes)
+	}
+	identity.Fingerprint = "after-exec"
+	inspector.snapshots[10] = identity
+	driver.recordGroupMembers(ctx, managed)
+	if store.writes != 2 {
+		t.Fatalf("changed identity was not persisted: writes = %d", store.writes)
+	}
+}
+
+type countingRunStore struct {
+	*memoryRunStore
+	writes int
+}
+
+func (s *countingRunStore) RecordProcess(ctx context.Context, identity domain.ProcessIdentity) error {
+	s.writes++
+	return s.memoryRunStore.RecordProcess(ctx, identity)
+}
+
 func (o *memberSourceOwnershipFake) Group() int32    { return o.group }
 func (*memberSourceOwnershipFake) Running() bool     { return true }
 func (*memberSourceOwnershipFake) Signal(bool) error { return nil }

@@ -85,7 +85,7 @@ func appendComposeFile(arguments []string, path string) []string {
 }
 
 func composeBaseArguments(project domain.ProjectRuntime, connection dockerConnection, projectName string) ([]string, error) {
-	arguments := append(connection.cliPrefix(), "compose", "--project-directory", project.Root)
+	arguments := append(connection.CLIPrefix(), "compose", "--project-directory", project.Root)
 	for _, file := range project.Compose.Files {
 		path := file
 		if !filepath.IsAbs(path) {

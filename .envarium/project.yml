@@ -33,9 +33,8 @@ services:
       process: daemon
     healthChecks:
       - id: ready
-        type: http
-        url: http://127.0.0.1:19617/api/v1/system
-        expectedStatus: 200
+        type: tcp
+        address: 127.0.0.1:19617
         required: true
 
 ports:

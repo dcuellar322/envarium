@@ -14,6 +14,7 @@ test('renders the alpha shell, keyboard palette, and live daemon settings', asyn
     page.getByRole('heading', { name: 'Your development yard' }),
     `browser errors: ${browserErrors.join(' | ') || 'none'}`,
   ).toBeVisible()
+  await expect(page).not.toHaveURL(/bootstrap=/)
   await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible()
   const accessibility = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

@@ -54,3 +54,9 @@ test('loads project observations in bounded batches while preserving catalog ord
   expect(snapshots.map((snapshot) => snapshot.project.id)).toEqual(catalog.map((item) => item.id))
   expect(projects.loadProjectRuntime).toHaveBeenCalledTimes(5)
 })
+
+test('leaves pending projects reviewable without making forbidden runtime queries', async () => {
+  const pending = { ...project, trustState: 'pending' as const }
+  expect(await loadProjectSnapshot(pending)).toEqual({ project: pending, warnings: [] })
+  for (const load of Object.values(projects)) expect(load).not.toHaveBeenCalled()
+})

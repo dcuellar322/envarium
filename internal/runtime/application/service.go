@@ -96,7 +96,7 @@ func (s *Service) Logs(ctx context.Context, projectID, service, since string, ta
 	if err != nil {
 		return nil, err
 	}
-	sink := &logCollector{limit: tail}
+	sink := &logCollector{limit: tail, entries: []domain.LogEntry{}}
 	err = driver.StreamLogs(ctx, domain.LogRequest{Project: project, Service: service, Since: since, Tail: tail}, sink)
 	return sink.entries, err
 }
@@ -121,7 +121,7 @@ func (s *Service) Metrics(ctx context.Context, projectID, service string) ([]dom
 	if err != nil {
 		return nil, err
 	}
-	sink := &metricCollector{}
+	sink := &metricCollector{samples: []domain.MetricSample{}}
 	err = driver.StreamMetrics(ctx, domain.MetricRequest{Project: project, Service: service}, sink)
 	return sink.samples, err
 }

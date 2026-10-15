@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -73,17 +74,27 @@ func (gopsutilInspector) Snapshot(ctx context.Context, pid int32) (domain.Proces
 }
 
 func (inspector gopsutilInspector) GroupMembers(ctx context.Context, group int32) ([]domain.ProcessIdentity, error) {
-	processes, err := gprocess.ProcessesWithContext(ctx)
+	pids, err := gprocess.PidsWithContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 	result := []domain.ProcessIdentity{}
-	for _, process := range processes {
-		parent, _ := process.PpidWithContext(ctx)
-		if !isProcessGroupMember(parent, process.Pid, group) {
+	for _, pid := range pids {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		var parent int32
+		if runtime.GOOS == "windows" {
+			process, processErr := gprocess.NewProcessWithContext(ctx, pid)
+			if processErr != nil {
+				continue
+			}
+			parent, _ = process.PpidWithContext(ctx)
+		}
+		if !isProcessGroupMember(parent, pid, group) {
 			continue
 		}
-		identity, snapshotErr := inspector.Snapshot(ctx, process.Pid)
+		identity, snapshotErr := inspector.Snapshot(ctx, pid)
 		if snapshotErr == nil {
 			identity.ProcessGroup = group
 			result = append(result, identity)

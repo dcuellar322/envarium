@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"envarium.dev/envarium/internal/observability/domain"
+	"envarium.dev/envarium/internal/platform/dockerengine"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/client"
 )
@@ -19,7 +20,7 @@ type dockerDiskClient interface {
 	Close() error
 }
 
-type dockerDiskClientFactory func() (dockerDiskClient, error)
+type dockerDiskClientFactory func(context.Context) (dockerDiskClient, error)
 
 // DockerStorage inspects Engine disk usage and never exposes a mutation method.
 type DockerStorage struct {
@@ -36,7 +37,7 @@ type DockerStorage struct {
 // NewDockerStorage creates a cached Docker SDK storage observer.
 func NewDockerStorage() *DockerStorage {
 	return &DockerStorage{
-		clientFactory: func() (dockerDiskClient, error) { return client.New(client.FromEnv) },
+		clientFactory: func(ctx context.Context) (dockerDiskClient, error) { return dockerengine.NewClient(ctx) },
 		now:           time.Now, cacheFor: 2 * time.Minute, timeout: 5 * time.Second,
 	}
 }
@@ -63,17 +64,17 @@ func (s *DockerStorage) diskUsage(ctx context.Context) (client.DiskUsageResult, 
 	if s.cached != nil && now.Before(s.cacheTil) {
 		return *s.cached, nil
 	}
-	engine, err := s.clientFactory()
-	if err != nil {
-		return client.DiskUsageResult{}, err
-	}
-	defer func() { _ = engine.Close() }()
 	timeout := s.timeout
 	if timeout <= 0 {
 		timeout = 5 * time.Second
 	}
 	inspectCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
+	engine, err := s.clientFactory(inspectCtx)
+	if err != nil {
+		return client.DiskUsageResult{}, err
+	}
+	defer func() { _ = engine.Close() }()
 	usage, err := engine.DiskUsage(inspectCtx, client.DiskUsageOptions{Containers: true, Images: true, Volumes: true, BuildCache: true, Verbose: true})
 	if err != nil {
 		return client.DiskUsageResult{}, err

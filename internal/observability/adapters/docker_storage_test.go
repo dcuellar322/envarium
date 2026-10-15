@@ -66,7 +66,7 @@ func TestDockerStorageReturnsDisconnectedPartialInventory(t *testing.T) {
 	t.Parallel()
 	now := time.Date(2026, 7, 16, 12, 0, 0, 0, time.UTC)
 	storage := &DockerStorage{
-		clientFactory: func() (dockerDiskClient, error) { return nil, errors.New("socket unavailable") },
+		clientFactory: func(context.Context) (dockerDiskClient, error) { return nil, errors.New("socket unavailable") },
 		now:           func() time.Time { return now }, cacheFor: 2 * time.Minute,
 	}
 	inventory, err := storage.InspectStorage(context.Background(), []domain.ProjectDescriptor{{ID: "process-only"}})
@@ -83,7 +83,7 @@ func TestDockerStorageCachesReadOnlyDiskUsageWithBoundedOptions(t *testing.T) {
 	clock := time.Date(2026, 7, 16, 12, 0, 0, 0, time.UTC)
 	clients := []*dockerDiskClientFake{}
 	storage := &DockerStorage{
-		clientFactory: func() (dockerDiskClient, error) {
+		clientFactory: func(context.Context) (dockerDiskClient, error) {
 			engine := &dockerDiskClientFake{result: client.DiskUsageResult{Containers: client.ContainersDiskUsage{TotalSize: int64(len(clients) + 1)}}}
 			clients = append(clients, engine)
 			return engine, nil

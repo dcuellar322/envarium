@@ -107,3 +107,35 @@ func TestInspectReturnsDisconnectedObservationWithoutDriverError(t *testing.T) {
 		t.Fatalf("observation = %#v", observation)
 	}
 }
+
+func TestInspectKeepsUncreatedServicesVisibleWithoutClaimingOwnership(t *testing.T) {
+	t.Parallel()
+	project := domain.ProjectRuntime{ProjectID: "project-1", Services: []domain.ServiceDeclaration{
+		{ID: "api", RuntimeName: "backend"}, {ID: "web", RuntimeName: "frontend"},
+	}}
+	driver := &Driver{engine: fakeConnector{engine: &fakeEngine{}}, managed: newManagedContainers()}
+	observation, err := driver.inspect(context.Background(), project, normalizedConfig{
+		ProjectName: "fixture", Services: []string{"backend", "frontend"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if observation.State != domain.StateStopped || observation.Origin != domain.OriginExternal || len(observation.Services) != 2 {
+		t.Fatalf("observation = %#v", observation)
+	}
+	for _, service := range observation.Services {
+		if service.State != "stopped" || service.Container != nil || service.ObservedAt.IsZero() {
+			t.Fatalf("uncreated service = %#v", service)
+		}
+	}
+	driver.engine = fakeConnector{err: errors.New("offline")}
+	observation, err = driver.inspect(context.Background(), project, normalizedConfig{ProjectName: "fixture"})
+	if err != nil || observation.State != domain.StateUnknown || len(observation.Services) != 2 {
+		t.Fatalf("disconnected observation = %#v, %v", observation, err)
+	}
+	for _, service := range observation.Services {
+		if service.State != "unknown" || service.Container != nil {
+			t.Fatalf("disconnected service = %#v", service)
+		}
+	}
+}

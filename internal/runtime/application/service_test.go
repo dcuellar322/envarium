@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -22,6 +23,26 @@ func TestServiceRoutesPlansAndBoundsLogs(t *testing.T) {
 	}
 	if _, err := service.Logs(context.Background(), "project-1", "", "", 10_001); err == nil {
 		t.Fatal("oversized log request accepted")
+	}
+}
+
+func TestStoppedProjectCollectionsRemainJSONArrays(t *testing.T) {
+	t.Parallel()
+	project := domain.ProjectRuntime{ProjectID: "project-1", Kind: domain.KindCompose}
+	service := NewService(projectSourceStub{projects: map[string]domain.ProjectRuntime{"project-1": project}}, &driverStub{kind: domain.KindCompose})
+	metrics, err := service.Metrics(context.Background(), project.ProjectID, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	logs, err := service.Logs(context.Background(), project.ProjectID, "", "", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, collection := range []any{metrics, logs} {
+		encoded, err := json.Marshal(collection)
+		if err != nil || string(encoded) != "[]" {
+			t.Fatalf("empty stopped-project collection = %s, %v", encoded, err)
+		}
 	}
 }
 

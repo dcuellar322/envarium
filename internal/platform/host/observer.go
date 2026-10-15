@@ -3,6 +3,8 @@ package host
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -10,20 +12,26 @@ import (
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/mem"
 
+	"envarium.dev/envarium/internal/platform/dockerengine"
 	"envarium.dev/envarium/internal/system/application"
 )
 
 type dockerUsage func(context.Context) (int64, int64, error)
 
+var errDockerStorageUnavailable = errors.New("docker storage inspection is unavailable")
+
 // Observer reads current OS capacity and best-effort Docker disk usage.
 type Observer struct {
-	cpu    func(context.Context, time.Duration, bool) ([]float64, error)
-	memory func(context.Context) (*mem.VirtualMemoryStat, error)
-	docker dockerUsage
-	now    func() time.Time
-	mu     sync.Mutex
-	cached *application.HostObservation
-	until  time.Time
+	cpu            func(context.Context, time.Duration, bool) ([]float64, error)
+	memory         func(context.Context) (*mem.VirtualMemoryStat, error)
+	docker         dockerUsage
+	now            func() time.Time
+	mu             sync.Mutex
+	cached         *application.HostObservation
+	until          time.Time
+	dockerCached   *application.DockerObservation
+	dockerWarnings []string
+	dockerUntil    time.Time
 }
 
 // NewObserver creates the production host observer.
@@ -54,16 +62,24 @@ func (o *Observer) Observe(ctx context.Context) application.HostObservation {
 	} else {
 		result.MemoryUsedBytes, result.MemoryTotalBytes = memory.Used, memory.Total
 	}
-	dockerContext, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-	storage, reclaimable, err := o.docker(dockerContext)
-	if err != nil {
-		result.Warnings = append(result.Warnings, "Docker storage is unavailable.")
-	} else {
-		result.Docker.Connected = true
-		result.Docker.StorageBytes, result.Docker.ReclaimableBytes = &storage, &reclaimable
-		result.Docker.Attribution = "shared"
+	if o.dockerCached == nil || !now.Before(o.dockerUntil) {
+		docker := application.DockerObservation{Attribution: "unknown"}
+		o.dockerWarnings = nil
+		dockerContext, cancel := context.WithTimeout(ctx, 3*time.Second)
+		storage, reclaimable, usageErr := o.docker(dockerContext)
+		cancel()
+		if usageErr != nil {
+			docker.Connected = errors.Is(usageErr, errDockerStorageUnavailable)
+			o.dockerWarnings = []string{"Docker storage is unavailable."}
+		} else {
+			docker.Connected = true
+			docker.StorageBytes, docker.ReclaimableBytes = &storage, &reclaimable
+			docker.Attribution = "shared"
+		}
+		o.dockerCached, o.dockerUntil = &docker, now.Add(30*time.Second)
 	}
+	result.Docker = *o.dockerCached
+	result.Warnings = append(result.Warnings, o.dockerWarnings...)
 	o.cached = &result
 	o.until = now.Add(5 * time.Second)
 	return cloneObservation(result)
@@ -75,14 +91,17 @@ func cloneObservation(value application.HostObservation) application.HostObserva
 }
 
 func readDockerUsage(ctx context.Context) (int64, int64, error) {
-	engine, err := client.New(client.FromEnv)
+	engine, err := dockerengine.NewClient(ctx)
 	if err != nil {
 		return 0, 0, err
 	}
 	defer func() { _ = engine.Close() }()
+	if _, err := engine.Ping(ctx, client.PingOptions{NegotiateAPIVersion: true}); err != nil {
+		return 0, 0, err
+	}
 	usage, err := engine.DiskUsage(ctx, client.DiskUsageOptions{Containers: true, Images: true, Volumes: true, BuildCache: true})
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, fmt.Errorf("%w: %v", errDockerStorageUnavailable, err)
 	}
 	storage := usage.Containers.TotalSize + usage.Images.TotalSize + usage.Volumes.TotalSize + usage.BuildCache.TotalSize
 	reclaimable := usage.Containers.Reclaimable + usage.Images.Reclaimable + usage.Volumes.Reclaimable + usage.BuildCache.Reclaimable

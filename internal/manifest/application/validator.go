@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	jsonschema "github.com/santhosh-tekuri/jsonschema/v6"
 
@@ -90,17 +91,9 @@ func loopbackHost(host string) bool {
 }
 
 func validateSchema(manifest domain.Manifest) error {
-	compiler := jsonschema.NewCompiler()
-	var schemaDocument any
-	if err := json.Unmarshal(manifestSchema.Project, &schemaDocument); err != nil {
-		return fmt.Errorf("decode manifest schema: %w", err)
-	}
-	if err := compiler.AddResource("project.schema.json", schemaDocument); err != nil {
-		return fmt.Errorf("load manifest schema: %w", err)
-	}
-	compiled, err := compiler.Compile("project.schema.json")
+	compiled, err := compiledProjectSchema()
 	if err != nil {
-		return fmt.Errorf("compile manifest schema: %w", err)
+		return err
 	}
 	encoded, err := json.Marshal(manifest)
 	if err != nil {
@@ -115,6 +108,24 @@ func validateSchema(manifest domain.Manifest) error {
 	}
 	return nil
 }
+
+// The embedded schema is immutable. Compile it once rather than recompiling
+// the schema and its meta-schema on every runtime, log, and health observation.
+var compiledProjectSchema = sync.OnceValues(func() (*jsonschema.Schema, error) {
+	compiler := jsonschema.NewCompiler()
+	var schemaDocument any
+	if err := json.Unmarshal(manifestSchema.Project, &schemaDocument); err != nil {
+		return nil, fmt.Errorf("decode manifest schema: %w", err)
+	}
+	if err := compiler.AddResource("project.schema.json", schemaDocument); err != nil {
+		return nil, fmt.Errorf("load manifest schema: %w", err)
+	}
+	compiled, err := compiler.Compile("project.schema.json")
+	if err != nil {
+		return nil, fmt.Errorf("compile manifest schema: %w", err)
+	}
+	return compiled, nil
+})
 
 func manifestPaths(manifest domain.Manifest) []string {
 	paths := []string{manifest.Repository.Root}

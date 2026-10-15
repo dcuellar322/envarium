@@ -53,7 +53,9 @@ const activeCount = computed(
         >Docker
         <strong>{{
           host.data.value?.docker.connected
-            ? formatBytes(host.data.value.docker.storageBytes)
+            ? host.data.value.docker.storageBytes === undefined
+              ? '—'
+              : formatBytes(host.data.value.docker.storageBytes)
             : 'offline'
         }}</strong></span
       >

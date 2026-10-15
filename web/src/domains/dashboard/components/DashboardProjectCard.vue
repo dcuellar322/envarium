@@ -20,6 +20,7 @@ const emit = defineEmits<{
 }>()
 
 const state = computed(() => props.snapshot.runtime?.state ?? 'unknown')
+const trusted = computed(() => props.snapshot.project.trustState === 'trusted')
 const dockerUnavailable = computed(
   () =>
     props.snapshot.runtime?.driver === 'compose' &&
@@ -74,7 +75,14 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
         </div>
       </div>
       <span class="status" :class="`status--${tone}`">
-        <i aria-hidden="true"></i>{{ dockerUnavailable ? 'Docker unavailable' : stateLabel(state) }}
+        <i aria-hidden="true"></i
+        >{{
+          !trusted
+            ? 'Review required'
+            : dockerUnavailable
+              ? 'Docker unavailable'
+              : stateLabel(state)
+        }}
       </span>
     </div>
 
@@ -85,7 +93,13 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
           >{{ snapshot.git?.branch ?? (snapshot.git?.detached ? 'detached' : '—') }}
           ·
           <em :class="{ dirty: changeCount }">{{
-            changeCount ? `${changeCount} changes` : 'clean'
+            !snapshot.git
+              ? 'unavailable'
+              : !snapshot.git.repository
+                ? 'not a repository'
+                : changeCount
+                  ? `${changeCount} changes`
+                  : 'clean'
           }}</em></strong
         >
       </div>
@@ -93,7 +107,10 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
         <span>Endpoints</span><strong :title="endpointTitle">{{ endpointSummary }}</strong>
       </div>
       <div class="meta-box">
-        <span>Resources</span><strong>{{ formatBytes(memory) }} · {{ cpu.toFixed(1) }}%</strong>
+        <span>Resources</span
+        ><strong>{{
+          snapshot.metrics ? `${formatBytes(memory)} · ${cpu.toFixed(1)}%` : '—'
+        }}</strong>
       </div>
     </div>
 
@@ -119,6 +136,7 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
 
     <div class="project-actions">
       <button
+        v-if="trusted"
         type="button"
         class="button"
         :class="{
@@ -132,6 +150,13 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
         <Square v-else :size="14" fill="currentColor" aria-hidden="true" />
         {{ primaryAction === 'start' ? 'Start' : 'Stop' }}
       </button>
+      <RouterLink
+        v-else
+        class="button button--primary"
+        :to="{ name: 'discovery', query: { path: snapshot.project.primaryLocation } }"
+      >
+        Review project
+      </RouterLink>
       <RouterLink
         class="button"
         :to="{

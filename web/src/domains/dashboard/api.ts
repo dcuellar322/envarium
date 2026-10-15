@@ -22,6 +22,7 @@ export type ProjectSnapshot = {
 }
 
 export async function loadProjectSnapshot(project: Project): Promise<ProjectSnapshot> {
+  if (project.trustState !== 'trusted') return { project, warnings: [] }
   const [runtime, git, metrics, actions] = await Promise.allSettled([
     loadProjectRuntime(project.id),
     loadProjectGit(project.id),

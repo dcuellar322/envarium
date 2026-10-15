@@ -88,7 +88,7 @@ func (d *Driver) restartAfterCrash(managed *managedRun, environment []string, pr
 }
 
 func (d *Driver) waitForOrphanedGroup(managed *managedRun, exitCode int) {
-	ticker := time.NewTicker(100 * time.Millisecond)
+	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	for {
 		managed.mu.Lock()
@@ -111,8 +111,10 @@ func (d *Driver) waitForOrphanedGroup(managed *managedRun, exitCode int) {
 }
 
 func (d *Driver) trackGroup(managed *managedRun, done <-chan struct{}) {
-	ticker := time.NewTicker(50 * time.Millisecond)
+	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
+	started := time.Now()
+	handoff := true
 	for {
 		select {
 		case <-done:
@@ -121,6 +123,10 @@ func (d *Driver) trackGroup(managed *managedRun, done <-chan struct{}) {
 			return
 		case <-ticker.C:
 			d.recordGroupMembers(context.Background(), managed)
+			if handoff && time.Since(started) >= identityHandoffGrace {
+				handoff = false
+				ticker.Reset(time.Second)
+			}
 		}
 	}
 }
@@ -137,6 +143,12 @@ func (d *Driver) recordGroupMembers(ctx context.Context, managed *managedRun) {
 	}
 	for _, member := range members {
 		member.RunID = runID
+		managed.mu.Lock()
+		known := containsIdentity(managed.run.Processes, member)
+		managed.mu.Unlock()
+		if known {
+			continue
+		}
 		if d.store.RecordProcess(ctx, member) == nil {
 			managed.mu.Lock()
 			if !containsIdentity(managed.run.Processes, member) {
@@ -174,7 +186,7 @@ func (d *Driver) groupMembers(
 
 func containsIdentity(values []domain.ProcessIdentity, candidate domain.ProcessIdentity) bool {
 	for _, value := range values {
-		if value.PID == candidate.PID && value.StartedAt.Equal(candidate.StartedAt) {
+		if value.PID == candidate.PID && value.StartedAt.Equal(candidate.StartedAt) && value.Fingerprint == candidate.Fingerprint {
 			return true
 		}
 	}

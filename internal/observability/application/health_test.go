@@ -82,6 +82,38 @@ func TestWaitRequiredReobservesBetweenRetries(t *testing.T) {
 
 type alwaysUnhealthy struct{}
 
+func TestHealthDoesNotReportStoppedProjectsAsHealthyOrApplyOldFailures(t *testing.T) {
+	t.Parallel()
+	now := time.Now().UTC()
+	for _, state := range []runtime.ProjectState{runtime.StateStopped, runtime.StatePaused} {
+		result := aggregateHealth("project-1", runtime.Observation{State: state, ObservedAt: now}, []observability.HealthResult{
+			{Status: observability.StatusUnhealthy, Required: true, ObservedAt: now},
+		}, now)
+		if result.Status != observability.StatusUnknown || len(result.Results) != 0 || result.ObserverState != observability.ObserverConnected {
+			t.Fatalf("%s health = %#v", state, result)
+		}
+	}
+	for _, state := range []runtime.ProjectState{runtime.StateFailed, runtime.StateDegraded, runtime.StatePartiallyRunning} {
+		result := aggregateHealth("project-1", runtime.Observation{State: state, ObservedAt: now}, nil, now)
+		if result.Status != observability.StatusUnhealthy {
+			t.Fatalf("%s health = %#v", state, result)
+		}
+	}
+}
+
+func TestReadinessRetryStopsPromptlyOnCancellation(t *testing.T) {
+	t.Parallel()
+	service := NewHealthService(healthSourceStub{}, &healthObserverStub{}, &healthRepositoryStub{}, alwaysUnhealthy{})
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	result := service.runCheck(ctx, runtime.ProjectRuntime{}, runtime.Observation{}, runtime.HealthCheckDefinition{
+		ID: "ready", Retries: 20, IntervalSeconds: 10,
+	}, true)
+	if result.Status != observability.StatusUnknown || result.Message != "health evaluation cancelled" {
+		t.Fatalf("cancelled readiness = %#v", result)
+	}
+}
+
 func (alwaysUnhealthy) Evaluate(context.Context, runtime.ProjectRuntime, runtime.Observation, runtime.HealthCheckDefinition) observability.HealthResult {
 	return observability.HealthResult{Status: observability.StatusUnhealthy, Message: "not ready", ObservedAt: time.Now().UTC()}
 }

@@ -37,7 +37,7 @@ type engineConnector interface {
 }
 
 func (engineFactory) Connect(ctx context.Context, connection dockerConnection) (engineClient, client.PingResult, client.ServerVersionResult, error) {
-	engine, err := connection.newClient()
+	engine, err := connection.NewClient()
 	if err != nil {
 		return nil, client.PingResult{}, client.ServerVersionResult{}, fmt.Errorf("%w: %v", ErrEngineUnavailable, err)
 	}

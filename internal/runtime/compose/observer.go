@@ -50,6 +50,7 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 	if allOwned || allContainersOwned(d.managed, config.ProjectName, items) {
 		observation.Origin = domain.OriginEnvarium
 	}
+	appendUncreatedServices(&observation, project, config.Services, "stopped")
 	sort.Slice(observation.Services, func(i, j int) bool {
 		if observation.Services[i].RuntimeName == observation.Services[j].RuntimeName {
 			return observation.Services[i].Container.Name < observation.Services[j].Container.Name
@@ -65,13 +66,40 @@ func disconnectedObservation(project domain.ProjectRuntime, config normalizedCon
 	if err != nil {
 		message = err.Error()
 	}
-	return domain.Observation{
+	observation := domain.Observation{
 		ProjectID: project.ProjectID, Driver: domain.KindCompose, ProjectIdentity: config.ProjectName,
 		State: domain.StateUnknown, Origin: domain.OriginExternal, ObservedAt: time.Now().UTC(),
 		AvailableProfiles: composeProfiles(project), Engine: &domain.EngineObservation{
 			Connected: false, Context: config.Connection.ContextName,
 			ErrorCode: "DOCKER_ENGINE_UNAVAILABLE", ErrorMessage: message,
 		},
+	}
+	services := config.Services
+	if len(services) == 0 {
+		for _, service := range project.Services {
+			services = append(services, service.RuntimeName)
+		}
+	}
+	appendUncreatedServices(&observation, project, services, "unknown")
+	return observation
+}
+
+// A declaration remains controllable before its first container exists. These
+// rows have no container metadata and never count as ownership evidence.
+func appendUncreatedServices(observation *domain.Observation, project domain.ProjectRuntime, names []string, state string) {
+	observed := make(map[string]bool, len(observation.Services))
+	for _, service := range observation.Services {
+		observed[service.RuntimeName] = true
+	}
+	for _, name := range names {
+		if observed[name] || name == "" {
+			continue
+		}
+		observation.Services = append(observation.Services, domain.ServiceObservation{
+			ID: productServiceID(project, name), RuntimeName: name,
+			State: state, Health: "unknown", ObservedAt: observation.ObservedAt,
+		})
+		observed[name] = true
 	}
 }
 

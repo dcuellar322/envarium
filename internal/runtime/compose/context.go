@@ -3,33 +3,26 @@ package compose
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
+	"envarium.dev/envarium/internal/platform/dockerengine"
 	"envarium.dev/envarium/internal/runtime/domain"
 	"github.com/moby/moby/client"
 )
 
 const commandOutputLimit = 4 << 20
 
-type dockerConnection struct {
-	ContextName   string
-	Host          string
-	SkipTLSVerify bool
-	TLSPath       string
-	FromEnv       bool
-}
+type dockerConnection = dockerengine.Connection
 
 type contextResolver struct {
 	runner commandRunner
 }
 
 func (r contextResolver) Resolve(ctx context.Context, requested, workingDirectory string) (dockerConnection, error) {
-	if requested == "" && os.Getenv(client.EnvOverrideHost) != "" {
+	if requested == "" && os.Getenv(client.EnvOverrideHost) != "" && os.Getenv("DOCKER_CONTEXT") == "" {
 		return dockerConnection{FromEnv: true}, nil
 	}
 	name := requested
@@ -49,66 +42,7 @@ func (r contextResolver) Resolve(ctx context.Context, requested, workingDirector
 	if err != nil {
 		return dockerConnection{}, commandError("inspect Docker context", err, stderr.String())
 	}
-	var documents []struct {
-		Name      string `json:"Name"`
-		Endpoints map[string]struct {
-			Host          string `json:"Host"`
-			SkipTLSVerify bool   `json:"SkipTLSVerify"`
-		} `json:"Endpoints"`
-		Storage struct {
-			TLSPath string `json:"TLSPath"`
-		} `json:"Storage"`
-	}
-	if err := json.Unmarshal(stdout.Bytes(), &documents); err != nil || len(documents) != 1 {
-		return dockerConnection{}, errors.New("docker context inspect returned an invalid document")
-	}
-	endpoint, ok := documents[0].Endpoints["docker"]
-	if !ok || endpoint.Host == "" {
-		return dockerConnection{}, fmt.Errorf("docker context %q has no Docker endpoint", name)
-	}
-	return dockerConnection{
-		ContextName: documents[0].Name, Host: endpoint.Host,
-		SkipTLSVerify: endpoint.SkipTLSVerify, TLSPath: documents[0].Storage.TLSPath,
-	}, nil
-}
-
-func (c dockerConnection) cliPrefix() []string {
-	if c.ContextName == "" {
-		return nil
-	}
-	return []string{"--context", c.ContextName}
-}
-
-func (c dockerConnection) newClient() (*client.Client, error) {
-	if c.FromEnv {
-		return client.New(client.FromEnv, client.WithUserAgent("envarium/compose-runtime"))
-	}
-	if strings.HasPrefix(c.Host, "ssh://") {
-		return nil, fmt.Errorf("docker SSH context %q is not supported by the Engine SDK observer", c.ContextName)
-	}
-	options := []client.Opt{client.WithHost(c.Host), client.WithUserAgent("envarium/compose-runtime")}
-	if strings.HasPrefix(c.Host, "tcp://") {
-		if c.SkipTLSVerify {
-			return nil, fmt.Errorf("docker context %q disables TLS verification and is refused by Envarium", c.ContextName)
-		}
-		ca, cert, key := contextTLSFiles(c.TLSPath)
-		options = append(options, client.WithTLSClientConfig(ca, cert, key))
-	}
-	return client.New(options...)
-}
-
-func contextTLSFiles(root string) (string, string, string) {
-	if root == "" {
-		return "", "", ""
-	}
-	directory := filepath.Join(root, "docker")
-	files := []string{filepath.Join(directory, "ca.pem"), filepath.Join(directory, "cert.pem"), filepath.Join(directory, "key.pem")}
-	for index, path := range files {
-		if _, err := os.Stat(path); err != nil {
-			files[index] = ""
-		}
-	}
-	return files[0], files[1], files[2]
+	return dockerengine.DecodeContext(stdout.Bytes())
 }
 
 type limitedBuffer struct {
