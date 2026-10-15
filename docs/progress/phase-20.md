@@ -173,3 +173,15 @@ product decision rather than silent scope expansion.
   migration checks, Linux/Windows compilation, `govulncheck`, five browser E2E
   scenarios, 14 visual scenarios, the MCP Inspector smoke, and native desktop
   packaging.
+- Production CI created and deployed the `envarium-dcuellar` Pages project,
+  registered the new custom domain, and converted the legacy Pages project into a
+  verified path-preserving 301 redirect. The custom hostname still needs its DNS
+  CNAME because the retained Pages deployment token has no zone read/edit scope.
+  The workflow now provisions that record when authorized and skips the API call
+  once the hostname resolves.
+- The security workflow surfaced advisories published on October 14 after the
+  original quality run. Updated `sharp` from 0.35.4 to 0.35.5 and `rustls` from
+  0.23.45 to 0.23.46. The JavaScript audit has no high-severity finding, RustSec
+  reports no vulnerabilities, the site rebuild/validation passes, and Rust format,
+  Clippy, and all 11 desktop tests pass. One moderate JavaScript advisory and seven
+  allowed upstream Rust maintenance/unsoundness warnings remain non-blocking.

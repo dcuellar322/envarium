@@ -147,6 +147,11 @@ jobs:
       - name: Ensure canonical DNS record
         if: steps.deployment.outputs.configured == 'true'
         run: |
+          if getent ahosts "$ENVARIUM_DOMAIN" >/dev/null 2>&1; then
+            echo "$ENVARIUM_DOMAIN already resolves; no DNS API call is required."
+            exit 0
+          fi
+
           api="https://api.cloudflare.com/client/v4"
           auth_header="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
           zones="$(curl --fail-with-body --silent --show-error \

@@ -2991,13 +2991,19 @@ access to systems outside this checkout or an explicit product/brand decision.
 
 - [ ] Register or select the production Envarium domain and confirm trademark
       and naming clearance before launch.
-- [ ] Create the `envarium-dcuellar` Cloudflare Pages project beside the existing
-      `switchyard-dcuellar` project with `master` as its production branch. The
-      production workflow now creates it idempotently on its next successful run.
+- [x] Create the `envarium-dcuellar` Cloudflare Pages project beside the existing
+      `switchyard-dcuellar` project with `master` as its production branch, deploy
+      the generated site, and register `envarium.davidcuellar.tech` as its custom
+      domain.
 - [ ] Update DNS, registrar settings, Cloudflare Pages project/custom domains,
       redirects, certificates, canonical origin, CSP allowlists, analytics/search
-      console properties, sitemap submission, and uptime monitors.
-- [ ] Redirect every former public URL path-for-path where control is retained.
+      console properties, sitemap submission, and uptime monitors. The remaining
+      immediate blocker is a proxied CNAME for `envarium.davidcuellar.tech` to
+      `envarium-dcuellar.pages.dev`; the retained Pages token cannot read or edit
+      the DNS zone.
+- [x] Redirect every former public URL path-for-path where control is retained;
+      `switchyard.davidcuellar.tech/<path>` now returns a permanent redirect to
+      `envarium.davidcuellar.tech/<path>`.
 - [ ] Update social accounts, community links, package-directory listings,
       screenshots, videos, launch posts, press assets, and SEO title/description data.
 
@@ -7703,6 +7709,18 @@ product decision rather than silent scope expansion.
   migration checks, Linux/Windows compilation, `govulncheck`, five browser E2E
   scenarios, 14 visual scenarios, the MCP Inspector smoke, and native desktop
   packaging.
+- Production CI created and deployed the `envarium-dcuellar` Pages project,
+  registered the new custom domain, and converted the legacy Pages project into a
+  verified path-preserving 301 redirect. The custom hostname still needs its DNS
+  CNAME because the retained Pages deployment token has no zone read/edit scope.
+  The workflow now provisions that record when authorized and skips the API call
+  once the hostname resolves.
+- The security workflow surfaced advisories published on October 14 after the
+  original quality run. Updated `sharp` from 0.35.4 to 0.35.5 and `rustls` from
+  0.23.45 to 0.23.46. The JavaScript audit has no high-severity finding, RustSec
+  reports no vulnerabilities, the site rebuild/validation passes, and Rust format,
+  Clippy, and all 11 desktop tests pass. One moderate JavaScript advisory and seven
+  allowed upstream Rust maintenance/unsoundness warnings remain non-blocking.
 
 ---
 

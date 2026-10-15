@@ -5,7 +5,7 @@ packages:
 overrides:
   fast-uri: 3.1.8
   js-yaml: 4.3.2
-  sharp: 0.35.4
+  sharp: 0.35.5
   http-cache-semantics: 4.3.0
   source-map-js: 1.2.2
   'smol-toml@<1.8.1': 1.9.0
@@ -19,6 +19,7 @@ minimumReleaseAgeStrict: true
 # Exact security fixes; retain the age gate for all other versions.
 minimumReleaseAgeExclude:
   - http-cache-semantics@4.3.0 # GHSA-ch52-4w7c-c8xp
+  - sharp@0.35.5 # GHSA-wq5f-xc86-pv6w
   - source-map-js@1.2.2 # GHSA-68fv-2mgg-jv7q
 
 update:

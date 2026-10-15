@@ -53,13 +53,19 @@ access to systems outside this checkout or an explicit product/brand decision.
 
 - [ ] Register or select the production Envarium domain and confirm trademark
       and naming clearance before launch.
-- [ ] Create the `envarium-dcuellar` Cloudflare Pages project beside the existing
-      `switchyard-dcuellar` project with `master` as its production branch. The
-      production workflow now creates it idempotently on its next successful run.
+- [x] Create the `envarium-dcuellar` Cloudflare Pages project beside the existing
+      `switchyard-dcuellar` project with `master` as its production branch, deploy
+      the generated site, and register `envarium.davidcuellar.tech` as its custom
+      domain.
 - [ ] Update DNS, registrar settings, Cloudflare Pages project/custom domains,
       redirects, certificates, canonical origin, CSP allowlists, analytics/search
-      console properties, sitemap submission, and uptime monitors.
-- [ ] Redirect every former public URL path-for-path where control is retained.
+      console properties, sitemap submission, and uptime monitors. The remaining
+      immediate blocker is a proxied CNAME for `envarium.davidcuellar.tech` to
+      `envarium-dcuellar.pages.dev`; the retained Pages token cannot read or edit
+      the DNS zone.
+- [x] Redirect every former public URL path-for-path where control is retained;
+      `switchyard.davidcuellar.tech/<path>` now returns a permanent redirect to
+      `envarium.davidcuellar.tech/<path>`.
 - [ ] Update social accounts, community links, package-directory listings,
       screenshots, videos, launch posts, press assets, and SEO title/description data.
 
