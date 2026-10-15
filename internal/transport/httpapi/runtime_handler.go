@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
-	operations "switchyard.dev/switchyard/internal/operations/application"
-	"switchyard.dev/switchyard/internal/runtime/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	observabilityDomain "envarium.dev/envarium/internal/observability/domain"
+	operations "envarium.dev/envarium/internal/operations/application"
+	"envarium.dev/envarium/internal/runtime/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) GetProjectRuntime(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
@@ -85,8 +85,14 @@ func (h *handler) CreateProjectOperation(
 	removeVolumes := request.RemoveVolumes != nil && *request.RemoveVolumes
 	services := runtimeServices(request)
 	profiles := runtimeProfiles(request)
-	if _, err := h.runtime.PlanSelection(r.Context(), projectID, action, removeVolumes, services, profiles); err != nil {
+	plan, err := h.runtime.PlanSelection(r.Context(), projectID, action, removeVolumes, services, profiles)
+	if err != nil {
 		writeApplicationError(w, r, err)
+		return
+	}
+	confirmRisk := request.ConfirmRisk != nil && *request.ConfirmRisk
+	if plan.Risk == domain.RiskDestructive && !confirmRisk {
+		writeProblem(w, r, http.StatusConflict, "RUNTIME_CONFIRMATION_REQUIRED", "Lifecycle confirmation required", "Destructive runtime actions require an explicit preview and confirmation.")
 		return
 	}
 	input, _ := json.Marshal(map[string]any{"action": action, "removeVolumes": removeVolumes, "services": services, "profiles": profiles})
@@ -173,7 +179,7 @@ func (h *handler) ExportProjectLogs(
 	} else {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	}
-	w.Header().Set("Content-Disposition", `attachment; filename="switchyard-logs.`+format+`"`)
+	w.Header().Set("Content-Disposition", `attachment; filename="envarium-logs.`+format+`"`)
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(output.Bytes())
 }

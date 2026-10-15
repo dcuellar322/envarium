@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sync"
 
-	"switchyard.dev/switchyard/internal/foundation/events"
-	"switchyard.dev/switchyard/internal/platform/sqlite/generated"
+	"envarium.dev/envarium/internal/foundation/events"
+	"envarium.dev/envarium/internal/platform/sqlite/generated"
 )
 
 // Journal is a durable SQLite event journal with in-process fan-out.

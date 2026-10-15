@@ -3,7 +3,7 @@ package application
 import (
 	"fmt"
 
-	"switchyard.dev/switchyard/internal/environments/domain"
+	"envarium.dev/envarium/internal/environments/domain"
 )
 
 func checkRuntimeConflicts(candidate domain.Environment, all []domain.Environment) error {

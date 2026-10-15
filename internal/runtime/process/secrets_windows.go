@@ -12,7 +12,7 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 const credentialTypeGeneric = 1

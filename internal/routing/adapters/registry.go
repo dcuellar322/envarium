@@ -3,8 +3,8 @@ package adapters
 import (
 	"context"
 
-	"switchyard.dev/switchyard/internal/routing/application"
-	"switchyard.dev/switchyard/internal/routing/domain"
+	"envarium.dev/envarium/internal/routing/application"
+	"envarium.dev/envarium/internal/routing/domain"
 )
 
 // Registry binds the routing application service to its environment source so

@@ -21,7 +21,7 @@ export function validateReleaseFileSet({
     const identity = classifyReleaseAsset(name)
     return identity ? [{ name, ...identity }] : []
   })
-  if (artifacts.length === 0) throw new Error('Release files contain no recognized Switchyard artifacts')
+  if (artifacts.length === 0) throw new Error('Release files contain no recognized Envarium artifacts')
 
   if (channel === 'stable') {
     const missing = missingStableArtifacts(artifacts)

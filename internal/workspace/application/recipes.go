@@ -6,7 +6,7 @@ import (
 	"slices"
 	"sort"
 
-	"switchyard.dev/switchyard/internal/workspace/domain"
+	"envarium.dev/envarium/internal/workspace/domain"
 )
 
 // RecipeRunner launches one validated, bounded workspace recipe.

@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/events"
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	"switchyard.dev/switchyard/internal/operations/domain"
+	"envarium.dev/envarium/internal/foundation/events"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/operations/domain"
 )
 
 // SubmitRequest describes a durable mutation before domain-specific execution.

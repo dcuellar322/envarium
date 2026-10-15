@@ -1,11 +1,11 @@
 name: Bug report
-description: Report reproducible behavior that differs from Switchyard's contracts
+description: Report reproducible behavior that differs from Envarium's contracts
 title: "bug: "
 labels: [bug, needs-triage]
 body:
   - type: markdown
     attributes:
-      value: Thanks for helping improve Switchyard. Remove secrets and private source from all output.
+      value: Thanks for helping improve Envarium. Remove secrets and private source from all output.
   - type: textarea
     id: outcome
     attributes:
@@ -23,7 +23,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Switchyard version or commit
+      label: Envarium version or commit
     validations:
       required: true
   - type: dropdown

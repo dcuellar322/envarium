@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	pluginsApplication "switchyard.dev/switchyard/internal/plugins/application"
-	"switchyard.dev/switchyard/internal/plugins/domain"
-	pluginsdk "switchyard.dev/switchyard/sdk/plugin"
+	pluginsApplication "envarium.dev/envarium/internal/plugins/application"
+	"envarium.dev/envarium/internal/plugins/domain"
+	pluginsdk "envarium.dev/envarium/sdk/plugin"
 )
 
 type processFixtureHandler struct{}
@@ -29,7 +29,7 @@ func (processFixtureHandler) Operate(pluginsdk.OperateRequest) (pluginsdk.Operat
 }
 
 func TestPluginProcessHelper(_ *testing.T) {
-	if os.Getenv("SWITCHYARD_PLUGIN_PROTOCOL") != pluginsdk.ProtocolVersion {
+	if os.Getenv("ENVARIUM_PLUGIN_PROTOCOL") != pluginsdk.ProtocolVersion {
 		return
 	}
 	manifest := pluginsdk.Manifest{
@@ -42,7 +42,7 @@ func TestPluginProcessHelper(_ *testing.T) {
 }
 
 func TestCrashingPluginProcessHelper(_ *testing.T) {
-	if os.Getenv("SWITCHYARD_PLUGIN_PROTOCOL") == pluginsdk.ProtocolVersion {
+	if os.Getenv("ENVARIUM_PLUGIN_PROTOCOL") == pluginsdk.ProtocolVersion {
 		_, _ = os.Stderr.WriteString("token=top-secret\n")
 		os.Exit(17)
 	}
@@ -111,7 +111,7 @@ func processFixturePlugin(t *testing.T) domain.Plugin {
 		t.Fatal(err)
 	}
 	manifestPath := filepath.Join(directory, "plugin.json")
-	manifest := []byte(`{"schemaVersion":"switchyard.plugin/v1"}`)
+	manifest := []byte(`{"schemaVersion":"envarium.plugin/v1"}`)
 	if err := os.WriteFile(manifestPath, manifest, 0o600); err != nil {
 		t.Fatal(err)
 	}

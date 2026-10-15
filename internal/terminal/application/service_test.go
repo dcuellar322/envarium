@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/terminal/domain"
+	"envarium.dev/envarium/internal/terminal/domain"
 )
 
 func TestServiceOwnsProcessBeyondCreateRequestAndStreamsBoundedOutput(t *testing.T) {

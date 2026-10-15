@@ -14,7 +14,7 @@ export const features: Feature[] = [
     title: 'Project command center',
     summary: 'See the repository, services, health, Git, endpoints, actions, and resources as one project.',
     description:
-      'Switchyard keeps the developer’s project intent above container and process details. Every screen and automation surface resolves back to one reviewed project definition.',
+      'Envarium keeps the developer’s project intent above container and process details. Every screen and automation surface resolves back to one reviewed project definition.',
     proof: ['Evidence-backed onboarding', 'Trusted portable manifests', 'Honest external-runtime state'],
     docsHref: '/docs/architecture/project-onboarding/',
     icon: '◇',
@@ -44,7 +44,7 @@ export const features: Feature[] = [
     title: 'Ports, Git, and trusted actions',
     summary: 'Catch collisions before startup and run the project actions you have already reviewed.',
     description:
-      'Declarations, reservations, and live bindings stay distinct, with source evidence for every conflict. Git and action adapters expose practical context without turning Switchyard into a broad shell or Git GUI.',
+      'Declarations, reservations, and live bindings stay distinct, with source evidence for every conflict. Git and action adapters expose practical context without turning Envarium into a broad shell or Git GUI.',
     proof: ['Stopped-project reservations', 'Git porcelain v2', 'Risk-classified actions'],
     docsHref: '/docs/architecture/developer-workflows/',
     icon: '⇄',

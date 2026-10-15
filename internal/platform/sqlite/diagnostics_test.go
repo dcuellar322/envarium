@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/diagnostics/domain"
+	"envarium.dev/envarium/internal/diagnostics/domain"
 )
 
 func TestDiagnosticRepositoryRoundTripAndRetention(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := Open(ctx, t.TempDir()+"/switchyard.db")
+	database, err := Open(ctx, t.TempDir()+"/envarium.db")
 	if err != nil {
 		t.Fatal(err)
 	}

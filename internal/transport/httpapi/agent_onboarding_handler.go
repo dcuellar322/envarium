@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
-	operations "switchyard.dev/switchyard/internal/operations/application"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	agents "envarium.dev/envarium/internal/agents/application"
+	operations "envarium.dev/envarium/internal/operations/application"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) ListAIProposalProviders(w http.ResponseWriter, r *http.Request) {

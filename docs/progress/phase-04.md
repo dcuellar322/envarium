@@ -1,6 +1,6 @@
 ---
 title: "Phase 4: Complete CLI contract"
-description: Implementation evidence for Switchyard product phase 4.
+description: Implementation evidence for Envarium product phase 4.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -37,7 +37,7 @@ application services and generated clients.
 
 ## Exit criteria
 
-- [x] Every query command supports the `switchyard.cli/v1` JSON envelope.
+- [x] Every query command supports the `envarium.cli/v1` JSON envelope.
 - [x] List output supports one JSON object per item with `--jsonl`.
 - [x] No command prompts in automation mode; trust and removal require explicit
   `--yes` instead.

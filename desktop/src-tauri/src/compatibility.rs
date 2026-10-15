@@ -13,7 +13,7 @@ pub fn verify(sidecar: &BuildInfo, daemon: &SystemInfo) -> Result<(), String> {
 
     if desktop != sidecar_version {
         return Err(format!(
-            "Bundled sidecar {} is incompatible with desktop {}. Reinstall Switchyard.",
+            "Bundled sidecar {} is incompatible with desktop {}. Reinstall Envarium.",
             sidecar.version, desktop
         ));
     }

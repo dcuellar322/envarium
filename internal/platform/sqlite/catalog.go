@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"time"
 
-	application "switchyard.dev/switchyard/internal/catalog/application"
-	catalog "switchyard.dev/switchyard/internal/catalog/domain"
-	discovery "switchyard.dev/switchyard/internal/discovery/domain"
-	manifest "switchyard.dev/switchyard/internal/manifest/domain"
+	application "envarium.dev/envarium/internal/catalog/application"
+	catalog "envarium.dev/envarium/internal/catalog/domain"
+	discovery "envarium.dev/envarium/internal/discovery/domain"
+	manifest "envarium.dev/envarium/internal/manifest/domain"
 )
 
 // CatalogRepository persists project onboarding aggregates transactionally.

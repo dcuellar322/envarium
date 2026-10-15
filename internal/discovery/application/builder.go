@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/discovery/domain"
-	manifest "switchyard.dev/switchyard/internal/manifest/domain"
+	"envarium.dev/envarium/internal/discovery/domain"
+	manifest "envarium.dev/envarium/internal/manifest/domain"
 )
 
 var nonSlug = regexp.MustCompile(`[^a-z0-9]+`)
@@ -115,7 +115,7 @@ func frontendServiceRank(service string) int {
 
 func explicitManifest(items []domain.Evidence) (manifest.Manifest, bool) {
 	for _, item := range items {
-		if item.Kind != "switchyard.manifest" {
+		if item.Kind != "envarium.manifest" {
 			continue
 		}
 		var candidate manifest.Manifest

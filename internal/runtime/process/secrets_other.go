@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func resolveKeychain(context.Context, domain.SecretReference) (string, error) {

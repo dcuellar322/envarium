@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"time"
 
-	"switchyard.dev/switchyard/internal/telemetry/domain"
+	"envarium.dev/envarium/internal/telemetry/domain"
 )
 
 // HTTPSender delivers bounded JSON over TLS 1.3 with strict timeouts.
@@ -47,7 +47,7 @@ func (s *HTTPSender) Send(ctx context.Context, endpoint string, payload domain.P
 		return err
 	}
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("User-Agent", "Switchyard-anonymous-metrics")
+	request.Header.Set("User-Agent", "Envarium-anonymous-metrics")
 	response, err := s.client.Do(request)
 	if err != nil {
 		return err

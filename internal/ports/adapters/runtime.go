@@ -6,9 +6,9 @@ import (
 	"errors"
 	"time"
 
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	"switchyard.dev/switchyard/internal/ports/domain"
-	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	"envarium.dev/envarium/internal/ports/domain"
+	runtimeDomain "envarium.dev/envarium/internal/runtime/domain"
 )
 
 type projectLister interface {

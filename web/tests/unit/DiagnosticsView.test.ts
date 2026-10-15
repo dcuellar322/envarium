@@ -26,7 +26,7 @@ import DiagnosticsView from '../../src/domains/diagnostics/views/DiagnosticsView
 
 const diagnosis = {
   id: 'diagnosis-1',
-  version: 'switchyard.dev/diagnosis/v1alpha1',
+  version: 'envarium.dev/diagnosis/v1alpha1',
   projectId: 'alpha',
   bundleSha256: 'a'.repeat(64),
   bundleBytes: 2480,

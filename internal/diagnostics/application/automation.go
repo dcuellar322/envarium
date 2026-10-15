@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/diagnostics/domain"
-	"switchyard.dev/switchyard/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/diagnostics/domain"
+	"envarium.dev/envarium/internal/foundation/identifier"
 )
 
 var (

@@ -1,6 +1,6 @@
 ---
 title: "Phase 13: Workspaces, dependencies, worktrees, and local routing"
-description: Implementation evidence for Switchyard product phase 13.
+description: Implementation evidence for Envarium product phase 13.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -124,4 +124,4 @@ survived restart.
 - Routing selects a validated HTTP target from exact active environment facts;
   non-HTTP bound services remain visible but are not proxyable.
 - Worktrees are observed and registered but never created, removed, or checked
-  out by Switchyard. Repository mutation remains outside this phase.
+  out by Envarium. Repository mutation remains outside this phase.

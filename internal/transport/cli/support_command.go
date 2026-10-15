@@ -9,9 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"switchyard.dev/switchyard/internal/bootstrap"
-	supportApplication "switchyard.dev/switchyard/internal/support/application"
-	"switchyard.dev/switchyard/internal/support/domain"
+	"envarium.dev/envarium/internal/bootstrap"
+	supportApplication "envarium.dev/envarium/internal/support/application"
+	"envarium.dev/envarium/internal/support/domain"
 )
 
 func newDoctorCommand(options *rootOptions) *cobra.Command {
@@ -89,7 +89,7 @@ func newDoctorCommand(options *rootOptions) *cobra.Command {
 }
 
 func newDebugCommand(options *rootOptions) *cobra.Command {
-	command := &cobra.Command{Use: "debug", Short: "Inspect redacted Switchyard control-plane diagnostics"}
+	command := &cobra.Command{Use: "debug", Short: "Inspect redacted Envarium control-plane diagnostics"}
 	command.AddCommand(newDebugLogsCommand(options))
 	return command
 }
@@ -156,5 +156,5 @@ func writeBundlePreview(writer io.Writer, preview domain.Preview) error {
 }
 
 func defaultBundlePath(at time.Time) string {
-	return filepath.Join(".", fmt.Sprintf("switchyard-support-%s.zip", at.UTC().Format("20060102T150405Z")))
+	return filepath.Join(".", fmt.Sprintf("envarium-support-%s.zip", at.UTC().Format("20060102T150405Z")))
 }

@@ -2,7 +2,7 @@ name: Public site deploy
 
 on:
   pull_request:
-    paths: ["site/**", "docs/**", "web/tests/visual/**"]
+    paths: ['site/**', 'docs/**', 'web/tests/visual/**']
   push:
     branches: [master]
   release:
@@ -92,6 +92,8 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_PROJECT_NAME: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
+      ENVARIUM_DOMAIN: envarium.davidcuellar.tech
+      LEGACY_CLOUDFLARE_PROJECT_NAME: switchyard-dcuellar
     steps:
       - name: Check deployment configuration
         id: deployment
@@ -118,7 +120,35 @@ jobs:
         with:
           name: public-site-deploy-${{ github.sha }}
           path: site/dist
+      - name: Ensure Envarium Pages project exists
+        if: steps.deployment.outputs.configured == 'true'
+        run: |
+          projects="$(pnpm --dir site exec wrangler pages project list --json)"
+          if ! jq -e --arg project "$CLOUDFLARE_PROJECT_NAME" 'any(.[]; .["Project Name"] == $project)' <<< "$projects" >/dev/null; then
+            pnpm --dir site exec wrangler pages project create "$CLOUDFLARE_PROJECT_NAME" --production-branch master
+          fi
       - if: steps.deployment.outputs.configured == 'true'
         run: pnpm --dir site exec wrangler pages deploy dist --project-name "$CLOUDFLARE_PROJECT_NAME" --branch master --commit-dirty=true
+      - name: Ensure canonical custom domain
+        if: steps.deployment.outputs.configured == 'true'
+        run: |
+          endpoint="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CLOUDFLARE_PROJECT_NAME/domains"
+          domains="$(curl --fail-with-body --silent --show-error "$endpoint" \
+            --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            --header 'Content-Type: application/json')"
+          if ! jq -e --arg domain "$ENVARIUM_DOMAIN" 'any(.result[]?; .name == $domain)' <<< "$domains" >/dev/null; then
+            response="$(curl --fail-with-body --silent --show-error --request POST "$endpoint" \
+              --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              --header 'Content-Type: application/json' \
+              --data "$(jq -nc --arg name "$ENVARIUM_DOMAIN" '{name: $name}')")"
+            jq -e '.success == true' <<< "$response" >/dev/null
+          fi
+      - name: Redirect legacy Switchyard hostname
+        if: steps.deployment.outputs.configured == 'true'
+        run: |
+          legacy_directory="$RUNNER_TEMP/envarium-legacy-redirect"
+          mkdir -p "$legacy_directory"
+          printf '/* https://%s/:splat 301\n' "$ENVARIUM_DOMAIN" > "$legacy_directory/_redirects"
+          pnpm --dir site exec wrangler pages deploy "$legacy_directory" --project-name "$LEGACY_CLOUDFLARE_PROJECT_NAME" --branch master --commit-dirty=true
       - if: steps.deployment.outputs.configured == 'true'
         run: pnpm --dir site smoke

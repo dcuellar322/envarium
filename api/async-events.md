@@ -1,4 +1,4 @@
-# Switchyard asynchronous event contract
+# Envarium asynchronous event contract
 
 The authenticated event stream is available at `/ws/v1/events`. Browser clients
 send the same-origin session cookie and an exact same-origin `Origin` header.

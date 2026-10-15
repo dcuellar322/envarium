@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"switchyard.dev/switchyard/internal/operations/domain"
+	"envarium.dev/envarium/internal/operations/domain"
 )
 
 // PartialSuccessError tells the operation kernel that a declared subset of

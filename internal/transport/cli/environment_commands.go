@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/foundation/identifier"
 )
 
 func newEnvironmentCommand(options *rootOptions) *cobra.Command {

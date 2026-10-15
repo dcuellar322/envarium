@@ -11,13 +11,13 @@ sidebar:
 ---
 
 This tutorial assumes `docker version` and `docker compose version` work in the
-same user context as Switchyard.
+same user context as Envarium.
 
 ## 1. Add the repository
 
 ```bash
-switchyard project add /absolute/path/to/compose-project
-switchyard project list
+envarium project add /absolute/path/to/compose-project
+envarium project list
 ```
 
 Open the proposal in the browser. Confirm the Compose files, project identity,
@@ -27,7 +27,7 @@ Discovery reads configuration but does not run Compose.
 ## 2. Preview the start plan
 
 ```bash
-switchyard plan start <project>
+envarium plan start <project>
 ```
 
 The plan should name the installed `docker compose` lifecycle, selected files,
@@ -36,9 +36,9 @@ working directory, and affected services. No container starts during preview.
 ## 3. Start and observe
 
 ```bash
-switchyard start <project>
-switchyard status <project>
-switchyard logs <project> --tail 50
+envarium start <project>
+envarium status <project>
+envarium logs <project> --tail 50
 ```
 
 Success is an operation in a terminal state, declared services mapped through
@@ -47,7 +47,7 @@ container with a failed health check is **degraded**, not falsely stopped.
 
 ## What happened?
 
-Switchyard executed lifecycle through the installed Compose CLI and observed
+Envarium executed lifecycle through the installed Compose CLI and observed
 containers, events, logs, published ports, and metrics through the Docker API.
 Stopping preserves containers and data; teardown remains a separately
 previewed destructive operation.

@@ -12,8 +12,8 @@ import (
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
 
-	"switchyard.dev/switchyard/internal/foundation/events"
-	"switchyard.dev/switchyard/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/foundation/events"
+	"envarium.dev/envarium/internal/foundation/identifier"
 )
 
 const replayLimit = 500

@@ -12,9 +12,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	teamApplication "switchyard.dev/switchyard/internal/team/application"
-	teamDomain "switchyard.dev/switchyard/internal/team/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	teamApplication "envarium.dev/envarium/internal/team/application"
+	teamDomain "envarium.dev/envarium/internal/team/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func newTeamCommand(options *rootOptions) *cobra.Command {

@@ -8,13 +8,13 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
-	"switchyard.dev/switchyard/internal/transport/httpclient"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/httpclient"
 )
 
 func newMachineCommand(options *rootOptions) *cobra.Command {
-	command := &cobra.Command{Use: "machine", Aliases: []string{"machines", "fleet"}, Short: "Manage optional authenticated remote Switchyard machines"}
+	command := &cobra.Command{Use: "machine", Aliases: []string{"machines", "fleet"}, Short: "Manage optional authenticated remote Envarium machines"}
 	command.AddCommand(
 		newMachineListCommand(options), newMachineAddCommand(options), newMachineShowCommand(options),
 		newMachineProbeCommand(options), newMachineAccessCommand(options), newMachineDisableCommand(options),
@@ -35,7 +35,7 @@ func newMachineListCommand(options *rootOptions) *cobra.Command {
 		}
 		return writeResult(options, "machine.list", items, func(writer io.Writer) error {
 			if len(items) == 0 {
-				_, err := fmt.Fprintln(writer, "No remote machines configured. Local-only Switchyard remains fully available.")
+				_, err := fmt.Fprintln(writer, "No remote machines configured. Local-only Envarium remains fully available.")
 				return err
 			}
 			rows := make([][]string, 0, len(items))
@@ -215,7 +215,7 @@ func newMachineSnapshotCommand(options *rootOptions) *cobra.Command {
 func newMachineRunCommand(options *rootOptions) *cobra.Command {
 	environmentID, requestID := "", ""
 	yes := false
-	command := &cobra.Command{Use: "run <machine> <project> <start|stop|restart|rebuild>", Short: "Submit one confirmed typed remote lifecycle operation", Args: cobra.ExactArgs(3), RunE: func(command *cobra.Command, args []string) error {
+	command := &cobra.Command{Use: "run <machine> <project> <start|stop|restart|deploy|kill|rebuild>", Short: "Submit one confirmed typed remote lifecycle operation", Args: cobra.ExactArgs(3), RunE: func(command *cobra.Command, args []string) error {
 		if !yes {
 			return usageError("REMOTE_CONFIRMATION_REQUIRED", "remote operations require --yes after reviewing the machine, project, and action")
 		}

@@ -27,8 +27,8 @@ const emit = defineEmits<{
       <span class="boundary">No repository access · no tools · no auto-approval</span>
     </div>
     <p class="explanation">
-      Switchyard sends only the redacted evidence shown below. Deterministic facts keep priority,
-      and every provider change must cite evidence.
+      Envarium sends only the redacted evidence shown below. Deterministic facts keep priority, and
+      every provider change must cite evidence.
     </p>
     <label for="ai-provider">Proposal provider</label>
     <select

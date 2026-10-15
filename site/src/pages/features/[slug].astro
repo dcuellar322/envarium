@@ -19,11 +19,11 @@ const { feature } = Astro.props as Props
 const media = feature.slug === 'projects' ? dashboard : feature.slug === 'ports-git-actions' ? ports : feature.slug === 'workspaces-worktrees' ? workspace : feature.slug === 'terminals' || feature.slug === 'agents-mcp' ? terminal : feature.slug === 'plugins' ? plugins : feature.slug === 'security-local-first' ? diagnostic : project
 ---
 
-<ContentPageLayout title={feature.title} eyebrow="Switchyard capability" description={feature.description}>
-  <Fragment slot="actions"><div class="hero-actions"><a class="button primary" href="/download/">Download Switchyard</a><a class="button" href={feature.docsHref}>Read the architecture</a></div></Fragment>
-  <figure class="product-shot panel"><Image src={media} alt={`Switchyard product view demonstrating ${feature.title.toLowerCase()}.`} widths={[640, 960, 1440]} sizes="(max-width: 900px) 94vw, 75vw" /><figcaption>Production product UI captured from a deterministic, sanitized fixture.</figcaption></figure>
+<ContentPageLayout title={feature.title} eyebrow="Envarium capability" description={feature.description}>
+  <Fragment slot="actions"><div class="hero-actions"><a class="button primary" href="/download/">Download Envarium</a><a class="button" href={feature.docsHref}>Read the architecture</a></div></Fragment>
+  <figure class="product-shot panel"><Image src={media} alt={`Envarium product view demonstrating ${feature.title.toLowerCase()}.`} widths={[640, 960, 1440]} sizes="(max-width: 900px) 94vw, 75vw" /><figcaption>Production product UI captured from a deterministic, sanitized fixture.</figcaption></figure>
   <section class="proof"><div><p class="eyebrow">What is implemented</p><h2>Operational proof, not a feature label.</h2></div><ul>{feature.proof.map((item) => <li><span aria-hidden="true">✓</span>{item}</li>)}</ul></section>
-  <section class="boundary panel"><div><p class="eyebrow">Product boundary</p><h2>Complements the toolchain.</h2></div><p>Switchyard centralizes project intent and safe local operation. It does not replace Docker, Git, terminals, editors, or coding agents, and it does not introduce a cloud control plane.</p></section>
+  <section class="boundary panel"><div><p class="eyebrow">Product boundary</p><h2>Complements the toolchain.</h2></div><p>Envarium centralizes project intent and safe local operation. It does not replace Docker, Git, terminals, editors, or coding agents, and it does not introduce a cloud control plane.</p></section>
 </ContentPageLayout>
 
 <style>

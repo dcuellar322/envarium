@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/team/domain"
+	"envarium.dev/envarium/internal/team/domain"
 )
 
 // Registry returns signed plugin metadata allowed by effective policy.

@@ -67,5 +67,5 @@ test('offers trusted Compose profiles when starting a stopped project', async ()
   await fireEvent.click(view.getByRole('checkbox', { name: 'Marketing' }))
   await fireEvent.click(view.getByRole('button', { name: 'Start services' }))
 
-  expect(view.emitted('lifecycle')).toEqual([['start', ['marketing']]])
+  expect(view.emitted('lifecycle')).toEqual([['start', { profiles: ['marketing'] }]])
 })

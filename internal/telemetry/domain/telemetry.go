@@ -4,7 +4,7 @@ package domain
 import "time"
 
 // SchemaVersion identifies the complete anonymous metrics payload contract.
-const SchemaVersion = "switchyard.telemetry/v1"
+const SchemaVersion = "envarium.telemetry/v1"
 
 // Settings records explicit local consent and the user-supplied destination.
 type Settings struct {

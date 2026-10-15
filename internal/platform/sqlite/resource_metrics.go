@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	observability "switchyard.dev/switchyard/internal/observability/domain"
+	observability "envarium.dev/envarium/internal/observability/domain"
 )
 
 // WriteMetricPoints atomically appends idempotent project and service aggregates.
@@ -186,7 +186,7 @@ func scanMetricRows(rows rowsScanner) ([]observability.MetricPoint, error) {
 	return result, rows.Err()
 }
 
-// ResourceFootprint reports only Switchyard-owned SQLite/log/metric storage.
+// ResourceFootprint reports only Envarium-owned SQLite/log/metric storage.
 func (d *Database) ResourceFootprint(ctx context.Context) (observability.Footprint, error) {
 	result := observability.Footprint{Classification: "exclusive"}
 	result.DatabaseBytes = fileSize(d.path)

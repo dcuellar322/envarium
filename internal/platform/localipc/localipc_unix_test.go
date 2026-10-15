@@ -30,7 +30,7 @@ func TestUnixListenerAndHTTPClient(t *testing.T) {
 		_ = server.Close()
 		<-done
 	})
-	response, err := HTTPClient(address).Get("http://switchyard.local/status")
+	response, err := HTTPClient(address).Get("http://envarium.local/status")
 	if err != nil {
 		t.Fatalf("Get() error = %v", err)
 	}

@@ -12,7 +12,7 @@ const stable = (releaseManifest as ReleaseManifest).channels.stable
 
 async function checked(channel: DistributionChannel, url: string, platform: 'macos' | 'windows'): Promise<DistributionChannel> {
   if (!stable) return { ...channel, available: false, verifiedVersion: undefined, lastChecked: undefined }
-  const response = await fetch(url, { headers: { 'User-Agent': 'switchyard-distribution-monitor' } })
+  const response = await fetch(url, { headers: { 'User-Agent': 'envarium-distribution-monitor' } })
   const available = response.ok && packageRecordMatches(await response.text(), stable, platform)
   const same = channel.available === available && channel.verifiedVersion === (available ? stable.version : undefined)
   return {
@@ -23,10 +23,10 @@ async function checked(channel: DistributionChannel, url: string, platform: 'mac
   }
 }
 
-const homebrewUrl = 'https://raw.githubusercontent.com/dcuellar322/homebrew-tap/master/Casks/switchyard.rb'
-const wingetUrl = stable ? `https://raw.githubusercontent.com/microsoft/winget-pkgs/master/manifests/d/DavidCuellar/Switchyard/${stable.version}/DavidCuellar.Switchyard.installer.yaml` : ''
+const homebrewUrl = 'https://raw.githubusercontent.com/dcuellar322/homebrew-tap/master/Casks/envarium.rb'
+const wingetUrl = stable ? `https://raw.githubusercontent.com/microsoft/winget-pkgs/master/manifests/d/DavidCuellar/Envarium/${stable.version}/DavidCuellar.Envarium.installer.yaml` : ''
 const next: DistributionStatus = {
-  schemaVersion: 'switchyard.distribution-status/v1',
+  schemaVersion: 'envarium.distribution-status/v1',
   homebrew: await checked(current.homebrew, homebrewUrl, 'macos'),
   winget: await checked(current.winget, wingetUrl, 'windows'),
 }

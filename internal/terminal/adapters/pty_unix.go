@@ -14,8 +14,8 @@ import (
 
 	"github.com/creack/pty"
 
-	"switchyard.dev/switchyard/internal/terminal/application"
-	"switchyard.dev/switchyard/internal/terminal/domain"
+	"envarium.dev/envarium/internal/terminal/application"
+	"envarium.dev/envarium/internal/terminal/domain"
 )
 
 // UnixPTY starts owned process groups attached to a real Unix pseudo-terminal.

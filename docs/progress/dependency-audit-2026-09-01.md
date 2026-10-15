@@ -73,7 +73,7 @@ After the upgrade:
 ## Deliberate deferrals
 
 - TypeScript `7.0.2` is not adopted in this slice. The newest eligible
-  typescript-eslint release declares TypeScript `<6.1.0`, while Switchyard's
+  typescript-eslint release declares TypeScript `<6.1.0`, while Envarium's
   Astro/Vue/OpenAPI toolchain is currently validated on TypeScript `6.0.3`.
   This is an ecosystem migration and should be handled separately once the
   compiler-dependent tools publish compatible releases.
@@ -118,7 +118,7 @@ After the upgrade:
 
 ## Compatibility note
 
-GolangCI-Lint `2.13.0` adds a cookie-security diagnostic. Switchyard's browser
+GolangCI-Lint `2.13.0` adds a cookie-security diagnostic. Envarium's browser
 API is intentionally bound to loopback HTTP by ADR-0013, so setting the cookie's
 `Secure` attribute would prevent it from being returned on IP-literal origins.
 The existing `HttpOnly` and strict `SameSite` protections remain tested; the

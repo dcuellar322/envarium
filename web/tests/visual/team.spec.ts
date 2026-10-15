@@ -16,7 +16,7 @@ test('signed team configuration keeps trust, policy, and registry provenance vis
       json: [
         {
           id: publisherId,
-          name: 'Switchyard maintainers',
+          name: 'Envarium maintainers',
           publicKey: 'cHVibGlj',
           trustedAt: observedAt,
         },
@@ -28,7 +28,7 @@ test('signed team configuration keeps trust, policy, and registry provenance vis
       contentType: 'application/json',
       json: [
         {
-          schemaVersion: 'switchyard.bundle/v1',
+          schemaVersion: 'envarium.bundle/v1',
           kind: 'policy-pack',
           metadata: {
             id: 'policy.official',
@@ -110,7 +110,7 @@ test('telemetry consent displays the exact bounded payload and opt-out controls'
           { name: 'remote.operation', value: 2 },
         ],
         preview: {
-          schemaVersion: 'switchyard.telemetry/v1',
+          schemaVersion: 'envarium.telemetry/v1',
           installationId: 'anonymous-preview',
           version: '1.0.0',
           os: 'darwin',

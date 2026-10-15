@@ -6,16 +6,16 @@ import (
 	"testing"
 	"time"
 
-	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
+	catalogApplication "envarium.dev/envarium/internal/catalog/application"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	discoveryDomain "envarium.dev/envarium/internal/discovery/domain"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
 )
 
 func TestCatalogProposalPersistsAgentOrigin(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

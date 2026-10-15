@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestCommandBuilderDistinguishesStopAndTeardown(t *testing.T) {
@@ -56,6 +56,51 @@ func TestCommandBuilderStartsTrustedOptionalProfiles(t *testing.T) {
 	}
 	if _, err := (commandBuilder{}).Build(domain.PlanRequest{Project: project, Action: domain.ActionStart, Profiles: []string{"admin"}}, normalizedConfig{ProjectName: "fixture"}); err == nil {
 		t.Fatal("undeclared profile accepted")
+	}
+}
+
+func TestCommandBuilderDeploysSelectedServicesFromTheTrustedDefinition(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	project := domain.ProjectRuntime{
+		ProjectID: "project-1", Root: root, Compose: &domain.ComposeRuntime{Files: []string{"compose.yaml"}},
+		Services: []domain.ServiceDeclaration{{ID: "api", RuntimeName: "backend"}, {ID: "worker", RuntimeName: "worker"}},
+	}
+	plan, err := (commandBuilder{}).Build(domain.PlanRequest{
+		Project: project, Action: domain.ActionDeploy, Services: []string{"api"},
+	}, normalizedConfig{ProjectName: "fixture", Services: []string{"backend", "worker"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []string{"up", "--detach", "--pull", "always", "--force-recreate", "--remove-orphans", "backend"}
+	if plan.Risk != domain.RiskCaution || !reflect.DeepEqual(lastArguments(plan.Commands[0], len(want)), want) {
+		t.Fatalf("deploy plan = %#v", plan)
+	}
+	for _, effect := range []string{"pull newer", "remove orphaned", "preserve named volumes"} {
+		if !containsText(plan.Effects, effect) {
+			t.Fatalf("deploy effects = %#v", plan.Effects)
+		}
+	}
+}
+
+func TestCommandBuilderForceStopsSelectedServiceWithoutRemovingIt(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	project := domain.ProjectRuntime{
+		ProjectID: "project-1", Root: root, Compose: &domain.ComposeRuntime{Files: []string{"compose.yaml"}},
+		Services: []domain.ServiceDeclaration{{ID: "api", RuntimeName: "backend"}},
+	}
+	plan, err := (commandBuilder{}).Build(domain.PlanRequest{
+		Project: project, Action: domain.ActionKill, Services: []string{"api"},
+	}, normalizedConfig{ProjectName: "fixture", Services: []string{"backend"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if plan.Risk != domain.RiskCaution || !reflect.DeepEqual(lastArguments(plan.Commands[0], 2), []string{"kill", "backend"}) {
+		t.Fatalf("kill plan = %#v", plan)
+	}
+	if !containsText(plan.Effects, "SIGKILL") || !containsText(plan.Effects, "preserve containers") {
+		t.Fatalf("kill effects = %#v", plan.Effects)
 	}
 }
 

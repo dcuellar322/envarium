@@ -49,10 +49,10 @@ const tools = [
 
 <template>
   <aside class="sidebar" aria-label="Primary navigation">
-    <RouterLink class="brand" to="/" aria-label="Switchyard dashboard">
-      <img class="brand-mark" src="/switchyard-icon.svg" alt="" />
+    <RouterLink class="brand" to="/" aria-label="Envarium dashboard">
+      <img class="brand-mark" src="/envarium-icon.svg" alt="" />
       <span class="brand-copy"
-        ><strong>Switchyard</strong><small>Local development control</small></span
+        ><strong>Envarium</strong><small>Local development control</small></span
       >
     </RouterLink>
     <p class="nav-label">Command center</p>

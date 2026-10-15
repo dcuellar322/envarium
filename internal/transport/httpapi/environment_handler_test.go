@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	environmentApplication "switchyard.dev/switchyard/internal/environments/application"
-	environmentDomain "switchyard.dev/switchyard/internal/environments/domain"
-	routingDomain "switchyard.dev/switchyard/internal/routing/domain"
+	environmentApplication "envarium.dev/envarium/internal/environments/application"
+	environmentDomain "envarium.dev/envarium/internal/environments/domain"
+	routingDomain "envarium.dev/envarium/internal/routing/domain"
 )
 
 func TestEnvironmentHTTPRegistrationConfigurationAndRoutes(t *testing.T) {

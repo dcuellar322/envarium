@@ -8,26 +8,26 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 const resourceMIMEType = "application/json"
 
 func (s *Server) addResources() {
-	s.mcp.AddResource(&mcp.Resource{URI: "switchyard://system", Name: "switchyard-system", Title: "Switchyard system", Description: "Daemon version and readiness.", MIMEType: resourceMIMEType}, s.readResource)
-	s.mcp.AddResource(&mcp.Resource{URI: "switchyard://projects", Name: "switchyard-projects", Title: "Switchyard projects", Description: "Registered projects visible to this agent scope.", MIMEType: resourceMIMEType}, s.readResource)
-	s.mcp.AddResource(&mcp.Resource{URI: "switchyard://workspaces", Name: "switchyard-workspaces", Title: "Switchyard workspaces", Description: "Workspace graphs visible to this agent scope.", MIMEType: resourceMIMEType}, s.readResource)
-	s.mcp.AddResource(&mcp.Resource{URI: "switchyard://routes", Name: "switchyard-routes", Title: "Switchyard local routes", Description: "Friendly localhost route states visible to this agent scope.", MIMEType: resourceMIMEType}, s.readResource)
+	s.mcp.AddResource(&mcp.Resource{URI: "envarium://system", Name: "envarium-system", Title: "Envarium system", Description: "Daemon version and readiness.", MIMEType: resourceMIMEType}, s.readResource)
+	s.mcp.AddResource(&mcp.Resource{URI: "envarium://projects", Name: "envarium-projects", Title: "Envarium projects", Description: "Registered projects visible to this agent scope.", MIMEType: resourceMIMEType}, s.readResource)
+	s.mcp.AddResource(&mcp.Resource{URI: "envarium://workspaces", Name: "envarium-workspaces", Title: "Envarium workspaces", Description: "Workspace graphs visible to this agent scope.", MIMEType: resourceMIMEType}, s.readResource)
+	s.mcp.AddResource(&mcp.Resource{URI: "envarium://routes", Name: "envarium-routes", Title: "Envarium local routes", Description: "Friendly localhost route states visible to this agent scope.", MIMEType: resourceMIMEType}, s.readResource)
 	for _, template := range []*mcp.ResourceTemplate{
-		{URITemplate: "switchyard://projects/{projectId}", Name: "switchyard-project", Title: "Switchyard project", Description: "One catalog project.", MIMEType: resourceMIMEType},
-		{URITemplate: "switchyard://projects/{projectId}/status", Name: "switchyard-project-status", Title: "Project status", Description: "Catalog, runtime, and health status.", MIMEType: resourceMIMEType},
-		{URITemplate: "switchyard://projects/{projectId}/manifest", Name: "switchyard-project-manifest", Title: "Effective manifest", Description: "Trusted effective manifest and provenance.", MIMEType: resourceMIMEType},
-		{URITemplate: "switchyard://projects/{projectId}/services", Name: "switchyard-project-services", Title: "Project services", Description: "Bounded service observations.", MIMEType: resourceMIMEType},
-		{URITemplate: "switchyard://projects/{projectId}/git", Name: "switchyard-project-git", Title: "Project Git status", Description: "Bounded Git state.", MIMEType: resourceMIMEType},
-		{URITemplate: "switchyard://projects/{projectId}/ports", Name: "switchyard-project-ports", Title: "Project ports", Description: "Port facts owned by this project.", MIMEType: resourceMIMEType},
-		{URITemplate: "switchyard://projects/{projectId}/recent-errors", Name: "switchyard-project-errors", Title: "Recent project errors", Description: "At most 50 redacted recent error log entries.", MIMEType: resourceMIMEType},
-		{URITemplate: "switchyard://projects/{projectId}/environments", Name: "switchyard-project-environments", Title: "Project environments", Description: "Registered Git worktrees and exact runtime leases.", MIMEType: resourceMIMEType},
-		{URITemplate: "switchyard://workspaces/{workspaceId}", Name: "switchyard-workspace", Title: "Switchyard workspace", Description: "One workspace graph and latest execution.", MIMEType: resourceMIMEType},
+		{URITemplate: "envarium://projects/{projectId}", Name: "envarium-project", Title: "Envarium project", Description: "One catalog project.", MIMEType: resourceMIMEType},
+		{URITemplate: "envarium://projects/{projectId}/status", Name: "envarium-project-status", Title: "Project status", Description: "Catalog, runtime, and health status.", MIMEType: resourceMIMEType},
+		{URITemplate: "envarium://projects/{projectId}/manifest", Name: "envarium-project-manifest", Title: "Effective manifest", Description: "Trusted effective manifest and provenance.", MIMEType: resourceMIMEType},
+		{URITemplate: "envarium://projects/{projectId}/services", Name: "envarium-project-services", Title: "Project services", Description: "Bounded service observations.", MIMEType: resourceMIMEType},
+		{URITemplate: "envarium://projects/{projectId}/git", Name: "envarium-project-git", Title: "Project Git status", Description: "Bounded Git state.", MIMEType: resourceMIMEType},
+		{URITemplate: "envarium://projects/{projectId}/ports", Name: "envarium-project-ports", Title: "Project ports", Description: "Port facts owned by this project.", MIMEType: resourceMIMEType},
+		{URITemplate: "envarium://projects/{projectId}/recent-errors", Name: "envarium-project-errors", Title: "Recent project errors", Description: "At most 50 redacted recent error log entries.", MIMEType: resourceMIMEType},
+		{URITemplate: "envarium://projects/{projectId}/environments", Name: "envarium-project-environments", Title: "Project environments", Description: "Registered Git worktrees and exact runtime leases.", MIMEType: resourceMIMEType},
+		{URITemplate: "envarium://workspaces/{workspaceId}", Name: "envarium-workspace", Title: "Envarium workspace", Description: "One workspace graph and latest execution.", MIMEType: resourceMIMEType},
 	} {
 		s.mcp.AddResourceTemplate(template, s.readResource)
 	}
@@ -35,7 +35,7 @@ func (s *Server) addResources() {
 
 func (s *Server) readResource(ctx context.Context, request *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
 	uri, err := url.Parse(request.Params.URI)
-	if err != nil || uri.Scheme != "switchyard" {
+	if err != nil || uri.Scheme != "envarium" {
 		return nil, mcp.ResourceNotFoundError(request.Params.URI)
 	}
 	segments := resourceSegments(uri)
@@ -91,18 +91,18 @@ func (s *Server) readProjectResource(ctx context.Context, projectID string, suff
 	case "environments":
 		api, ok := s.backend.(environmentBackend)
 		if !ok {
-			return nil, mcp.ResourceNotFoundError("switchyard://projects/" + projectID + "/environments")
+			return nil, mcp.ResourceNotFoundError("envarium://projects/" + projectID + "/environments")
 		}
 		return api.ProjectEnvironments(ctx, projectID)
 	default:
-		return nil, mcp.ResourceNotFoundError("switchyard://projects/" + projectID + "/" + strings.Join(suffix, "/"))
+		return nil, mcp.ResourceNotFoundError("envarium://projects/" + projectID + "/" + strings.Join(suffix, "/"))
 	}
 }
 
 func (s *Server) scopedWorkspaces(ctx context.Context) ([]generated.Workspace, error) {
 	api, ok := s.backend.(workspaceBackend)
 	if !ok {
-		return nil, mcp.ResourceNotFoundError("switchyard://workspaces")
+		return nil, mcp.ResourceNotFoundError("envarium://workspaces")
 	}
 	items, err := api.Workspaces(ctx)
 	if err != nil {
@@ -123,7 +123,7 @@ func (s *Server) scopedWorkspaces(ctx context.Context) ([]generated.Workspace, e
 func (s *Server) readWorkspaceResource(ctx context.Context, workspaceID string) (generated.Workspace, error) {
 	api, ok := s.backend.(workspaceBackend)
 	if !ok {
-		return generated.Workspace{}, mcp.ResourceNotFoundError("switchyard://workspaces/" + workspaceID)
+		return generated.Workspace{}, mcp.ResourceNotFoundError("envarium://workspaces/" + workspaceID)
 	}
 	workspace, err := api.Workspace(ctx, workspaceID)
 	if err == nil {
@@ -135,7 +135,7 @@ func (s *Server) readWorkspaceResource(ctx context.Context, workspaceID string) 
 func (s *Server) scopedRoutes(ctx context.Context) ([]generated.LocalRoute, error) {
 	api, ok := s.backend.(environmentBackend)
 	if !ok {
-		return nil, mcp.ResourceNotFoundError("switchyard://routes")
+		return nil, mcp.ResourceNotFoundError("envarium://routes")
 	}
 	routes, err := api.LocalRoutes(ctx)
 	if err != nil {

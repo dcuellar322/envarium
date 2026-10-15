@@ -7,8 +7,8 @@ import (
 	"io"
 	"time"
 
+	"envarium.dev/envarium/internal/runtime/domain"
 	"github.com/moby/moby/client"
-	"switchyard.dev/switchyard/internal/runtime/domain"
 )
 
 func (d *Driver) watchEvents(ctx context.Context, config normalizedConfig, sink domain.EventSink) error {

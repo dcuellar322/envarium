@@ -1,10 +1,10 @@
-name: switchyard-compose-degraded-fixture
+name: envarium-compose-degraded-fixture
 
 services:
   web:
     build:
       context: ../compose-healthy
-    image: switchyard/compose-healthy-fixture:v1
+    image: envarium/compose-healthy-fixture:v1
     pull_policy: build
     healthcheck:
       test: ["CMD", "/server", "unhealthy"]

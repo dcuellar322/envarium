@@ -1,8 +1,8 @@
-# Switchyard design reference
+# Envarium design reference
 
 ## Files
 
-- `switchyard-interactive-mockup.html` — canonical interactive design reference.
+- `envarium-interactive-mockup.html` — canonical interactive design reference.
 
 Open the HTML directly in a browser. It includes three primary views:
 

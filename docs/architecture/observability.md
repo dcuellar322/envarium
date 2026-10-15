@@ -27,7 +27,7 @@ canonical redactor
 
 The redactor runs before every sink. Built-in rules cover bearer credentials,
 secret-like environment assignments, credential-bearing URLs, and common
-access-key forms. Repeated `switchyard daemon --redact-pattern` flags add local
+access-key forms. Repeated `envarium daemon --redact-pattern` flags add local
 regular expressions. Resolved keychain values are registered with the redactor
 in memory at launch and are never written as redaction configuration.
 
@@ -124,8 +124,8 @@ Container writable layers may be exclusive when one canonical project owns
 them. Volumes are exclusive only with local size and single-project evidence.
 Images remain estimated or shared because layer exclusivity is not proven.
 Build cache is shared or unknown. Every record includes its classification and
-reason, and Switchyard's database/WAL/SHM/log footprint is reported separately
-as Switchyard-exclusive storage.
+reason, and Envarium's database/WAL/SHM/log footprint is reported separately
+as Envarium-exclusive storage.
 
 Cleanup preview is a read model containing exact Engine identifiers and known
 or unknown reclaimable bytes. It is always non-executable; Phase 12 adds no

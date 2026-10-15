@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/workspace/domain"
+	"envarium.dev/envarium/internal/workspace/domain"
 )
 
 func TestServiceCreateValidatesMembersAndDefaultsFailurePolicy(t *testing.T) {

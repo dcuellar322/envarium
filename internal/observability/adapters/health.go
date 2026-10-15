@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	observability "switchyard.dev/switchyard/internal/observability/domain"
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	observability "envarium.dev/envarium/internal/observability/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 // HealthEvaluator evaluates trusted health declarations without a shell.

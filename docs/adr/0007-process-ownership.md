@@ -12,7 +12,7 @@ lastVerified: 2026-07-17
 ## Context
 
 PIDs are reused, parent processes can exit before children, and projects may be
-started outside Switchyard. Treating a stored PID as ownership risks signaling
+started outside Envarium. Treating a stored PID as ownership risks signaling
 the wrong process or reporting false state.
 
 ## Decision

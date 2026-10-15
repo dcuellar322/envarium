@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/team/domain"
+	"envarium.dev/envarium/internal/team/domain"
 )
 
 // RenderTemplate resolves declared variables and validates the complete manifest.

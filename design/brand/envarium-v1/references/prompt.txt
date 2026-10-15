@@ -1,0 +1,7 @@
+Use case: logo-brand.
+Asset type: master standalone brand symbol for Envarium, a local development command center organizing projects, services, ports and coding agents.
+Primary request: Design a distinctive, exceptionally simple geometric E monogram suggesting multiple environments brought into one ordered control plane. The mark should be a single bold cohesive silhouette: three horizontal rounded rails joined along the left, with a purposeful small square negative-space notch or separation that gives it a technical, modular character. Optical balance and distinctive proportions, not an ordinary typed E. Flat vector-like precision, suitable for a real software brand and recognizable at 16 pixels.
+Composition: one large centered standalone symbol, generous even transparent padding. No enclosing square tile. No wordmark, no letters outside the symbol.
+Color palette: restrained left-to-right blue #78a6ff to violet #9e7bff gradient; no additional colors. Genuine transparent background.
+Style: refined, confident, timeless developer tool. Crisp edges, clean orthogonal geometry, subtly rounded corners, flat front view.
+Avoid: orbit rings, cubes, hexagons, circuit boards, tiny nodes, thin lines, 3D, glow, shadows, mockups, labels, watermarks, extra variants.

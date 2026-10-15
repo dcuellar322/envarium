@@ -9,9 +9,9 @@ import (
 
 const (
 	// BundleSchemaVersion identifies canonical signed shared configuration.
-	BundleSchemaVersion = "switchyard.bundle/v1"
+	BundleSchemaVersion = "envarium.bundle/v1"
 	// SyncSchemaVersion identifies configuration-only encrypted sync documents.
-	SyncSchemaVersion = "switchyard.sync/v1"
+	SyncSchemaVersion = "envarium.sync/v1"
 	// SignatureAlgorithm is the only bundle signature algorithm accepted by v1.
 	SignatureAlgorithm = "Ed25519"
 )

@@ -33,7 +33,7 @@ export default defineConfig({
         {
           label: 'Start here',
           items: [
-            { label: 'Install Switchyard', link: '/docs/start/install/' },
+            { label: 'Install Envarium', link: '/docs/start/install/' },
             { slug: 'docs/getting-started', label: 'Add your first project' },
             { label: 'Docker Compose tutorial', link: '/docs/start/compose/' },
             { label: 'Native process tutorial', link: '/docs/start/native-process/' },

@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
-	session "switchyard.dev/switchyard/internal/session/application"
-	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
-	terminalDomain "switchyard.dev/switchyard/internal/terminal/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	session "envarium.dev/envarium/internal/session/application"
+	terminalApplication "envarium.dev/envarium/internal/terminal/application"
+	terminalDomain "envarium.dev/envarium/internal/terminal/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func TestTerminalHandlersTranslateTypedRequestAndAuthenticatedOwner(t *testing.T) {

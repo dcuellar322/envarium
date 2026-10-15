@@ -1,6 +1,6 @@
 import type { PackageType, ReleaseArchitecture, ReleasePlatform } from './types'
 
-export const artifactContractVersion = 'switchyard.release-artifacts/v1' as const
+export const artifactContractVersion = 'envarium.release-artifacts/v1' as const
 
 export interface ArtifactIdentity {
   platform: ReleasePlatform
@@ -8,7 +8,7 @@ export interface ArtifactIdentity {
   packageType: PackageType
 }
 
-const archivePattern = /^switchyard_(Darwin|Linux|Windows)_(arm64|x86_64)\.(tar\.gz|zip)$/
+const archivePattern = /^envarium_(Darwin|Linux|Windows)_(arm64|x86_64)\.(tar\.gz|zip)$/
 
 function architectureFromName(name: string): ReleaseArchitecture {
   const normalized = name.toLowerCase()

@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	catalog "switchyard.dev/switchyard/internal/catalog/application"
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	"switchyard.dev/switchyard/internal/ports/domain"
+	catalog "envarium.dev/envarium/internal/catalog/application"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	"envarium.dev/envarium/internal/ports/domain"
 )
 
 // CatalogSource resolves accepted manifests into declaration facts without reading live state.

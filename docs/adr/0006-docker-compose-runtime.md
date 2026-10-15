@@ -24,7 +24,7 @@ Compose labels, never container-name prefixes.
 
 ## Consequences
 
-Switchyard matches commands users already trust while retaining typed
+Envarium matches commands users already trust while retaining typed
 observation. Command building, execution, config reading, event watching, logs,
 metrics, and reconciliation remain focused collaborators. Docker failure cannot
 disable non-Docker project behavior.

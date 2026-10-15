@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func newStatusCommand(options *rootOptions) *cobra.Command {
@@ -63,8 +63,8 @@ func newPlanCommand(options *rootOptions) *cobra.Command {
 		if removeVolumes && action != generated.RuntimeAction("teardown") {
 			return usageError("VOLUMES_UNSUPPORTED", "--volumes is supported only for teardown plans")
 		}
-		if len(profiles) > 0 && action != generated.RuntimeActionStart && action != generated.RuntimeActionRebuild {
-			return usageError("PROFILES_UNSUPPORTED", "--profile is supported only for start and rebuild plans")
+		if len(profiles) > 0 && action != generated.RuntimeActionStart && action != generated.RuntimeActionDeploy && action != generated.RuntimeActionRebuild {
+			return usageError("PROFILES_UNSUPPORTED", "--profile is supported only for start, deploy, and rebuild plans")
 		}
 		client, err := daemonClient(command.Context(), options)
 		if err != nil {
@@ -90,7 +90,7 @@ func newLifecycleCommand(options *rootOptions, actionName string) *cobra.Command
 	var profiles []string
 	command := &cobra.Command{Use: actionName + " <project>", Short: lifecycleSummary(actionName), Args: cobra.ExactArgs(1), RunE: func(command *cobra.Command, args []string) error {
 		if actionName == "teardown" && !yes {
-			return usageError("CONFIRMATION_REQUIRED", "teardown requires --yes after reviewing `switchyard plan teardown <project>`")
+			return usageError("CONFIRMATION_REQUIRED", "teardown requires --yes after reviewing `envarium plan teardown <project>`")
 		}
 		client, err := daemonClient(command.Context(), options)
 		if err != nil {
@@ -117,7 +117,7 @@ func newLifecycleCommand(options *rootOptions, actionName string) *cobra.Command
 		command.Flags().BoolVar(&yes, "yes", false, "confirm the destructive teardown")
 		command.Flags().BoolVar(&removeVolumes, "volumes", false, "also remove Compose volumes")
 	}
-	if actionName == "start" || actionName == "rebuild" {
+	if actionName == "start" || actionName == "deploy" || actionName == "rebuild" {
 		command.Flags().StringSliceVar(&profiles, "profile", nil, "enable an optional trusted Compose profile (repeatable)")
 	}
 	return command
@@ -198,12 +198,12 @@ func newMetricsCommand(options *rootOptions) *cobra.Command {
 }
 
 func runtimeAction(value string) (generated.RuntimeAction, error) {
-	for _, allowed := range []string{"start", "stop", "restart", "pause", "unpause", "rebuild", "teardown"} {
+	for _, allowed := range []string{"start", "stop", "restart", "deploy", "kill", "pause", "unpause", "rebuild", "teardown"} {
 		if value == allowed {
 			return generated.RuntimeAction(value), nil
 		}
 	}
-	return "", usageError("RUNTIME_ACTION_INVALID", "supported actions: start, stop, restart, pause, unpause, rebuild, teardown")
+	return "", usageError("RUNTIME_ACTION_INVALID", "supported actions: start, stop, restart, deploy, kill, pause, unpause, rebuild, teardown")
 }
 
 func writeHumanPlan(writer io.Writer, plan generated.RuntimePlan) error {

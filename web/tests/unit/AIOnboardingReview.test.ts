@@ -28,7 +28,7 @@ test('shows unavailable providers and the exact redacted evidence before consent
       ],
       preview: {
         bundle: {
-          version: 'switchyard.dev/ai-evidence/v1alpha1',
+          version: 'envarium.dev/ai-evidence/v1alpha1',
           projectId: 'project-1',
           proposalId: 'proposal-1',
           deterministicCandidate: {},

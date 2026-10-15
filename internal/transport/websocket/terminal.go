@@ -10,8 +10,8 @@ import (
 	"github.com/coder/websocket"
 	"github.com/go-chi/chi/v5"
 
-	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
-	terminalDomain "switchyard.dev/switchyard/internal/terminal/domain"
+	terminalApplication "envarium.dev/envarium/internal/terminal/application"
+	terminalDomain "envarium.dev/envarium/internal/terminal/domain"
 )
 
 const maximumTerminalInputBytes = 64 << 10

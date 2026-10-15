@@ -1,5 +1,5 @@
 {
-  "name": "switchyard-monorepo-fixture",
+  "name": "envarium-monorepo-fixture",
   "private": true,
   "workspaces": ["apps/*"]
 }

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	diagnosticsDomain "switchyard.dev/switchyard/internal/diagnostics/domain"
-	operations "switchyard.dev/switchyard/internal/operations/application"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	diagnosticsDomain "envarium.dev/envarium/internal/diagnostics/domain"
+	operations "envarium.dev/envarium/internal/operations/application"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) CreateProjectDiagnosis(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {

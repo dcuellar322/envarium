@@ -8,7 +8,7 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Switchyard maintains a dedicated private control-plane log at
+Envarium maintains a dedicated private control-plane log at
 `<data-dir>/internal.ndjson`, with one rotated segment. It receives structured
 daemon events only. Project stdout/stderr, terminal output, repository text,
 provider payloads, environment values, and resolved credentials are never
@@ -19,12 +19,12 @@ are applied before each record is persisted. Both segments are bounded to
 Review the exact support payload without creating a file:
 
 ```bash
-switchyard doctor --bundle --preview
+envarium doctor --bundle --preview
 ```
 
 The preview contains the same document later stored in `manifest.json`:
 
-- Switchyard version, commit, API version, and database schema version;
+- Envarium version, commit, API version, and database schema version;
 - platform and executable adapter availability without executable paths;
 - Docker Engine connectivity when host observation succeeds;
 - an allowlisted configuration snapshot containing binding modes, settings
@@ -38,7 +38,7 @@ The preview contains the same document later stored in `manifest.json`:
 Write a new archive only after reviewing that preview:
 
 ```bash
-switchyard doctor --bundle --output ./switchyard-support.zip
+envarium doctor --bundle --output ./envarium-support.zip
 ```
 
 The command creates a mode-`0600` ZIP through a private temporary file, syncs
@@ -50,8 +50,8 @@ upload occurs.
 For local troubleshooting without an archive:
 
 ```bash
-switchyard debug logs --level warn --limit 200
-switchyard --jsonl debug logs --level debug --limit 2000
+envarium debug logs --level warn --limit 200
+envarium --jsonl debug logs --level debug --limit 2000
 ```
 
 `debug logs` reads the same allowlisted internal records and supports only

@@ -7,7 +7,7 @@ import (
 )
 
 func TestDecodeClaudeResultReadsStructuredOutputAndUsage(t *testing.T) {
-	output, model, usage, err := decodeClaudeResult([]byte(`{"model":"claude-fixture","structured_output":{"version":"switchyard.dev/ai-proposal/v1alpha1"},"usage":{"input_tokens":10,"output_tokens":5},"total_cost_usd":0.01}`))
+	output, model, usage, err := decodeClaudeResult([]byte(`{"model":"claude-fixture","structured_output":{"version":"envarium.dev/ai-proposal/v1alpha1"},"usage":{"input_tokens":10,"output_tokens":5},"total_cost_usd":0.01}`))
 	if err != nil {
 		t.Fatal(err)
 	}

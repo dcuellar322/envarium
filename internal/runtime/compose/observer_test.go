@@ -6,9 +6,9 @@ import (
 	"net/netip"
 	"testing"
 
+	"envarium.dev/envarium/internal/runtime/domain"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/client"
-	"switchyard.dev/switchyard/internal/runtime/domain"
 )
 
 func TestInspectUsesComposeLabelsAndRecognizesExternalProject(t *testing.T) {
@@ -66,7 +66,7 @@ func TestSignalExitIsStoppedUnlessDockerReportsOOM(t *testing.T) {
 	}
 }
 
-func TestInspectAttributesContainersCreatedByPendingSwitchyardAction(t *testing.T) {
+func TestInspectAttributesContainersCreatedByPendingEnvariumAction(t *testing.T) {
 	t.Parallel()
 	engine := &fakeEngine{
 		containers: []container.Summary{{
@@ -91,7 +91,7 @@ func TestInspectAttributesContainersCreatedByPendingSwitchyardAction(t *testing.
 	if err != nil {
 		t.Fatal(err)
 	}
-	if observation.State != domain.StateRunning || observation.Origin != domain.OriginSwitchyard {
+	if observation.State != domain.StateRunning || observation.Origin != domain.OriginEnvarium {
 		t.Fatalf("observation = %#v", observation)
 	}
 }

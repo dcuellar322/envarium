@@ -9,8 +9,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
-	"switchyard.dev/switchyard/internal/transport/httpclient"
+	manifestApplication "envarium.dev/envarium/internal/manifest/application"
+	"envarium.dev/envarium/internal/transport/httpclient"
 )
 
 func newManifestCommand(options *rootOptions) *cobra.Command {

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
-	"switchyard.dev/switchyard/internal/agents/providers"
+	agents "envarium.dev/envarium/internal/agents/application"
+	"envarium.dev/envarium/internal/agents/providers"
 )
 
 func TestInstallProjectMergesConfigAndImportsAgents(t *testing.T) {
@@ -16,7 +16,7 @@ func TestInstallProjectMergesConfigAndImportsAgents(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(root, ".mcp.json"), []byte(`{"mcpServers":{"other":{"type":"stdio","command":"other"}},"setting":true}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	request := providers.InstallRequest{Scope: providers.ScopeProject, Root: root, Home: t.TempDir(), Executable: "/usr/local/bin/switchyard", DataDir: "/tmp/switchyard-data", Profile: agents.ProfileObserve, AgentID: "claude"}
+	request := providers.InstallRequest{Scope: providers.ScopeProject, Root: root, Home: t.TempDir(), Executable: "/usr/local/bin/envarium", DataDir: "/tmp/envarium-data", Profile: agents.ProfileObserve, AgentID: "claude"}
 	for range 2 {
 		if _, err := Install(request); err != nil {
 			t.Fatalf("Install() error = %v", err)
@@ -31,7 +31,7 @@ func TestInstallProjectMergesConfigAndImportsAgents(t *testing.T) {
 		t.Fatal(err)
 	}
 	servers := document["mcpServers"].(map[string]any)
-	if len(servers) != 2 || servers["switchyard"] == nil || document["setting"] != true {
+	if len(servers) != 2 || servers["envarium"] == nil || document["setting"] != true {
 		t.Fatalf("config = %#v", document)
 	}
 	claudeFile, err := os.ReadFile(filepath.Join(root, "CLAUDE.md"))

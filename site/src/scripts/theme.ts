@@ -1,4 +1,4 @@
-const storageKey = 'switchyard-site-theme'
+const storageKey = 'envarium-site-theme'
 const root = document.documentElement
 const stored = window.localStorage.getItem(storageKey)
 

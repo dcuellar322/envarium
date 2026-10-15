@@ -11,13 +11,13 @@ sidebar:
 ---
 
 Native projects can use uv, npm, pnpm, Make, or another explicit executable.
-Switchyard does not require Docker for this path.
+Envarium does not require Docker for this path.
 
 ## 1. Review discovery
 
 ```bash
-switchyard project add /absolute/path/to/native-project
-switchyard manifest explain <project>
+envarium project add /absolute/path/to/native-project
+envarium manifest explain <project>
 ```
 
 Confirm the executable, argument array, working directory, environment
@@ -27,9 +27,9 @@ is rejected unless the manifest explicitly enables it and surfaces the risk.
 ## 2. Preview and start
 
 ```bash
-switchyard plan start <project>
-switchyard start <project>
-switchyard status <project>
+envarium plan start <project>
+envarium start <project>
+envarium status <project>
 ```
 
 Success is a durable run with a process-identity fingerprint and a running or
@@ -38,11 +38,11 @@ healthy project state. A stored PID alone is never sufficient evidence.
 ## 3. Read output and stop
 
 ```bash
-switchyard logs <project> --tail 50
-switchyard stop <project>
-switchyard status <project>
+envarium logs <project> --tail 50
+envarium stop <project>
+envarium status <project>
 ```
 
-Switchyard captures stdout and stderr separately, sends graceful termination
+Envarium captures stdout and stderr separately, sends graceful termination
 to the process group or Job Object, and escalates only after the configured
 timeout. Success ends with no managed child process left behind.

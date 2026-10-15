@@ -7,10 +7,10 @@ import (
 )
 
 // BundleVersion identifies the local diagnostic evidence contract.
-const BundleVersion = "switchyard.dev/diagnostic-bundle/v1alpha1"
+const BundleVersion = "envarium.dev/diagnostic-bundle/v1alpha1"
 
 // DiagnosisVersion identifies the validated diagnostic result contract.
-const DiagnosisVersion = "switchyard.dev/diagnosis/v1alpha1"
+const DiagnosisVersion = "envarium.dev/diagnosis/v1alpha1"
 
 // Evidence is one bounded observation. Untrusted content is always marked as data.
 type Evidence struct {

@@ -11,8 +11,8 @@ import (
 
 	jsonschema "github.com/santhosh-tekuri/jsonschema/v6"
 
-	"switchyard.dev/switchyard/internal/manifest/domain"
-	manifestSchema "switchyard.dev/switchyard/internal/manifest/schema"
+	"envarium.dev/envarium/internal/manifest/domain"
+	manifestSchema "envarium.dev/envarium/internal/manifest/schema"
 )
 
 // ValidationResult separates blocking errors from portability warnings.

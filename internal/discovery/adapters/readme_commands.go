@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/discovery/domain"
+	"envarium.dev/envarium/internal/discovery/domain"
 )
 
 var (

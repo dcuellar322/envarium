@@ -8,12 +8,15 @@ import type {
   RuntimeLogEntry,
   RuntimeMetricSample,
   RuntimeObservation,
+  RuntimeAction,
 } from '../../../api/generated/types.gen'
-import { formatBytes, stateLabel } from '../../../lib/format'
+import { formatBytes } from '../../../lib/format'
+import type { RuntimeSelection } from '../api'
 import ProjectEndpointsCard from './ProjectEndpointsCard.vue'
 import ProjectLogPreview from './ProjectLogPreview.vue'
+import ProjectServicesPanel from './ProjectServicesPanel.vue'
 
-const props = defineProps<{
+defineProps<{
   projectId: string
   runtime?: RuntimeObservation
   runtimePending: boolean
@@ -32,61 +35,29 @@ const props = defineProps<{
   endpoints: Array<ActionDefinition>
   quickActions: Array<ActionDefinition>
   actionPending: boolean
+  lifecyclePending: boolean
 }>()
 const emit = defineEmits<{
   selectTab: [tab: 'logs' | 'git']
   runAction: [action: ActionDefinition]
+  lifecycle: [action: RuntimeAction, selection: RuntimeSelection]
 }>()
 
-function serviceMetric(serviceId: string) {
-  return props.metrics.find((item) => item.serviceId === serviceId)
+function forwardLifecycle(action: RuntimeAction, selection: RuntimeSelection) {
+  emit('lifecycle', action, selection)
 }
 </script>
 
 <template>
   <div class="overview-grid">
     <div class="overview-main">
-      <article class="panel">
-        <header class="panel-head">
-          <div>
-            <p>Runtime</p>
-            <h2>Services</h2>
-          </div>
-          <span>{{ runtime?.driver ?? '—' }} · {{ runtime?.origin ?? 'unobserved' }}</span>
-        </header>
-        <div v-if="runtimePending" class="panel-state">Observing runtime…</div>
-        <div v-else-if="runtime?.services.length" class="service-table">
-          <div class="service-row service-row--head">
-            <span>Service</span><span>Status</span><span>Health</span><span>Port</span
-            ><span>CPU</span><span>Memory</span>
-          </div>
-          <div v-for="service in runtime.services" :key="service.id" class="service-row">
-            <strong>{{ service.id }}</strong>
-            <span
-              ><i class="dot" :class="{ online: service.state === 'running' }"></i
-              >{{ stateLabel(service.state) }}</span
-            >
-            <span>{{ service.health }}</span>
-            <span>{{
-              service.ports
-                .map((port) => port.hostPort)
-                .filter(Boolean)
-                .join(', ') || '—'
-            }}</span>
-            <span>{{
-              serviceMetric(service.id)?.cpuAvailable
-                ? `${serviceMetric(service.id)!.cpuPercent.toFixed(1)}%`
-                : '—'
-            }}</span>
-            <span>{{
-              serviceMetric(service.id)?.memoryAvailable
-                ? formatBytes(serviceMetric(service.id)!.memoryBytes)
-                : '—'
-            }}</span>
-          </div>
-        </div>
-        <p v-else class="panel-state">No runtime services are currently observed.</p>
-      </article>
+      <ProjectServicesPanel
+        :runtime="runtime"
+        :pending="runtimePending"
+        :metrics="metrics"
+        :action-pending="lifecyclePending"
+        @lifecycle="forwardLifecycle"
+      />
 
       <ProjectEndpointsCard
         v-if="endpoints.length"

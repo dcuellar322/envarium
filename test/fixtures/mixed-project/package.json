@@ -1,5 +1,5 @@
 {
-  "name": "switchyard-fixture-web",
+  "name": "envarium-fixture-web",
   "private": true,
   "packageManager": "npm@12.0.2",
   "scripts": {

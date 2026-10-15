@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestNativeProcessLifecycleCapturesTreeLogsMetricsAndStops(t *testing.T) {
@@ -135,6 +135,25 @@ func TestNativeProcessEscalatesWhenGracefulStopIsIgnored(t *testing.T) {
 	}
 }
 
+func TestNativeProcessKillForceStopsVerifiedProcessGroup(t *testing.T) {
+	port := freePort(t)
+	driver, store, project, cancel := nativeTestDriver(t, "ignore", port, domain.RestartPolicy{})
+	defer cancel()
+	project.Process.Processes[0].StopTimeoutSeconds = 30
+	executeProcessAction(t, driver, project, domain.ActionStart)
+	waitForTCP(t, port)
+	started := time.Now()
+	executeProcessAction(t, driver, project, domain.ActionKill)
+	if elapsed := time.Since(started); elapsed > 3*time.Second {
+		t.Fatalf("kill waited for graceful timeout: %s", elapsed)
+	}
+	waitForProcessState(t, driver, project, domain.StateStopped)
+	runs, _ := store.ListProjectRuns(context.Background(), project.ProjectID)
+	if len(runs) != 1 || runs[0].TerminationReason != "killed" {
+		t.Fatalf("killed run = %#v", runs)
+	}
+}
+
 func TestNativeProcessCancellationRollsBackStartedDependencies(t *testing.T) {
 	port := freePort(t)
 	executable, err := os.Executable()
@@ -152,14 +171,14 @@ func TestNativeProcessCancellationRollsBackStartedDependencies(t *testing.T) {
 			service: domain.ServiceDeclaration{ID: "first", RuntimeName: "first"},
 			definition: domain.ProcessDefinition{
 				ID: "first", Command: command, WorkingDirectory: root, StopTimeoutSeconds: 1,
-				Environment: map[string]string{"SWITCHYARD_PROCESS_HELPER": "1", "PORT": strconv.Itoa(port)},
+				Environment: map[string]string{"ENVARIUM_PROCESS_HELPER": "1", "PORT": strconv.Itoa(port)},
 			},
 		},
 		{
 			service: domain.ServiceDeclaration{ID: "second", RuntimeName: "second", Dependencies: []string{"first"}},
 			definition: domain.ProcessDefinition{
 				ID: "second", Command: command, WorkingDirectory: root, StopTimeoutSeconds: 1,
-				Environment: map[string]string{"SWITCHYARD_PROCESS_HELPER": "1", "PORT": strconv.Itoa(freePort(t))},
+				Environment: map[string]string{"ENVARIUM_PROCESS_HELPER": "1", "PORT": strconv.Itoa(freePort(t))},
 			},
 		},
 	})
@@ -184,7 +203,7 @@ func TestNativeProcessCancellationRollsBackStartedDependencies(t *testing.T) {
 }
 
 func TestNativeProcessHelper(_ *testing.T) {
-	if os.Getenv("SWITCHYARD_PROCESS_HELPER") != "1" {
+	if os.Getenv("ENVARIUM_PROCESS_HELPER") != "1" {
 		return
 	}
 	mode := helperArgument()
@@ -272,7 +291,7 @@ func nativeTestDriver(t *testing.T, mode string, port int, restart domain.Restar
 	definition := domain.ProcessDefinition{
 		ID: "web", Command: []string{executable, "-test.run=TestNativeProcessHelper", "--", mode},
 		WorkingDirectory: t.TempDir(), Environment: map[string]string{
-			"SWITCHYARD_PROCESS_HELPER": "1", "PORT": strconv.Itoa(port),
+			"ENVARIUM_PROCESS_HELPER": "1", "PORT": strconv.Itoa(port),
 		}, Restart: restart, StopTimeoutSeconds: 2,
 	}
 	service := domain.ServiceDeclaration{ID: "web", RuntimeName: "web"}

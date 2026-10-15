@@ -35,7 +35,7 @@ func main() {
 func serve() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = fmt.Fprintln(w, "switchyard healthy compose fixture")
+		_, _ = fmt.Fprintln(w, "envarium healthy compose fixture")
 	})
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = fmt.Fprintln(w, "ok")

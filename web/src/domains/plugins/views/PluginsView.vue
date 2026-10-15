@@ -140,7 +140,7 @@ const {
             </article>
           </div>
           <p class="notice">
-            Plugins are separate local-user processes. Switchyard strips inherited secrets and
+            Plugins are separate local-user processes. Envarium strips inherited secrets and
             mediates its own APIs, but trust still means approving locally installed code.
           </p>
           <div class="actions">
@@ -198,8 +198,8 @@ const {
       <span aria-hidden="true">◇</span>
       <h2>No plugins discovered</h2>
       <p>
-        Install a reviewed package under the local Switchyard data directory, then refresh
-        discovery. Repository files are never executed during discovery.
+        Install a reviewed package under the local Envarium data directory, then refresh discovery.
+        Repository files are never executed during discovery.
       </p>
     </section>
   </section>

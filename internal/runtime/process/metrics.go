@@ -4,7 +4,7 @@ import (
 	"context"
 	"sort"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func (d *Driver) streamMetrics(ctx context.Context, request domain.MetricRequest, sink domain.MetricSink) error {

@@ -24,7 +24,7 @@ func DefaultAddress(dataDir string) string {
 		dataDir = absolute
 	}
 	digest := sha256.Sum256([]byte(strings.ToLower(filepath.Clean(dataDir))))
-	return `\\.\pipe\switchyard-` + hex.EncodeToString(digest[:12])
+	return `\\.\pipe\envarium-` + hex.EncodeToString(digest[:12])
 }
 
 func listen(address string) (net.Listener, error) {

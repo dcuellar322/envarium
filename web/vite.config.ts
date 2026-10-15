@@ -2,7 +2,7 @@ import vue from '@vitejs/plugin-vue'
 import { writeFile } from 'node:fs/promises'
 import { defineConfig } from 'vitest/config'
 
-const daemonAddress = process.env.SWITCHYARD_E2E_DAEMON_ADDRESS ?? '127.0.0.1:19616'
+const daemonAddress = process.env.ENVARIUM_E2E_DAEMON_ADDRESS ?? '127.0.0.1:19616'
 
 export default defineConfig({
   plugins: [
@@ -32,6 +32,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    testTimeout: 10_000,
     setupFiles: ['./tests/setup.ts'],
     include: ['tests/unit/**/*.test.ts', 'src/**/*.test.ts'],
     coverage: {

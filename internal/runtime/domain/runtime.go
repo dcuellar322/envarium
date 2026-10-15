@@ -27,6 +27,10 @@ const (
 	ActionStop Action = "stop"
 	// ActionRestart restarts existing services.
 	ActionRestart Action = "restart"
+	// ActionDeploy reconciles services with the current trusted definition.
+	ActionDeploy Action = "deploy"
+	// ActionKill forcefully terminates services without a graceful timeout.
+	ActionKill Action = "kill"
 	// ActionPause suspends container processes.
 	ActionPause Action = "pause"
 	// ActionUnpause resumes paused container processes.
@@ -187,7 +191,7 @@ const (
 	StateStarting ProjectState = "starting"
 	// StateRunning means all declared services are managed and running.
 	StateRunning ProjectState = "running"
-	// StateRunningExternal means all services run without proven Switchyard ownership.
+	// StateRunningExternal means all services run without proven Envarium ownership.
 	StateRunningExternal ProjectState = "running_external"
 	// StatePartiallyRunning means only part of the declared topology is running.
 	StatePartiallyRunning ProjectState = "partially_running"
@@ -201,13 +205,13 @@ const (
 	StateFailed ProjectState = "failed"
 )
 
-// Origin explains whether Switchyard can prove ownership of the observed runtime.
+// Origin explains whether Envarium can prove ownership of the observed runtime.
 type Origin string
 
 const (
-	// OriginSwitchyard means this daemon session initiated the current containers.
-	OriginSwitchyard Origin = "switchyard"
-	// OriginExternal means Switchyard cannot prove ownership of the current containers.
+	// OriginEnvarium means this daemon session initiated the current containers.
+	OriginEnvarium Origin = "envarium"
+	// OriginExternal means Envarium cannot prove ownership of the current containers.
 	OriginExternal Origin = "external"
 )
 
@@ -405,7 +409,7 @@ var ErrRuntimeUnavailable = errors.New("runtime backend is unavailable")
 func ParseAction(value string) (Action, error) {
 	action := Action(value)
 	switch action {
-	case ActionStart, ActionStop, ActionRestart, ActionPause, ActionUnpause, ActionRebuild, ActionTeardown:
+	case ActionStart, ActionStop, ActionRestart, ActionDeploy, ActionKill, ActionPause, ActionUnpause, ActionRebuild, ActionTeardown:
 		return action, nil
 	default:
 		return "", errors.New("unsupported runtime action")

@@ -11,12 +11,12 @@ import (
 	"testing"
 	"time"
 
-	actionsDomain "switchyard.dev/switchyard/internal/actions/domain"
-	operations "switchyard.dev/switchyard/internal/operations/application"
-	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
-	portsDomain "switchyard.dev/switchyard/internal/ports/domain"
-	session "switchyard.dev/switchyard/internal/session/application"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	actionsDomain "envarium.dev/envarium/internal/actions/domain"
+	operations "envarium.dev/envarium/internal/operations/application"
+	operationsDomain "envarium.dev/envarium/internal/operations/domain"
+	portsDomain "envarium.dev/envarium/internal/ports/domain"
+	session "envarium.dev/envarium/internal/session/application"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 type portServiceStub struct{ registry portsDomain.Registry }

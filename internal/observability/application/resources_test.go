@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/observability/domain"
+	"envarium.dev/envarium/internal/observability/domain"
 )
 
 func TestCollectAggregatesServicesAndProjectsWithBoundedConcurrency(t *testing.T) {

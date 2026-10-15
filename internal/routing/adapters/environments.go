@@ -4,8 +4,8 @@ package adapters
 import (
 	"context"
 
-	environmentDomain "switchyard.dev/switchyard/internal/environments/domain"
-	routingDomain "switchyard.dev/switchyard/internal/routing/domain"
+	environmentDomain "envarium.dev/envarium/internal/environments/domain"
+	routingDomain "envarium.dev/envarium/internal/routing/domain"
 )
 
 // EnvironmentReader is the narrow registry surface needed to build routes.

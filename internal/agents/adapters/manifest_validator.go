@@ -1,9 +1,9 @@
 package adapters
 
 import (
-	agents "switchyard.dev/switchyard/internal/agents/application"
-	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
+	agents "envarium.dev/envarium/internal/agents/application"
+	manifestApplication "envarium.dev/envarium/internal/manifest/application"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
 )
 
 // ManifestValidator adapts the canonical validation use case to assisted onboarding.

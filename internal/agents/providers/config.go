@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
+	agents "envarium.dev/envarium/internal/agents/application"
 )
 
 // InstallScope selects project-local or user-level provider configuration.

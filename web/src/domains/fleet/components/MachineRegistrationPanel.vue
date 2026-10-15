@@ -36,7 +36,7 @@ function submit() {
         <button type="button" @click="open = false">Cancel</button>
       </div>
       <p class="notice">
-        Switchyard stores certificate file references locally. Private keys, repository paths, logs,
+        Envarium stores certificate file references locally. Private keys, repository paths, logs,
         and secrets never enter remote inventory.
       </p>
       <div class="fields">

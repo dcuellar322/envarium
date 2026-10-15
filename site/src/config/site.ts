@@ -1,8 +1,8 @@
-export const PRODUCT_NAME = 'Switchyard — Local Development Command Center'
-export const SHORT_NAME = 'Switchyard'
-export const REPOSITORY = 'dcuellar322/switchyard' as const
+export const PRODUCT_NAME = 'Envarium — Local Development Command Center'
+export const SHORT_NAME = 'Envarium'
+export const REPOSITORY = 'dcuellar322/envarium' as const
 export const REPOSITORY_URL = `https://github.com/${REPOSITORY}`
-export const DEFAULT_SITE_URL = 'https://switchyard.davidcuellar.tech'
+export const DEFAULT_SITE_URL = 'https://envarium.davidcuellar.tech'
 export const SITE_DESCRIPTION =
   'An open-source, local-first command center for Docker Compose, native processes, Git, ports, logs, terminals, and coding agents.'
 

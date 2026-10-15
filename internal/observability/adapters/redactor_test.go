@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestRedactorSanitizesEveryLogFieldBeforeSinks(t *testing.T) {

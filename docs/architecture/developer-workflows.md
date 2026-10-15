@@ -18,7 +18,7 @@ The port registry keeps three kinds of fact distinct:
 - A `declaration` comes from an accepted effective manifest. Compose-derived
   declarations retain `compose` provenance; native declarations retain
   `manifest` provenance.
-- A `reservation` is a persistent Switchyard lease reconciled atomically from
+- A `reservation` is a persistent Envarium lease reconciled atomically from
   accepted declarations. It protects stopped projects and is removed when the
   accepted manifest no longer declares the port.
 - A `binding` is current runtime or operating-system evidence. Runtime bindings
@@ -103,7 +103,7 @@ small ambient environment allowlist plus reviewed manifest overlay, and an
 optional one-megabyte in-memory output cap. Output and environment values are
 never written to the action audit. Shell execution requires `shell: true` and
 exactly one command string. Both array and shell forms reject `sudo` and
-`doas`; Switchyard never elevates privileges for an action.
+`doas`; Envarium never elevates privileges for an action.
 
 On macOS, terminal and editor launch use native `open` behavior. Agent launch
 uses a quoted AppleScript command whose first operation changes to the exact

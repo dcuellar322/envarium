@@ -1,7 +1,7 @@
 import { createBrowserSession } from '../../api/generated/sdk.gen'
 import { client } from '../../api/generated/client.gen'
 
-const csrfStorageKey = 'switchyard.csrf-token'
+const csrfStorageKey = 'envarium.csrf-token'
 
 export async function bootstrapBrowserSession(): Promise<void> {
   client.setConfig({ credentials: 'same-origin' })

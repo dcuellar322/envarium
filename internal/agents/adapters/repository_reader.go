@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
+	discoveryDomain "envarium.dev/envarium/internal/discovery/domain"
 )
 
 const maxEvidenceSourceBytes = 1 << 20

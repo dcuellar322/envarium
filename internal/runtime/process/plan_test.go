@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestPlanOrdersDependenciesAndRejectsImplicitShell(t *testing.T) {
@@ -47,6 +47,20 @@ func TestPlanTargetsOneServiceAndIncludesStartDependencies(t *testing.T) {
 	}
 	if !reflect.DeepEqual(restart.Services, []string{"api"}) {
 		t.Fatalf("restart services = %#v", restart.Services)
+	}
+	deploy, err := buildPlan(domain.PlanRequest{Project: project, Action: domain.ActionDeploy, Services: []string{"api"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if deploy.Risk != domain.RiskCaution || deploy.Action != domain.ActionDeploy || !reflect.DeepEqual(deploy.Services, []string{"api"}) {
+		t.Fatalf("deploy plan = %#v", deploy)
+	}
+	kill, err := buildPlan(domain.PlanRequest{Project: project, Action: domain.ActionKill, Services: []string{"api"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if kill.Risk != domain.RiskCaution || kill.Action != domain.ActionKill || !reflect.DeepEqual(kill.Services, []string{"api"}) {
+		t.Fatalf("kill plan = %#v", kill)
 	}
 }
 

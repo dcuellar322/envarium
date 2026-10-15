@@ -6,14 +6,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
-	"switchyard.dev/switchyard/internal/foundation/buildinfo"
-	"switchyard.dev/switchyard/internal/transport/httpclient"
-	"switchyard.dev/switchyard/internal/transport/mcpserver"
+	agents "envarium.dev/envarium/internal/agents/application"
+	"envarium.dev/envarium/internal/foundation/buildinfo"
+	"envarium.dev/envarium/internal/transport/httpclient"
+	"envarium.dev/envarium/internal/transport/mcpserver"
 )
 
 func newMCPCommand(options *rootOptions) *cobra.Command {
-	command := &cobra.Command{Use: "mcp", Short: "Serve Switchyard to MCP-compatible agents"}
+	command := &cobra.Command{Use: "mcp", Short: "Serve Envarium to MCP-compatible agents"}
 	command.AddCommand(newMCPServeCommand(options))
 	return command
 }
@@ -65,7 +65,7 @@ func newMCPServeCommand(options *rootOptions) *cobra.Command {
 	}
 	command.Flags().StringVar(&transport, "transport", "stdio", "MCP transport (stdio)")
 	command.Flags().StringVar(&provider, "provider", "generic", "bounded provider identifier recorded in audit events")
-	command.Flags().StringVar(&agentID, "agent-id", "switchyard", "bounded agent identity recorded in audit events")
+	command.Flags().StringVar(&agentID, "agent-id", "envarium", "bounded agent identity recorded in audit events")
 	command.Flags().StringVar(&profileName, "profile", string(agents.ProfileObserve), "permission profile (defaults to daemon setting): observe, develop, maintain, or admin")
 	command.Flags().StringSliceVar(&projectIDs, "project", nil, "restrict access to a project ID (repeatable)")
 	return command

@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/fleet/domain"
+	"envarium.dev/envarium/internal/fleet/domain"
 )
 
 func TestHTTPSPeerClientRequiresMutualTLSAndExactServerPin(t *testing.T) {
@@ -84,7 +84,7 @@ func createTestCA(t *testing.T) (*x509.Certificate, *ecdsa.PrivateKey, []byte) {
 		t.Fatal(err)
 	}
 	template := &x509.Certificate{
-		SerialNumber: big.NewInt(1), Subject: pkix.Name{CommonName: "Switchyard test CA"},
+		SerialNumber: big.NewInt(1), Subject: pkix.Name{CommonName: "Envarium test CA"},
 		NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().Add(time.Hour), IsCA: true,
 		BasicConstraintsValid: true, KeyUsage: x509.KeyUsageCertSign | x509.KeyUsageDigitalSignature,
 	}

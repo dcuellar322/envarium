@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/fleet/domain"
+	"envarium.dev/envarium/internal/fleet/domain"
 )
 
 func TestParseRemoteControllersRequiresExplicitUniqueInventoryGrants(t *testing.T) {

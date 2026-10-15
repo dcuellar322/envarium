@@ -1,6 +1,6 @@
 ---
 title: Adapter development guide
-description: Add a platform or runtime adapter without crossing Switchyard domain boundaries.
+description: Add a platform or runtime adapter without crossing Envarium domain boundaries.
 category: contributor
 audience: [contributor, maintainer]
 since: 1.0.0

@@ -8,7 +8,7 @@ import type {
   ReleaseManifest,
 } from './types'
 
-const repository = 'dcuellar322/switchyard' as const
+const repository = 'dcuellar322/envarium' as const
 const tagPattern = /^v(\d+\.\d+\.\d+)(?:-(beta\.\d+|nightly\.\d{8}))?$/
 
 export function releaseChannelForTag(tag: string): ReleaseChannelName | undefined {
@@ -60,7 +60,7 @@ export function normalizeRelease(
     channel,
     version: release.tag_name.replace(/^v/, ''),
     tag: release.tag_name,
-    title: release.name?.trim() || `Switchyard ${release.tag_name}`,
+    title: release.name?.trim() || `Envarium ${release.tag_name}`,
     summary: release.body?.split(/\n\s*\n/, 1)[0]?.replace(/^#+\s*/, '').trim() || undefined,
     notes: release.body?.trim() || undefined,
     publishedAt: release.published_at ?? release.created_at,
@@ -86,7 +86,7 @@ export function normalizeManifest(
   }
   const sourceDates = releases.flatMap((release) => [release.published_at ?? release.created_at]).sort()
   return {
-    schemaVersion: 'switchyard.release-manifest/v1',
+    schemaVersion: 'envarium.release-manifest/v1',
     generatedAt: sourceDates.at(-1) ?? '1970-01-01T00:00:00Z',
     repository,
     channels,

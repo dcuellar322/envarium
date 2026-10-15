@@ -4,11 +4,11 @@ import { normalizeManifest, validatePublishedStable } from '../src/lib/releases/
 import type { GitHubRelease } from '../src/lib/releases/types'
 import { repositoryRoot, siteRoot } from './paths'
 
-const repository = 'dcuellar322/switchyard'
+const repository = 'dcuellar322/envarium'
 const headers = {
   Accept: 'application/vnd.github+json',
   'X-GitHub-Api-Version': '2022-11-28',
-  'User-Agent': 'switchyard-site-build',
+  'User-Agent': 'envarium-site-build',
   ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}),
 }
 

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
 )
 
 // EnhancementService orchestrates evidence consent, provider execution, merge, and durable review.

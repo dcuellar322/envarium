@@ -7,10 +7,10 @@ import (
 	"io"
 	"net/http"
 
-	teamApplication "switchyard.dev/switchyard/internal/team/application"
-	teamDomain "switchyard.dev/switchyard/internal/team/domain"
-	telemetryApplication "switchyard.dev/switchyard/internal/telemetry/application"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	teamApplication "envarium.dev/envarium/internal/team/application"
+	teamDomain "envarium.dev/envarium/internal/team/domain"
+	telemetryApplication "envarium.dev/envarium/internal/telemetry/application"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) ListTeamPublishers(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +115,7 @@ func (h *handler) ExportTeamSync(w http.ResponseWriter, r *http.Request) {
 func (h *handler) PreviewTeamSync(w http.ResponseWriter, r *http.Request) {
 	var request generated.TeamSyncDocument
 	if err := decodeTeamBody(w, r, &request, 10<<20); err != nil {
-		writeProblem(w, r, http.StatusBadRequest, "SYNC_DOCUMENT_INVALID", "Sync document invalid", "Provide a bounded decrypted Switchyard sync document.")
+		writeProblem(w, r, http.StatusBadRequest, "SYNC_DOCUMENT_INVALID", "Sync document invalid", "Provide a bounded decrypted Envarium sync document.")
 		return
 	}
 	document, err := generatedSyncDocument(request)

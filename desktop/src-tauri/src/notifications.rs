@@ -56,7 +56,7 @@ impl Tracker {
                 && matches!(operation.state.as_str(), "failed" | "partially_succeeded")
             {
                 notices.push(Notice {
-                    title: "Switchyard operation needs attention".into(),
+                    title: "Envarium operation needs attention".into(),
                     body: format!(
                         "{} finished with status {}",
                         operation.kind, operation.state
@@ -72,7 +72,7 @@ impl Tracker {
             if previous != Some(current) && current == "unhealthy" {
                 notices.push(Notice {
                     title: format!("{} is unhealthy", project.project.display_name),
-                    body: "Open Switchyard to review the failing health checks.".into(),
+                    body: "Open Envarium to review the failing health checks.".into(),
                 });
             } else if previous == Some("unhealthy") && current == "healthy" {
                 notices.push(Notice {
@@ -149,7 +149,7 @@ fn warning_keys(snapshot: &DesktopSnapshot) -> HashMap<String, Notice> {
                 "docker-disconnected".into(),
                 Notice {
                     title: "Container engine disconnected".into(),
-                    body: "Switchyard cannot observe or control project runtimes.".into(),
+                    body: "Envarium cannot observe or control project runtimes.".into(),
                 },
             );
         }

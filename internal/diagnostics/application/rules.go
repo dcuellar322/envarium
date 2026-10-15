@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/diagnostics/domain"
+	"envarium.dev/envarium/internal/diagnostics/domain"
 )
 
 type logRule struct {
@@ -27,7 +27,7 @@ var logRules = []logRule{
 func Evaluate(bundle domain.Bundle) []domain.Hypothesis {
 	result := []domain.Hypothesis{}
 	if bundle.Snapshot.Runtime.Driver != "" && !bundle.Snapshot.Runtime.EngineConnected {
-		result = append(result, hypothesis("RUNTIME_DISCONNECTED", "Runtime observer is disconnected", "Switchyard cannot reach the configured runtime, so service state may be incomplete.", "error", 1, []string{"runtime"}, bundle.Actions, true))
+		result = append(result, hypothesis("RUNTIME_DISCONNECTED", "Runtime observer is disconnected", "Envarium cannot reach the configured runtime, so service state may be incomplete.", "error", 1, []string{"runtime"}, bundle.Actions, true))
 	}
 	if bundle.ProjectState == "failed" || bundle.ProjectState == "degraded" || bundle.ProjectState == "partially_running" {
 		result = append(result, hypothesis("RUNTIME_DEGRADED", "Project runtime is degraded", "One or more declared services are failed, unhealthy, or not running.", "error", .98, []string{"runtime"}, bundle.Actions, true))

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"switchyard.dev/switchyard/internal/ports/domain"
+	"envarium.dev/envarium/internal/ports/domain"
 )
 
 // PortReservationRepository persists automatically reconciled manifest leases.
@@ -85,7 +85,7 @@ func (r *PortReservationRepository) list(ctx context.Context) ([]domain.Fact, er
 			return nil, err
 		}
 		item.Kind = domain.KindReservation
-		item.Evidence = "Switchyard lease reconciled from accepted manifest"
+		item.Evidence = "Envarium lease reconciled from accepted manifest"
 		item.ObservedAt, err = parseTime(observed)
 		if err != nil {
 			return nil, err

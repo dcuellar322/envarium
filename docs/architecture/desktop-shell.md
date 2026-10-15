@@ -8,22 +8,22 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Phase 15 packages Switchyard as a Tauri 2 application while preserving
+Phase 15 packages Envarium as a Tauri 2 application while preserving
 ADR-0009: Rust is a native adapter, not a second control plane. The bundled Go
 sidecar still owns daemon startup, local IPC, authentication, projects,
 workspaces, operations, resources, persistence, and every mutation policy.
 
 ## Startup and compatibility
 
-The native process executes a fixed `switchyard version --json` command and a
-read-only `switchyard desktop snapshot --json` command. The latter attaches to
+The native process executes a fixed `envarium version --json` command and a
+read-only `envarium desktop snapshot --json` command. The latter attaches to
 a healthy daemon or lets the bundled binary safely start its detached daemon.
 Before requesting a browser credential or exposing a project/workspace action,
 the shell requires:
 
 - an exact desktop and bundled-sidecar semantic-version match;
 - a running daemon in the same product major version;
-- `switchyard.api/v1`; and
+- `envarium.api/v1`; and
 - SQLite schema version 13 or newer.
 
 The minimum schema is the first v1 desktop snapshot contract. Later v1 schema
@@ -37,7 +37,7 @@ migration is newer than the binary's embedded migration set. That second gate
 protects command-line and rollback launches even when no desktop process is
 present.
 
-After preflight, `switchyard ui --path ... --json` issues a short-lived browser
+After preflight, `envarium ui --path ... --json` issues a short-lived browser
 bootstrap credential. The webview navigates only to the returned HTTP
 loopback URL. The startup document has only `core:default`; the remote
 loopback-origin Vue application has no Tauri capability entry. It therefore
@@ -52,8 +52,8 @@ Rust owns only OS-facing presentation:
   projects and workspaces, and fixed open/start/stop actions;
 - a persisted close preference, defaulting to hide-to-tray;
 - opt-in launch-at-login through the platform-native Tauri autostart adapter;
-- single-instance activation and bounded `switchyard://project/<id>` and
-  `switchyard://workspace/<id>` deep links;
+- single-instance activation and bounded `envarium://project/<id>` and
+  `envarium://workspace/<id>` deep links;
 - native notifications for new failed/partial operations, health transitions,
   daemon disconnect/recovery, Docker disconnect, port conflicts, and sustained
   90% host CPU or memory observations; and

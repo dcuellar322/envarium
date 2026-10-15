@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/plugins/domain"
-	pluginsdk "switchyard.dev/switchyard/sdk/plugin"
+	"envarium.dev/envarium/internal/plugins/domain"
+	pluginsdk "envarium.dev/envarium/sdk/plugin"
 )
 
 var (

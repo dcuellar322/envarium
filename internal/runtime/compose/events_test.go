@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"envarium.dev/envarium/internal/runtime/domain"
 	apiEvents "github.com/moby/moby/api/types/events"
 	"github.com/moby/moby/client"
-	"switchyard.dev/switchyard/internal/runtime/domain"
 )
 
 func TestWatchEventsEmitsOnlyCanonicalProjectMembership(t *testing.T) {

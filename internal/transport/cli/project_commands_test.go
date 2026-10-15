@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func TestResolveRepositoryPathUsesClientWorkingDirectory(t *testing.T) {
@@ -26,13 +26,13 @@ func TestAddSummaryDistinguishesAcceptedProposalAndEmptyUnresolvedFields(t *test
 	var output bytes.Buffer
 	proposal := generated.ManifestProposal{
 		Id: "proposal-1", ProjectId: "project-1", Status: generated.ManifestProposalStatusAccepted,
-		Candidate: map[string]any{"metadata": map[string]any{"name": "Switchyard"}},
+		Candidate: map[string]any{"metadata": map[string]any{"name": "Envarium"}},
 		Evidence:  []generated.DiscoveryEvidence{}, Unresolved: []string{}, Validation: generated.ManifestValidation{Valid: true},
 	}
 	if err := writeAddSummary(&output, proposal); err != nil {
 		t.Fatal(err)
 	}
-	if value := output.String(); !strings.Contains(value, "is already accepted for Switchyard") || !strings.Contains(value, "unresolved: none") {
+	if value := output.String(); !strings.Contains(value, "is already accepted for Envarium") || !strings.Contains(value, "unresolved: none") {
 		t.Fatalf("add summary = %q", value)
 	}
 }

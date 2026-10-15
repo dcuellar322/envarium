@@ -11,7 +11,7 @@ lastVerified: 2026-07-17
 
 ## Context
 
-Switchyard is local-first and needs durable relational state without another
+Envarium is local-first and needs durable relational state without another
 service. High-volume logs should not inflate the transactional database.
 
 ## Decision

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test('homepage routes to trusted downloads and the five-minute tutorial', async ({ page }) => {
   await page.goto('/')
-  await expect(page).toHaveTitle(/Switchyard — Local Development Command Center/)
+  await expect(page).toHaveTitle(/Envarium — Local Development Command Center/)
   await expect(page.getByRole('heading', { name: 'Your local development command center.' })).toBeVisible()
   await page.getByRole('link', { name: /Download/ }).first().click()
   await expect(page).toHaveURL(/\/download\/$/)
@@ -24,7 +24,7 @@ test('download selection keeps every platform visible and links integrity eviden
     await expect(platformGrid.getByRole('link', { name: new RegExp(`^${platform}`) })).toBeVisible()
   }
   await page.getByRole('link', { name: 'Verification guide' }).click()
-  await expect(page.getByRole('heading', { name: 'Verify a Switchyard download' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Verify a Envarium download' })).toBeVisible()
 })
 
 test('documentation starts at a tested first-project outcome', async ({ page }) => {
@@ -32,7 +32,7 @@ test('documentation starts at a tested first-project outcome', async ({ page }) 
   await expect(page.getByRole('heading', { level: 1, name: 'Documentation' })).toBeVisible()
   await page.getByRole('link', { name: /Add your first project/ }).first().click()
   await expect(page).toHaveURL(/\/docs\/getting-started\/$/)
-  await expect(page.getByText('switchyard project add')).toBeVisible()
+  await expect(page.getByText('envarium project add')).toBeVisible()
 })
 
 test('documentation search finds the CLI contract', async ({ page }) => {
@@ -41,15 +41,15 @@ test('documentation search finds the CLI contract', async ({ page }) => {
   await expect(openSearch).toBeEnabled()
   await openSearch.click()
   const search = page.getByRole('textbox', { name: 'Search' })
-  await search.fill('Switchyard CLI contract')
-  await page.getByRole('link', { name: /Switchyard CLI contract/ }).first().click()
+  await search.fill('Envarium CLI contract')
+  await page.getByRole('link', { name: /Envarium CLI contract/ }).first().click()
   await expect(page).toHaveURL(/\/docs\/cli\/$/)
 })
 
 test('Codex integration documents setup and authorization failures', async ({ page }) => {
   await page.goto('/integrations/codex/')
   await expect(page.getByRole('heading', { level: 1, name: /Codex/ })).toBeVisible()
-  await expect(page.getByText('switchyard agent install codex --profile observe')).toBeVisible()
+  await expect(page.getByText('envarium agent install codex --profile observe')).toBeVisible()
   await expect(page.getByText(/authorization/i).first()).toBeVisible()
   await expect(page.getByText(/remov/i).first()).toBeVisible()
 })

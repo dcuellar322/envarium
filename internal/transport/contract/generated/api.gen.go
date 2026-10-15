@@ -489,13 +489,13 @@ func (e FleetCapability) Valid() bool {
 
 // Defines values for FleetIdentityProtocolVersion.
 const (
-	SwitchyardRemotev1 FleetIdentityProtocolVersion = "switchyard.remote/v1"
+	EnvariumRemotev1 FleetIdentityProtocolVersion = "envarium.remote/v1"
 )
 
 // Valid indicates whether the value is a known member of the FleetIdentityProtocolVersion enum.
 func (e FleetIdentityProtocolVersion) Valid() bool {
 	switch e {
-	case SwitchyardRemotev1:
+	case EnvariumRemotev1:
 		return true
 	default:
 		return false
@@ -990,14 +990,14 @@ func (e PortFactProtocol) Valid() bool {
 
 // Defines values for PortFactSource.
 const (
-	PortFactSourceCompose    PortFactSource = "compose"
-	PortFactSourceDocker     PortFactSource = "docker"
-	PortFactSourceManifest   PortFactSource = "manifest"
-	PortFactSourceManual     PortFactSource = "manual"
-	PortFactSourceOs         PortFactSource = "os"
-	PortFactSourceProcess    PortFactSource = "process"
-	PortFactSourceSwitchyard PortFactSource = "switchyard"
-	PortFactSourceWorktree   PortFactSource = "worktree"
+	PortFactSourceCompose  PortFactSource = "compose"
+	PortFactSourceDocker   PortFactSource = "docker"
+	PortFactSourceEnvarium PortFactSource = "envarium"
+	PortFactSourceManifest PortFactSource = "manifest"
+	PortFactSourceManual   PortFactSource = "manual"
+	PortFactSourceOs       PortFactSource = "os"
+	PortFactSourceProcess  PortFactSource = "process"
+	PortFactSourceWorktree PortFactSource = "worktree"
 )
 
 // Valid indicates whether the value is a known member of the PortFactSource enum.
@@ -1007,6 +1007,8 @@ func (e PortFactSource) Valid() bool {
 		return true
 	case PortFactSourceDocker:
 		return true
+	case PortFactSourceEnvarium:
+		return true
 	case PortFactSourceManifest:
 		return true
 	case PortFactSourceManual:
@@ -1014,8 +1016,6 @@ func (e PortFactSource) Valid() bool {
 	case PortFactSourceOs:
 		return true
 	case PortFactSourceProcess:
-		return true
-	case PortFactSourceSwitchyard:
 		return true
 	case PortFactSourceWorktree:
 		return true
@@ -1218,6 +1218,8 @@ func (e RemoteOperationReceiptState) Valid() bool {
 
 // Defines values for RemoteOperationRequestAction.
 const (
+	RemoteOperationRequestActionDeploy  RemoteOperationRequestAction = "deploy"
+	RemoteOperationRequestActionKill    RemoteOperationRequestAction = "kill"
 	RemoteOperationRequestActionRebuild RemoteOperationRequestAction = "rebuild"
 	RemoteOperationRequestActionRestart RemoteOperationRequestAction = "restart"
 	RemoteOperationRequestActionStart   RemoteOperationRequestAction = "start"
@@ -1227,6 +1229,10 @@ const (
 // Valid indicates whether the value is a known member of the RemoteOperationRequestAction enum.
 func (e RemoteOperationRequestAction) Valid() bool {
 	switch e {
+	case RemoteOperationRequestActionDeploy:
+		return true
+	case RemoteOperationRequestActionKill:
+		return true
 	case RemoteOperationRequestActionRebuild:
 		return true
 	case RemoteOperationRequestActionRestart:
@@ -1257,6 +1263,8 @@ func (e ResourceFootprintClassification) Valid() bool {
 
 // Defines values for RuntimeAction.
 const (
+	RuntimeActionDeploy   RuntimeAction = "deploy"
+	RuntimeActionKill     RuntimeAction = "kill"
 	RuntimeActionPause    RuntimeAction = "pause"
 	RuntimeActionRebuild  RuntimeAction = "rebuild"
 	RuntimeActionRestart  RuntimeAction = "restart"
@@ -1269,6 +1277,10 @@ const (
 // Valid indicates whether the value is a known member of the RuntimeAction enum.
 func (e RuntimeAction) Valid() bool {
 	switch e {
+	case RuntimeActionDeploy:
+		return true
+	case RuntimeActionKill:
+		return true
 	case RuntimeActionPause:
 		return true
 	case RuntimeActionRebuild:
@@ -1344,16 +1356,16 @@ func (e RuntimeObservationDriver) Valid() bool {
 
 // Defines values for RuntimeObservationOrigin.
 const (
-	External   RuntimeObservationOrigin = "external"
-	Switchyard RuntimeObservationOrigin = "switchyard"
+	Envarium RuntimeObservationOrigin = "envarium"
+	External RuntimeObservationOrigin = "external"
 )
 
 // Valid indicates whether the value is a known member of the RuntimeObservationOrigin enum.
 func (e RuntimeObservationOrigin) Valid() bool {
 	switch e {
-	case External:
+	case Envarium:
 		return true
-	case Switchyard:
+	case External:
 		return true
 	default:
 		return false
@@ -1506,13 +1518,13 @@ func (e SystemInfoStatus) Valid() bool {
 
 // Defines values for TeamBundleSchemaVersion.
 const (
-	SwitchyardBundlev1 TeamBundleSchemaVersion = "switchyard.bundle/v1"
+	EnvariumBundlev1 TeamBundleSchemaVersion = "envarium.bundle/v1"
 )
 
 // Valid indicates whether the value is a known member of the TeamBundleSchemaVersion enum.
 func (e TeamBundleSchemaVersion) Valid() bool {
 	switch e {
-	case SwitchyardBundlev1:
+	case EnvariumBundlev1:
 		return true
 	default:
 		return false
@@ -1560,13 +1572,13 @@ func (e TeamBundleSignatureAlgorithm) Valid() bool {
 
 // Defines values for TeamSyncDocumentSchemaVersion.
 const (
-	SwitchyardSyncv1 TeamSyncDocumentSchemaVersion = "switchyard.sync/v1"
+	EnvariumSyncv1 TeamSyncDocumentSchemaVersion = "envarium.sync/v1"
 )
 
 // Valid indicates whether the value is a known member of the TeamSyncDocumentSchemaVersion enum.
 func (e TeamSyncDocumentSchemaVersion) Valid() bool {
 	switch e {
-	case SwitchyardSyncv1:
+	case EnvariumSyncv1:
 		return true
 	default:
 		return false
@@ -1575,13 +1587,13 @@ func (e TeamSyncDocumentSchemaVersion) Valid() bool {
 
 // Defines values for TelemetryPayloadSchemaVersion.
 const (
-	SwitchyardTelemetryv1 TelemetryPayloadSchemaVersion = "switchyard.telemetry/v1"
+	EnvariumTelemetryv1 TelemetryPayloadSchemaVersion = "envarium.telemetry/v1"
 )
 
 // Valid indicates whether the value is a known member of the TelemetryPayloadSchemaVersion enum.
 func (e TelemetryPayloadSchemaVersion) Valid() bool {
 	switch e {
-	case SwitchyardTelemetryv1:
+	case EnvariumTelemetryv1:
 		return true
 	default:
 		return false
@@ -3225,6 +3237,7 @@ type RuntimeAction string
 // RuntimeActionRequest defines model for RuntimeActionRequest.
 type RuntimeActionRequest struct {
 	Action        RuntimeAction `json:"action"`
+	ConfirmRisk   *bool         `json:"confirmRisk,omitempty"`
 	Profiles      *[]string     `json:"profiles,omitempty"`
 	RemoveVolumes *bool         `json:"removeVolumes,omitempty"`
 	Services      *[]string     `json:"services,omitempty"`
@@ -4312,19 +4325,19 @@ type ClientInterface interface {
 	// Corresponds with GET /host (the `GetHost` operationId).
 	GetHost(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListMachines List explicitly configured remote Switchyard machines
+	// ListMachines List explicitly configured remote Envarium machines
 	//
 	// Corresponds with GET /machines (the `ListMachines` operationId).
 	ListMachines(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateMachineWithBody Register and probe a certificate-pinned remote Switchyard machine
+	// CreateMachineWithBody Register and probe a certificate-pinned remote Envarium machine
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /machines (the `CreateMachine` operationId).
 	CreateMachineWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateMachine Register and probe a certificate-pinned remote Switchyard machine
+	// CreateMachine Register and probe a certificate-pinned remote Envarium machine
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -5302,7 +5315,7 @@ func (c *Client) GetHost(ctx context.Context, reqEditors ...RequestEditorFn) (*h
 	return c.Client.Do(req)
 }
 
-// ListMachines List explicitly configured remote Switchyard machines
+// ListMachines List explicitly configured remote Envarium machines
 //
 // Corresponds with GET /machines (the `ListMachines` operationId).
 func (c *Client) ListMachines(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5317,7 +5330,7 @@ func (c *Client) ListMachines(ctx context.Context, reqEditors ...RequestEditorFn
 	return c.Client.Do(req)
 }
 
-// CreateMachineWithBody Register and probe a certificate-pinned remote Switchyard machine
+// CreateMachineWithBody Register and probe a certificate-pinned remote Envarium machine
 //
 // Takes any type of body and a specified content type.
 //
@@ -5334,7 +5347,7 @@ func (c *Client) CreateMachineWithBody(ctx context.Context, contentType string, 
 	return c.Client.Do(req)
 }
 
-// CreateMachine Register and probe a certificate-pinned remote Switchyard machine
+// CreateMachine Register and probe a certificate-pinned remote Envarium machine
 //
 // Takes a body of the `application/json` content type.
 //
@@ -11490,21 +11503,21 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /host (the `GetHost` operationId).
 	GetHostWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHostResponse, error)
 
-	// ListMachinesWithResponse List explicitly configured remote Switchyard machines
+	// ListMachinesWithResponse List explicitly configured remote Envarium machines
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /machines (the `ListMachines` operationId).
 	ListMachinesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListMachinesResponse, error)
 
-	// CreateMachineWithBodyWithResponse Register and probe a certificate-pinned remote Switchyard machine
+	// CreateMachineWithBodyWithResponse Register and probe a certificate-pinned remote Envarium machine
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /machines (the `CreateMachine` operationId).
 	CreateMachineWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateMachineResponse, error)
 
-	// CreateMachineWithResponse Register and probe a certificate-pinned remote Switchyard machine
+	// CreateMachineWithResponse Register and probe a certificate-pinned remote Envarium machine
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -15759,7 +15772,7 @@ func (c *ClientWithResponses) GetHostWithResponse(ctx context.Context, reqEditor
 	return ParseGetHostResponse(rsp)
 }
 
-// ListMachinesWithResponse List explicitly configured remote Switchyard machines
+// ListMachinesWithResponse List explicitly configured remote Envarium machines
 //
 // Returns a wrapper object for the known response body format(s).
 //
@@ -15772,7 +15785,7 @@ func (c *ClientWithResponses) ListMachinesWithResponse(ctx context.Context, reqE
 	return ParseListMachinesResponse(rsp)
 }
 
-// CreateMachineWithBodyWithResponse Register and probe a certificate-pinned remote Switchyard machine
+// CreateMachineWithBodyWithResponse Register and probe a certificate-pinned remote Envarium machine
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -15785,7 +15798,7 @@ func (c *ClientWithResponses) CreateMachineWithBodyWithResponse(ctx context.Cont
 	return ParseCreateMachineResponse(rsp)
 }
 
-// CreateMachineWithResponse Register and probe a certificate-pinned remote Switchyard machine
+// CreateMachineWithResponse Register and probe a certificate-pinned remote Envarium machine
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20428,10 +20441,10 @@ type ServerInterface interface {
 	// GetHost Read current host CPU, memory, and aggregate Docker storage
 	// (GET /host)
 	GetHost(w http.ResponseWriter, r *http.Request)
-	// ListMachines List explicitly configured remote Switchyard machines
+	// ListMachines List explicitly configured remote Envarium machines
 	// (GET /machines)
 	ListMachines(w http.ResponseWriter, r *http.Request)
-	// CreateMachine Register and probe a certificate-pinned remote Switchyard machine
+	// CreateMachine Register and probe a certificate-pinned remote Envarium machine
 	// (POST /machines)
 	CreateMachine(w http.ResponseWriter, r *http.Request)
 	// DeleteMachine Remove a remote machine registration without changing the peer
@@ -20776,13 +20789,13 @@ func (_ Unimplemented) GetHost(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// ListMachines List explicitly configured remote Switchyard machines
+// ListMachines List explicitly configured remote Envarium machines
 // (GET /machines)
 func (_ Unimplemented) ListMachines(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// CreateMachine Register and probe a certificate-pinned remote Switchyard machine
+// CreateMachine Register and probe a certificate-pinned remote Envarium machine
 // (POST /machines)
 func (_ Unimplemented) CreateMachine(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)

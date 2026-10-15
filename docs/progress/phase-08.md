@@ -1,6 +1,6 @@
 ---
 title: "Phase 8: Ports, Git, and actions"
-description: Implementation evidence for Switchyard product phase 8.
+description: Implementation evidence for Envarium product phase 8.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-21
@@ -143,7 +143,7 @@ environment values.
 ## 2026-07-17 terminal and endpoint evidence
 
 - Dashboard and project-header Terminal controls use the durable terminal
-  preference: `integrated` opens Switchyard's terminal tab, while an external
+  preference: `integrated` opens Envarium's terminal tab, while an external
   preference queues the trusted `terminal.open` action. The terminal tab
   remains directly accessible in either mode.
 - The explicit external-terminal control is disabled when no trusted

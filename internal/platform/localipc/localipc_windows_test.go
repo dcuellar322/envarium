@@ -29,7 +29,7 @@ func TestWindowsNamedPipeListenerAndHTTPClient(t *testing.T) {
 		_ = server.Close()
 		<-done
 	})
-	response, err := HTTPClient(address).Get("http://switchyard.local/status")
+	response, err := HTTPClient(address).Get("http://envarium.local/status")
 	if err != nil {
 		t.Fatalf("Get() error = %v", err)
 	}
@@ -41,7 +41,7 @@ func TestWindowsNamedPipeListenerAndHTTPClient(t *testing.T) {
 
 func TestWindowsNamedPipeAddressUsesFullDataDirectory(t *testing.T) {
 	t.Parallel()
-	if DefaultAddress(`C:\\Users\\one\\Switchyard`) == DefaultAddress(`D:\\Users\\one\\Switchyard`) {
+	if DefaultAddress(`C:\\Users\\one\\Envarium`) == DefaultAddress(`D:\\Users\\one\\Envarium`) {
 		t.Fatal("different data directories produced the same pipe address")
 	}
 }

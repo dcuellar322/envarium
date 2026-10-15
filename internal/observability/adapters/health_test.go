@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	observability "switchyard.dev/switchyard/internal/observability/domain"
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	observability "envarium.dev/envarium/internal/observability/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 type roundTripFunc func(*http.Request) (*http.Response, error)

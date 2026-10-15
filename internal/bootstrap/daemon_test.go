@@ -5,10 +5,10 @@ import (
 	"errors"
 	"testing"
 
-	operationsApplication "switchyard.dev/switchyard/internal/operations/application"
-	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
-	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
-	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
+	operationsApplication "envarium.dev/envarium/internal/operations/application"
+	operationsDomain "envarium.dev/envarium/internal/operations/domain"
+	runtimeApplication "envarium.dev/envarium/internal/runtime/application"
+	runtimeDomain "envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestValidateLoopbackAddress(t *testing.T) {

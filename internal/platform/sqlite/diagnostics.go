@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	diagnosticsApplication "switchyard.dev/switchyard/internal/diagnostics/application"
-	"switchyard.dev/switchyard/internal/diagnostics/domain"
+	diagnosticsApplication "envarium.dev/envarium/internal/diagnostics/application"
+	"envarium.dev/envarium/internal/diagnostics/domain"
 )
 
 // DiagnosticRepository persists diagnostic review and automation state.

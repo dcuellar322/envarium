@@ -32,9 +32,7 @@ const {
       <div>
         <p class="eyebrow">Project catalog</p>
         <h1 id="onboarding-title">Bring a repository into the yard.</h1>
-        <p>
-          Switchyard reads known project files, shows its evidence, and waits for your approval.
-        </p>
+        <p>Envarium reads known project files, shows its evidence, and waits for your approval.</p>
       </div>
       <span class="safety-note">No repository code is executed</span>
     </header>

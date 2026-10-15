@@ -1,6 +1,6 @@
 ---
 title: Product glossary
-description: Canonical meanings for Switchyard project, runtime, operation, port, and trust terms.
+description: Canonical meanings for Envarium project, runtime, operation, port, and trust terms.
 category: reference
 audience: [user, contributor, integrator]
 since: 1.0.0

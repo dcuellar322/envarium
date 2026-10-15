@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
-	"switchyard.dev/switchyard/internal/terminal/domain"
+	terminalApplication "envarium.dev/envarium/internal/terminal/application"
+	"envarium.dev/envarium/internal/terminal/domain"
 )
 
 // TerminalSessionRepository persists metadata and audit facts, never PTY bytes.

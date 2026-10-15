@@ -50,7 +50,7 @@ const {
         <p v-if="emptyConfiguration">
           This page is for signed configuration exchange, not a live member directory. Start by
           trusting a publisher key below, then install a reviewed signed bundle or use
-          <code>switchyard team sync</code>.
+          <code>envarium team sync</code>.
         </p>
         <p v-else>
           Trusted publishers and installed bundles apply only to this machine. Every imported policy
@@ -199,9 +199,9 @@ const {
           <span>age X25519</span>
         </div>
         <p>
-          Use <code>switchyard team sync</code> to export, preview, and import encrypted files.
-          Fleet credentials, projects, paths, logs, operations, and secrets are never included.
-          Decryption stays in the CLI; every signature is verified before an explicit import.
+          Use <code>envarium team sync</code> to export, preview, and import encrypted files. Fleet
+          credentials, projects, paths, logs, operations, and secrets are never included. Decryption
+          stays in the CLI; every signature is verified before an explicit import.
         </p>
       </article>
     </div>

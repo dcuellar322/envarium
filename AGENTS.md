@@ -1,17 +1,17 @@
-# AGENTS.md — Switchyard repository policy
+# AGENTS.md — Envarium repository policy
 
 ## Product
 
-Switchyard is a local, project-oriented development command center. The Go control plane owns project lifecycle, state, logs, ports, resources, and agent-facing operations. Vue, CLI, Tauri, and MCP are adapters over shared application services.
+Envarium is a local, project-oriented development command center. The Go control plane owns project lifecycle, state, logs, ports, resources, and agent-facing operations. Vue, CLI, Tauri, and MCP are adapters over shared application services.
 
 ## Mandatory reading
 
 Before implementing work:
 
-1. Read `SWITCHYARD_IMPLEMENTATION_PLAN.md`.
+1. Read `ENVARIUM_IMPLEMENTATION_PLAN.md`.
 2. Read the target phase and its exit criteria.
 3. Read applicable ADRs under `docs/adr/`.
-4. For UI work, open `design/switchyard-interactive-mockup.html`.
+4. For UI work, open `design/envarium-interactive-mockup.html`.
 
 ## Architecture rules
 

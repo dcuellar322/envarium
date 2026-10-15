@@ -10,11 +10,11 @@ import (
 	"io"
 	"os"
 
-	"switchyard.dev/switchyard/internal/foundation/secretfile"
-	teamApplication "switchyard.dev/switchyard/internal/team/application"
+	"envarium.dev/envarium/internal/foundation/secretfile"
+	teamApplication "envarium.dev/envarium/internal/team/application"
 )
 
-const signingKeySchema = "switchyard.signing-key/v1"
+const signingKeySchema = "envarium.signing-key/v1"
 
 type signingKeyFile struct {
 	SchemaVersion string `json:"schemaVersion"`

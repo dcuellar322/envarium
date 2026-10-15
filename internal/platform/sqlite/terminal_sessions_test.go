@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
-	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
-	"switchyard.dev/switchyard/internal/terminal/domain"
+	terminalApplication "envarium.dev/envarium/internal/terminal/application"
+	"envarium.dev/envarium/internal/terminal/domain"
 )
 
 func TestTerminalSessionRepositoryRoundTripsMetadataAuditAndRecovery(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func TestTerminalSessionRepositoryRoundTripsMetadataAuditAndRecovery(t *testing.
 
 func TestTerminalSchemaContainsNoInputOutputOrEnvironmentPayloadColumns(t *testing.T) {
 	t.Parallel()
-	database, err := Open(context.Background(), filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := Open(context.Background(), filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

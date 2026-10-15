@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/diagnostics/domain"
+	"envarium.dev/envarium/internal/diagnostics/domain"
 )
 
 func TestKnownFailureRulesAreDeterministicAndEvidenceBacked(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"sort"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime) (domain.Observation, error) {
@@ -92,10 +92,10 @@ func processProjectState(declared, managed, external, starting, failed, stale in
 	running := managed + external
 	if running == 0 {
 		if starting > 0 {
-			return domain.StateStarting, domain.OriginSwitchyard
+			return domain.StateStarting, domain.OriginEnvarium
 		}
 		if failed > 0 {
-			return domain.StateFailed, domain.OriginSwitchyard
+			return domain.StateFailed, domain.OriginEnvarium
 		}
 		if stale > 0 {
 			return domain.StateUnknown, domain.OriginExternal
@@ -108,7 +108,7 @@ func processProjectState(declared, managed, external, starting, failed, stale in
 	if external == declared {
 		return domain.StateRunningExternal, domain.OriginExternal
 	}
-	return domain.StateRunning, domain.OriginSwitchyard
+	return domain.StateRunning, domain.OriginEnvarium
 }
 
 func (d *Driver) externalService(

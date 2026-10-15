@@ -9,19 +9,19 @@ import (
 	"strings"
 	"testing"
 
-	agentsAdapters "switchyard.dev/switchyard/internal/agents/adapters"
-	agents "switchyard.dev/switchyard/internal/agents/application"
-	catalog "switchyard.dev/switchyard/internal/catalog/application"
-	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
-	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
-	observabilityAdapters "switchyard.dev/switchyard/internal/observability/adapters"
-	"switchyard.dev/switchyard/internal/platform/sqlite"
+	agentsAdapters "envarium.dev/envarium/internal/agents/adapters"
+	agents "envarium.dev/envarium/internal/agents/application"
+	catalog "envarium.dev/envarium/internal/catalog/application"
+	discoveryAdapters "envarium.dev/envarium/internal/discovery/adapters"
+	discoveryDomain "envarium.dev/envarium/internal/discovery/domain"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
+	observabilityAdapters "envarium.dev/envarium/internal/observability/adapters"
+	"envarium.dev/envarium/internal/platform/sqlite"
 )
 
 func TestAmbiguousFixtureReceivesValidReviewableProviderProposal(t *testing.T) {
 	ctx := context.Background()
-	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,7 +56,7 @@ func TestAmbiguousFixtureReceivesValidReviewableProviderProposal(t *testing.T) {
 	if run.State != agents.RunSucceeded || !run.DryRun.Valid || run.ResultProposalID == "" {
 		t.Fatalf("run = %#v", run)
 	}
-	if strings.Contains(string(run.Bundle), "sk-switchyard-fixture-secret-never-send") || strings.Contains(string(run.Bundle), ".env") {
+	if strings.Contains(string(run.Bundle), "sk-envarium-fixture-secret-never-send") || strings.Contains(string(run.Bundle), ".env") {
 		t.Fatalf("secret material crossed provider boundary: %s", run.Bundle)
 	}
 	result, err := catalogService.GetProposal(ctx, run.ResultProposalID)
@@ -73,7 +73,7 @@ func TestAmbiguousFixtureReceivesValidReviewableProviderProposal(t *testing.T) {
 	if original.Status != discoveryDomain.StatusSuperseded {
 		t.Fatalf("source status = %s", original.Status)
 	}
-	if _, err := os.Stat("/tmp/switchyard-prompt-injection"); !errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Stat("/tmp/envarium-prompt-injection"); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("prompt injection sentinel exists: %v", err)
 	}
 }

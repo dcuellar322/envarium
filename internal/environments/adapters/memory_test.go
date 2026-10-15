@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/environments/domain"
+	"envarium.dev/envarium/internal/environments/domain"
 )
 
 func TestMemoryRepositoryReplacesOnlySelectedProject(t *testing.T) {

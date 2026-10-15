@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	observability "switchyard.dev/switchyard/internal/observability/domain"
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	observability "envarium.dev/envarium/internal/observability/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 // LogRuntime supplies raw driver streams and trusted project enumeration.

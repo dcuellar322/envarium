@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 type desktopSnapshot struct {

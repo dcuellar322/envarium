@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/settings/domain"
+	"envarium.dev/envarium/internal/settings/domain"
 )
 
 var (

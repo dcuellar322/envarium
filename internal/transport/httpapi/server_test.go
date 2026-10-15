@@ -12,13 +12,13 @@ import (
 	"testing"
 	"time"
 
-	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
-	operations "switchyard.dev/switchyard/internal/operations/application"
-	"switchyard.dev/switchyard/internal/operations/domain"
-	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
-	session "switchyard.dev/switchyard/internal/session/application"
-	"switchyard.dev/switchyard/internal/system/application"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	observabilityDomain "envarium.dev/envarium/internal/observability/domain"
+	operations "envarium.dev/envarium/internal/operations/application"
+	"envarium.dev/envarium/internal/operations/domain"
+	runtimeDomain "envarium.dev/envarium/internal/runtime/domain"
+	session "envarium.dev/envarium/internal/session/application"
+	"envarium.dev/envarium/internal/system/application"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 type systemStub struct {
@@ -159,6 +159,12 @@ func (runtimeStub) Metrics(context.Context, string, string) ([]runtimeDomain.Met
 	return []runtimeDomain.MetricSample{}, nil
 }
 
+type destructiveRuntimeStub struct{ runtimeStub }
+
+func (destructiveRuntimeStub) PlanSelection(_ context.Context, projectID string, action runtimeDomain.Action, removeVolumes bool, services, profiles []string) (runtimeDomain.Plan, error) {
+	return runtimeDomain.Plan{ProjectID: projectID, Driver: runtimeDomain.KindCompose, Action: action, Risk: runtimeDomain.RiskDestructive, Commands: []runtimeDomain.Command{}, Effects: []string{"remove resources"}, Services: services, Profiles: profiles, RemoveVolumes: removeVolumes}, nil
+}
+
 func TestRuntimeOperationUsesDurableCoordinatorBoundary(t *testing.T) {
 	t.Parallel()
 	handler := NewIPC(Dependencies{
@@ -214,11 +220,48 @@ func TestRuntimePlanDoesNotRequireMutationCredentials(t *testing.T) {
 	}
 }
 
+func TestDestructiveRuntimeOperationRequiresExplicitConfirmation(t *testing.T) {
+	t.Parallel()
+	operations := &recordingOperations{}
+	handler := NewIPC(Dependencies{
+		System: systemStub{}, Operations: operations, Runtime: destructiveRuntimeStub{}, Sessions: session.NewManager(),
+		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/projects/project-1/operations", strings.NewReader(`{"action":"teardown","removeVolumes":true}`))
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set(idempotencyHeader, "runtime-teardown-key")
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusConflict || !strings.Contains(response.Body.String(), "RUNTIME_CONFIRMATION_REQUIRED") {
+		t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
+	}
+	if operations.request.Kind != "" {
+		t.Fatalf("operation submitted without confirmation: %#v", operations.request)
+	}
+}
+
+func TestDestructiveRuntimeOperationAcceptsConfirmedPlan(t *testing.T) {
+	t.Parallel()
+	operations := &recordingOperations{}
+	handler := NewIPC(Dependencies{
+		System: systemStub{}, Operations: operations, Runtime: destructiveRuntimeStub{}, Sessions: session.NewManager(),
+		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/projects/project-1/operations", strings.NewReader(`{"action":"teardown","removeVolumes":true,"confirmRisk":true}`))
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set(idempotencyHeader, "runtime-teardown-confirmed-key")
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusAccepted || operations.request.Kind != "runtime.teardown" {
+		t.Fatalf("status = %d, operation = %#v, body = %s", response.Code, operations.request, response.Body.String())
+	}
+}
+
 type runningRuntimeStub struct{}
 
 func (runningRuntimeStub) Inspect(context.Context, string) (runtimeDomain.Observation, error) {
 	return runtimeDomain.Observation{ProjectID: "project-1", Driver: runtimeDomain.KindProcess, State: runtimeDomain.StateRunning,
-		Origin: runtimeDomain.OriginSwitchyard, Services: []runtimeDomain.ServiceObservation{}}, nil
+		Origin: runtimeDomain.OriginEnvarium, Services: []runtimeDomain.ServiceObservation{}}, nil
 }
 func (runningRuntimeStub) Plan(context.Context, string, runtimeDomain.Action, bool) (runtimeDomain.Plan, error) {
 	return runtimeDomain.Plan{}, nil

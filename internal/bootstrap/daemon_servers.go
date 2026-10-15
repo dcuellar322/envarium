@@ -11,9 +11,9 @@ import (
 	"os"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/secretfile"
-	"switchyard.dev/switchyard/internal/platform/localipc"
-	"switchyard.dev/switchyard/internal/transport/httpapi"
+	"envarium.dev/envarium/internal/foundation/secretfile"
+	"envarium.dev/envarium/internal/platform/localipc"
+	"envarium.dev/envarium/internal/transport/httpapi"
 )
 
 type localServers struct {

@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/foundation/identifier"
 )
 
 var (

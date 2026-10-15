@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"switchyard.dev/switchyard/internal/platform/localipc"
-	"switchyard.dev/switchyard/internal/transport/httpclient"
+	"envarium.dev/envarium/internal/platform/localipc"
+	"envarium.dev/envarium/internal/transport/httpclient"
 )
 
 func ipcClient(options *rootOptions) (*httpclient.Client, error) {
@@ -44,7 +44,7 @@ func daemonClient(ctx context.Context, options *rootOptions) (*httpclient.Client
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		case <-deadline.C:
-			return nil, &Error{Code: "DAEMON_UNAVAILABLE", Message: "Switchyard daemon did not become ready within 5 seconds", ExitCode: exitUnavailable, Cause: probeErr}
+			return nil, &Error{Code: "DAEMON_UNAVAILABLE", Message: "Envarium daemon did not become ready within 5 seconds", ExitCode: exitUnavailable, Cause: probeErr}
 		case <-ticker.C:
 			if err := probeDaemon(ctx, client); err == nil {
 				return client, nil
@@ -66,7 +66,7 @@ func startDaemon(options *rootOptions) error {
 	}
 	executable, err := os.Executable()
 	if err != nil {
-		return fmt.Errorf("locate switchyard executable: %w", err)
+		return fmt.Errorf("locate envarium executable: %w", err)
 	}
 	args := []string{"daemon", "--data-dir", options.dataDir, "--address", options.address}
 	if options.ipcAddr != "" {

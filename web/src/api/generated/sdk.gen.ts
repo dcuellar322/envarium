@@ -409,12 +409,12 @@ export const createAgentSession = <ThrowOnError extends boolean = false>(options
 });
 
 /**
- * List explicitly configured remote Switchyard machines
+ * List explicitly configured remote Envarium machines
  */
 export const listMachines = <ThrowOnError extends boolean = false>(options?: Options<ListMachinesData, ThrowOnError>): RequestResult<ListMachinesResponses, ListMachinesErrors, ThrowOnError> => (options?.client ?? client).get<ListMachinesResponses, ListMachinesErrors, ThrowOnError>({ url: '/machines', ...options });
 
 /**
- * Register and probe a certificate-pinned remote Switchyard machine
+ * Register and probe a certificate-pinned remote Envarium machine
  */
 export const createMachine = <ThrowOnError extends boolean = false>(options: Options<CreateMachineData, ThrowOnError>): RequestResult<CreateMachineResponses, CreateMachineErrors, ThrowOnError> => (options.client ?? client).post<CreateMachineResponses, CreateMachineErrors, ThrowOnError>({
     url: '/machines',

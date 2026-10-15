@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	workspaceDomain "switchyard.dev/switchyard/internal/workspace/domain"
+	workspaceDomain "envarium.dev/envarium/internal/workspace/domain"
 )
 
 type recordingWorkspaceProgress struct {

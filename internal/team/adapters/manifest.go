@@ -5,7 +5,7 @@ package adapters
 import (
 	"encoding/json"
 
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
 )
 
 // ManifestValidator validates a fully rendered v1 project declaration.

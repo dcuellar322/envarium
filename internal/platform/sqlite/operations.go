@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	operations "switchyard.dev/switchyard/internal/operations/application"
-	"switchyard.dev/switchyard/internal/operations/domain"
-	"switchyard.dev/switchyard/internal/platform/sqlite/generated"
+	operations "envarium.dev/envarium/internal/operations/application"
+	"envarium.dev/envarium/internal/operations/domain"
+	"envarium.dev/envarium/internal/platform/sqlite/generated"
 )
 
 // OperationRepository persists the operations kernel in SQLite.

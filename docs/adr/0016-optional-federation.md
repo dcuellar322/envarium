@@ -11,17 +11,17 @@ lastVerified: 2026-07-17
 
 ## Context
 
-Switchyard v1 deliberately trusts one local user and one local control plane.
+Envarium v1 deliberately trusts one local user and one local control plane.
 Post-v1 demand adds remote development machines, encrypted configuration sync,
 team templates, curated plugin metadata, and enterprise policy. Extending the
 loopback API over a network would leak ambient local authority, while requiring
-a Switchyard cloud service would break the local-only product and deployment
+a Envarium cloud service would break the local-only product and deployment
 model.
 
 ## Decision
 
 Add optional peer federation without changing the local control plane's
-defaults. A daemon may expose a separate `switchyard.remote/v1` agent listener
+defaults. A daemon may expose a separate `envarium.remote/v1` agent listener
 only when explicitly configured with a server certificate, private key, client
 CA, and controller allowlist. The listener requires mutual TLS, pins the
 authenticated controller certificate fingerprint, and offers a narrow typed
@@ -32,12 +32,12 @@ logs, secrets, Docker, SQL, plugin processes, MCP, or a generic shell.
 The controlling daemon stores machine identity, tunnel HTTPS endpoint,
 certificate pin, capabilities, grants, and credential references. It does not
 store private credential values. Operators supply the tunnel layer (for
-example WireGuard, Tailscale, or an SSH forward); Switchyard authenticates and
+example WireGuard, Tailscale, or an SSH forward); Envarium authenticates and
 authorizes both ends independently of tunnel routing. Remote mutations require
 an enabled machine, an explicitly granted capability, a matching peer
 identity, confirmation for the declared risk, and durable audit on both peers.
 
-Shared configuration uses canonical `switchyard.bundle/v1` envelopes. Team
+Shared configuration uses canonical `envarium.bundle/v1` envelopes. Team
 templates, policy packs, curated plugin registries, and enterprise
 configuration are signed with Ed25519 and verified against explicitly trusted
 publishers before installation. Portable sync archives are encrypted to an

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/buildinfo"
+	"envarium.dev/envarium/internal/foundation/buildinfo"
 )
 
 type healthStub struct {

@@ -10,12 +10,12 @@ import (
 	"net/http"
 	"strings"
 
-	fleetApplication "switchyard.dev/switchyard/internal/fleet/application"
-	"switchyard.dev/switchyard/internal/fleet/domain"
+	fleetApplication "envarium.dev/envarium/internal/fleet/application"
+	"envarium.dev/envarium/internal/fleet/domain"
 )
 
 const (
-	protocolHeader  = "X-Switchyard-Protocol"
+	protocolHeader  = "X-Envarium-Protocol"
 	maximumBodySize = 64 << 10
 )
 

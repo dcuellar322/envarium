@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestInspectRejectsReusedPIDFingerprint(t *testing.T) {
@@ -18,7 +18,7 @@ func TestInspectRejectsReusedPIDFingerprint(t *testing.T) {
 	}
 	if err := store.CreateRun(context.Background(), domain.RunRecord{
 		ID: "run-stale", ProjectID: "project-process", ServiceID: "api", RuntimeDriver: domain.KindProcess,
-		Origin: domain.OriginSwitchyard, StartedAt: started, IdentityFingerprint: stored.Fingerprint,
+		Origin: domain.OriginEnvarium, StartedAt: started, IdentityFingerprint: stored.Fingerprint,
 	}); err != nil {
 		t.Fatal(err)
 	}

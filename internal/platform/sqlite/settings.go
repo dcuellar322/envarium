@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	settingsApplication "switchyard.dev/switchyard/internal/settings/application"
-	"switchyard.dev/switchyard/internal/settings/domain"
+	settingsApplication "envarium.dev/envarium/internal/settings/application"
+	"envarium.dev/envarium/internal/settings/domain"
 )
 
 // SettingsRepository persists one revisioned settings document and value-free

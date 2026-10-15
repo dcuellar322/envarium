@@ -1,6 +1,6 @@
 ---
 title: "Phase 6: Native process runtime"
-description: Implementation evidence for Switchyard product phase 6.
+description: Implementation evidence for Envarium product phase 6.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -11,7 +11,7 @@ lastVerified: 2026-07-17
 - Added a typed process manifest with shell-free argv, contained working
   directories, project/process environment overlays, keychain references,
   stop timeouts, and bounded opt-in restart policy.
-- Added deterministic adoption of reviewed `.switchyard/project.yml` files so
+- Added deterministic adoption of reviewed `.envarium/project.yml` files so
   explicit uv/npm process projects can complete the normal add/trust flow.
 - Added dependency validation and deterministic topological start/reverse-stop
   ordering for multi-process projects.
@@ -77,7 +77,7 @@ go test -tags=integration ./test/integration \
   -run 'TestUVAndNPM|TestNativeRuntimeRecognizesExternal' -count=1 -v
 PASS: uv/npm lifecycle and external uv recognition in 4.924 seconds
 
-SWITCHYARD_DOCKER_INTEGRATION=1 go test -tags=integration ./test/integration \
+ENVARIUM_DOCKER_INTEGRATION=1 go test -tags=integration ./test/integration \
   -run TestComposeRuntimeLifecycleObservationLogsMetricsAndExternalRecognition \
   -count=1 -v
 PASS: Compose regression lifecycle and cleanup in 22.39 seconds
@@ -87,8 +87,8 @@ PASS: generated drift, formatting, vet, golangci-lint, architecture checks,
 frontend lint/typecheck/tests, all Go tests and race tests, migration smoke,
 govulncheck, Playwright E2E/visual tests, production web build, packaged binary
 
-GOOS=linux GOARCH=amd64 go build -trimpath -o /tmp/switchyard-phase6-linux-amd64 ./cmd/switchyard
-GOOS=windows GOARCH=amd64 go build -trimpath -o /tmp/switchyard-phase6-windows-amd64.exe ./cmd/switchyard
+GOOS=linux GOARCH=amd64 go build -trimpath -o /tmp/envarium-phase6-linux-amd64 ./cmd/envarium
+GOOS=windows GOARCH=amd64 go build -trimpath -o /tmp/envarium-phase6-windows-amd64.exe ./cmd/envarium
 PASS: Linux and Windows amd64 cross-builds
 ```
 
@@ -109,7 +109,7 @@ had zero active runs, one `stopped` outcome, and no TCP listener.
   `identity_lost`, and is never signalled as the original run.
 - [x] Known shell executables and shell syntax in the executable field are
   rejected unless `shell: true` is explicit and previewed.
-- [x] A matching port/process launched outside Switchyard is reported as
+- [x] A matching port/process launched outside Envarium is reported as
   `running_external` with no run ID or ownership claim.
 
 ## Known limitations
@@ -137,12 +137,12 @@ had zero active runs, one `stopped` outcome, and no TCP listener.
 
 ```bash
 make build
-switchyard add test/fixtures/uv-single-process
-switchyard project trust uv-single-process --yes
-switchyard plan start uv-single-process
-switchyard start uv-single-process
-switchyard status uv-single-process
-switchyard logs uv-single-process --service web --tail 50
-switchyard metrics uv-single-process --service web
-switchyard stop uv-single-process
+envarium add test/fixtures/uv-single-process
+envarium project trust uv-single-process --yes
+envarium plan start uv-single-process
+envarium start uv-single-process
+envarium status uv-single-process
+envarium logs uv-single-process --service web --tail 50
+envarium metrics uv-single-process --service web
+envarium stop uv-single-process
 ```

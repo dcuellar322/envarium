@@ -17,9 +17,9 @@ import (
 
 	toml "github.com/pelletier/go-toml/v2"
 
-	"switchyard.dev/switchyard/internal/discovery/application"
-	"switchyard.dev/switchyard/internal/discovery/domain"
-	manifest "switchyard.dev/switchyard/internal/manifest/application"
+	"envarium.dev/envarium/internal/discovery/application"
+	"envarium.dev/envarium/internal/discovery/domain"
+	manifest "envarium.dev/envarium/internal/manifest/application"
 )
 
 // Defaults returns every Phase 3 deterministic scanner in stable order.
@@ -255,7 +255,7 @@ type existingRuntimeScanner struct{}
 
 func (existingRuntimeScanner) Name() string { return "existing-runtime" }
 func (existingRuntimeScanner) Scan(_ context.Context, root application.Root) ([]domain.Evidence, error) {
-	const path = ".switchyard/project.yml"
+	const path = ".envarium/project.yml"
 	contents, err := root.ReadFile(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return nil, nil
@@ -267,7 +267,7 @@ func (existingRuntimeScanner) Scan(_ context.Context, root application.Root) ([]
 	if err != nil {
 		return nil, fmt.Errorf("parse %s: %w", path, err)
 	}
-	return evidence("switchyard.manifest", path, 1, max(1, len(strings.Split(string(contents), "\n"))), 1, document)
+	return evidence("envarium.manifest", path, 1, max(1, len(strings.Split(string(contents), "\n"))), 1, document)
 }
 
 func evidence(kind, path string, start, end int, confidence float64, data any) ([]domain.Evidence, error) {

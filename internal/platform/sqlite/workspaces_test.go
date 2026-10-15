@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	workspace "switchyard.dev/switchyard/internal/workspace/application"
-	"switchyard.dev/switchyard/internal/workspace/domain"
+	workspace "envarium.dev/envarium/internal/workspace/application"
+	"envarium.dev/envarium/internal/workspace/domain"
 )
 
 func TestWorkspaceRepositoryRoundTripsGraphAndLatestExecution(t *testing.T) {
@@ -192,7 +192,7 @@ func TestWorkspaceRepositoryRecoversInterruptedExecution(t *testing.T) {
 
 func openWorkspaceTestDatabase(t *testing.T) *Database {
 	t.Helper()
-	database, err := Open(context.Background(), filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := Open(context.Background(), filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatalf("Open() error = %v", err)
 	}

@@ -1,4 +1,4 @@
-// Package codex installs Switchyard MCP and skill configuration for Codex.
+// Package codex installs Envarium MCP and skill configuration for Codex.
 package codex
 
 import (
@@ -8,13 +8,13 @@ import (
 	"strconv"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/agents/guidance"
-	"switchyard.dev/switchyard/internal/agents/providers"
+	"envarium.dev/envarium/internal/agents/guidance"
+	"envarium.dev/envarium/internal/agents/providers"
 )
 
 const (
-	configBegin = "# switchyard:begin"
-	configEnd   = "# switchyard:end"
+	configBegin = "# envarium:begin"
+	configEnd   = "# envarium:end"
 )
 
 // Install writes an idempotent provider config, shared skill, and project guidance.
@@ -24,11 +24,11 @@ func Install(request providers.InstallRequest) ([]string, error) {
 	}
 	base := request.Root
 	configPath := filepath.Join(base, ".codex", "config.toml")
-	skillPath := filepath.Join(base, ".agents", "skills", "switchyard-operate", "SKILL.md")
+	skillPath := filepath.Join(base, ".agents", "skills", "envarium-operate", "SKILL.md")
 	if request.Scope == providers.ScopeUser {
 		base = request.Home
 		configPath = filepath.Join(base, ".codex", "config.toml")
-		skillPath = filepath.Join(base, ".agents", "skills", "switchyard-operate", "SKILL.md")
+		skillPath = filepath.Join(base, ".agents", "skills", "envarium-operate", "SKILL.md")
 	}
 	guidancePath := filepath.Join(request.Root, "AGENTS.md")
 	if request.Scope == providers.ScopeProject {
@@ -68,7 +68,7 @@ func configBlock(request providers.InstallRequest) string {
 	}
 	return strings.Join([]string{
 		configBegin,
-		"[mcp_servers.switchyard]",
+		"[mcp_servers.envarium]",
 		"command = " + strconv.Quote(request.Executable),
 		"args = [" + strings.Join(quoted, ", ") + "]",
 		"startup_timeout_sec = 10",
@@ -82,15 +82,15 @@ func upsertConfig(existing, block string) (string, error) {
 	begin := strings.Index(existing, configBegin)
 	end := strings.Index(existing, configEnd)
 	if (begin >= 0) != (end >= 0) || begin >= 0 && end < begin {
-		return "", errors.New("malformed Switchyard Codex config markers")
+		return "", errors.New("malformed Envarium Codex config markers")
 	}
 	remainder := existing
 	if begin >= 0 {
 		end += len(configEnd)
 		remainder = existing[:begin] + existing[end:]
 	}
-	if strings.Contains(remainder, "[mcp_servers.switchyard]") {
-		return "", fmt.Errorf("%s already exists outside Switchyard's managed block", "[mcp_servers.switchyard]")
+	if strings.Contains(remainder, "[mcp_servers.envarium]") {
+		return "", fmt.Errorf("%s already exists outside Envarium's managed block", "[mcp_servers.envarium]")
 	}
 	if begin >= 0 {
 		return strings.TrimSpace(existing[:begin]+block+existing[end:]) + "\n", nil

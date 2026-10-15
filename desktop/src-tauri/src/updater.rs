@@ -4,9 +4,9 @@ use tauri::{AppHandle, Runtime};
 use tauri_plugin_notification::NotificationExt;
 
 #[cfg(not(debug_assertions))]
-const PUBLIC_KEY: &str = env!("SWITCHYARD_UPDATER_PUBLIC_KEY");
+const PUBLIC_KEY: &str = env!("ENVARIUM_UPDATER_PUBLIC_KEY");
 #[cfg(not(debug_assertions))]
-const ENDPOINT: &str = env!("SWITCHYARD_UPDATER_ENDPOINT");
+const ENDPOINT: &str = env!("ENVARIUM_UPDATER_ENDPOINT");
 
 #[cfg(any(not(debug_assertions), test))]
 fn validate_endpoint(value: &str) -> Result<url::Url, String> {
@@ -39,7 +39,7 @@ pub async fn check_and_install<R: Runtime>(app: AppHandle<R>) {
         let _ = app
             .notification()
             .builder()
-            .title("Switchyard updates")
+            .title("Envarium updates")
             .body("Update checks are enabled only in signed release builds.")
             .show();
     }
@@ -61,7 +61,7 @@ pub async fn check_and_install<R: Runtime>(app: AppHandle<R>) {
             };
             app.notification()
                 .builder()
-                .title("Switchyard update available")
+                .title("Envarium update available")
                 .body(format!("Downloading signed version {}…", update.version))
                 .show()
                 .map_err(|error| error.to_string())?;
@@ -79,7 +79,7 @@ pub async fn check_and_install<R: Runtime>(app: AppHandle<R>) {
                 let _ = app
                     .notification()
                     .builder()
-                    .title("Switchyard is up to date")
+                    .title("Envarium is up to date")
                     .body("No newer signed release is available.")
                     .show();
             }
@@ -87,7 +87,7 @@ pub async fn check_and_install<R: Runtime>(app: AppHandle<R>) {
                 let _ = app
                     .notification()
                     .builder()
-                    .title("Switchyard update failed")
+                    .title("Envarium update failed")
                     .body(error)
                     .show();
             }

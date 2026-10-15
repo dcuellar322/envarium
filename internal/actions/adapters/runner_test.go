@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/actions/domain"
+	"envarium.dev/envarium/internal/actions/domain"
 )
 
 type launcherStub struct {
@@ -66,14 +66,14 @@ func TestCommandHonorsCancellation(t *testing.T) {
 }
 
 func TestActionEnvironmentUsesAnExplicitAllowlist(t *testing.T) {
-	const secret = "SWITCHYARD_ACTION_SECRET_CANARY"
+	const secret = "ENVARIUM_ACTION_SECRET_CANARY"
 	t.Setenv(secret, "must-not-leak")
-	values := actionEnvironment(map[string]string{"SWITCHYARD_EXPLICIT_VALUE": "allowed"})
+	values := actionEnvironment(map[string]string{"ENVARIUM_EXPLICIT_VALUE": "allowed"})
 	joined := strings.Join(values, "\n")
 	if strings.Contains(joined, secret+"=") {
 		t.Fatalf("ambient environment leaked into action: %s", joined)
 	}
-	if !strings.Contains(joined, "SWITCHYARD_EXPLICIT_VALUE=allowed") {
+	if !strings.Contains(joined, "ENVARIUM_EXPLICIT_VALUE=allowed") {
 		t.Fatalf("explicit action environment missing: %s", joined)
 	}
 	if _, present := os.LookupEnv(secret); !present {

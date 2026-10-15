@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/terminal/application"
-	"switchyard.dev/switchyard/internal/terminal/domain"
+	"envarium.dev/envarium/internal/terminal/application"
+	"envarium.dev/envarium/internal/terminal/domain"
 )
 
 func TestUnixPTYSupportsResizeUnicodeColorAndAlternateScreen(t *testing.T) {

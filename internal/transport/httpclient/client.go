@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/platform/localipc"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/platform/localipc"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 // Client wraps the generated transport without leaking response mechanics.
@@ -17,8 +17,8 @@ type Client struct {
 }
 
 const (
-	actorTypeHeader = "X-Switchyard-Actor-Type"
-	actorIDHeader   = "X-Switchyard-Actor-ID"
+	actorTypeHeader = "X-Envarium-Actor-Type"
+	actorIDHeader   = "X-Envarium-Actor-ID"
 )
 
 // APIError preserves a stable problem code and HTTP status for CLI exit mapping.
@@ -72,7 +72,7 @@ func newIPC(address, actorType, actorID string) (*Client, error) {
 		}))
 	}
 	client, err := generated.NewClientWithResponses(
-		"http://switchyard.local/api/v1",
+		"http://envarium.local/api/v1",
 		options...,
 	)
 	if err != nil {
@@ -385,7 +385,8 @@ func (c *Client) CreateRuntimeOperationSelection(
 	services, profiles []string,
 	idempotencyKey string,
 ) (generated.Operation, error) {
-	request := generated.RuntimeActionRequest{Action: action, RemoveVolumes: &removeVolumes}
+	confirmRisk := action == generated.RuntimeActionTeardown
+	request := generated.RuntimeActionRequest{Action: action, RemoveVolumes: &removeVolumes, ConfirmRisk: &confirmRisk}
 	if len(services) > 0 {
 		request.Services = &services
 	}

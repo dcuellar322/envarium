@@ -1,6 +1,6 @@
 ---
 title: "Phase 7: Health, logs, and event experience"
-description: Implementation evidence for Switchyard product phase 7.
+description: Implementation evidence for Envarium product phase 7.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17

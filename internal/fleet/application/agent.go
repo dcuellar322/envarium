@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/fleet/domain"
+	"envarium.dev/envarium/internal/fleet/domain"
 )
 
 // LocalInventory supplies the redacted inventory visible to remote controllers.

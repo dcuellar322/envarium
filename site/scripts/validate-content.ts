@@ -38,10 +38,10 @@ const siteSources = (await filesUnder(resolve(siteRoot, 'src'))).filter((path) =
 for (const path of siteSources) {
   const source = await readFile(path, 'utf8')
   const label = relative(repositoryRoot, path)
-  if (/from\s+['"][^'"]*web\/src\//.test(source) || source.includes('@switchyard/web')) {
+  if (/from\s+['"][^'"]*web\/src\//.test(source) || source.includes('@envarium/web')) {
     problems.push(`${label}: public site must not import product application source`)
   }
-  if (/href=["']https:\/\/github\.com\/dcuellar322\/switchyard\/releases\/download\//.test(source)) {
+  if (/href=["']https:\/\/github\.com\/dcuellar322\/envarium\/releases\/download\//.test(source)) {
     problems.push(`${label}: release asset URLs must come from the normalized manifest`)
   }
 }

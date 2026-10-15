@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	settingsApplication "switchyard.dev/switchyard/internal/settings/application"
-	settingsDomain "switchyard.dev/switchyard/internal/settings/domain"
+	settingsApplication "envarium.dev/envarium/internal/settings/application"
+	settingsDomain "envarium.dev/envarium/internal/settings/domain"
 )
 
 func TestSettingsHTTPReadsAndUpdatesOneRevision(t *testing.T) {

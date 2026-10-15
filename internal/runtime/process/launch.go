@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime, service servicePlan) (*managedRun, bool, error) {
@@ -54,7 +54,7 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 	managed := &managedRun{
 		run: domain.RunRecord{
 			ID: runID, ProjectID: project.ProjectID, ServiceID: service.service.ID,
-			RuntimeDriver: domain.KindProcess, Origin: domain.OriginSwitchyard, OperationID: service.operationID,
+			RuntimeDriver: domain.KindProcess, Origin: domain.OriginEnvarium, OperationID: service.operationID,
 		},
 		project: project, service: service, logs: buffer,
 	}

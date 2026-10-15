@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/platform/sqlite"
-	plugins "switchyard.dev/switchyard/internal/plugins/application"
-	"switchyard.dev/switchyard/internal/plugins/domain"
-	pluginsdk "switchyard.dev/switchyard/sdk/plugin"
+	"envarium.dev/envarium/internal/platform/sqlite"
+	plugins "envarium.dev/envarium/internal/plugins/application"
+	"envarium.dev/envarium/internal/plugins/domain"
+	pluginsdk "envarium.dev/envarium/sdk/plugin"
 )
 
 type discoveryStub struct{ values []domain.Plugin }
@@ -111,7 +111,7 @@ func TestServiceRejectsUntrustedProject(t *testing.T) {
 
 func newService(t *testing.T, projectTrusted bool) (*plugins.Service, *discoveryStub, *runnerStub) {
 	t.Helper()
-	database, err := sqlite.Open(context.Background(), filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := sqlite.Open(context.Background(), filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

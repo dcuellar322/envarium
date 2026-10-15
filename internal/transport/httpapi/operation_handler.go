@@ -3,8 +3,8 @@ package httpapi
 import (
 	"net/http"
 
-	"switchyard.dev/switchyard/internal/operations/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/operations/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) ListOperations(w http.ResponseWriter, r *http.Request, params generated.ListOperationsParams) {

@@ -15,7 +15,7 @@ import TeamView from '../../src/domains/team/views/TeamView.vue'
 
 const publisher = {
   id: `publisher-${'a'.repeat(32)}`,
-  name: 'Switchyard maintainers',
+  name: 'Envarium maintainers',
   publicKey: 'cHVibGlj',
   trustedAt: '2026-07-16T12:00:00Z',
 }
@@ -68,7 +68,7 @@ function renderView() {
 
 test('shows restrictive signed policy and keeps publisher trust behind review', async () => {
   renderView()
-  expect(await screen.findByText('Switchyard maintainers')).toBeInTheDocument()
+  expect(await screen.findByText('Envarium maintainers')).toBeInTheDocument()
   expect(await screen.findByText('Reviewed plugin')).toBeInTheDocument()
   expect(screen.getByText('denied')).toBeInTheDocument()
   const button = screen.getByRole('button', { name: 'Trust exact key' })

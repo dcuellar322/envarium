@@ -9,7 +9,7 @@ export interface DistributionChannel {
 }
 
 export interface DistributionStatus {
-  schemaVersion: 'switchyard.distribution-status/v1'
+  schemaVersion: 'envarium.distribution-status/v1'
   homebrew: DistributionChannel
   winget: DistributionChannel
 }

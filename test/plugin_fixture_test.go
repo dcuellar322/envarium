@@ -9,10 +9,10 @@ import (
 	"runtime"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/platform/sqlite"
-	pluginsAdapters "switchyard.dev/switchyard/internal/plugins/adapters"
-	pluginsApplication "switchyard.dev/switchyard/internal/plugins/application"
-	pluginsdk "switchyard.dev/switchyard/sdk/plugin"
+	"envarium.dev/envarium/internal/platform/sqlite"
+	pluginsAdapters "envarium.dev/envarium/internal/plugins/adapters"
+	pluginsApplication "envarium.dev/envarium/internal/plugins/application"
+	pluginsdk "envarium.dev/envarium/sdk/plugin"
 )
 
 type trustedFixtureProject struct{ root string }
@@ -28,7 +28,7 @@ func TestSampleExternalPluginInspectsAndOperatesFixture(t *testing.T) {
 	if err := os.MkdirAll(packageDir, 0o700); err != nil {
 		t.Fatal(err)
 	}
-	executableName := "switchyard-fixture-plugin"
+	executableName := "envarium-fixture-plugin"
 	if runtime.GOOS == "windows" {
 		executableName += ".exe"
 	}
@@ -48,7 +48,7 @@ func TestSampleExternalPluginInspectsAndOperatesFixture(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(packageDir, "plugin.json"), raw, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	database, err := sqlite.Open(t.Context(), filepath.Join(data, "switchyard.db"))
+	database, err := sqlite.Open(t.Context(), filepath.Join(data, "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"math"
 
-	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
-	observabilityApplication "switchyard.dev/switchyard/internal/observability/application"
-	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
-	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
-	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
+	catalogApplication "envarium.dev/envarium/internal/catalog/application"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
+	observabilityApplication "envarium.dev/envarium/internal/observability/application"
+	observabilityDomain "envarium.dev/envarium/internal/observability/domain"
+	runtimeApplication "envarium.dev/envarium/internal/runtime/application"
+	runtimeDomain "envarium.dev/envarium/internal/runtime/domain"
 )
 
 // ResourceCatalogSource adapts trusted manifests to resource identity and policy.

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"envarium.dev/envarium/internal/runtime/domain"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/client"
-	"switchyard.dev/switchyard/internal/runtime/domain"
 )
 
 func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, config normalizedConfig) (domain.Observation, error) {
@@ -48,7 +48,7 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 	}
 	d.managed.Reconcile(config.ProjectName, ids, len(config.Services), ownership)
 	if allOwned || allContainersOwned(d.managed, config.ProjectName, items) {
-		observation.Origin = domain.OriginSwitchyard
+		observation.Origin = domain.OriginEnvarium
 	}
 	sort.Slice(observation.Services, func(i, j int) bool {
 		if observation.Services[i].RuntimeName == observation.Services[j].RuntimeName {

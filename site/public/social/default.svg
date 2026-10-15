@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
-  <title id="title">Switchyard — Local Development Command Center</title>
-  <desc id="desc">Dark developer-tooling card with the Switchyard mark and product promise.</desc>
+  <title id="title">Envarium — Local Development Command Center</title>
+  <desc id="desc">Dark developer-tooling card with the Envarium mark and product promise.</desc>
   <defs>
     <radialGradient id="r" cx="78%" cy="15%" r="75%">
       <stop stop-color="#20345f"/>
@@ -15,7 +15,7 @@
   <path d="M0 500C220 390 380 580 610 465s370-60 590-180v345H0z" fill="#11161e" opacity=".7"/>
   <rect x="92" y="86" width="78" height="78" rx="22" fill="url(#g)"/>
   <text x="131" y="142" fill="#07101f" font-family="ui-sans-serif,system-ui" font-size="48" font-weight="900" text-anchor="middle">S</text>
-  <text x="196" y="118" fill="#edf3fb" font-family="ui-sans-serif,system-ui" font-size="34" font-weight="800">Switchyard</text>
+  <text x="196" y="118" fill="#edf3fb" font-family="ui-sans-serif,system-ui" font-size="34" font-weight="800">Envarium</text>
   <text x="196" y="151" fill="#91a0b5" font-family="ui-monospace,monospace" font-size="18">LOCAL DEVELOPMENT COMMAND CENTER</text>
   <text x="92" y="300" fill="#edf3fb" font-family="ui-sans-serif,system-ui" font-size="66" font-weight="800">Your local development</text>
   <text x="92" y="378" fill="#edf3fb" font-family="ui-sans-serif,system-ui" font-size="66" font-weight="800">command center.</text>

@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
+	agents "envarium.dev/envarium/internal/agents/application"
 )
 
 func TestAgentRunRepositoryPersistsExactReceiptAndTerminalReview(t *testing.T) {
 	ctx := context.Background()
-	database, err := Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +26,7 @@ func TestAgentRunRepositoryPersistsExactReceiptAndTerminalReview(t *testing.T) {
 	}
 	_, err = database.connection.ExecContext(ctx, `INSERT INTO manifest_proposals
 		(id, project_id, scanner_version, schema_version, candidate_json, confidence_json, unresolved_json, validation_json, status, created_at)
-		VALUES ('proposal-1','project-1','deterministic/v1','switchyard.dev/v1alpha1','{}','{}','[]','{}','proposed',?)`, formatTime(now))
+		VALUES ('proposal-1','project-1','deterministic/v1','envarium.dev/v1alpha1','{}','{}','[]','{}','proposed',?)`, formatTime(now))
 	if err != nil {
 		t.Fatal(err)
 	}

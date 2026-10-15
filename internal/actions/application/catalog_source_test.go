@@ -3,7 +3,7 @@ package application
 import (
 	"testing"
 
-	"switchyard.dev/switchyard/internal/actions/domain"
+	"envarium.dev/envarium/internal/actions/domain"
 )
 
 func TestPrimaryEndpointActionSortsBeforeOtherBrowserActions(t *testing.T) {

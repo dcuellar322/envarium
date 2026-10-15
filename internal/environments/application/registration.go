@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sort"
 
-	"switchyard.dev/switchyard/internal/environments/domain"
+	"envarium.dev/envarium/internal/environments/domain"
 )
 
 const (

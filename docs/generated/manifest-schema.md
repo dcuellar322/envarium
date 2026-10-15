@@ -7,7 +7,7 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Source schema: [`https://switchyard.dev/schema/project.v1.json`](/docs/manifest-reference/).
+Source schema: [`https://envarium.dev/schema/project.v1.json`](/docs/manifest-reference/).
 Do not edit this generated page manually.
 
 | Field | Shape | Required | Description |

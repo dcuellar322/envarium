@@ -1,6 +1,6 @@
 ---
 title: "Phase 5: Docker Compose runtime"
-description: Implementation evidence for Switchyard product phase 5.
+description: Implementation evidence for Envarium product phase 5.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -92,13 +92,13 @@ govulncheck, Playwright E2E/visual tests, production web build, packaged binary
 go test ./internal/runtime/... ./internal/bootstrap ./internal/transport/httpapi ./internal/transport/cli
 PASS
 
-SWITCHYARD_DOCKER_INTEGRATION=1 go test -tags=integration ./test/integration \
+ENVARIUM_DOCKER_INTEGRATION=1 go test -tags=integration ./test/integration \
   -run TestComposeRuntimeLifecycleObservationLogsMetricsAndExternalRecognition \
   -count=1 -v
 PASS: full lifecycle and cleanup in 22.03 seconds
 
-GOOS=linux GOARCH=amd64 go build -trimpath -o /tmp/switchyard-linux-amd64 ./cmd/switchyard
-GOOS=windows GOARCH=amd64 go build -trimpath -o /tmp/switchyard-windows-amd64.exe ./cmd/switchyard
+GOOS=linux GOARCH=amd64 go build -trimpath -o /tmp/envarium-linux-amd64 ./cmd/envarium
+GOOS=windows GOARCH=amd64 go build -trimpath -o /tmp/envarium-windows-amd64.exe ./cmd/envarium
 PASS: Linux and Windows amd64 cross-builds
 ```
 
@@ -116,7 +116,7 @@ networks, or volumes.
   tears down through both the driver integration and packaged durable path.
 - [x] Stop preserves containers/volumes; teardown removes exactly the resources
   shown in its plan, including opt-in volumes.
-- [x] A Compose project started outside Switchyard is reported as
+- [x] A Compose project started outside Envarium is reported as
   `running_external` after health convergence.
 - [x] Membership uses canonical Compose project/service labels and excludes
   one-off containers; no container-name parsing determines membership.
@@ -143,13 +143,13 @@ networks, or volumes.
 
 ```bash
 make build
-switchyard add test/fixtures/compose-runtime
-switchyard project trust compose-runtime --yes
-switchyard plan teardown compose-runtime --volumes
-switchyard start compose-runtime
-switchyard status compose-runtime --json
-switchyard logs compose-runtime --service web --jsonl
-switchyard metrics compose-runtime --service web --json
-switchyard stop compose-runtime
-switchyard teardown compose-runtime --volumes --yes
+envarium add test/fixtures/compose-runtime
+envarium project trust compose-runtime --yes
+envarium plan teardown compose-runtime --volumes
+envarium start compose-runtime
+envarium status compose-runtime --json
+envarium logs compose-runtime --service web --jsonl
+envarium metrics compose-runtime --service web --json
+envarium stop compose-runtime
+envarium teardown compose-runtime --volumes --yes
 ```

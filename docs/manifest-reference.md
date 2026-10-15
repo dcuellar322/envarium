@@ -5,12 +5,12 @@ category: reference
 audience: [user, integrator, contributor]
 since: 1.0.0
 lastVerified: 2026-07-17
-searchTerms: [project.yml, switchyard manifest, local overlay, manifest schema]
+searchTerms: [project.yml, envarium manifest, local overlay, manifest schema]
 ---
 
-The portable manifest lives at `.switchyard/project.yml` and uses
-`schemaVersion: switchyard.dev/v1` with `kind: Project`. A machine-local overlay
-may live at `.switchyard/project.local.yml`; it must not be committed when it
+The portable manifest lives at `.envarium/project.yml` and uses
+`schemaVersion: envarium.dev/v1` with `kind: Project`. A machine-local overlay
+may live at `.envarium/project.local.yml`; it must not be committed when it
 contains workstation-specific paths or ports.
 
 The generated normative JSON Schema is
@@ -38,11 +38,11 @@ diagnostics but cannot grant execution authority.
 Use the examples under `examples/projects`, the generated schema, and:
 
 ```bash
-switchyard manifest validate <project>
-switchyard manifest explain <project>
-switchyard manifest diff <project>
+envarium manifest validate <project>
+envarium manifest explain <project>
+envarium manifest diff <project>
 ```
 
-Alpha/beta `switchyard.dev/v1alpha1` documents are read compatibly and can be
+Alpha/beta `envarium.dev/v1alpha1` documents are read compatibly and can be
 rewritten with the backup-producing migration command documented in
 [compatibility](compatibility.md).

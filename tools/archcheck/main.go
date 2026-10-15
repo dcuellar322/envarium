@@ -1,4 +1,4 @@
-// Command archcheck enforces Switchyard's package dependency policy.
+// Command archcheck enforces Envarium's package dependency policy.
 package main
 
 import (
@@ -12,7 +12,7 @@ import (
 	"os/exec"
 )
 
-const modulePath = "switchyard.dev/switchyard"
+const modulePath = "envarium.dev/envarium"
 
 func main() {
 	packages, err := listPackages(context.Background())

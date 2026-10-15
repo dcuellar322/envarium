@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"switchyard.dev/switchyard/internal/operations/domain"
+	"envarium.dev/envarium/internal/operations/domain"
 )
 
 // Recover marks interrupted work failed and resumes operations that never ran.

@@ -5,9 +5,9 @@ import (
 	"context"
 	"errors"
 
-	catalog "switchyard.dev/switchyard/internal/catalog/application"
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	"switchyard.dev/switchyard/internal/sourcecontrol/domain"
+	catalog "envarium.dev/envarium/internal/catalog/application"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	"envarium.dev/envarium/internal/sourcecontrol/domain"
 )
 
 // ErrProjectUntrusted prevents repository access before manifest approval.

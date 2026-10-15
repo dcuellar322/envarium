@@ -1,4 +1,4 @@
-// Package bootstrap composes process-level Switchyard adapters and use cases.
+// Package bootstrap composes process-level Envarium adapters and use cases.
 package bootstrap
 
 import (
@@ -14,48 +14,48 @@ import (
 	"sync"
 	"time"
 
-	actionsAdapters "switchyard.dev/switchyard/internal/actions/adapters"
-	actionsApplication "switchyard.dev/switchyard/internal/actions/application"
-	agentsAdapters "switchyard.dev/switchyard/internal/agents/adapters"
-	agentsApplication "switchyard.dev/switchyard/internal/agents/application"
-	claudeProvider "switchyard.dev/switchyard/internal/agents/providers/claude"
-	codexProvider "switchyard.dev/switchyard/internal/agents/providers/codex"
-	openAIProvider "switchyard.dev/switchyard/internal/agents/providers/openai"
-	catalog "switchyard.dev/switchyard/internal/catalog/application"
-	diagnosticsAdapters "switchyard.dev/switchyard/internal/diagnostics/adapters"
-	diagnosticsApplication "switchyard.dev/switchyard/internal/diagnostics/application"
-	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
-	environmentsAdapters "switchyard.dev/switchyard/internal/environments/adapters"
-	environmentsApplication "switchyard.dev/switchyard/internal/environments/application"
-	"switchyard.dev/switchyard/internal/foundation/buildinfo"
-	observabilityAdapters "switchyard.dev/switchyard/internal/observability/adapters"
-	observabilityApplication "switchyard.dev/switchyard/internal/observability/application"
-	operations "switchyard.dev/switchyard/internal/operations/application"
-	"switchyard.dev/switchyard/internal/operations/domain"
-	"switchyard.dev/switchyard/internal/platform/daemonlog"
-	hostPlatform "switchyard.dev/switchyard/internal/platform/host"
-	"switchyard.dev/switchyard/internal/platform/sqlite"
-	pluginsApplication "switchyard.dev/switchyard/internal/plugins/application"
-	portsAdapters "switchyard.dev/switchyard/internal/ports/adapters"
-	portsApplication "switchyard.dev/switchyard/internal/ports/application"
-	routingAdapters "switchyard.dev/switchyard/internal/routing/adapters"
-	routingApplication "switchyard.dev/switchyard/internal/routing/application"
-	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
-	"switchyard.dev/switchyard/internal/runtime/compose"
-	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
-	processRuntime "switchyard.dev/switchyard/internal/runtime/process"
-	session "switchyard.dev/switchyard/internal/session/application"
-	sourcecontrolAdapters "switchyard.dev/switchyard/internal/sourcecontrol/adapters"
-	sourcecontrolApplication "switchyard.dev/switchyard/internal/sourcecontrol/application"
-	"switchyard.dev/switchyard/internal/system/application"
-	terminalAdapters "switchyard.dev/switchyard/internal/terminal/adapters"
-	terminalApplication "switchyard.dev/switchyard/internal/terminal/application"
-	terminalDomain "switchyard.dev/switchyard/internal/terminal/domain"
-	"switchyard.dev/switchyard/internal/transport/httpapi"
-	eventtransport "switchyard.dev/switchyard/internal/transport/websocket"
-	workspaceApplication "switchyard.dev/switchyard/internal/workspace/application"
-	workspaceDomain "switchyard.dev/switchyard/internal/workspace/domain"
-	"switchyard.dev/switchyard/web"
+	actionsAdapters "envarium.dev/envarium/internal/actions/adapters"
+	actionsApplication "envarium.dev/envarium/internal/actions/application"
+	agentsAdapters "envarium.dev/envarium/internal/agents/adapters"
+	agentsApplication "envarium.dev/envarium/internal/agents/application"
+	claudeProvider "envarium.dev/envarium/internal/agents/providers/claude"
+	codexProvider "envarium.dev/envarium/internal/agents/providers/codex"
+	openAIProvider "envarium.dev/envarium/internal/agents/providers/openai"
+	catalog "envarium.dev/envarium/internal/catalog/application"
+	diagnosticsAdapters "envarium.dev/envarium/internal/diagnostics/adapters"
+	diagnosticsApplication "envarium.dev/envarium/internal/diagnostics/application"
+	discoveryAdapters "envarium.dev/envarium/internal/discovery/adapters"
+	environmentsAdapters "envarium.dev/envarium/internal/environments/adapters"
+	environmentsApplication "envarium.dev/envarium/internal/environments/application"
+	"envarium.dev/envarium/internal/foundation/buildinfo"
+	observabilityAdapters "envarium.dev/envarium/internal/observability/adapters"
+	observabilityApplication "envarium.dev/envarium/internal/observability/application"
+	operations "envarium.dev/envarium/internal/operations/application"
+	"envarium.dev/envarium/internal/operations/domain"
+	"envarium.dev/envarium/internal/platform/daemonlog"
+	hostPlatform "envarium.dev/envarium/internal/platform/host"
+	"envarium.dev/envarium/internal/platform/sqlite"
+	pluginsApplication "envarium.dev/envarium/internal/plugins/application"
+	portsAdapters "envarium.dev/envarium/internal/ports/adapters"
+	portsApplication "envarium.dev/envarium/internal/ports/application"
+	routingAdapters "envarium.dev/envarium/internal/routing/adapters"
+	routingApplication "envarium.dev/envarium/internal/routing/application"
+	runtimeApplication "envarium.dev/envarium/internal/runtime/application"
+	"envarium.dev/envarium/internal/runtime/compose"
+	runtimeDomain "envarium.dev/envarium/internal/runtime/domain"
+	processRuntime "envarium.dev/envarium/internal/runtime/process"
+	session "envarium.dev/envarium/internal/session/application"
+	sourcecontrolAdapters "envarium.dev/envarium/internal/sourcecontrol/adapters"
+	sourcecontrolApplication "envarium.dev/envarium/internal/sourcecontrol/application"
+	"envarium.dev/envarium/internal/system/application"
+	terminalAdapters "envarium.dev/envarium/internal/terminal/adapters"
+	terminalApplication "envarium.dev/envarium/internal/terminal/application"
+	terminalDomain "envarium.dev/envarium/internal/terminal/domain"
+	"envarium.dev/envarium/internal/transport/httpapi"
+	eventtransport "envarium.dev/envarium/internal/transport/websocket"
+	workspaceApplication "envarium.dev/envarium/internal/workspace/application"
+	workspaceDomain "envarium.dev/envarium/internal/workspace/domain"
+	"envarium.dev/envarium/web"
 )
 
 // RunDaemon starts the migrated local control plane and blocks until shutdown.
@@ -290,7 +290,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 		})
 	}()
 	config.Logger.Info(
-		"switchyard daemon ready",
+		"envarium daemon ready",
 		"component", "bootstrap",
 		"address", servers.browserAddress(),
 		"ipc_address", servers.ipcAddress,
@@ -499,7 +499,7 @@ func executeRuntimeOperation(
 	if err := service.Execute(ctx, plan, progress); err != nil {
 		return err
 	}
-	if action == runtimeDomain.ActionStart || action == runtimeDomain.ActionRestart || action == runtimeDomain.ActionRebuild || action == runtimeDomain.ActionUnpause {
+	if action == runtimeDomain.ActionStart || action == runtimeDomain.ActionRestart || action == runtimeDomain.ActionDeploy || action == runtimeDomain.ActionRebuild || action == runtimeDomain.ActionUnpause {
 		if err := health.WaitRequired(ctx, operation.ProjectID); err != nil {
 			return err
 		}
@@ -507,7 +507,7 @@ func executeRuntimeOperation(
 			return environments.Started(ctx, operation.ProjectID)
 		}
 	}
-	if action == runtimeDomain.ActionStop || action == runtimeDomain.ActionTeardown || action == runtimeDomain.ActionPause {
+	if action == runtimeDomain.ActionStop || action == runtimeDomain.ActionKill || action == runtimeDomain.ActionTeardown || action == runtimeDomain.ActionPause {
 		if environments != nil {
 			return environments.Stopped(ctx, operation.ProjectID)
 		}

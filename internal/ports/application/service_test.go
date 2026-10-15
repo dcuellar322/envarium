@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/ports/domain"
+	"envarium.dev/envarium/internal/ports/domain"
 )
 
 type sourceStub struct{ facts []domain.Fact }
@@ -26,7 +26,7 @@ func (reservationStub) Reconcile(_ context.Context, declarations []domain.Fact, 
 	result := make([]domain.Fact, 0, len(declarations))
 	for _, item := range declarations {
 		item.ID = "reservation_" + item.ID
-		item.Kind, item.Source, item.ObservedAt = domain.KindReservation, "switchyard", now
+		item.Kind, item.Source, item.ObservedAt = domain.KindReservation, "envarium", now
 		result = append(result, item)
 	}
 	return result, nil

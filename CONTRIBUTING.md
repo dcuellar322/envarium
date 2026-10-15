@@ -1,13 +1,13 @@
-# Contributing to Switchyard
+# Contributing to Envarium
 
-Thank you for helping build Switchyard. The project values explicit,
+Thank you for helping build Envarium. The project values explicit,
 maintainable implementations and reviewable changes over broad speculative
 abstractions.
 
 ## Before making changes
 
 1. Read `AGENTS.md` and the relevant part of
-   `SWITCHYARD_IMPLEMENTATION_PLAN.md`.
+   `ENVARIUM_IMPLEMENTATION_PLAN.md`.
 2. Check `docs/adr/` for accepted constraints.
 3. Read the current and preceding reports under `docs/progress/`.
 4. Keep the change to one roadmap phase or one coherent vertical slice.

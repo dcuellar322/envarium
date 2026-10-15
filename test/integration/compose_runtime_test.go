@@ -11,13 +11,13 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/compose"
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/compose"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestComposeRuntimeLifecycleObservationLogsMetricsAndExternalRecognition(t *testing.T) {
-	if os.Getenv("SWITCHYARD_DOCKER_INTEGRATION") != "1" {
-		t.Skip("set SWITCHYARD_DOCKER_INTEGRATION=1 to run Docker integration tests")
+	if os.Getenv("ENVARIUM_DOCKER_INTEGRATION") != "1" {
+		t.Skip("set ENVARIUM_DOCKER_INTEGRATION=1 to run Docker integration tests")
 	}
 	root, err := filepath.Abs(filepath.Join("..", "fixtures", "compose-runtime"))
 	if err != nil {
@@ -26,7 +26,7 @@ func TestComposeRuntimeLifecycleObservationLogsMetricsAndExternalRecognition(t *
 	prepareFixtureBinary(t, root)
 	project := domain.ProjectRuntime{
 		ProjectID: "integration-project", ProjectSlug: "compose-runtime", Root: root, Kind: domain.KindCompose,
-		Compose:  &domain.ComposeRuntime{Files: []string{"compose.yaml"}, ProjectName: "switchyard-phase5-fixture"},
+		Compose:  &domain.ComposeRuntime{Files: []string{"compose.yaml"}, ProjectName: "envarium-phase5-fixture"},
 		Services: []domain.ServiceDeclaration{{ID: "web", RuntimeName: "web"}},
 	}
 	driver := compose.NewDriver()
@@ -36,7 +36,7 @@ func TestComposeRuntimeLifecycleObservationLogsMetricsAndExternalRecognition(t *
 		if plan, planErr := driver.Plan(ctx, domain.PlanRequest{Project: project, Action: domain.ActionTeardown, RemoveVolumes: true}); planErr == nil {
 			_ = driver.Execute(ctx, plan, progressSink{})
 		}
-		_ = exec.CommandContext(ctx, "docker", "image", "rm", "--force", "switchyard/compose-runtime-fixture:phase5").Run()
+		_ = exec.CommandContext(ctx, "docker", "image", "rm", "--force", "envarium/compose-runtime-fixture:phase5").Run()
 	}
 	cleanup()
 	t.Cleanup(cleanup)
@@ -70,7 +70,7 @@ func TestComposeRuntimeLifecycleObservationLogsMetricsAndExternalRecognition(t *
 		t.Fatalf("external observation = %#v", observation)
 	}
 	executeAction(t, ctx, driver, project, domain.ActionTeardown, true)
-	if exec.CommandContext(ctx, "docker", "volume", "inspect", "switchyard-phase5-fixture_fixture-state").Run() == nil {
+	if exec.CommandContext(ctx, "docker", "volume", "inspect", "envarium-phase5-fixture_fixture-state").Run() == nil {
 		t.Fatal("teardown --volumes preserved the fixture volume")
 	}
 }
@@ -139,7 +139,7 @@ func prepareFixtureBinary(t *testing.T, root string) {
 	case "aarch64":
 		architecture = "arm64"
 	}
-	binary := filepath.Join(root, ".switchyard-fixture-server")
+	binary := filepath.Join(root, ".envarium-fixture-server")
 	command := exec.CommandContext(ctx, "go", "build", "-trimpath", "-o", binary, "server.go")
 	command.Dir = root
 	command.Env = append(os.Environ(), "CGO_ENABLED=0", "GOOS=linux", "GOARCH="+architecture)
@@ -151,14 +151,14 @@ func prepareFixtureBinary(t *testing.T, root string) {
 
 func assertFixtureVolumeExists(t *testing.T, ctx context.Context) {
 	t.Helper()
-	if err := exec.CommandContext(ctx, "docker", "volume", "inspect", "switchyard-phase5-fixture_fixture-state").Run(); err != nil {
+	if err := exec.CommandContext(ctx, "docker", "volume", "inspect", "envarium-phase5-fixture_fixture-state").Run(); err != nil {
 		t.Fatalf("fixture volume was not preserved: %v", err)
 	}
 }
 
 func externalComposeUp(t *testing.T, ctx context.Context, root string) {
 	t.Helper()
-	command := exec.CommandContext(ctx, "docker", "compose", "--project-directory", root, "--file", filepath.Join(root, "compose.yaml"), "--project-name", "switchyard-phase5-fixture", "up", "--detach")
+	command := exec.CommandContext(ctx, "docker", "compose", "--project-directory", root, "--file", filepath.Join(root, "compose.yaml"), "--project-name", "envarium-phase5-fixture", "up", "--detach")
 	if output, err := command.CombinedOutput(); err != nil {
 		t.Fatalf("external Compose up: %v: %s", err, output)
 	}

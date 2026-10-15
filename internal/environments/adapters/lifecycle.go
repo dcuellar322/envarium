@@ -6,9 +6,9 @@ import (
 	"sort"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/environments/application"
-	"switchyard.dev/switchyard/internal/environments/domain"
-	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/environments/application"
+	"envarium.dev/envarium/internal/environments/domain"
+	runtimeDomain "envarium.dev/envarium/internal/runtime/domain"
 )
 
 // RuntimeObserver reads a post-lifecycle environment observation.

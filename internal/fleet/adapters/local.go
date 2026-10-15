@@ -1,5 +1,5 @@
 // Package adapters connects the optional fleet application to existing local
-// Switchyard application services without exposing repository locations,
+// Envarium application services without exposing repository locations,
 // secrets, logs, or driver-native identifiers.
 package adapters
 
@@ -8,12 +8,12 @@ import (
 	"encoding/json"
 	"time"
 
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	environmentDomain "switchyard.dev/switchyard/internal/environments/domain"
-	"switchyard.dev/switchyard/internal/fleet/domain"
-	operationsApplication "switchyard.dev/switchyard/internal/operations/application"
-	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
-	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	environmentDomain "envarium.dev/envarium/internal/environments/domain"
+	"envarium.dev/envarium/internal/fleet/domain"
+	operationsApplication "envarium.dev/envarium/internal/operations/application"
+	operationsDomain "envarium.dev/envarium/internal/operations/domain"
+	runtimeDomain "envarium.dev/envarium/internal/runtime/domain"
 )
 
 type catalogInventory interface {

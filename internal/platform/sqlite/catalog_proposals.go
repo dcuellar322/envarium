@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	application "switchyard.dev/switchyard/internal/catalog/application"
-	catalog "switchyard.dev/switchyard/internal/catalog/domain"
-	discovery "switchyard.dev/switchyard/internal/discovery/domain"
+	application "envarium.dev/envarium/internal/catalog/application"
+	catalog "envarium.dev/envarium/internal/catalog/domain"
+	discovery "envarium.dev/envarium/internal/discovery/domain"
 )
 
 // ReplacePendingProposal atomically refreshes an untrusted project and supersedes its prior proposal.

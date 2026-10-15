@@ -7,8 +7,8 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	agents "envarium.dev/envarium/internal/agents/application"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 type workspaceBackend interface {

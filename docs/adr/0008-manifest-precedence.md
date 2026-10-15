@@ -18,7 +18,7 @@ origin of effective configuration.
 ## Decision
 
 Resolve each field using, highest first: runtime override,
-`.switchyard/project.local.yml`, `.switchyard/project.yml`, accepted generated
+`.envarium/project.local.yml`, `.envarium/project.yml`, accepted generated
 inference, and live deterministic discovery. Retain field-level provenance and
 confidence. Unknown fields fail validation. Local overlays never rewrite the
 portable manifest.

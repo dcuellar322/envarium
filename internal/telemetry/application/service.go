@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	"switchyard.dev/switchyard/internal/telemetry/domain"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/telemetry/domain"
 )
 
 var (

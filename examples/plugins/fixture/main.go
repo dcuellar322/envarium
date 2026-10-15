@@ -1,4 +1,4 @@
-// Command switchyard-fixture-plugin is a deliberately small external adapter
+// Command envarium-fixture-plugin is a deliberately small external adapter
 // used by the SDK documentation and host conformance suite.
 package main
 
@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"switchyard.dev/switchyard/sdk/plugin"
+	"envarium.dev/envarium/sdk/plugin"
 )
 
 var manifest = plugin.Manifest{
@@ -30,7 +30,7 @@ func (handler) Inspect(request plugin.InspectRequest) (plugin.InspectResult, err
 		return plugin.InspectResult{}, errors.New("fixture inspection requires project.files.read")
 	}
 	facts := []plugin.Fact{}
-	for _, name := range []string{"package.json", "go.mod", ".switchyard/project.yml"} {
+	for _, name := range []string{"package.json", "go.mod", ".envarium/project.yml"} {
 		_, err := os.Stat(filepath.Join(request.Project.Root, filepath.FromSlash(name)))
 		if err == nil {
 			facts = append(facts, plugin.Fact{ID: "file." + filepath.Base(name), Label: "Detected file", Value: name, Source: name})

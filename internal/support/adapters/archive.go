@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"switchyard.dev/switchyard/internal/support/domain"
+	"envarium.dev/envarium/internal/support/domain"
 )
 
 // ArchiveWriter atomically writes a private, redacted support ZIP.
@@ -30,7 +30,7 @@ func (ArchiveWriter) Write(output string, preview domain.Preview) (domain.Bundle
 	} else if !os.IsNotExist(err) {
 		return domain.BundleReceipt{}, fmt.Errorf("inspect support bundle output: %w", err)
 	}
-	temporary, err := os.CreateTemp(filepath.Dir(absolute), ".switchyard-support-*.tmp")
+	temporary, err := os.CreateTemp(filepath.Dir(absolute), ".envarium-support-*.tmp")
 	if err != nil {
 		return domain.BundleReceipt{}, fmt.Errorf("create support bundle: %w", err)
 	}

@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/support/application"
-	"switchyard.dev/switchyard/internal/support/domain"
+	"envarium.dev/envarium/internal/support/application"
+	"envarium.dev/envarium/internal/support/domain"
 )
 
 // TextRedactor removes configured credential forms from persisted text.

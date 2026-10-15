@@ -6,29 +6,29 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (s *Server) addReadTools() {
-	mcp.AddTool(s.mcp, readTool("switchyard_system_info", "Switchyard system info", "Read daemon version, API, schema, and readiness."), s.systemInfo)
-	mcp.AddTool(s.mcp, readTool("switchyard_projects_list", "List Switchyard projects", "List a bounded set of registered projects and trust states."), s.projectsList)
-	mcp.AddTool(s.mcp, readTool("switchyard_project_get", "Get Switchyard project", "Read one registered project by opaque identifier."), s.projectGet)
-	mcp.AddTool(s.mcp, readTool("switchyard_project_status", "Get project status", "Read catalog, runtime, and health status for one project."), s.projectStatus)
-	mcp.AddTool(s.mcp, readTool("switchyard_project_services", "List project services", "Read bounded service observations for one project."), s.projectServices)
-	mcp.AddTool(s.mcp, readTool("switchyard_project_logs_query", "Query project logs", "Read bounded, redacted recent project logs."), s.projectLogs)
-	mcp.AddTool(s.mcp, readTool("switchyard_project_health", "Get project health", "Read structured persisted health diagnostics."), s.projectHealth)
-	mcp.AddTool(s.mcp, readTool("switchyard_project_health_wait", "Wait for project health", "Wait up to 30 seconds for structured project health to become healthy."), s.projectHealthWait)
-	mcp.AddTool(s.mcp, readTool("switchyard_project_git_status", "Get project Git status", "Read bounded Git branch, changes, remotes, worktrees, and last commit."), s.projectGit)
-	mcp.AddTool(s.mcp, readTool("switchyard_ports_list", "List local ports", "Read bounded declarations, leases, listeners, and conflicts."), s.portsList)
-	mcp.AddTool(s.mcp, readTool("switchyard_ports_suggest", "Suggest local port", "Find an available port in an explicit bounded range without reserving it."), s.portsSuggest)
-	mcp.AddTool(s.mcp, readTool("switchyard_actions_list", "List trusted actions", "List bounded trusted project actions and their risk metadata."), s.actionsList)
-	mcp.AddTool(s.mcp, readTool("switchyard_operation_get", "Get operation", "Read one durable operation and its terminal or cancellation state."), s.operationGet)
-	mcp.AddTool(s.mcp, readTool("switchyard_operation_wait", "Wait for operation", "Wait up to 30 seconds for an operation and emit MCP progress notifications."), s.operationWait)
-	mcp.AddTool(s.mcp, readTool("switchyard_manifest_explain", "Explain effective manifest", "Read the effective trusted manifest and field provenance."), s.manifestExplain)
-	mcp.AddTool(s.mcp, readTool("switchyard_workspaces_list", "List workspaces", "List bounded workspace graphs visible to this agent scope."), s.workspacesList)
-	mcp.AddTool(s.mcp, readTool("switchyard_workspace_get", "Get workspace", "Read one workspace dependency graph and latest execution."), s.workspaceGet)
-	mcp.AddTool(s.mcp, readTool("switchyard_environments_list", "List project environments", "List registered Git worktrees and exact runtime leases."), s.environmentsList)
-	mcp.AddTool(s.mcp, readTool("switchyard_routes_list", "List local routes", "List friendly localhost routes visible to this agent scope."), s.routesList)
+	mcp.AddTool(s.mcp, readTool("envarium_system_info", "Envarium system info", "Read daemon version, API, schema, and readiness."), s.systemInfo)
+	mcp.AddTool(s.mcp, readTool("envarium_projects_list", "List Envarium projects", "List a bounded set of registered projects and trust states."), s.projectsList)
+	mcp.AddTool(s.mcp, readTool("envarium_project_get", "Get Envarium project", "Read one registered project by opaque identifier."), s.projectGet)
+	mcp.AddTool(s.mcp, readTool("envarium_project_status", "Get project status", "Read catalog, runtime, and health status for one project."), s.projectStatus)
+	mcp.AddTool(s.mcp, readTool("envarium_project_services", "List project services", "Read bounded service observations for one project."), s.projectServices)
+	mcp.AddTool(s.mcp, readTool("envarium_project_logs_query", "Query project logs", "Read bounded, redacted recent project logs."), s.projectLogs)
+	mcp.AddTool(s.mcp, readTool("envarium_project_health", "Get project health", "Read structured persisted health diagnostics."), s.projectHealth)
+	mcp.AddTool(s.mcp, readTool("envarium_project_health_wait", "Wait for project health", "Wait up to 30 seconds for structured project health to become healthy."), s.projectHealthWait)
+	mcp.AddTool(s.mcp, readTool("envarium_project_git_status", "Get project Git status", "Read bounded Git branch, changes, remotes, worktrees, and last commit."), s.projectGit)
+	mcp.AddTool(s.mcp, readTool("envarium_ports_list", "List local ports", "Read bounded declarations, leases, listeners, and conflicts."), s.portsList)
+	mcp.AddTool(s.mcp, readTool("envarium_ports_suggest", "Suggest local port", "Find an available port in an explicit bounded range without reserving it."), s.portsSuggest)
+	mcp.AddTool(s.mcp, readTool("envarium_actions_list", "List trusted actions", "List bounded trusted project actions and their risk metadata."), s.actionsList)
+	mcp.AddTool(s.mcp, readTool("envarium_operation_get", "Get operation", "Read one durable operation and its terminal or cancellation state."), s.operationGet)
+	mcp.AddTool(s.mcp, readTool("envarium_operation_wait", "Wait for operation", "Wait up to 30 seconds for an operation and emit MCP progress notifications."), s.operationWait)
+	mcp.AddTool(s.mcp, readTool("envarium_manifest_explain", "Explain effective manifest", "Read the effective trusted manifest and field provenance."), s.manifestExplain)
+	mcp.AddTool(s.mcp, readTool("envarium_workspaces_list", "List workspaces", "List bounded workspace graphs visible to this agent scope."), s.workspacesList)
+	mcp.AddTool(s.mcp, readTool("envarium_workspace_get", "Get workspace", "Read one workspace dependency graph and latest execution."), s.workspaceGet)
+	mcp.AddTool(s.mcp, readTool("envarium_environments_list", "List project environments", "List registered Git worktrees and exact runtime leases."), s.environmentsList)
+	mcp.AddTool(s.mcp, readTool("envarium_routes_list", "List local routes", "List friendly localhost routes visible to this agent scope."), s.routesList)
 }
 
 func (s *Server) systemInfo(ctx context.Context, _ *mcp.CallToolRequest, _ emptyInput) (*mcp.CallToolResult, systemOutput, error) {

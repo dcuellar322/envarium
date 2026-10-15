@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/routing/domain"
+	"envarium.dev/envarium/internal/routing/domain"
 )
 
 func TestRoutingRegistryReportsActiveUnavailableAndConflict(t *testing.T) {

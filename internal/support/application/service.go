@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/support/domain"
+	"envarium.dev/envarium/internal/support/domain"
 )
 
 var (

@@ -1,4 +1,4 @@
-// Package claude installs Switchyard MCP and skill configuration for Claude Code.
+// Package claude installs Envarium MCP and skill configuration for Claude Code.
 package claude
 
 import (
@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/agents/guidance"
-	"switchyard.dev/switchyard/internal/agents/providers"
+	"envarium.dev/envarium/internal/agents/guidance"
+	"envarium.dev/envarium/internal/agents/providers"
 )
 
 type mcpConfig struct {
@@ -24,10 +24,10 @@ func Install(request providers.InstallRequest) ([]string, error) {
 		return nil, err
 	}
 	configPath := filepath.Join(request.Root, ".mcp.json")
-	skillPath := filepath.Join(request.Root, ".claude", "skills", "switchyard-operate", "SKILL.md")
+	skillPath := filepath.Join(request.Root, ".claude", "skills", "envarium-operate", "SKILL.md")
 	if request.Scope == providers.ScopeUser {
 		configPath = filepath.Join(request.Home, ".claude.json")
-		skillPath = filepath.Join(request.Home, ".claude", "skills", "switchyard-operate", "SKILL.md")
+		skillPath = filepath.Join(request.Home, ".claude", "skills", "envarium-operate", "SKILL.md")
 	}
 	agentsPath := filepath.Join(request.Root, "AGENTS.md")
 	claudePath := filepath.Join(request.Root, "CLAUDE.md")
@@ -74,7 +74,7 @@ func installConfig(path string, request providers.InstallRequest) error {
 		servers = map[string]any{}
 		document["mcpServers"] = servers
 	}
-	servers["switchyard"] = mcpConfig{Type: "stdio", Command: request.Executable, Args: request.MCPArgs("claude")}
+	servers["envarium"] = mcpConfig{Type: "stdio", Command: request.Executable, Args: request.MCPArgs("claude")}
 	updated, err := json.MarshalIndent(document, "", "  ")
 	if err != nil {
 		return err

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sync"
 
+	"envarium.dev/envarium/internal/runtime/domain"
 	"github.com/moby/moby/client"
-	"switchyard.dev/switchyard/internal/runtime/domain"
 )
 
 const (
@@ -88,11 +88,11 @@ func (m *managedContainers) RecordAction(project string, action domain.Action, o
 	defer m.mu.Unlock()
 	m.actions[project] = action
 	switch action {
-	case domain.ActionStop, domain.ActionTeardown:
+	case domain.ActionStop, domain.ActionKill, domain.ActionTeardown:
 		delete(m.owned, project)
 		delete(m.pending, project)
 		delete(m.operations, project)
-	case domain.ActionStart, domain.ActionRestart, domain.ActionPause, domain.ActionUnpause, domain.ActionRebuild:
+	case domain.ActionStart, domain.ActionRestart, domain.ActionDeploy, domain.ActionPause, domain.ActionUnpause, domain.ActionRebuild:
 		m.next++
 		m.pending[project] = ownershipIntent{generation: m.next}
 		if operationID != "" {
@@ -105,7 +105,7 @@ func (m *managedContainers) ExpectedStopped(project string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	action := m.actions[project]
-	return action == domain.ActionStop || action == domain.ActionTeardown
+	return action == domain.ActionStop || action == domain.ActionKill || action == domain.ActionTeardown
 }
 
 func (m *managedContainers) CompletePending(project, operationID string) {

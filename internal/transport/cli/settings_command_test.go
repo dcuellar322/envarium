@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func TestReadSettingsDocumentIsStrictAndBounded(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/actions/domain"
+	"envarium.dev/envarium/internal/actions/domain"
 )
 
 type projectSourceStub struct{ project domain.ProjectActions }

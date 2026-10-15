@@ -8,14 +8,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
-	"switchyard.dev/switchyard/internal/agents/providers"
-	"switchyard.dev/switchyard/internal/agents/providers/claude"
-	"switchyard.dev/switchyard/internal/agents/providers/codex"
+	agents "envarium.dev/envarium/internal/agents/application"
+	"envarium.dev/envarium/internal/agents/providers"
+	"envarium.dev/envarium/internal/agents/providers/claude"
+	"envarium.dev/envarium/internal/agents/providers/codex"
 )
 
 func newAgentCommand(options *rootOptions) *cobra.Command {
-	command := &cobra.Command{Use: "agent", Short: "Install agent-native Switchyard integration"}
+	command := &cobra.Command{Use: "agent", Short: "Install agent-native Envarium integration"}
 	command.AddCommand(newAgentInstallCommand(options))
 	return command
 }
@@ -76,7 +76,7 @@ func newAgentInstallCommand(options *rootOptions) *cobra.Command {
 			}
 			result := map[string]any{"provider": provider, "scope": scope, "profile": profile, "files": paths}
 			return writeResult(options, "agent.install", result, func(writer io.Writer) error {
-				_, err := fmt.Fprintf(writer, "Installed Switchyard for %s (%s, %s)\n", provider, scope, profile)
+				_, err := fmt.Fprintf(writer, "Installed Envarium for %s (%s, %s)\n", provider, scope, profile)
 				for _, path := range paths {
 					if _, writeErr := fmt.Fprintf(writer, "  %s\n", path); err == nil {
 						err = writeErr
@@ -89,8 +89,8 @@ func newAgentInstallCommand(options *rootOptions) *cobra.Command {
 	command.Flags().StringVar(&scopeName, "scope", string(providers.ScopeProject), "installation scope: project or user")
 	command.Flags().StringVar(&root, "root", ".", "project root for project-scoped files")
 	command.Flags().StringVar(&profileName, "profile", string(agents.ProfileObserve), "permission profile: observe, develop, maintain, or admin")
-	command.Flags().StringVar(&agentID, "agent-id", "switchyard", "agent identity recorded in audit events")
+	command.Flags().StringVar(&agentID, "agent-id", "envarium", "agent identity recorded in audit events")
 	command.Flags().StringSliceVar(&projectIDs, "project", nil, "restrict access to a project ID (repeatable)")
-	command.Flags().StringVar(&executable, "command", "", "absolute Switchyard executable path (defaults to this executable)")
+	command.Flags().StringVar(&executable, "command", "", "absolute Envarium executable path (defaults to this executable)")
 	return command
 }

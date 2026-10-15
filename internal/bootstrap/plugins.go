@@ -5,12 +5,12 @@ import (
 	"log/slog"
 	"path/filepath"
 
-	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	observabilityAdapters "switchyard.dev/switchyard/internal/observability/adapters"
-	"switchyard.dev/switchyard/internal/platform/sqlite"
-	pluginsAdapters "switchyard.dev/switchyard/internal/plugins/adapters"
-	pluginsApplication "switchyard.dev/switchyard/internal/plugins/application"
+	catalogApplication "envarium.dev/envarium/internal/catalog/application"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	observabilityAdapters "envarium.dev/envarium/internal/observability/adapters"
+	"envarium.dev/envarium/internal/platform/sqlite"
+	pluginsAdapters "envarium.dev/envarium/internal/plugins/adapters"
+	pluginsApplication "envarium.dev/envarium/internal/plugins/application"
 )
 
 func newPluginService(

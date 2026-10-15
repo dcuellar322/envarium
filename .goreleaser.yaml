@@ -1,23 +1,23 @@
 version: 2
-project_name: switchyard
+project_name: envarium
 
 builds:
-  - id: switchyard
-    main: ./cmd/switchyard
-    binary: switchyard
+  - id: envarium
+    main: ./cmd/envarium
+    binary: envarium
     env: [CGO_ENABLED=0]
     flags: [-trimpath]
     ldflags:
       - >-
         -s -w
-        -X switchyard.dev/switchyard/internal/foundation/buildinfo.version={{.Version}}
-        -X switchyard.dev/switchyard/internal/foundation/buildinfo.commit={{.ShortCommit}}
-        -X switchyard.dev/switchyard/internal/foundation/buildinfo.builtAt={{.Date}}
+        -X envarium.dev/envarium/internal/foundation/buildinfo.version={{.Version}}
+        -X envarium.dev/envarium/internal/foundation/buildinfo.commit={{.ShortCommit}}
+        -X envarium.dev/envarium/internal/foundation/buildinfo.builtAt={{.Date}}
     goos: [darwin, linux, windows]
     goarch: [amd64, arm64]
 
 archives:
-  - id: switchyard
+  - id: envarium
     formats: [tar.gz]
     format_overrides:
       - goos: windows

@@ -6,6 +6,7 @@ import {
   createManifestProposal,
   createProjectOperation,
   explainProjectManifest,
+  exportProjectLogs as exportProjectLogsRequest,
   getAiManifestEnhancement,
   getManifestProposal,
   getOperation,
@@ -18,6 +19,7 @@ import {
   listProjectActions,
   listAiProposalProviders,
   listProjects,
+  planProjectRuntime,
   validateManifestProposal,
   previewAiManifestEvidence,
 } from '../../api/generated/sdk.gen'
@@ -35,6 +37,7 @@ import type {
   ProjectActions,
   ProjectHealth,
   RuntimeAction,
+  RuntimePlan,
   RuntimeLogEntry,
   RuntimeMetricSample,
   RuntimeObservation,
@@ -238,13 +241,59 @@ export async function runProjectAction(
 export async function runRuntimeAction(
   projectId: string,
   action: RuntimeAction,
-  profiles: string[] = [],
+  selection: RuntimeSelection = {},
 ): Promise<Operation> {
   const result = await createProjectOperation({
     path: { projectId },
-    body: { action, removeVolumes: false, ...(profiles.length > 0 ? { profiles } : {}) },
+    body: runtimeRequest(action, selection),
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
   if (result.error || !result.data) throw new Error(`The ${action} operation could not be queued.`)
   return result.data
+}
+
+export type RuntimeSelection = {
+  profiles?: string[]
+  services?: string[]
+  removeVolumes?: boolean
+  confirmRisk?: boolean
+}
+
+export async function previewRuntimeAction(
+  projectId: string,
+  action: RuntimeAction,
+  selection: RuntimeSelection = {},
+): Promise<RuntimePlan> {
+  const result = await planProjectRuntime({
+    path: { projectId },
+    body: runtimeRequest(action, selection),
+  })
+  if (result.error || !result.data) throw new Error(`The ${action} plan could not be prepared.`)
+  return result.data
+}
+
+export async function exportProjectLogText(
+  projectId: string,
+  service = '',
+  format: 'plain' | 'ndjson' = 'plain',
+): Promise<string> {
+  const result = await exportProjectLogsRequest({
+    path: { projectId },
+    query: { format, ...(service ? { service } : {}) },
+  })
+  if (result.error || result.data === undefined)
+    throw new Error('The log export could not be prepared.')
+  return result.data
+}
+
+function runtimeRequest(action: RuntimeAction, selection: RuntimeSelection) {
+  const profiles = selection.profiles?.filter(Boolean) ?? []
+  const services = selection.services?.filter(Boolean) ?? []
+  return {
+    action,
+    removeVolumes: selection.removeVolumes ?? false,
+    confirmRisk: selection.confirmRisk ?? false,
+    ...(profiles.length > 0 ? { profiles } : {}),
+    ...(services.length > 0 ? { services } : {}),
+  }
 }

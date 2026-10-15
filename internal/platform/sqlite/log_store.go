@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 // LogRedactor sanitizes a canonical entry before memory, disk, or subscribers receive it.

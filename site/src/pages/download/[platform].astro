@@ -22,7 +22,7 @@ const alternatives = release?.assets.filter((candidate) => {
 }) ?? []
 ---
 
-<ContentPageLayout title={`Install Switchyard on ${guide.shortName}`} eyebrow="Platform install" description={`${guide.requirements} The site recommends a package only when it is present in authoritative GitHub Release metadata.`}>
+<ContentPageLayout title={`Install Envarium on ${guide.shortName}`} eyebrow="Platform install" description={`${guide.requirements} The site recommends a package only when it is present in authoritative GitHub Release metadata.`}>
   <div class="platform-layout">
     <div>
       <ReleaseDownloadCard release={release} asset={asset} label={`${guide.shortName} · ${primaryArchitecture}`} />
@@ -30,8 +30,8 @@ const alternatives = release?.assets.filter((candidate) => {
     </div>
     <aside class="panel"><p class="eyebrow">Install path</p><ol>{guide.install.map((step) => <li>{step}</li>)}</ol><h2>Verify first</h2><p>{guide.verify}</p><a href="/download/verify/">Open verification guide →</a></aside>
   </div>
-  <section class="after-install panel"><div><p class="eyebrow">Observable success</p><h2>Confirm the local control plane.</h2><p>After installation, `switchyard doctor` reports platform capabilities and `switchyard ui` opens the loopback browser surface. No account or cloud connection is required.</p></div><pre><code>switchyard doctor
-switchyard ui</code></pre></section>
+  <section class="after-install panel"><div><p class="eyebrow">Observable success</p><h2>Confirm the local control plane.</h2><p>After installation, `envarium doctor` reports platform capabilities and `envarium ui` opens the loopback browser surface. No account or cloud connection is required.</p></div><pre><code>envarium doctor
+envarium ui</code></pre></section>
 </ContentPageLayout>
 
 <style>

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func (d *Driver) watchEvents(ctx context.Context, project domain.ProjectRuntime, sink domain.EventSink) error {

@@ -3,10 +3,10 @@ package adapters
 import (
 	"context"
 
-	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	"switchyard.dev/switchyard/internal/environments/application"
-	sourcecontrolApplication "switchyard.dev/switchyard/internal/sourcecontrol/application"
+	catalogApplication "envarium.dev/envarium/internal/catalog/application"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	"envarium.dev/envarium/internal/environments/application"
+	sourcecontrolApplication "envarium.dev/envarium/internal/sourcecontrol/application"
 )
 
 // CatalogSource exposes only trusted project identity and locations.

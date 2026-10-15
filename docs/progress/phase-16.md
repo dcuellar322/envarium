@@ -1,6 +1,6 @@
 ---
 title: "Phase 16: Adapter and plugin SDK"
-description: Implementation evidence for Switchyard product phase 16.
+description: Implementation evidence for Envarium product phase 16.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17

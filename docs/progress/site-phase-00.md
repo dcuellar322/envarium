@@ -10,7 +10,7 @@ lastVerified: 2026-07-17
 
 Repository work is complete. ADR-0017 accepts a separate static site, root
 documentation ownership, GitHub Release authority, no analytics, and the
-canonical `switchyard.davidcuellar.tech` origin. `docs/public-site.md` records
+canonical `envarium.davidcuellar.tech` origin. `docs/public-site.md` records
 the differentiated name, audience, conversion goals, collision risk, tokens,
 and generic screenshot inventory.
 

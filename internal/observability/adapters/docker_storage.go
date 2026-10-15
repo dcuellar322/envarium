@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
+	"envarium.dev/envarium/internal/observability/domain"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/client"
-	"switchyard.dev/switchyard/internal/observability/domain"
 )
 
 const composeProjectLabel = "com.docker.compose.project"

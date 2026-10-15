@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 // Run schedules checks with stable jitter and exits promptly on cancellation.

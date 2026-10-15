@@ -9,15 +9,15 @@ import (
 	"strings"
 	"time"
 
-	actionsDomain "switchyard.dev/switchyard/internal/actions/domain"
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	"switchyard.dev/switchyard/internal/diagnostics/domain"
-	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
-	observabilityDomain "switchyard.dev/switchyard/internal/observability/domain"
-	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
-	portsDomain "switchyard.dev/switchyard/internal/ports/domain"
-	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
-	sourcecontrolDomain "switchyard.dev/switchyard/internal/sourcecontrol/domain"
+	actionsDomain "envarium.dev/envarium/internal/actions/domain"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	"envarium.dev/envarium/internal/diagnostics/domain"
+	manifestApplication "envarium.dev/envarium/internal/manifest/application"
+	observabilityDomain "envarium.dev/envarium/internal/observability/domain"
+	operationsDomain "envarium.dev/envarium/internal/operations/domain"
+	portsDomain "envarium.dev/envarium/internal/ports/domain"
+	runtimeDomain "envarium.dev/envarium/internal/runtime/domain"
+	sourcecontrolDomain "envarium.dev/envarium/internal/sourcecontrol/domain"
 )
 
 type catalogSource interface {

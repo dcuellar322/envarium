@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"switchyard.dev/switchyard/internal/actions/domain"
+	"envarium.dev/envarium/internal/actions/domain"
 )
 
 var (

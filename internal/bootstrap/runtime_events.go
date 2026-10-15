@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"switchyard.dev/switchyard/internal/foundation/events"
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/foundation/events"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	runtimeApplication "envarium.dev/envarium/internal/runtime/application"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 type runtimeReconciliationSink struct {

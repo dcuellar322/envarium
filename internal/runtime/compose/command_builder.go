@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 type executionPlan struct {
@@ -65,8 +65,8 @@ func composeProfileArguments(request domain.PlanRequest) ([]string, []string, er
 	if len(request.Profiles) == 0 {
 		return nil, nil, nil
 	}
-	if request.Action != domain.ActionStart && request.Action != domain.ActionRebuild {
-		return nil, nil, fmt.Errorf("compose profiles can be selected only for start or rebuild")
+	if request.Action != domain.ActionStart && request.Action != domain.ActionDeploy && request.Action != domain.ActionRebuild {
+		return nil, nil, fmt.Errorf("compose profiles can be selected only for start, deploy, or rebuild")
 	}
 	allowed := make(map[string]struct{})
 	if request.Project.Compose != nil {
@@ -130,12 +130,16 @@ func lifecycleArguments(action domain.Action, removeVolumes bool) (domain.Risk, 
 		return domain.RiskCaution, "Stop Compose services", []string{"stop containers", "preserve containers", "preserve volumes"}, []string{"stop"}, nil
 	case domain.ActionRestart:
 		return domain.RiskCaution, "Restart Compose services", []string{"restart running containers", "preserve volumes"}, []string{"restart"}, nil
+	case domain.ActionDeploy:
+		return domain.RiskCaution, "Deploy current Compose definition", []string{"pull newer service images when available", "recreate containers from the trusted Compose definition", "remove orphaned containers", "preserve named volumes"}, []string{"up", "--detach", "--pull", "always", "--force-recreate", "--remove-orphans"}, nil
+	case domain.ActionKill:
+		return domain.RiskCaution, "Force-stop Compose services", []string{"send SIGKILL to container processes", "preserve containers", "preserve volumes"}, []string{"kill"}, nil
 	case domain.ActionPause:
 		return domain.RiskCaution, "Pause Compose services", []string{"suspend container processes"}, []string{"pause"}, nil
 	case domain.ActionUnpause:
 		return domain.RiskSafe, "Unpause Compose services", []string{"resume paused container processes"}, []string{"unpause"}, nil
 	case domain.ActionRebuild:
-		return domain.RiskCaution, "Rebuild and recreate Compose services", []string{"build images", "recreate containers", "preserve named volumes"}, []string{"up", "--detach", "--build", "--force-recreate"}, nil
+		return domain.RiskCaution, "Rebuild and recreate Compose services", []string{"build images", "recreate containers", "remove orphaned containers", "preserve named volumes"}, []string{"up", "--detach", "--build", "--force-recreate", "--remove-orphans"}, nil
 	case domain.ActionTeardown:
 		arguments := []string{"down"}
 		effects := []string{"remove Compose containers and networks", "preserve named volumes"}

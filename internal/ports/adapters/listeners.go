@@ -12,7 +12,7 @@ import (
 	gnet "github.com/shirou/gopsutil/v4/net"
 	gprocess "github.com/shirou/gopsutil/v4/process"
 
-	"switchyard.dev/switchyard/internal/ports/domain"
+	"envarium.dev/envarium/internal/ports/domain"
 )
 
 type connectionReader func(context.Context, string) ([]gnet.ConnectionStat, error)

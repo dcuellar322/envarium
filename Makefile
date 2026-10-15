@@ -7,11 +7,11 @@ GOCACHE ?= $(CURDIR)/.cache/go-build
 VERSION ?= 1.0.0
 COMMIT ?= $(shell git rev-parse --short=12 HEAD 2>/dev/null || printf unknown)
 BUILD_TIME ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
-LDFLAGS := -X switchyard.dev/switchyard/internal/foundation/buildinfo.version=$(VERSION) -X switchyard.dev/switchyard/internal/foundation/buildinfo.commit=$(COMMIT) -X switchyard.dev/switchyard/internal/foundation/buildinfo.builtAt=$(BUILD_TIME)
+LDFLAGS := -X envarium.dev/envarium/internal/foundation/buildinfo.version=$(VERSION) -X envarium.dev/envarium/internal/foundation/buildinfo.commit=$(COMMIT) -X envarium.dev/envarium/internal/foundation/buildinfo.builtAt=$(BUILD_TIME)
 OAPI_CODEGEN := $(GO) run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.8.0
 SQLC := $(GO) run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 GOVULNCHECK := $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.7.0
-GOLANGCI_LINT := $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.0
+GOLANGCI_LINT := $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.14.0
 PLATFORM_PACKAGES := ./internal/actions/adapters ./internal/agents/providers/process ./internal/bootstrap ./internal/foundation/secretfile ./internal/platform/localipc ./internal/platform/processgroup ./internal/plugins/adapters ./internal/runtime/process ./internal/support/adapters ./internal/terminal/adapters ./internal/transport/cli ./internal/ports/adapters
 
 .PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check fmt-go-check fmt-web-check lint archcheck repository-check typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality site-dev site-generate site-build site-check site-lint site-test site-test-e2e site-test-visual site-validate site-quality
@@ -89,10 +89,10 @@ desktop-quality: desktop-lint desktop-test
 
 build: frontend-build
 	mkdir -p bin
-	GOCACHE=$(GOCACHE) $(GO) build -trimpath -ldflags '$(LDFLAGS)' -o bin/switchyard ./cmd/switchyard
+	GOCACHE=$(GOCACHE) $(GO) build -trimpath -ldflags '$(LDFLAGS)' -o bin/envarium ./cmd/envarium
 
 run: frontend-build
-	GOCACHE=$(GOCACHE) $(GO) run -ldflags '$(LDFLAGS)' ./cmd/switchyard daemon --data-dir .switchyard-data/dev
+	GOCACHE=$(GOCACHE) $(GO) run -ldflags '$(LDFLAGS)' ./cmd/envarium daemon --data-dir .envarium-data/dev
 
 fmt:
 	GOCACHE=$(GOCACHE) $(GO) fmt ./...

@@ -103,7 +103,7 @@ const mutationError = computed(
     <header class="page-head">
       <div>
         <p>{{ readOnly ? 'Responsive companion' : 'Optional peer federation' }}</p>
-        <h1 id="fleet-title">{{ readOnly ? 'Switchyard companion' : 'Machines' }}</h1>
+        <h1 id="fleet-title">{{ readOnly ? 'Envarium companion' : 'Machines' }}</h1>
         <span>{{
           readOnly
             ? 'Authenticated read-only project health across explicitly configured machines.'
@@ -115,7 +115,7 @@ const mutationError = computed(
     <aside class="local-first">
       <strong>Local-only remains the default.</strong
       ><span
-        >No account or hosted service is required. Tunnels provide transport; Switchyard still
+        >No account or hosted service is required. Tunnels provide transport; Envarium still
         enforces mTLS identity, capability grants, confirmation, and audit.</span
       >
     </aside>
@@ -172,7 +172,7 @@ const mutationError = computed(
       <span aria-hidden="true">⌁</span>
       <h2>No remote machines configured</h2>
       <p>
-        Switchyard is fully functional in local-only mode. Add a peer only when you need direct
+        Envarium is fully functional in local-only mode. Add a peer only when you need direct
         inventory or typed operations across machines.
       </p>
     </section>

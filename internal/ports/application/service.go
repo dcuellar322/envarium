@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"envarium.dev/envarium/internal/ports/domain"
 	"golang.org/x/sync/singleflight"
-	"switchyard.dev/switchyard/internal/ports/domain"
 )
 
 // ErrNoPortAvailable indicates that every port in the preferred range is protected or bound.

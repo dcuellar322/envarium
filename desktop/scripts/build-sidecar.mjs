@@ -9,22 +9,22 @@ const rustcCandidate = join(homedir(), ".cargo", "bin", process.platform === "wi
 const rustc = process.env.RUSTC || (existsSync(rustcCandidate) ? rustcCandidate : "rustc");
 const target = run(rustc, ["--print", "host-tuple"]).trim();
 const metadata = JSON.parse(readFileSync(join(repository, "package.json"), "utf8"));
-const version = process.env.SWITCHYARD_VERSION || metadata.version;
+const version = process.env.ENVARIUM_VERSION || metadata.version;
 const commit = run("git", ["-C", repository, "rev-parse", "--short=12", "HEAD"], true).trim() || "unknown";
 const builtAt = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 const extension = process.platform === "win32" ? ".exe" : "";
-const output = join(repository, "desktop", "src-tauri", "binaries", `switchyard-${target}${extension}`);
+const output = join(repository, "desktop", "src-tauri", "binaries", `envarium-${target}${extension}`);
 const cache = join(repository, ".cache", "go-build");
 
 mkdirSync(dirname(output), { recursive: true });
 mkdirSync(cache, { recursive: true });
 const linkerFlags = [
-  `-X switchyard.dev/switchyard/internal/foundation/buildinfo.version=${version}`,
-  `-X switchyard.dev/switchyard/internal/foundation/buildinfo.commit=${commit}`,
-  `-X switchyard.dev/switchyard/internal/foundation/buildinfo.builtAt=${builtAt}`,
+  `-X envarium.dev/envarium/internal/foundation/buildinfo.version=${version}`,
+  `-X envarium.dev/envarium/internal/foundation/buildinfo.commit=${commit}`,
+  `-X envarium.dev/envarium/internal/foundation/buildinfo.builtAt=${builtAt}`,
 ].join(" ");
 
-run("go", ["build", "-trimpath", "-ldflags", linkerFlags, "-o", output, "./cmd/switchyard"], false, {
+run("go", ["build", "-trimpath", "-ldflags", linkerFlags, "-o", output, "./cmd/envarium"], false, {
   ...process.env,
   GOCACHE: cache,
 }, repository);

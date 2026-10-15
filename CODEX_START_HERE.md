@@ -1,12 +1,12 @@
-# Codex Start Here — Switchyard
+# Codex Start Here — Envarium
 
-Use this file after creating the Switchyard repository and copying in the implementation package.
+Use this file after creating the Envarium repository and copying in the implementation package.
 
 ## Initial bootstrap prompt
 
 ```text
-You are implementing Switchyard, a local project-oriented development command
-center. Read AGENTS.md and SWITCHYARD_IMPLEMENTATION_PLAN.md completely enough
+You are implementing Envarium, a local project-oriented development command
+center. Read AGENTS.md and ENVARIUM_IMPLEMENTATION_PLAN.md completely enough
 to understand the architecture, then implement only Phase 0 and Phase 1.
 
 Preserve the modular-monolith domain boundaries. Do not create god files,
@@ -23,13 +23,13 @@ For each phase:
 6. do not declare completion for unverified criteria.
 
 The interactive design reference is
-`design/switchyard-interactive-mockup.html`. Do not implement the complete UI
+`design/envarium-interactive-mockup.html`. Do not implement the complete UI
 in Phase 1; only build the walking-skeleton screen required by the plan.
 ```
 
 ## Subsequent phase prompt
 
-Use the standard phase prompt in Section 24 of `SWITCHYARD_IMPLEMENTATION_PLAN.md`.
+Use the standard phase prompt in Section 24 of `ENVARIUM_IMPLEMENTATION_PLAN.md`.
 
 ## Recommended Codex workflow
 

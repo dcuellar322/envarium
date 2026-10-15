@@ -3,9 +3,9 @@ package adapters
 import (
 	"context"
 
-	diagnosticsApplication "switchyard.dev/switchyard/internal/diagnostics/application"
-	operationsApplication "switchyard.dev/switchyard/internal/operations/application"
-	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
+	diagnosticsApplication "envarium.dev/envarium/internal/diagnostics/application"
+	operationsApplication "envarium.dev/envarium/internal/operations/application"
+	operationsDomain "envarium.dev/envarium/internal/operations/domain"
 )
 
 type operationSubmitter interface {

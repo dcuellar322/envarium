@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	environmentDomain "switchyard.dev/switchyard/internal/environments/domain"
+	environmentDomain "envarium.dev/envarium/internal/environments/domain"
 )
 
 func TestEnvironmentSourcePreservesUnavailableAndActiveStates(t *testing.T) {

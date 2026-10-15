@@ -1,3 +1,3 @@
 fn main() {
-    switchyard_desktop::run();
+    envarium_desktop::run();
 }

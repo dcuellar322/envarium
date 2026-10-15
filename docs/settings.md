@@ -7,7 +7,7 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Switchyard stores one revisioned settings document in its private SQLite
+Envarium stores one revisioned settings document in its private SQLite
 database. The browser, CLI, daemon, and MCP adapter read the same application
 service; browser-local storage is not an authority for product configuration.
 Each update is a full compare-and-swap replacement, so a stale browser or JSON
@@ -15,14 +15,14 @@ document receives `SETTINGS_REVISION_CONFLICT` instead of overwriting a newer
 change. Audits record the actor, revision, and changed section names without
 copying paths, provider configuration, or other values.
 
-Open `/settings` from `switchyard ui` for the accessible editor. Headless users
+Open `/settings` from `envarium ui` for the accessible editor. Headless users
 can inspect or round-trip the same generated contract:
 
 ```bash
-switchyard settings show
-switchyard settings export ./switchyard-settings.json
+envarium settings show
+envarium settings export ./envarium-settings.json
 # Review and edit the complete private file, preserving its revision.
-switchyard settings apply ./switchyard-settings.json --yes
+envarium settings apply ./envarium-settings.json --yes
 ```
 
 Export refuses to overwrite a file and creates mode `0600` output. Apply reads
@@ -37,7 +37,7 @@ cross-field validation.
 | Project roots | Applied immediately to new deterministic scans. Existing registered projects remain available. |
 | Preferred ports and exclusions | Applied immediately to browser suggestions; the registry still reports every observed fact. |
 | Terminal and editor | Applied immediately to built-in quick actions. Integrated terminal remains a typed authenticated session, not a shell string built by the browser. |
-| Default agent profile | Applied to new `switchyard mcp serve` sessions unless an explicit `--profile` is supplied. |
+| Default agent profile | Applied to new `envarium mcp serve` sessions unless an explicit `--profile` is supplied. |
 | Appearance | Applied across browser routes. Density, timestamp preference, and high-contrast tokens remain client presentation only. |
 | Retention | Applied on the next daemon start so collectors and pruning jobs switch bounds atomically. |
 | AI provider adapter configuration | Applied on the next daemon start because provider processes are composed once. The selected default is live client preference. |
@@ -55,7 +55,7 @@ fail with `PROJECT_ROOT_DENIED` unless that individual request carries an
 explicit override:
 
 ```bash
-switchyard project add /opt/reviewed/repository --allow-outside-roots
+envarium project add /opt/reviewed/repository --allow-outside-roots
 ```
 
 The override does not trust the repository and does not execute its code. It

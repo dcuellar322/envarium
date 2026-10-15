@@ -1,6 +1,6 @@
 ---
 title: "Phase 10: MCP server and agent guidance"
-description: Implementation evidence for Switchyard product phase 10.
+description: Implementation evidence for Envarium product phase 10.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -36,7 +36,7 @@ lastVerified: 2026-07-17
   in release-build CI. The Inspector starts a real isolated daemon and separate
   stdio process.
 - Added a public MCP schema/tool reference and an architecture note.
-- Added a durable default MCP profile. `switchyard mcp serve` loads it from the
+- Added a durable default MCP profile. `envarium mcp serve` loads it from the
   daemon when `--profile` is omitted, while an explicit flag remains the
   authoritative per-session override.
 
@@ -98,7 +98,7 @@ go run ./tools/archcheck
 PASS
 
 make build
-PASS: production Vue bundle and switchyard binary
+PASS: production Vue bundle and envarium binary
 
 ./scripts/test-mcp-inspector.sh
 MCP Inspector smoke passed (tools, resources, prompts; observe profile)
@@ -125,7 +125,7 @@ E2E workflows, 6 visual baselines, production web, and production binary build
 
 ## Known limitations and deferred work
 
-- Remote HTTP MCP transport is intentionally unavailable. Switchyard's current
+- Remote HTTP MCP transport is intentionally unavailable. Envarium's current
   trust model is local stdio plus privileged IPC.
 - MCP list pagination uses bounded server pages; the present project catalog
   API is itself a bounded local collection and does not yet expose durable

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
+	agents "envarium.dev/envarium/internal/agents/application"
 )
 
 func TestProposalProviderSendsStructuredToolFreeBoundedRequest(t *testing.T) {
@@ -20,7 +20,7 @@ func TestProposalProviderSendsStructuredToolFreeBoundedRequest(t *testing.T) {
 		if err := json.NewDecoder(request.Body).Decode(&captured); err != nil {
 			t.Error(err)
 		}
-		return response(request, http.StatusOK, `{"model":"fixture-model","choices":[{"message":{"content":"{\"version\":\"switchyard.dev/ai-proposal/v1alpha1\"}"}}],"usage":{"prompt_tokens":12,"completion_tokens":4}}`), nil
+		return response(request, http.StatusOK, `{"model":"fixture-model","choices":[{"message":{"content":"{\"version\":\"envarium.dev/ai-proposal/v1alpha1\"}"}}],"usage":{"prompt_tokens":12,"completion_tokens":4}}`), nil
 	})}
 	provider := NewProposalProvider(ProposalConfig{Endpoint: "http://127.0.0.1:12345", Model: "fixture", APIKey: "fixture-key", Client: client})
 	result, err := provider.ProposeManifest(context.Background(), agents.ProviderRequest{
@@ -53,7 +53,7 @@ func TestDiagnosisProviderKeepsUntrustedLogsInTheDataMessage(t *testing.T) {
 		if err := json.NewDecoder(request.Body).Decode(&captured); err != nil {
 			t.Error(err)
 		}
-		return response(request, http.StatusOK, `{"choices":[{"message":{"content":"{\"version\":\"switchyard.dev/ai-diagnosis/v1alpha1\",\"hypotheses\":[],\"warnings\":[]}"}}]}`), nil
+		return response(request, http.StatusOK, `{"choices":[{"message":{"content":"{\"version\":\"envarium.dev/ai-diagnosis/v1alpha1\",\"hypotheses\":[],\"warnings\":[]}"}}]}`), nil
 	})}
 	provider := NewProposalProvider(ProposalConfig{Endpoint: "http://127.0.0.1:12345", Model: "fixture", Client: client})
 	_, err := provider.Diagnose(context.Background(), agents.ProviderRequest{

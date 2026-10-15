@@ -7,8 +7,8 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-- Protocol: `switchyard.plugin/v1`
-- Manifest: `switchyard.plugin-manifest/v1`
+- Protocol: `envarium.plugin/v1`
+- Manifest: `envarium.plugin-manifest/v1`
 - Transport: newline-delimited JSON-RPC over stdio
 
 ## Capabilities

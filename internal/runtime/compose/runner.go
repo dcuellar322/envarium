@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 type commandRunner interface {

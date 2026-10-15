@@ -27,10 +27,10 @@ capability until an update is installed.
 - Secrets live in the operating-system keychain and are redacted before logs,
   exports, diagnostics, or provider requests.
 - Agent and plugin capabilities are least-privilege, permission-checked, and
-  audited. Switchyard does not expose a generic shell MCP tool.
+  audited. Envarium does not expose a generic shell MCP tool.
 - Destructive operations require preview and explicit authorization.
 
 The reviewed v1 boundaries, threats, controls, residual risks, and findings are
 in [docs/security/threat-model.md](docs/security/threat-model.md). The complete
 design baseline remains normative in Section 18 of
-`SWITCHYARD_IMPLEMENTATION_PLAN.md`.
+`ENVARIUM_IMPLEMENTATION_PLAN.md`.

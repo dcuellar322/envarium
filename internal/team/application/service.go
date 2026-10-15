@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/team/domain"
+	"envarium.dev/envarium/internal/team/domain"
 )
 
 var (

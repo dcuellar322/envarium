@@ -8,12 +8,12 @@ import (
 	"sort"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/manifest/domain"
+	"envarium.dev/envarium/internal/manifest/domain"
 )
 
 const (
-	portableManifest = ".switchyard/project.yml"
-	localManifest    = ".switchyard/project.local.yml"
+	portableManifest = ".envarium/project.yml"
+	localManifest    = ".envarium/project.local.yml"
 )
 
 // EffectiveManifest includes every effective field's winning source.

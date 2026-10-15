@@ -163,7 +163,7 @@ type CleanupPreview struct {
 	ObservedAt     time.Time         `json:"observedAt"`
 }
 
-// Footprint reports Switchyard-owned data without walking project roots.
+// Footprint reports Envarium-owned data without walking project roots.
 type Footprint struct {
 	DatabaseBytes    int64      `json:"databaseBytes"`
 	DatabaseWALBytes int64      `json:"databaseWalBytes"`

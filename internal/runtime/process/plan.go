@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 type servicePlan struct {
@@ -29,7 +29,7 @@ func buildPlan(request domain.PlanRequest) (domain.Plan, error) {
 	if request.RemoveVolumes {
 		return domain.Plan{}, errors.New("native process runtimes do not own volumes")
 	}
-	if request.Action != domain.ActionStart && request.Action != domain.ActionStop && request.Action != domain.ActionRestart {
+	if !supportedProcessAction(request.Action) {
 		return domain.Plan{}, fmt.Errorf("native process runtimes do not support %s", request.Action)
 	}
 	services, err := orderedServices(request.Project)
@@ -51,7 +51,7 @@ func buildPlan(request domain.PlanRequest) (domain.Plan, error) {
 			return domain.Plan{}, fmt.Errorf("shell process %q must contain one command string", service.definition.ID)
 		}
 	}
-	if request.Action == domain.ActionStop {
+	if request.Action == domain.ActionStop || request.Action == domain.ActionKill {
 		reverseServices(services)
 	}
 	plan := domain.Plan{
@@ -60,6 +60,9 @@ func buildPlan(request domain.PlanRequest) (domain.Plan, error) {
 		Summary:    fmt.Sprintf("%s %d native process service(s) for %s", request.Action, len(services), request.Project.ProjectSlug),
 		Effects:    []string{"Process ownership will be verified using durable identity fingerprints."},
 		DriverData: executionPlan{project: request.Project, action: request.Action, services: services},
+	}
+	if request.Action == domain.ActionKill {
+		plan.Effects = append(plan.Effects, "Managed process groups will be force-stopped without a graceful timeout.")
 	}
 	for _, service := range services {
 		plan.Services = append(plan.Services, service.service.ID)
@@ -73,6 +76,16 @@ func buildPlan(request domain.PlanRequest) (domain.Plan, error) {
 		))
 	}
 	return plan, nil
+}
+
+func supportedProcessAction(action domain.Action) bool {
+	switch action {
+	case domain.ActionStart, domain.ActionStop, domain.ActionRestart, domain.ActionDeploy, domain.ActionKill:
+		return true
+	case domain.ActionPause, domain.ActionUnpause, domain.ActionRebuild, domain.ActionTeardown:
+		return false
+	}
+	return false
 }
 
 func selectProcessServices(request domain.PlanRequest, ordered []servicePlan) ([]servicePlan, error) {

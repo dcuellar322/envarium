@@ -9,16 +9,16 @@ import (
 	"strings"
 	"time"
 
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	discoveryDomain "envarium.dev/envarium/internal/discovery/domain"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
 )
 
 const (
 	// BundleVersion identifies the provider evidence contract.
-	BundleVersion = "switchyard.dev/ai-evidence/v1alpha1"
+	BundleVersion = "envarium.dev/ai-evidence/v1alpha1"
 	// OutputVersion identifies the schema-constrained provider response.
-	OutputVersion        = "switchyard.dev/ai-proposal/v1alpha1"
+	OutputVersion        = "envarium.dev/ai-proposal/v1alpha1"
 	defaultEvidenceBytes = 64 << 10
 	defaultOutputBytes   = 256 << 10
 	defaultTimeout       = 90 * time.Second
@@ -121,7 +121,7 @@ type FieldClaim struct {
 
 // ProposalOutput is the only accepted provider response shape.
 type ProposalOutput struct {
-	Version   string                  `json:"version" jsonschema:"required,enum=switchyard.dev/ai-proposal/v1alpha1"`
+	Version   string                  `json:"version" jsonschema:"required,enum=envarium.dev/ai-proposal/v1alpha1"`
 	Candidate manifestDomain.Manifest `json:"candidate" jsonschema:"required"`
 	Claims    []FieldClaim            `json:"claims" jsonschema:"required"`
 	Warnings  []string                `json:"warnings" jsonschema:"required"`

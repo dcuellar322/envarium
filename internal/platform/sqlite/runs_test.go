@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestRunRepositoryPersistsFingerprintsAndTerminalOutcome(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -27,7 +27,7 @@ func TestRunRepositoryPersistsFingerprintsAndTerminalOutcome(t *testing.T) {
 	repository := NewRunRepository(database)
 	run := domain.RunRecord{
 		ID: "run-1", ProjectID: "project-run", ServiceID: "api", RuntimeDriver: domain.KindProcess,
-		Origin: domain.OriginSwitchyard, StartedAt: now, IdentityFingerprint: "fingerprint-1", OperationID: "op-1",
+		Origin: domain.OriginEnvarium, StartedAt: now, IdentityFingerprint: "fingerprint-1", OperationID: "op-1",
 	}
 	if err := repository.CreateRun(ctx, run); err != nil {
 		t.Fatal(err)

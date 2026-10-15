@@ -18,7 +18,7 @@ const plugin = {
   id: 'fixture-inspector',
   name: 'Fixture inspector',
   version: '1.0.0',
-  protocolVersion: 'switchyard.plugin/v1',
+  protocolVersion: 'envarium.plugin/v1',
   manifestPath: '/plugins/fixture/plugin.json',
   fingerprint: 'a'.repeat(64),
   capabilities: ['project.inspect', 'project.operate'],

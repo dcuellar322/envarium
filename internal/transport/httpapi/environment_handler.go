@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	environmentApplication "switchyard.dev/switchyard/internal/environments/application"
-	environmentDomain "switchyard.dev/switchyard/internal/environments/domain"
-	routingDomain "switchyard.dev/switchyard/internal/routing/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	environmentApplication "envarium.dev/envarium/internal/environments/application"
+	environmentDomain "envarium.dev/envarium/internal/environments/domain"
+	routingDomain "envarium.dev/envarium/internal/routing/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) ListProjectEnvironments(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {

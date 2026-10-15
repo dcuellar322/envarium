@@ -10,7 +10,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"switchyard.dev/switchyard/internal/manifest/domain"
+	"envarium.dev/envarium/internal/manifest/domain"
 )
 
 // ParseYAML decodes exactly one manifest and rejects unknown fields.

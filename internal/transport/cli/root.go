@@ -13,8 +13,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"switchyard.dev/switchyard/internal/bootstrap"
-	"switchyard.dev/switchyard/internal/foundation/buildinfo"
+	"envarium.dev/envarium/internal/bootstrap"
+	"envarium.dev/envarium/internal/foundation/buildinfo"
 )
 
 type rootOptions struct {
@@ -79,7 +79,7 @@ func Execute(ctx context.Context, args []string, stdout, stderr io.Writer) error
 
 func newRootCommand(options *rootOptions) *cobra.Command {
 	root := &cobra.Command{
-		Use: "switchyard", Short: "Local project-oriented development command center",
+		Use: "envarium", Short: "Local project-oriented development command center",
 		SilenceUsage: true, SilenceErrors: true,
 		PersistentPreRunE: func(*cobra.Command, []string) error {
 			if options.json && options.jsonl {
@@ -89,7 +89,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 		},
 	}
 	root.PersistentFlags().StringVar(&options.address, "address", options.address, "loopback daemon address")
-	root.PersistentFlags().StringVar(&options.dataDir, "data-dir", options.dataDir, "local Switchyard data directory")
+	root.PersistentFlags().StringVar(&options.dataDir, "data-dir", options.dataDir, "local Envarium data directory")
 	root.PersistentFlags().StringVar(&options.ipcAddr, "ipc-address", "", "privileged local IPC address")
 	root.PersistentFlags().StringVar(&options.routingAddr, "routing-address", "", "optional loopback HTTP address for .localhost routes")
 	root.PersistentFlags().BoolVar(&options.json, "json", false, "emit a stable JSON envelope")
@@ -111,7 +111,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 		newTeamCommand(options), newTelemetryCommand(options),
 		newSettingsCommand(options),
 		newDataCommand(options),
-		newLifecycleCommand(options, "start"), newLifecycleCommand(options, "stop"), newLifecycleCommand(options, "restart"),
+		newLifecycleCommand(options, "start"), newLifecycleCommand(options, "stop"), newLifecycleCommand(options, "restart"), newLifecycleCommand(options, "deploy"), newLifecycleCommand(options, "kill"),
 		newLifecycleCommand(options, "pause"), newLifecycleCommand(options, "unpause"), newLifecycleCommand(options, "rebuild"),
 		newLifecycleCommand(options, "teardown"),
 	)
@@ -119,17 +119,17 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 }
 
 func newVersionCommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{Use: "version", Short: "Print Switchyard build identity", Args: cobra.NoArgs, RunE: func(*cobra.Command, []string) error {
+	return &cobra.Command{Use: "version", Short: "Print Envarium build identity", Args: cobra.NoArgs, RunE: func(*cobra.Command, []string) error {
 		info := buildinfo.Current()
 		return writeResult(options, "version", info, func(w io.Writer) error {
-			_, err := fmt.Fprintf(w, "Switchyard %s (%s)\n", info.Version, info.Commit)
+			_, err := fmt.Fprintf(w, "Envarium %s (%s)\n", info.Version, info.Commit)
 			return err
 		})
 	}}
 }
 
 func newDaemonCommand(options *rootOptions) *cobra.Command {
-	command := &cobra.Command{Use: "daemon", Short: "Run the local Switchyard control plane", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
+	command := &cobra.Command{Use: "daemon", Short: "Run the local Envarium control plane", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
 		logger := slog.New(slog.NewJSONHandler(options.stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
 		return bootstrap.RunDaemon(command.Context(), bootstrap.Config{
 			DataDir: options.dataDir, HTTPAddr: options.address, IPCAddr: options.ipcAddr, RoutingAddr: options.routingAddr, Logger: logger,

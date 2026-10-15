@@ -8,8 +8,8 @@ import (
 	"slices"
 	"strings"
 
-	fleetApplication "switchyard.dev/switchyard/internal/fleet/application"
-	"switchyard.dev/switchyard/internal/fleet/domain"
+	fleetApplication "envarium.dev/envarium/internal/fleet/application"
+	"envarium.dev/envarium/internal/fleet/domain"
 )
 
 func parseRemoteControllers(values []string) ([]fleetApplication.ControllerGrant, error) {

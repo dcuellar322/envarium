@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/platform/sqlite"
-	settingsApplication "switchyard.dev/switchyard/internal/settings/application"
-	settingsDomain "switchyard.dev/switchyard/internal/settings/domain"
+	"envarium.dev/envarium/internal/platform/sqlite"
+	settingsApplication "envarium.dev/envarium/internal/settings/application"
+	settingsDomain "envarium.dev/envarium/internal/settings/domain"
 )
 
 func newSettingsService(ctx context.Context, database *sqlite.Database, config Config) (*settingsApplication.Service, settingsDomain.Settings, error) {
@@ -41,7 +41,7 @@ func prepareEffectiveSettings(ctx context.Context, database *sqlite.Database, co
 }
 
 func openConfiguredDatabase(ctx context.Context, config Config) (*sqlite.Database, *settingsApplication.Service, Config, error) {
-	database, err := sqlite.Open(ctx, filepath.Join(config.DataDir, "switchyard.db"))
+	database, err := sqlite.Open(ctx, filepath.Join(config.DataDir, "envarium.db"))
 	if err != nil {
 		return nil, nil, Config{}, err
 	}

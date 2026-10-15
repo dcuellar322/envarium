@@ -9,8 +9,8 @@ import (
 	"math"
 	"time"
 
-	workspace "switchyard.dev/switchyard/internal/workspace/application"
-	"switchyard.dev/switchyard/internal/workspace/domain"
+	workspace "envarium.dev/envarium/internal/workspace/application"
+	"envarium.dev/envarium/internal/workspace/domain"
 )
 
 // WorkspaceRepository persists workspace graphs and coordinated execution snapshots.

@@ -75,7 +75,7 @@ service becomes `running`.
 
 Child members of the OS process group are discovered continuously and stored.
 If the original parent exits, a verified child keeps the run active. This lets
-a restarted Switchyard daemon reconcile, measure, and stop a process tree that
+a restarted Envarium daemon reconcile, measure, and stop a process tree that
 survived the previous daemon without claiming unrelated processes.
 
 ## Lifecycle and restart
@@ -86,8 +86,10 @@ rolls back every process started by that operation.
 
 Stop sends graceful termination to the verified process group and waits for
 the manifest timeout. Remaining members receive forced termination and the run
-records a `_forced` reason. Restart is stop followed by start. Pause, unpause,
-rebuild, teardown, and volume flags are rejected for process runtimes.
+records a `_forced` reason. Restart and deploy are stop followed by start. Kill
+verifies the same persisted fingerprints and force-signals the owned group
+without a graceful timeout. Pause, unpause, rebuild, teardown, and volume flags
+are rejected for process runtimes.
 
 Crash restart is disabled by default. `on-failure` restarts only non-zero exits,
 uses the declared bounded retry count/backoff, records every new fingerprint,
@@ -104,7 +106,7 @@ member. Per-process network byte attribution is not claimed.
 
 An unmanaged listener is reported as `running_external` only when a declared
 TCP port maps to a live PID and the declared executable matches that process or
-one of its bounded ancestors/arguments. Switchyard exposes the observation but
+one of its bounded ancestors/arguments. Envarium exposes the observation but
 does not create a run ID, stream its logs, or stop it. Missing permissions or
 insufficient evidence produce `unknown` or `stopped`, never managed ownership.
 

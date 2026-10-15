@@ -3,7 +3,7 @@ package httpapi
 import (
 	"net/http"
 
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) GetResourceOverview(w http.ResponseWriter, r *http.Request) {

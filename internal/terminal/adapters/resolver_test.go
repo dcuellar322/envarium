@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"testing"
 
-	actionsDomain "switchyard.dev/switchyard/internal/actions/domain"
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
-	"switchyard.dev/switchyard/internal/terminal/application"
+	actionsDomain "envarium.dev/envarium/internal/actions/domain"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
+	"envarium.dev/envarium/internal/terminal/application"
 )
 
 func TestComposeExecUsesDeclaredServiceAndArgumentArray(t *testing.T) {

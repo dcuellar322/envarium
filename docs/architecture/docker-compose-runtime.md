@@ -38,7 +38,7 @@ Membership requires both `com.docker.compose.project` and
 `com.docker.compose.service`. One-off containers are excluded. Names are used
 only for display and never to infer project membership.
 
-The daemon marks containers as Switchyard-originated only after a lifecycle
+The daemon marks containers as Envarium-originated only after a lifecycle
 command succeeds and a subsequent observation reconciles their Engine IDs.
 After daemon restart, existing containers are honestly reported as external
 until a new managed lifecycle action establishes current-session ownership.
@@ -50,9 +50,11 @@ until a new managed lifecycle action establishes current-session ownership.
 | start | `[--profile name] up --detach` | safe | preserve |
 | stop | `--profile * stop` | caution | preserve containers and volumes |
 | restart | `restart` | caution | preserve |
+| deploy | `[--profile name] up --detach --pull always --force-recreate --remove-orphans` | caution | preserve named volumes |
+| kill | `kill` | caution | preserve containers and volumes |
 | pause | `pause` | caution | preserve |
 | unpause | `unpause` | safe | preserve |
-| rebuild | `[--profile name] up --detach --build --force-recreate` | caution | preserve named volumes |
+| rebuild | `[--profile name] up --detach --build --force-recreate --remove-orphans` | caution | preserve named volumes |
 | teardown | `--profile * down [--volumes]` | destructive | exactly matches the previewed flag |
 
 Every command uses an argument array, a trusted working directory, canonical

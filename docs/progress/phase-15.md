@@ -1,6 +1,6 @@
 ---
 title: "Phase 15: Desktop application"
-description: Implementation evidence for Switchyard product phase 15.
+description: Implementation evidence for Envarium product phase 15.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -9,7 +9,7 @@ lastVerified: 2026-07-17
 ## Implemented
 
 - Added a pinned Tauri 2/Rust native shell and generated platform icon assets
-  from the Switchyard mark.
+  from the Envarium mark.
 - Bundled the trimmed Go binary as a target-triple sidecar with exact version,
   commit, and build-time identity.
 - Added a typed, versioned `desktop snapshot` CLI boundary for daemon, host,
@@ -90,14 +90,14 @@ Focused verification on 2026-07-16 passed:
 - the Go SQLite, CLI, and HTTP-client packages passed their focused tests;
 - six Rust unit tests passed and Clippy with `-D warnings` was clean;
 - the bundled sidecar reported version `0.1.0-alpha.0` and the current commit;
-- Tauri built a native x64 `Switchyard.app` and 24 MiB DMG; `hdiutil verify`
+- Tauri built a native x64 `Envarium.app` and 24 MiB DMG; `hdiutil verify`
   reported a valid checksum;
 - an ad-hoc signature passed `codesign --verify --deep --strict`;
-- the packaged app launched a visible 1440×960 `Switchyard` window and started
+- the packaged app launched a visible 1440×960 `Envarium` window and started
   its bundled detached daemon under the expected per-user data directory;
 - clicking the standard close control removed the window while the desktop
   process remained alive, and a second launch restored the same instance;
-- the app's Info.plist contains the `switchyard` URL scheme; deep-link parsing
+- the app's Info.plist contains the `envarium` URL scheme; deep-link parsing
   and route selection passed unit tests; and
 - quitting the adapter left the independent daemon running as documented.
 

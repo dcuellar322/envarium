@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 
-	environmentApplication "switchyard.dev/switchyard/internal/environments/application"
-	"switchyard.dev/switchyard/internal/environments/domain"
+	environmentApplication "envarium.dev/envarium/internal/environments/application"
+	"envarium.dev/envarium/internal/environments/domain"
 )
 
 // EnvironmentRepository persists registered worktrees and exact runtime allocations.

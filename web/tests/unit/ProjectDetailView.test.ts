@@ -4,9 +4,29 @@ import { ref } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { expect, test, vi } from 'vitest'
 
-const { runRuntimeAction, runProjectAction } = vi.hoisted(() => ({
-  runRuntimeAction: vi.fn(),
-  runProjectAction: vi.fn(),
+const { exportProjectLogText, previewRuntimeAction, runRuntimeAction, runProjectAction } =
+  vi.hoisted(() => ({
+    exportProjectLogText: vi.fn(),
+    previewRuntimeAction: vi.fn(),
+    runRuntimeAction: vi.fn(),
+    runProjectAction: vi.fn(),
+  }))
+previewRuntimeAction.mockImplementation(async (projectId: string, action: string) => ({
+  projectId,
+  driver: 'compose',
+  action,
+  risk: 'safe',
+  summary: `${action} Alpha App`,
+  commands: [
+    {
+      executable: 'docker',
+      arguments: ['compose', action],
+      workingDirectory: '/dev/alpha',
+    },
+  ],
+  effects: ['Changes only the selected project runtime.'],
+  services: [],
+  removeVolumes: false,
 }))
 runRuntimeAction.mockResolvedValue({
   id: 'operation-1',
@@ -44,7 +64,7 @@ vi.mock('../../src/domains/projects/api', () => ({
     driver: 'compose',
     projectIdentity: 'alpha',
     state: 'stopped',
-    origin: 'switchyard',
+    origin: 'envarium',
     engine: { connected: false, errorCode: 'unavailable' },
     services: [],
     observedAt: '2026-07-15T12:00:00Z',
@@ -115,10 +135,12 @@ vi.mock('../../src/domains/projects/api', () => ({
     ],
   }),
   loadEffectiveManifest: vi.fn().mockResolvedValue({
-    manifest: { schemaVersion: 'switchyard.dev/v1' },
+    manifest: { schemaVersion: 'envarium.dev/v1' },
     provenance: {},
     sources: [{ name: 'accepted' }],
   }),
+  exportProjectLogText,
+  previewRuntimeAction,
   runProjectAction,
   runRuntimeAction,
 }))
@@ -191,7 +213,9 @@ test('keeps project controls usable and honest when Docker is unavailable', asyn
   await fireEvent.click(screen.getByRole('button', { name: 'Terminal' }))
   expect(runProjectAction).toHaveBeenCalledWith('alpha', 'terminal')
   await fireEvent.click(screen.getByRole('button', { name: 'Start' }))
-  expect(runRuntimeAction).toHaveBeenCalledWith('alpha', 'start', [])
+  expect(await screen.findByRole('dialog', { name: 'start Alpha App' })).toBeInTheDocument()
+  await fireEvent.click(screen.getByRole('button', { name: 'Confirm start' }))
+  expect(runRuntimeAction).toHaveBeenCalledWith('alpha', 'start', { confirmRisk: true })
 
   const overview = screen.getByRole('tab', { name: 'overview' })
   overview.focus()

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/sourcecontrol/domain"
+	"envarium.dev/envarium/internal/sourcecontrol/domain"
 )
 
 func TestListWorktreesResolvesTrustedRootAndUsesExplicitInventory(t *testing.T) {

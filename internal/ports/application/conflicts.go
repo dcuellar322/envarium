@@ -7,7 +7,7 @@ import (
 	"net"
 	"sort"
 
-	"switchyard.dev/switchyard/internal/ports/domain"
+	"envarium.dev/envarium/internal/ports/domain"
 )
 
 // Classify returns stable pairwise conflicts with the most specific explanation.

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/buildinfo"
+	"envarium.dev/envarium/internal/foundation/buildinfo"
 )
 
 // HealthRepository reports durable storage health owned by the SQLite adapter.

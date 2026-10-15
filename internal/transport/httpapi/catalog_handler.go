@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	catalogApplication "envarium.dev/envarium/internal/catalog/application"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) CreateManifestProposal(w http.ResponseWriter, r *http.Request, _ generated.CreateManifestProposalParams) {

@@ -26,8 +26,9 @@ site/playwright-report/
 site/test-results/
 
 # Local runtime state
+.envarium-data/
 .switchyard-data/
-.switchyard/project.local.yml
+.envarium/project.local.yml
 *.db
 *.db-shm
 *.db-wal

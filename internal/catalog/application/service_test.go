@@ -8,17 +8,17 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/catalog/application"
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	"switchyard.dev/switchyard/internal/discovery/adapters"
-	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
-	"switchyard.dev/switchyard/internal/platform/sqlite"
+	"envarium.dev/envarium/internal/catalog/application"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	"envarium.dev/envarium/internal/discovery/adapters"
+	discoveryDomain "envarium.dev/envarium/internal/discovery/domain"
+	"envarium.dev/envarium/internal/platform/sqlite"
 )
 
 func TestScanReviewAcceptAndResolve(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestScanReviewAcceptAndResolve(t *testing.T) {
 	if err != nil {
 		t.Fatalf("EffectiveManifest() error = %v", err)
 	}
-	if effective.Manifest.Metadata.Name != "Switchyard Mixed Fixture" {
+	if effective.Manifest.Metadata.Name != "Envarium Mixed Fixture" {
 		t.Fatalf("effective name = %q", effective.Manifest.Metadata.Name)
 	}
 	if err := service.RemoveProject(ctx, project.ID); err != nil {
@@ -86,7 +86,7 @@ func TestScanReviewAcceptAndResolve(t *testing.T) {
 func TestPendingScanRefreshesProposalFromPortableManifest(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,11 +100,11 @@ func TestPendingScanRefreshesProposalFromPortableManifest(t *testing.T) {
 	if len(source.Unresolved) == 0 {
 		t.Fatal("initial proposal unexpectedly resolved")
 	}
-	manifestDirectory := filepath.Join(root, ".switchyard")
+	manifestDirectory := filepath.Join(root, ".envarium")
 	if err := os.MkdirAll(manifestDirectory, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	portable := `schemaVersion: switchyard.dev/v1
+	portable := `schemaVersion: envarium.dev/v1
 kind: Project
 metadata:
   id: refreshed-project
@@ -149,7 +149,7 @@ services:
 func TestTrustedProjectRescanCreatesReviewableRevision(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -202,7 +202,7 @@ func TestTrustedProjectRescanCreatesReviewableRevision(t *testing.T) {
 func TestTrustReportsUnresolvedProposalFields(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -223,7 +223,7 @@ func TestTrustReportsUnresolvedProposalFields(t *testing.T) {
 
 func TestAssistedProposalRequiresHumanApproval(t *testing.T) {
 	ctx := context.Background()
-	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

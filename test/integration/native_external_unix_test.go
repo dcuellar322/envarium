@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/platform/sqlite"
-	"switchyard.dev/switchyard/internal/runtime/domain"
-	processRuntime "switchyard.dev/switchyard/internal/runtime/process"
+	"envarium.dev/envarium/internal/platform/sqlite"
+	"envarium.dev/envarium/internal/runtime/domain"
+	processRuntime "envarium.dev/envarium/internal/runtime/process"
 )
 
 func TestNativeRuntimeRecognizesExternalUVListenerWithoutOwnership(t *testing.T) {
@@ -37,7 +37,7 @@ func TestNativeRuntimeRecognizesExternalUVListenerWithoutOwnership(t *testing.T)
 		_, _ = command.Process.Wait()
 	})
 	waitForListeningPort(t, ctx, port)
-	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

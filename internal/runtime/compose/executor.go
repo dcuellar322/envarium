@@ -8,7 +8,7 @@ import (
 	"io"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 type executor struct {
@@ -48,9 +48,9 @@ func (e executor) Execute(ctx context.Context, plan domain.Plan, sink domain.Pro
 
 func claimsComposeOwnership(action domain.Action) bool {
 	switch action {
-	case domain.ActionStart, domain.ActionRestart, domain.ActionPause, domain.ActionUnpause, domain.ActionRebuild:
+	case domain.ActionStart, domain.ActionRestart, domain.ActionDeploy, domain.ActionPause, domain.ActionUnpause, domain.ActionRebuild:
 		return true
-	case domain.ActionStop, domain.ActionTeardown:
+	case domain.ActionStop, domain.ActionKill, domain.ActionTeardown:
 		return false
 	}
 	return false

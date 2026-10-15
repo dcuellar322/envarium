@@ -8,7 +8,7 @@ lastVerified: 2026-07-17
 ---
 
 Phase 9 turns the browser client into the primary visual adapter over the
-Switchyard control plane. The dashboard does not own runtime policy: it reads
+Envarium control plane. The dashboard does not own runtime policy: it reads
 generated OpenAPI contracts, submits typed operations, and follows the same
 durable event and log streams used by other clients.
 
@@ -19,7 +19,7 @@ durable event and log streams used by other clients.
 | `/` and `/projects` | Project overview, filtering, sorting, tags, recent access, and aggregate status |
 | `/projects/:id` | Runtime, health, logs, resources, Git, ports, trusted actions, and manifest provenance |
 | `/ports` | Declared, reserved, and bound port evidence and conflicts |
-| `/resources` | Current and retained project/service metrics, budgets, storage attribution, cleanup preview, and Switchyard footprint |
+| `/resources` | Current and retained project/service metrics, budgets, storage attribution, cleanup preview, and Envarium footprint |
 | `/logs` | Bounded cross-project log search and filtering |
 | `/discovery` | Deterministic scan, evidence review, validation, and trust approval |
 | `/settings` | Daemon identity, host capabilities, and browser-local display preferences |

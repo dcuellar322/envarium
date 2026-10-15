@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	observabilityApplication "switchyard.dev/switchyard/internal/observability/application"
-	observability "switchyard.dev/switchyard/internal/observability/domain"
+	observabilityApplication "envarium.dev/envarium/internal/observability/application"
+	observability "envarium.dev/envarium/internal/observability/domain"
 )
 
 func TestMetricPersistenceIsAtomicIdempotentAndBounded(t *testing.T) {
@@ -195,7 +195,7 @@ func TestMetricHistoryIsChronologicalAndHonorsLimit(t *testing.T) {
 
 func newResourceMetricDatabase(t testing.TB) *Database {
 	t.Helper()
-	database, err := Open(context.Background(), filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := Open(context.Background(), filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

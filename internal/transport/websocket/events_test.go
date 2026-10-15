@@ -10,7 +10,7 @@ import (
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
 
-	"switchyard.dev/switchyard/internal/foundation/events"
+	"envarium.dev/envarium/internal/foundation/events"
 )
 
 func TestEventsSendsConnectionEnvelope(t *testing.T) {

@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	observability "switchyard.dev/switchyard/internal/observability/domain"
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	observability "envarium.dev/envarium/internal/observability/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 type healthSourceStub struct{ project runtime.ProjectRuntime }

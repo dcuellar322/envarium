@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func resolveKeychain(ctx context.Context, reference domain.SecretReference) (string, error) {

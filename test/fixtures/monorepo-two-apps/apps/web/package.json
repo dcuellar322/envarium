@@ -1,5 +1,5 @@
 {
-  "name": "@switchyard-fixture/web",
+  "name": "@envarium-fixture/web",
   "private": true,
   "scripts": {
     "dev": "vite --port 5173"

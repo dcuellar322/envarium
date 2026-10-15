@@ -26,9 +26,9 @@ pub fn parse_deep_link(value: &str) -> Result<Destination, String> {
     {
         return Err("deep link contains a navigation segment".into());
     }
-    let parsed = Url::parse(value).map_err(|_| "invalid Switchyard deep link".to_owned())?;
-    if parsed.scheme() != "switchyard" || parsed.query().is_some() || parsed.fragment().is_some() {
-        return Err("unsupported Switchyard deep link".into());
+    let parsed = Url::parse(value).map_err(|_| "invalid Envarium deep link".to_owned())?;
+    if parsed.scheme() != "envarium" || parsed.query().is_some() || parsed.fragment().is_some() {
+        return Err("unsupported Envarium deep link".into());
     }
     let kind = parsed
         .host_str()
@@ -67,11 +67,11 @@ mod tests {
     #[test]
     fn parses_bounded_application_links() {
         assert_eq!(
-            parse_deep_link("switchyard://project/abc-123").unwrap(),
+            parse_deep_link("envarium://project/abc-123").unwrap(),
             Destination::Project("abc-123".into())
         );
         assert_eq!(
-            parse_deep_link("switchyard://workspace/team_one").unwrap(),
+            parse_deep_link("envarium://workspace/team_one").unwrap(),
             Destination::Workspace("team_one".into())
         );
         assert_eq!(
@@ -83,7 +83,7 @@ mod tests {
     #[test]
     fn rejects_navigation_and_foreign_origins() {
         assert!(parse_deep_link("https://example.com/project/abc").is_err());
-        assert!(parse_deep_link("switchyard://project/../abc").is_err());
-        assert!(parse_deep_link("switchyard://project/a?bootstrap=secret").is_err());
+        assert!(parse_deep_link("envarium://project/../abc").is_err());
+        assert!(parse_deep_link("envarium://project/a?bootstrap=secret").is_err());
     }
 }

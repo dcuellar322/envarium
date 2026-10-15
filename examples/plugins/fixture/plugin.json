@@ -1,10 +1,10 @@
 {
-  "schemaVersion": "switchyard.plugin-manifest/v1",
+  "schemaVersion": "envarium.plugin-manifest/v1",
   "id": "fixture-inspector",
   "name": "Fixture inspector",
   "version": "1.0.0",
-  "protocolVersion": "switchyard.plugin/v1",
-  "executable": "switchyard-fixture-plugin",
+  "protocolVersion": "envarium.plugin/v1",
+  "executable": "envarium-fixture-plugin",
   "arguments": [],
   "capabilities": ["project.inspect", "project.operate"],
   "requestedScopes": ["project.metadata.read", "project.files.read", "project.operate"]

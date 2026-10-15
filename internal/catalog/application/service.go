@@ -10,12 +10,12 @@ import (
 	"strings"
 	"time"
 
-	catalog "switchyard.dev/switchyard/internal/catalog/domain"
-	discovery "switchyard.dev/switchyard/internal/discovery/application"
-	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	manifest "switchyard.dev/switchyard/internal/manifest/application"
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
+	catalog "envarium.dev/envarium/internal/catalog/domain"
+	discovery "envarium.dev/envarium/internal/discovery/application"
+	discoveryDomain "envarium.dev/envarium/internal/discovery/domain"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	manifest "envarium.dev/envarium/internal/manifest/application"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
 )
 
 var (

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	application "switchyard.dev/switchyard/internal/catalog/application"
-	discovery "switchyard.dev/switchyard/internal/discovery/domain"
+	application "envarium.dev/envarium/internal/catalog/application"
+	discovery "envarium.dev/envarium/internal/discovery/domain"
 )
 
 // CreateRescanProposal stores a fresh review candidate without changing the

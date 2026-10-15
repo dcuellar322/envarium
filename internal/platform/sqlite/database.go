@@ -15,8 +15,8 @@ import (
 	// Register the pure-Go SQLite driver with database/sql.
 	_ "modernc.org/sqlite"
 
-	"switchyard.dev/switchyard/internal/platform/sqlite/generated"
-	"switchyard.dev/switchyard/migrations"
+	"envarium.dev/envarium/internal/platform/sqlite/generated"
+	"envarium.dev/envarium/migrations"
 )
 
 // Database is a migrated SQLite connection and its typed queries.
@@ -81,7 +81,7 @@ func (d *Database) initialize(ctx context.Context) error {
 	}
 	if currentVersion > targetVersion {
 		return fmt.Errorf(
-			"database schema version %d is newer than this binary supports (%d); install a compatible Switchyard version before opening this data",
+			"database schema version %d is newer than this binary supports (%d); install a compatible Envarium version before opening this data",
 			currentVersion,
 			targetVersion,
 		)

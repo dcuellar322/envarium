@@ -6,7 +6,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 const operationPollInterval = 250 * time.Millisecond

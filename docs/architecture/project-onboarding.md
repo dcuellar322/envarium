@@ -73,10 +73,10 @@ Effective values merge in this order, with the later source winning:
 
 1. live deterministic discovery;
 2. accepted inference stored in SQLite;
-3. `.switchyard/project.yml`;
-4. `.switchyard/project.local.yml`; and
+3. `.envarium/project.yml`;
+4. `.envarium/project.local.yml`; and
 5. a runtime override for the current operation.
 
 The resolver retains the winning source for every leaf as a JSON Pointer.
-`switchyard manifest explain`, `diff`, and `validate` expose the result through
+`envarium manifest explain`, `diff`, and `validate` expose the result through
 the same generated local API used by the UI.

@@ -51,7 +51,7 @@ func DefaultConfig() (Config, error) {
 	}
 	//nolint:gosec // G101: AIOpenAIAPIKeyEnv stores an environment-variable name, never credential material.
 	return Config{
-		DataDir:                    filepath.Join(base, "Switchyard"),
+		DataDir:                    filepath.Join(base, "Envarium"),
 		HTTPAddr:                   defaultHTTPAddress,
 		Logger:                     slog.Default(),
 		LogRingCapacity:            2_000,

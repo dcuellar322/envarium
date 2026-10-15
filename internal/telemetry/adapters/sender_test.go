@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/telemetry/domain"
+	"envarium.dev/envarium/internal/telemetry/domain"
 )
 
 func TestHTTPSenderDoesNotFollowRedirects(t *testing.T) {

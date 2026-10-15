@@ -1,6 +1,6 @@
 ---
 title: "Phase 3: Project catalog, manifests, and deterministic discovery"
-description: Implementation evidence for Switchyard product phase 3.
+description: Implementation evidence for Envarium product phase 3.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-20
@@ -44,7 +44,7 @@ lastVerified: 2026-07-20
 - Trust failures distinguish schema validation errors from unresolved fields
   and report their JSON pointers instead of rendering an empty error list.
 - Added generated onboarding, catalog, manifest explain/diff/validate APIs;
-  `switchyard add`; and `switchyard manifest explain|diff|validate` over local
+  `envarium add`; and `envarium manifest explain|diff|validate` over local
   IPC.
 - Added a responsive browser review showing safety posture, validation,
   unresolved fields, services, ports, proposed commands, confidence, and exact
@@ -72,7 +72,7 @@ not execute repository code.
 
 ## Exit criteria
 
-- [x] The packaged `switchyard add test/fixtures/mixed-project` command created
+- [x] The packaged `envarium add test/fixtures/mixed-project` command created
   a reviewable proposal over a private Unix socket.
 - [x] The mixed fixture inferred two Compose services, host/target ports, uv
   tests, npm scripts, Make targets, and Just targets.
@@ -137,7 +137,7 @@ phases.
   `/Users/dac/dev` without executing repository code or reading `.env` files.
   All ten runnable definitions produced valid proposals with no unresolved
   fields: standard Compose, local Compose, Node process, documented uvicorn,
-  and explicit Switchyard-manifest shapes were all represented.
+  and explicit Envarium-manifest shapes were all represented.
 - Non-runnable directories (documents, certificates, raw source snippets,
   generated internals, and empty directories) remained unresolved rather than
   receiving fabricated lifecycle commands.
@@ -158,7 +158,7 @@ make generate-check repository-check
 PASS: manifest schema, OpenAPI Go/TypeScript, sqlc, repository policy, diff
 
 make build
-PASS: production Vue bundle and local bin/switchyard 1.0.0
+PASS: production Vue bundle and local bin/envarium 1.0.0
 
 temporary compiled daemon compatibility matrix
 PASS: 10/10 runnable definitions valid, 0 unresolved fields

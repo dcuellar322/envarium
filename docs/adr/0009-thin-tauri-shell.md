@@ -11,7 +11,7 @@ lastVerified: 2026-07-17
 
 ## Context
 
-Switchyard needs a small native desktop experience, tray integration,
+Envarium needs a small native desktop experience, tray integration,
 notifications, autostart, deep links, and signed updates without duplicating
 the control plane.
 

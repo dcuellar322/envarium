@@ -1,13 +1,13 @@
 ---
 title: Privacy
-description: What Switchyard stores locally, sends only by choice, and excludes from telemetry.
+description: What Envarium stores locally, sends only by choice, and excludes from telemetry.
 category: concept
 audience: [user, integrator]
 since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Switchyard is local-first and has no required product telemetry or cloud
+Envarium is local-first and has no required product telemetry or cloud
 account. Project metadata, manifests, operations, audit history, logs,
 diagnoses, feedback, recipes, plugins, and settings remain on the local machine
 unless the user explicitly exports or sends them.
@@ -33,7 +33,7 @@ responsibility within permissions granted by the user.
 Optional peer federation sends only the bounded identity, trusted-project, and
 registered-environment fields documented in the federation guide. It excludes
 repository locations, source, Git changes, logs, terminal output, secrets,
-environment values, and runtime-native identifiers. Switchyard does not supply
+environment values, and runtime-native identifiers. Envarium does not supply
 the tunnel or relay remote traffic through a hosted service.
 
 Encrypted team sync contains only explicitly trusted public publisher records
@@ -44,7 +44,7 @@ occurs in the CLI process and import is previewed before confirmation.
 
 Anonymous usage metrics are off by default and have no vendor-controlled
 destination. Opt-in requires an explicit HTTPS endpoint and displays the full
-payload: a random anonymous installation ID, Switchyard version, operating
+payload: a random anonymous installation ID, Envarium version, operating
 system, architecture, fixed operation-category counters, and generation time.
 It contains no project, machine, action, plugin, provider, path, command, log,
 diagnostic, or error detail. Disabling metrics clears the installation ID and

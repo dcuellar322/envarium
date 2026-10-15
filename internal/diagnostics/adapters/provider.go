@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	agentsApplication "switchyard.dev/switchyard/internal/agents/application"
+	agentsApplication "envarium.dev/envarium/internal/agents/application"
 )
 
 // StructuredProvider adapts the provider registry without exposing agent packages to diagnostics.

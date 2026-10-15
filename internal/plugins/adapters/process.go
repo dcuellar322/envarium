@@ -15,10 +15,10 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/platform/processgroup"
-	pluginsApplication "switchyard.dev/switchyard/internal/plugins/application"
-	"switchyard.dev/switchyard/internal/plugins/domain"
-	pluginsdk "switchyard.dev/switchyard/sdk/plugin"
+	"envarium.dev/envarium/internal/platform/processgroup"
+	pluginsApplication "envarium.dev/envarium/internal/plugins/application"
+	"envarium.dev/envarium/internal/plugins/domain"
+	pluginsdk "envarium.dev/envarium/sdk/plugin"
 )
 
 // TextRedactor removes credentials from captured plugin stderr.
@@ -175,7 +175,7 @@ func waitPlugin(command *exec.Cmd, ownership *processgroup.Ownership) error {
 }
 
 func minimalEnvironment() []string {
-	result := []string{"SWITCHYARD_PLUGIN_PROTOCOL=" + pluginsdk.ProtocolVersion}
+	result := []string{"ENVARIUM_PLUGIN_PROTOCOL=" + pluginsdk.ProtocolVersion}
 	for _, name := range []string{"PATH", "TMPDIR", "LANG"} {
 		if value, ok := os.LookupEnv(name); ok {
 			result = append(result, name+"="+value)

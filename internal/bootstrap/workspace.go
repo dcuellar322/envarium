@@ -8,12 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	operationsApplication "switchyard.dev/switchyard/internal/operations/application"
-	operationsDomain "switchyard.dev/switchyard/internal/operations/domain"
-	runtimeDomain "switchyard.dev/switchyard/internal/runtime/domain"
-	workspaceApplication "switchyard.dev/switchyard/internal/workspace/application"
-	workspaceDomain "switchyard.dev/switchyard/internal/workspace/domain"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	operationsApplication "envarium.dev/envarium/internal/operations/application"
+	operationsDomain "envarium.dev/envarium/internal/operations/domain"
+	runtimeDomain "envarium.dev/envarium/internal/runtime/domain"
+	workspaceApplication "envarium.dev/envarium/internal/workspace/application"
+	workspaceDomain "envarium.dev/envarium/internal/workspace/domain"
 )
 
 type runtimeProjectResolver interface {

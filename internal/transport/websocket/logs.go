@@ -7,7 +7,7 @@ import (
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
 
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 const logReplayLimit = 500

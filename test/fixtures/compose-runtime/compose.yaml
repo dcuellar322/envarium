@@ -1,10 +1,10 @@
-name: switchyard-phase5-fixture
+name: envarium-phase5-fixture
 
 services:
   web:
     build:
       context: .
-    image: switchyard/compose-runtime-fixture:phase5
+    image: envarium/compose-runtime-fixture:phase5
     pull_policy: build
     healthcheck:
       test: ["CMD", "/server", "healthcheck"]

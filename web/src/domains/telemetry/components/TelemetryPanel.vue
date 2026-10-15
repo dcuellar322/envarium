@@ -50,9 +50,9 @@ const error = computed(
       }}</span>
     </div>
     <p class="summary">
-      Switchyard sends nothing unless you opt in. The complete payload is limited to the
-      installation ID, build and OS, architecture, fixed counters below, and a timestamp—never
-      projects, paths, logs, commands, or machine identities.
+      Envarium sends nothing unless you opt in. The complete payload is limited to the installation
+      ID, build and OS, architecture, fixed counters below, and a timestamp—never projects, paths,
+      logs, commands, or machine identities.
     </p>
     <p v-if="error" class="inline-error" role="alert">{{ error.message }}</p>
     <div v-if="status.isPending.value" class="state">Loading consent status…</div>

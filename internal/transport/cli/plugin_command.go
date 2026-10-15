@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/foundation/identifier"
 )
 
 func newPluginCommand(options *rootOptions) *cobra.Command {
@@ -37,7 +37,7 @@ func newPluginListCommand(options *rootOptions, refresh bool) *cobra.Command {
 		}
 		return writeResult(options, "plugin."+use, items, func(writer io.Writer) error {
 			if len(items) == 0 {
-				_, err := fmt.Fprintln(writer, "No plugins discovered. Install packages under the Switchyard data directory's plugins folder.")
+				_, err := fmt.Fprintln(writer, "No plugins discovered. Install packages under the Envarium data directory's plugins folder.")
 				return err
 			}
 			rows := make([][]string, 0, len(items))

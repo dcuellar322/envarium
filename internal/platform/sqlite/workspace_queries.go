@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	workspace "switchyard.dev/switchyard/internal/workspace/application"
-	"switchyard.dev/switchyard/internal/workspace/domain"
+	workspace "envarium.dev/envarium/internal/workspace/application"
+	"envarium.dev/envarium/internal/workspace/domain"
 )
 
 func (r *WorkspaceRepository) loadWorkspaceChildren(ctx context.Context, item *domain.Workspace) error {

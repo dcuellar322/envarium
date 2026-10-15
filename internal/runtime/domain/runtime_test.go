@@ -4,7 +4,7 @@ import "testing"
 
 func TestParseActionAcceptsOnlyLifecycleContract(t *testing.T) {
 	t.Parallel()
-	for _, value := range []string{"start", "stop", "restart", "pause", "unpause", "rebuild", "teardown"} {
+	for _, value := range []string{"start", "stop", "restart", "deploy", "kill", "pause", "unpause", "rebuild", "teardown"} {
 		if action, err := ParseAction(value); err != nil || string(action) != value {
 			t.Fatalf("ParseAction(%q) = %q, %v", value, action, err)
 		}

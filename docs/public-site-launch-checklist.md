@@ -13,7 +13,7 @@ Never mark an operational item complete from local static output alone.
 ## Repository gates
 
 - [x] Canonical identity and `SITE_URL` use
-  `https://switchyard.davidcuellar.tech`.
+  `https://envarium.davidcuellar.tech`.
 - [x] Astro/Starlight output is static and contains no product API client or
   server runtime.
 - [x] Root docs load through Starlight and expose Markdown equivalents,
@@ -45,13 +45,13 @@ make repository-check
 - [ ] Create or confirm the Cloudflare Pages project.
 - [ ] Set `CLOUDFLARE_PROJECT_NAME` and the scoped account/token secrets in the
   `site-preview` and `production` GitHub environments.
-- [ ] Attach `switchyard.davidcuellar.tech` to the Pages project and confirm
+- [ ] Attach `envarium.davidcuellar.tech` to the Pages project and confirm
   domain ownership before changing DNS.
-- [ ] Point the `switchyard` DNS name to Pages and wait for an active TLS
+- [ ] Point the `envarium` DNS name to Pages and wait for an active TLS
   certificate.
 - [ ] Configure the production `pages.dev` hostname to redirect permanently,
   path-for-path, to the canonical origin.
-- [ ] If `davidcuellar.tech/switchyard` is exposed, make it a permanent
+- [ ] If `davidcuellar.tech/envarium` is exposed, make it a permanent
   path-preserving redirect with no loop or duplicate content.
 - [ ] Confirm preview deployments emit `X-Robots-Tag: noindex, nofollow` and
   production output does not.

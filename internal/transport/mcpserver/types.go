@@ -1,13 +1,13 @@
 package mcpserver
 
-import "switchyard.dev/switchyard/internal/transport/contract/generated"
+import "envarium.dev/envarium/internal/transport/contract/generated"
 
-const schemaVersion = "switchyard.mcp/v1"
+const schemaVersion = "envarium.mcp/v1"
 
 type emptyInput struct{}
 
 type projectInput struct {
-	ProjectID string `json:"projectId" jsonschema:"opaque Switchyard project identifier"`
+	ProjectID string `json:"projectId" jsonschema:"opaque Envarium project identifier"`
 }
 
 type systemOutput struct {
@@ -45,7 +45,7 @@ type servicesOutput struct {
 }
 
 type logsInput struct {
-	ProjectID   string `json:"projectId" jsonschema:"opaque Switchyard project identifier"`
+	ProjectID   string `json:"projectId" jsonschema:"opaque Envarium project identifier"`
 	ServiceID   string `json:"serviceId,omitempty" jsonschema:"optional declared service identifier"`
 	Since       string `json:"since,omitempty" jsonschema:"optional RFC3339 timestamp or bounded duration such as 10m"`
 	RunID       string `json:"runId,omitempty" jsonschema:"optional native process run identifier"`
@@ -65,7 +65,7 @@ type healthOutput struct {
 }
 
 type healthWaitInput struct {
-	ProjectID      string `json:"projectId" jsonschema:"opaque Switchyard project identifier"`
+	ProjectID      string `json:"projectId" jsonschema:"opaque Envarium project identifier"`
 	TimeoutSeconds int    `json:"timeoutSeconds,omitempty" jsonschema:"bounded wait from 1 to 30 seconds"`
 }
 
@@ -141,13 +141,13 @@ type manifestOutput struct {
 }
 
 type lifecycleInput struct {
-	ProjectID  string   `json:"projectId" jsonschema:"opaque Switchyard project identifier"`
+	ProjectID  string   `json:"projectId" jsonschema:"opaque Envarium project identifier"`
 	ServiceIDs []string `json:"serviceIds,omitempty" jsonschema:"optional declared service identifiers; omit for the whole project"`
 	RequestID  string   `json:"requestId" jsonschema:"stable opaque idempotency key, 8 to 128 characters"`
 }
 
 type teardownInput struct {
-	ProjectID     string `json:"projectId" jsonschema:"opaque Switchyard project identifier"`
+	ProjectID     string `json:"projectId" jsonschema:"opaque Envarium project identifier"`
 	RemoveVolumes bool   `json:"removeVolumes" jsonschema:"explicitly remove named and anonymous Compose volumes"`
 	RequestID     string `json:"requestId" jsonschema:"stable opaque idempotency key, 8 to 128 characters"`
 }
@@ -158,8 +158,8 @@ type mutationOutput struct {
 }
 
 type actionInput struct {
-	ProjectID        string `json:"projectId" jsonschema:"opaque Switchyard project identifier"`
-	ActionID         string `json:"actionId" jsonschema:"identifier returned by switchyard_actions_list"`
+	ProjectID        string `json:"projectId" jsonschema:"opaque Envarium project identifier"`
+	ActionID         string `json:"actionId" jsonschema:"identifier returned by envarium_actions_list"`
 	ConfirmRisk      bool   `json:"confirmRisk,omitempty" jsonschema:"explicit confirmation for a risk-bearing action"`
 	AllowOutsideRoot bool   `json:"allowOutsideRoot,omitempty" jsonschema:"admin-only approval for a declared action working directory outside the project root"`
 	RequestID        string `json:"requestId" jsonschema:"stable opaque idempotency key, 8 to 128 characters"`
@@ -191,7 +191,7 @@ type proposalAcceptOutput struct {
 }
 
 type workspaceInput struct {
-	WorkspaceID string `json:"workspaceId" jsonschema:"opaque Switchyard workspace identifier"`
+	WorkspaceID string `json:"workspaceId" jsonschema:"opaque Envarium workspace identifier"`
 }
 
 type workspacesOutput struct {
@@ -206,7 +206,7 @@ type workspaceOutput struct {
 }
 
 type workspaceMutationInput struct {
-	WorkspaceID string `json:"workspaceId" jsonschema:"opaque Switchyard workspace identifier"`
+	WorkspaceID string `json:"workspaceId" jsonschema:"opaque Envarium workspace identifier"`
 	Policy      string `json:"policy,omitempty" jsonschema:"optional rollback or continue failure policy"`
 	ProfileID   string `json:"profileId,omitempty" jsonschema:"optional workspace profile identifier"`
 	RunRecipes  bool   `json:"runRecipes,omitempty" jsonschema:"run reviewed launch recipes after successful start"`
@@ -214,7 +214,7 @@ type workspaceMutationInput struct {
 }
 
 type workspaceStopInput struct {
-	WorkspaceID string `json:"workspaceId" jsonschema:"opaque Switchyard workspace identifier"`
+	WorkspaceID string `json:"workspaceId" jsonschema:"opaque Envarium workspace identifier"`
 	ProfileID   string `json:"profileId,omitempty" jsonschema:"optional workspace profile identifier"`
 	RemoveData  bool   `json:"removeData,omitempty" jsonschema:"explicit destructive teardown of runtime data"`
 	ConfirmRisk bool   `json:"confirmRisk,omitempty" jsonschema:"required confirmation when removeData is true"`

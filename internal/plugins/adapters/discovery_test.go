@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	pluginsdk "switchyard.dev/switchyard/sdk/plugin"
+	pluginsdk "envarium.dev/envarium/sdk/plugin"
 )
 
 func TestDirectoryDiscoveryFingerprintsManifestAndExecutable(t *testing.T) {

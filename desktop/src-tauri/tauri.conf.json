@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Switchyard",
+  "productName": "Envarium",
   "version": "1.0.0",
-  "identifier": "dev.switchyard.desktop",
+  "identifier": "dev.envarium.desktop",
   "build": {
     "beforeBuildCommand": "pnpm desktop:prepare",
     "beforeDevCommand": "pnpm desktop:prepare",
@@ -15,7 +15,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Switchyard",
+        "title": "Envarium",
         "width": 1440,
         "height": 960,
         "minWidth": 980,
@@ -28,9 +28,9 @@
   "bundle": {
     "active": true,
     "category": "DeveloperTool",
-    "copyright": "Copyright Switchyard contributors",
+    "copyright": "Copyright Envarium contributors",
     "createUpdaterArtifacts": false,
-    "externalBin": ["binaries/switchyard"],
+    "externalBin": ["binaries/envarium"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -46,7 +46,7 @@
   "plugins": {
     "deep-link": {
       "desktop": {
-        "schemes": ["switchyard"]
+        "schemes": ["envarium"]
       }
     }
   }

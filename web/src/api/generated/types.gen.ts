@@ -226,7 +226,7 @@ export type TeamBundleSignature = {
 };
 
 export type TeamBundle = {
-    schemaVersion: 'switchyard.bundle/v1';
+    schemaVersion: 'envarium.bundle/v1';
     kind: TeamBundleKind;
     metadata: TeamBundleMetadata;
     payload: {
@@ -270,7 +270,7 @@ export type CuratedPlugin = {
 };
 
 export type TeamSyncDocument = {
-    schemaVersion: 'switchyard.sync/v1';
+    schemaVersion: 'envarium.sync/v1';
     publishers: Array<TeamPublisher>;
     bundles: Array<TeamBundle>;
     exportedAt: string;
@@ -309,7 +309,7 @@ export type TelemetryStatus = {
 };
 
 export type TelemetryPayload = {
-    schemaVersion: 'switchyard.telemetry/v1';
+    schemaVersion: 'envarium.telemetry/v1';
     installationId: string;
     version: string;
     os: string;
@@ -364,7 +364,7 @@ export type MachineAccessRequest = {
 };
 
 export type FleetIdentity = {
-    protocolVersion: 'switchyard.remote/v1';
+    protocolVersion: 'envarium.remote/v1';
     machineId: string;
     name: string;
     version: string;
@@ -403,7 +403,7 @@ export type RemoteOperationRequest = {
     requestId: string;
     projectId: string;
     environmentId?: string;
-    action: 'start' | 'stop' | 'restart' | 'rebuild';
+    action: 'start' | 'stop' | 'restart' | 'deploy' | 'kill' | 'rebuild';
     confirmRisk: boolean;
 };
 
@@ -491,7 +491,7 @@ export type PortFact = {
     port: number;
     target?: number;
     protocol: 'tcp' | 'udp';
-    source: 'manifest' | 'compose' | 'switchyard' | 'docker' | 'process' | 'os' | 'manual' | 'worktree';
+    source: 'manifest' | 'compose' | 'envarium' | 'docker' | 'process' | 'os' | 'manual' | 'worktree';
     evidence: string;
     processId?: number;
     observedAt: string;
@@ -826,11 +826,12 @@ export type BrowserSession = {
     expiresAt: string;
 };
 
-export type RuntimeAction = 'start' | 'stop' | 'restart' | 'pause' | 'unpause' | 'rebuild' | 'teardown';
+export type RuntimeAction = 'start' | 'stop' | 'restart' | 'deploy' | 'kill' | 'pause' | 'unpause' | 'rebuild' | 'teardown';
 
 export type RuntimeActionRequest = {
     action: RuntimeAction;
     removeVolumes?: boolean;
+    confirmRisk?: boolean;
     services?: Array<string>;
     profiles?: Array<string>;
 };
@@ -911,7 +912,7 @@ export type RuntimeObservation = {
     driver: 'compose' | 'process';
     projectIdentity: string;
     state: 'unknown' | 'stopped' | 'starting' | 'running' | 'running_external' | 'partially_running' | 'degraded' | 'paused' | 'stopping' | 'failed';
-    origin: 'switchyard' | 'external';
+    origin: 'envarium' | 'external';
     engine?: RuntimeEngineObservation;
     services: Array<RuntimeServiceObservation>;
     availableProfiles?: Array<string>;

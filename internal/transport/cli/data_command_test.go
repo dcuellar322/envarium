@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/bootstrap"
+	"envarium.dev/envarium/internal/bootstrap"
 )
 
 func TestDataInspectAndBackupCommandsDoNotStartDaemon(t *testing.T) {
@@ -19,7 +19,7 @@ func TestDataInspectAndBackupCommandsDoNotStartDaemon(t *testing.T) {
 	if _, err := bootstrap.MigrateData(context.Background(), dataDir); err != nil {
 		t.Fatal(err)
 	}
-	databasePath := filepath.Join(dataDir, "switchyard.db")
+	databasePath := filepath.Join(dataDir, "envarium.db")
 	database, err := sql.Open("sqlite", sqliteTestDSN(databasePath))
 	if err != nil {
 		t.Fatal(err)
@@ -41,7 +41,7 @@ func TestDataInspectAndBackupCommandsDoNotStartDaemon(t *testing.T) {
 	if err := Execute(context.Background(), []string{"--data-dir", dataDir, "data", "inspect"}, &output, &output); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(output.String(), "schema=17 target=17 migration=false") {
+	if !strings.Contains(output.String(), "schema=18 target=18 migration=false") {
 		t.Fatalf("inspect output = %q", output.String())
 	}
 	output.Reset()

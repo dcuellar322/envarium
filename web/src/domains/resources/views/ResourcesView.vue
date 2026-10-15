@@ -83,7 +83,7 @@ const {
           >
         </article>
         <article>
-          <span>Switchyard footprint</span><strong>{{ formatBytes(footprintBytes) }}</strong
+          <span>Envarium footprint</span><strong>{{ formatBytes(footprintBytes) }}</strong
           ><small
             >{{ overview.data.value.footprint.metricRows }} metric rows ·
             {{ overview.data.value.footprint.logSegments }} log segments</small

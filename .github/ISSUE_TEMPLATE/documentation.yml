@@ -5,7 +5,7 @@ labels: [documentation, needs-triage]
 body:
   - type: markdown
     attributes:
-      value: Thanks for improving Switchyard documentation. Do not include private source, credentials, logs, or personal data.
+      value: Thanks for improving Envarium documentation. Do not include private source, credentials, logs, or personal data.
   - type: input
     id: page
     attributes:

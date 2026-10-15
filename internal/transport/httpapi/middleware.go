@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/correlation"
+	"envarium.dev/envarium/internal/foundation/correlation"
 )
 
 const correlationHeader = "X-Correlation-ID"

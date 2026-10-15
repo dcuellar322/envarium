@@ -10,7 +10,7 @@ const lanes = [
 
 <ContentPageLayout title="Roadmap" eyebrow="Direction without false promises" description="What is implemented, what is committed for the first public release, and what remains exploratory. GitHub stays authoritative for scoped work and accepted changes.">
   <div class="roadmap">{lanes.map((lane) => <section class={`lane panel ${lane.tone}`}><div><span>{lane.status}</span><p>{lane.note}</p></div><ul>{lane.items.map((item) => <li>{item}</li>)}</ul></section>)}</div>
-  <aside class="source panel"><div><strong>Plans are not release promises.</strong><span>Accepted ADRs and merged code define the product. Roadmap changes should arrive as focused proposals with user evidence.</span></div><a class="button" href="https://github.com/dcuellar322/switchyard/issues">Browse issues</a><a class="button quiet" href="/community/">Propose a direction</a></aside>
+  <aside class="source panel"><div><strong>Plans are not release promises.</strong><span>Accepted ADRs and merged code define the product. Roadmap changes should arrive as focused proposals with user evidence.</span></div><a class="button" href="https://github.com/dcuellar322/envarium/issues">Browse issues</a><a class="button quiet" href="/community/">Propose a direction</a></aside>
 </ContentPageLayout>
 
 <style>

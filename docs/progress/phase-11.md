@@ -1,6 +1,6 @@
 ---
 title: "Phase 11: AI-assisted onboarding and manifest generation"
-description: Implementation evidence for Switchyard product phase 11.
+description: Implementation evidence for Envarium product phase 11.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17

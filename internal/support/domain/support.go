@@ -5,9 +5,9 @@ import "time"
 
 const (
 	// PreviewSchema identifies the stable support preview document.
-	PreviewSchema = "switchyard.dev/support-preview/v1"
+	PreviewSchema = "envarium.dev/support-preview/v1"
 	// BundleSchema identifies the stable archive manifest.
-	BundleSchema = "switchyard.dev/support-bundle/v1"
+	BundleSchema = "envarium.dev/support-bundle/v1"
 )
 
 // SystemIdentity is non-secret build and schema evidence from the daemon.

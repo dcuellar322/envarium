@@ -12,13 +12,13 @@ import (
 	"testing"
 	"time"
 
+	catalog "envarium.dev/envarium/internal/catalog/application"
+	discoveryAdapters "envarium.dev/envarium/internal/discovery/adapters"
+	"envarium.dev/envarium/internal/platform/sqlite"
+	runtimeApplication "envarium.dev/envarium/internal/runtime/application"
+	"envarium.dev/envarium/internal/runtime/domain"
+	processRuntime "envarium.dev/envarium/internal/runtime/process"
 	gprocess "github.com/shirou/gopsutil/v4/process"
-	catalog "switchyard.dev/switchyard/internal/catalog/application"
-	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
-	"switchyard.dev/switchyard/internal/platform/sqlite"
-	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
-	"switchyard.dev/switchyard/internal/runtime/domain"
-	processRuntime "switchyard.dev/switchyard/internal/runtime/process"
 )
 
 func TestUVAndNPMFixturesLifecycleWithoutOrphanedChildren(t *testing.T) {
@@ -35,7 +35,7 @@ func TestUVAndNPMFixturesLifecycleWithoutOrphanedChildren(t *testing.T) {
 			root := copyProcessFixture(t, fixture.name, fixture.oldPort, port)
 			ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
 			defer cancel()
-			database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+			database, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -1,4 +1,4 @@
-// Package plugin defines the stable out-of-process Switchyard plugin protocol
+// Package plugin defines the stable out-of-process Envarium plugin protocol
 // and a small server SDK for plugin authors.
 package plugin
 
@@ -14,9 +14,9 @@ import (
 
 const (
 	// ProtocolVersion is negotiated before any plugin capability may be used.
-	ProtocolVersion = "switchyard.plugin/v1"
+	ProtocolVersion = "envarium.plugin/v1"
 	// ManifestVersion identifies the on-disk plugin capability manifest.
-	ManifestVersion = "switchyard.plugin-manifest/v1"
+	ManifestVersion = "envarium.plugin-manifest/v1"
 	// MaxMessageBytes is the maximum JSON-RPC request or response size.
 	MaxMessageBytes = 1 << 20
 )

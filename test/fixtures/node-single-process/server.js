@@ -3,7 +3,7 @@ const http = require("node:http");
 const port = Number(process.env.PORT);
 const server = http.createServer((_request, response) => {
   response.writeHead(200, { "content-type": "text/plain" });
-  response.end("switchyard npm fixture\n");
+  response.end("envarium npm fixture\n");
 });
 
 server.listen(port, "127.0.0.1", () => {

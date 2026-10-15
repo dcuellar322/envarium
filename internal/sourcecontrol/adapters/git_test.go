@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/sourcecontrol/domain"
+	"envarium.dev/envarium/internal/sourcecontrol/domain"
 )
 
 func TestParseStatusPorcelainV2(t *testing.T) {
@@ -29,8 +29,8 @@ func TestGitObservesRealRepositoryChanges(t *testing.T) {
 	t.Parallel()
 	root := t.TempDir()
 	runGit(t, root, "init", "-b", "main")
-	runGit(t, root, "config", "user.name", "Switchyard Test")
-	runGit(t, root, "config", "user.email", "switchyard@example.invalid")
+	runGit(t, root, "config", "user.name", "Envarium Test")
+	runGit(t, root, "config", "user.email", "envarium@example.invalid")
 	if err := os.WriteFile(filepath.Join(root, "tracked.txt"), []byte("first\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}

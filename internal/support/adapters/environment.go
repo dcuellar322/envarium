@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"runtime"
 
-	"switchyard.dev/switchyard/internal/support/domain"
+	"envarium.dev/envarium/internal/support/domain"
 )
 
 // EnvironmentProbe checks adapter executables without running them.

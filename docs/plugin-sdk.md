@@ -1,13 +1,13 @@
 ---
 title: Plugin SDK and compatibility policy
-description: Build and test capability-scoped out-of-process Switchyard plugins.
+description: Build and test capability-scoped out-of-process Envarium plugins.
 category: reference
 audience: [integrator, contributor]
 since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-The public Go package `switchyard.dev/switchyard/sdk/plugin` contains the wire
+The public Go package `envarium.dev/envarium/sdk/plugin` contains the wire
 types, manifest validation, bounded JSON-RPC server, client, and reusable
 `sdk/plugin/plugintest` conformance harness. Plugin code must not import an
 `internal/` package.
@@ -15,24 +15,24 @@ types, manifest validation, bounded JSON-RPC server, client, and reusable
 ## Build the sample adapter
 
 ```bash
-go build -trimpath -o switchyard-fixture-plugin ./examples/plugins/fixture
+go build -trimpath -o envarium-fixture-plugin ./examples/plugins/fixture
 mkdir -p "<data-dir>/plugins/fixture-inspector"
-cp switchyard-fixture-plugin examples/plugins/fixture/plugin.json \
+cp envarium-fixture-plugin examples/plugins/fixture/plugin.json \
   "<data-dir>/plugins/fixture-inspector/"
-switchyard plugin refresh
-switchyard plugin list
+envarium plugin refresh
+envarium plugin list
 ```
 
 Review the full fingerprint shown by `plugin list`, then make separate trust
 and least-privilege decisions:
 
 ```bash
-switchyard plugin trust fixture-inspector --fingerprint <sha256> --yes
-switchyard plugin enable fixture-inspector \
+envarium plugin trust fixture-inspector --fingerprint <sha256> --yes
+envarium plugin enable fixture-inspector \
   --scope project.metadata.read --scope project.files.read \
   --scope project.operate --yes
-switchyard plugin inspect fixture-inspector <project>
-switchyard plugin run fixture-inspector <project> fixture.echo \
+envarium plugin inspect fixture-inspector <project>
+envarium plugin run fixture-inspector <project> fixture.echo \
   --input '{"reviewed":true}' --yes
 ```
 
@@ -54,7 +54,7 @@ actions, health, or operation receipts rather than terminal text.
 
 ## Versions and deprecation
 
-`switchyard.plugin/v1` requires an exact match. There is no compatibility
+`envarium.plugin/v1` requires an exact match. There is no compatibility
 guessing or fallback execution. A mismatch remains discoverable as an
 actionable error and is never enabled.
 
@@ -63,7 +63,7 @@ with the stable SDK. For the stable plugin protocol:
 
 - fields may be added only when older peers can safely ignore or default them;
 - methods, required fields, capabilities, and scopes are not repurposed;
-- a superseded stable protocol remains supported for at least two Switchyard
+- a superseded stable protocol remains supported for at least two Envarium
   minor releases and 90 days, whichever is longer;
 - deprecation appears in release notes, SDK documentation, discovery health,
   and the permission-review UI; and

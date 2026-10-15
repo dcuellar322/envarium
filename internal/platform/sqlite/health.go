@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	observability "switchyard.dev/switchyard/internal/observability/domain"
+	observability "envarium.dev/envarium/internal/observability/domain"
 )
 
 // HealthRepository stores bounded health history and returns one latest sample per check.

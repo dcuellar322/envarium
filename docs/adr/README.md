@@ -20,7 +20,7 @@ Phase 0 subjects remain covered by the accepted records below.
 
 - [ADR-0001: Modular monolith and dependency direction](0001-modular-monolith.md)
 - [ADR-0002: Go control plane](0002-go-control-plane.md)
-- [ADR-0003: One Switchyard binary](0003-one-binary.md)
+- [ADR-0003: One Envarium binary](0003-one-binary.md)
 - [ADR-0004: REST, WebSocket, and OpenAPI](0004-rest-websocket-openapi.md)
 - [ADR-0005: SQLite, sqlc, migrations, and log segments](0005-sqlite-persistence.md)
 - [ADR-0006: Docker SDK observation and Compose CLI lifecycle](0006-docker-compose-runtime.md)
@@ -35,3 +35,4 @@ Phase 0 subjects remain covered by the accepted records below.
 - [ADR-0015: Platform support order](0015-platform-order.md)
 - [ADR-0016: Optional peer federation and signed shared configuration](0016-optional-federation.md)
 - [ADR-0017: Static public site and documentation portal](0017-static-public-site.md)
+- [ADR-0018: Project-first runtime operations](0018-project-runtime-operations.md)

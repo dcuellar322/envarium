@@ -17,7 +17,7 @@ const uptime = computed(() =>
     <div class="settings-panel__head">
       <div>
         <p>Runtime identity</p>
-        <h2>Switchyard daemon</h2>
+        <h2>Envarium daemon</h2>
       </div>
       <span :class="{ ready: system.data.value }">{{
         system.data.value ? 'ready' : 'unavailable'

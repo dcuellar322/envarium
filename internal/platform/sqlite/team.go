@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 
-	teamApplication "switchyard.dev/switchyard/internal/team/application"
-	"switchyard.dev/switchyard/internal/team/domain"
+	teamApplication "envarium.dev/envarium/internal/team/application"
+	"envarium.dev/envarium/internal/team/domain"
 )
 
 // TeamRepository persists reviewed publisher trust and verified bundles.

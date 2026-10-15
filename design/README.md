@@ -1,6 +1,6 @@
-# Switchyard UI mockup notes
+# Envarium UI mockup notes
 
-The adjacent `switchyard-interactive-mockup.html` is the canonical interactive visual reference for the production Vue interface.
+The adjacent `envarium-interactive-mockup.html` is the canonical interactive visual reference for the production Vue interface.
 
 It contains three implemented views:
 

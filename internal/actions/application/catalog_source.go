@@ -6,10 +6,10 @@ import (
 	"sort"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/actions/domain"
-	catalog "switchyard.dev/switchyard/internal/catalog/application"
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
+	"envarium.dev/envarium/internal/actions/domain"
+	catalog "envarium.dev/envarium/internal/catalog/application"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
 )
 
 // ToolPreferenceSource exposes user-selected integration identifiers without

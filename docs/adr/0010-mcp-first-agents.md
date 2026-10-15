@@ -12,7 +12,7 @@ lastVerified: 2026-07-17
 ## Context
 
 Coding agents need stable project context and safe operations without guessing
-shell commands or coupling Switchyard to one provider.
+shell commands or coupling Envarium to one provider.
 
 ## Decision
 

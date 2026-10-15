@@ -41,7 +41,7 @@ func TestDefaultBundlePathIsPortable(t *testing.T) {
 	t.Parallel()
 
 	path := defaultBundlePath(time.Date(2026, 7, 16, 12, 34, 56, 0, time.FixedZone("test", -5*60*60)))
-	if filepath.Base(path) != "switchyard-support-20260716T173456Z.zip" {
+	if filepath.Base(path) != "envarium-support-20260716T173456Z.zip" {
 		t.Fatalf("defaultBundlePath() = %q", path)
 	}
 }

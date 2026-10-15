@@ -9,7 +9,7 @@ import (
 )
 
 // ProtocolVersion is the stable narrow peer-agent contract identifier.
-const ProtocolVersion = "switchyard.remote/v1"
+const ProtocolVersion = "envarium.remote/v1"
 
 // Capability is one separately grantable remote-agent permission.
 type Capability string
@@ -59,7 +59,7 @@ func (r CredentialReferences) Complete() bool {
 	return r.CACertificate != "" && r.ClientCertificate != "" && r.ClientKey != ""
 }
 
-// Machine is one explicitly configured remote Switchyard agent.
+// Machine is one explicitly configured remote Envarium agent.
 type Machine struct {
 	ID                     string               `json:"id"`
 	Name                   string               `json:"name"`
@@ -152,11 +152,15 @@ const (
 	ActionRestart OperationAction = "restart"
 	// ActionRebuild rebuilds a remote project or registered environment.
 	ActionRebuild OperationAction = "rebuild"
+	// ActionDeploy reconciles a remote project with its current definition.
+	ActionDeploy OperationAction = "deploy"
+	// ActionKill forcefully terminates a remote project's services.
+	ActionKill OperationAction = "kill"
 )
 
 // Valid reports whether the action belongs to the narrow v1 vocabulary.
 func (a OperationAction) Valid() bool {
-	return a == ActionStart || a == ActionStop || a == ActionRestart || a == ActionRebuild
+	return a == ActionStart || a == ActionStop || a == ActionRestart || a == ActionDeploy || a == ActionKill || a == ActionRebuild
 }
 
 // OperationRequest describes one confirmed idempotent remote lifecycle request.

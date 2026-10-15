@@ -1,6 +1,6 @@
 ---
 title: "Phase 19: Post-v1 optional expansion"
-description: Implementation evidence for Switchyard product phase 19.
+description: Implementation evidence for Envarium product phase 19.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -8,14 +8,14 @@ lastVerified: 2026-07-17
 
 ## Implemented
 
-- Added optional remote Switchyard agents over user-owned tunnels with TLS 1.3
+- Added optional remote Envarium agents over user-owned tunnels with TLS 1.3
   mutual authentication, exact certificate pins, protocol negotiation, explicit
   capability grants, typed lifecycle operations, bounded inventory, and durable
   audit records.
 - Added multi-machine inventory, offline/error reconciliation, grant revocation,
   remote development-environment visibility, and a responsive read-only
   companion route that omits trust and mutation controls.
-- Added Ed25519-signed `switchyard.bundle/v1` configuration bundles with
+- Added Ed25519-signed `envarium.bundle/v1` configuration bundles with
   reviewed publishers, restrictive policy merging, portable project templates,
   enterprise settings, and curated plugin metadata that never auto-installs or
   grants trust.
@@ -78,7 +78,7 @@ TLS, SQL, Docker, command execution, and encryption adapters.
   packaging.
 - `pnpm --dir web build` passed with route-level code splitting. The initial
   JavaScript chunk is 92.64 kB and no chunk-size warning remains.
-- A fresh schema-17 daemon started on loopback from `bin/switchyard`. Stable JSON
+- A fresh schema-17 daemon started on loopback from `bin/envarium`. Stable JSON
   smoke checks reported API v1/status ready, telemetry disabled with no pending
   counters, and empty machine and publisher inventories before clean shutdown.
 
@@ -90,7 +90,7 @@ TLS, SQL, Docker, command execution, and encryption adapters.
 
 ## Known limitations
 
-- Federation deliberately requires user-managed reachability and PKI. Switchyard
+- Federation deliberately requires user-managed reachability and PKI. Envarium
   does not ship a relay, account system, certificate authority, or hosted broker.
 - The mobile companion is a responsive read-only web surface, not a separately
   distributed native mobile application.
@@ -109,7 +109,7 @@ new demand signal, threat model, and ADR.
 ## Manual verification steps
 
 1. Run `make quality` with Go, Node/pnpm, Docker, and the pinned Rust toolchain.
-2. Start `bin/switchyard daemon --data-dir <temporary-directory>` and verify
+2. Start `bin/envarium daemon --data-dir <temporary-directory>` and verify
    `doctor`, `machine list`, `team publisher list`, and `telemetry status` using
    `--json`.
 3. Open the Fleet, Companion, Team, and Settings routes and confirm that remote

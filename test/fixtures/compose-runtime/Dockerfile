@@ -1,6 +1,6 @@
 FROM scratch
 
-COPY .switchyard-fixture-server /server
+COPY .envarium-fixture-server /server
 
 EXPOSE 8080
 

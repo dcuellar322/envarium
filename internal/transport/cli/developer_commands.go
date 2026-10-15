@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/foundation/identifier"
 )
 
 func newPortsCommand(options *rootOptions) *cobra.Command {

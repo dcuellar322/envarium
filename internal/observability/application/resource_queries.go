@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"switchyard.dev/switchyard/internal/observability/domain"
+	"envarium.dev/envarium/internal/observability/domain"
 )
 
 // Overview returns one aggregate response and never fans out from the browser.
@@ -38,7 +38,7 @@ func (s *ResourceService) Overview(ctx context.Context) (domain.ResourceOverview
 		warnings = append(warnings, "Docker storage is unavailable.")
 	}
 	if footprintErr != nil {
-		warnings = append(warnings, "Switchyard footprint is unavailable.")
+		warnings = append(warnings, "Envarium footprint is unavailable.")
 	}
 	warnings = sortedUnique(warnings)
 	return domain.ResourceOverview{
@@ -88,7 +88,7 @@ func (s *ResourceService) CleanupPreview(ctx context.Context, projectID string) 
 	if err != nil && !inventory.Connected {
 		return domain.CleanupPreview{}, err
 	}
-	preview := domain.CleanupPreview{ProjectID: projectID, Risk: "destructive", Executable: false, Resources: []domain.StorageResource{}, Warnings: []string{"Preview only. Switchyard does not expose automatic cleanup in this phase."}, ObservedAt: inventory.ObservedAt}
+	preview := domain.CleanupPreview{ProjectID: projectID, Risk: "destructive", Executable: false, Resources: []domain.StorageResource{}, Warnings: []string{"Preview only. Envarium does not expose automatic cleanup in this phase."}, ObservedAt: inventory.ObservedAt}
 	for _, resource := range inventory.Resources {
 		if !resource.Reclaimable || (projectID != "" && !contains(resource.ProjectIDs, projectID)) {
 			continue

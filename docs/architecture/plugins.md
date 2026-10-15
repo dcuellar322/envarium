@@ -14,7 +14,7 @@ lets plugin-specific types enter a core product domain.
 
 ## Discovery and trust
 
-Switchyard deterministically scans `<data-dir>/plugins/<package>/plugin.json`.
+Envarium deterministically scans `<data-dir>/plugins/<package>/plugin.json`.
 Discovery reads a bounded manifest and hashes that manifest together with a
 bounded regular executable file. It does not execute repository files or the
 plugin. Executables must remain inside their package, cannot be symlinks, and
@@ -31,7 +31,7 @@ new review.
 
 Every method call starts a new bounded process in the plugin package directory
 with an argument array and a minimal environment containing no provider keys or
-repository secrets. Switchyard negotiates `switchyard.plugin/v1`, then
+repository secrets. Envarium negotiates `envarium.plugin/v1`, then
 verifies that the running ID, version, capabilities, requested scopes, and
 grants exactly match the trusted package. Messages are capped at 1 MiB and
 unknown response fields are rejected.
@@ -57,7 +57,7 @@ children do not outlive supervision.
 ## OS trust boundary
 
 Plugins run with the installing local user's operating-system identity.
-Switchyard strips inherited secrets and mediates Switchyard-owned data and
+Envarium strips inherited secrets and mediates Envarium-owned data and
 mutations, but it is not an OS sandbox. Trusting a plugin therefore means
 trusting locally installed executable code, not just approving API scopes. The
 review UI states this distinction explicitly.

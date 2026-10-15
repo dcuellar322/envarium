@@ -5,14 +5,14 @@ import (
 	"testing"
 	"time"
 
-	actionsDomain "switchyard.dev/switchyard/internal/actions/domain"
-	portsDomain "switchyard.dev/switchyard/internal/ports/domain"
+	actionsDomain "envarium.dev/envarium/internal/actions/domain"
+	portsDomain "envarium.dev/envarium/internal/ports/domain"
 )
 
 func TestPortReservationsReconcileManifestChanges(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := Open(ctx, t.TempDir()+"/switchyard.db")
+	database, err := Open(ctx, t.TempDir()+"/envarium.db")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -36,7 +36,7 @@ func TestPortReservationsReconcileManifestChanges(t *testing.T) {
 func TestActionAuditPersistsOutcomeWithoutOutput(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := Open(ctx, t.TempDir()+"/switchyard.db")
+	database, err := Open(ctx, t.TempDir()+"/envarium.db")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 // ProjectSource resolves trusted catalog projects into driver-neutral runtime inputs.

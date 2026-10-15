@@ -21,7 +21,7 @@ func newSchemaCommand(options *rootOptions) *cobra.Command {
 		}
 		schema := map[string]any{
 			"$schema": "https://json-schema.org/draft/2020-12/schema",
-			"$id":     "https://switchyard.dev/schema/cli/" + strings.ReplaceAll(args[0], ".", "-") + ".v1.json",
+			"$id":     "https://envarium.dev/schema/cli/" + strings.ReplaceAll(args[0], ".", "-") + ".v1.json",
 			"type":    "object", "additionalProperties": false,
 			"required": []string{"schemaVersion", "command", "data"},
 			"properties": map[string]any{
@@ -47,7 +47,7 @@ func contains(values []string, wanted string) bool {
 
 func commandDataSchema(command string) map[string]any {
 	openAPIRef := func(name string) map[string]any {
-		return map[string]any{"$ref": "https://switchyard.dev/schema/openapi.v1.json#/components/schemas/" + name}
+		return map[string]any{"$ref": "https://envarium.dev/schema/openapi.v1.json#/components/schemas/" + name}
 	}
 	if schema, ok := supportCommandDataSchema(command); ok {
 		return schema
@@ -89,7 +89,7 @@ func commandDataSchema(command string) map[string]any {
 func supportCommandDataSchema(command string) (map[string]any, bool) {
 	switch command {
 	case "doctor":
-		return map[string]any{"$ref": "https://switchyard.dev/schema/openapi.v1.json#/components/schemas/SystemInfo"}, true
+		return map[string]any{"$ref": "https://envarium.dev/schema/openapi.v1.json#/components/schemas/SystemInfo"}, true
 	case "doctor.bundle", "doctor.bundle.preview":
 		return map[string]any{"type": "object"}, true
 	case "debug.logs":

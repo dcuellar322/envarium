@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	terminalDomain "switchyard.dev/switchyard/internal/terminal/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	terminalDomain "envarium.dev/envarium/internal/terminal/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 const maximumTerminalRequestBytes = 16 << 10

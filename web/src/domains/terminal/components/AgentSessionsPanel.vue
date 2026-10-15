@@ -47,10 +47,10 @@ const terminate = useMutation({
       <span>User-visible terminal output only</span>
     </header>
     <div class="agent-disclosure" role="note">
-      <strong>What Switchyard records</strong>
+      <strong>What Envarium records</strong>
       <p>
         Provider, project, checkout, working directory, lifecycle status, byte counts, and
-        user-visible PTY output while connected. Switchyard neither requests nor claims access to
+        user-visible PTY output while connected. Envarium neither requests nor claims access to
         hidden reasoning.
       </p>
     </div>

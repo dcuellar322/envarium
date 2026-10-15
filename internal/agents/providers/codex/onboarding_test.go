@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
-	providerProcess "switchyard.dev/switchyard/internal/agents/providers/process"
+	agents "envarium.dev/envarium/internal/agents/application"
+	providerProcess "envarium.dev/envarium/internal/agents/providers/process"
 )
 
 func TestProposalProviderUsesReadOnlyEmptySchemaConstrainedInvocation(t *testing.T) {
@@ -18,8 +18,8 @@ func TestProposalProviderUsesReadOnlyEmptySchemaConstrainedInvocation(t *testing
 	if err := os.WriteFile(executable, []byte("fixture"), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("SWITCHYARD_UNRELATED_SECRET", "must-not-leak")
-	runner := &capturingRunner{output: json.RawMessage(`{"version":"switchyard.dev/ai-proposal/v1alpha1"}`), t: t}
+	t.Setenv("ENVARIUM_UNRELATED_SECRET", "must-not-leak")
+	runner := &capturingRunner{output: json.RawMessage(`{"version":"envarium.dev/ai-proposal/v1alpha1"}`), t: t}
 	provider := NewProposalProvider(ProposalConfig{Executable: executable, Model: "fixture-model", Runner: runner})
 	result, err := provider.ProposeManifest(context.Background(), agents.ProviderRequest{
 		Bundle: json.RawMessage(`{"unique":"bundle-only-canary"}`), OutputSchema: json.RawMessage(`{"type":"object"}`), Limits: agents.Limits{OutputBytes: 4096},
@@ -33,7 +33,7 @@ func TestProposalProviderUsesReadOnlyEmptySchemaConstrainedInvocation(t *testing
 	if strings.Contains(strings.Join(runner.command.Args, " "), "bundle-only-canary") || !strings.Contains(string(runner.command.Stdin), "bundle-only-canary") {
 		t.Fatal("bundle must travel only through stdin")
 	}
-	if strings.Contains(strings.Join(runner.command.Environment, "\n"), "SWITCHYARD_UNRELATED_SECRET") {
+	if strings.Contains(strings.Join(runner.command.Environment, "\n"), "ENVARIUM_UNRELATED_SECRET") {
 		t.Fatal("daemon environment leaked to provider")
 	}
 	if result.Model != "fixture-model" || !strings.Contains(string(result.Output), "ai-proposal") {

@@ -1,4 +1,4 @@
-name: switchyard-fixture
+name: envarium-fixture
 services:
   api:
     build: .

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sort"
 
-	"switchyard.dev/switchyard/internal/discovery/domain"
-	"switchyard.dev/switchyard/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/discovery/domain"
+	"envarium.dev/envarium/internal/foundation/identifier"
 )
 
 // Scanner independently emits evidence without executing repository code.

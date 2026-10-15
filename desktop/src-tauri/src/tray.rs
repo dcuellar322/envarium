@@ -10,7 +10,7 @@ use crate::{
     DesktopState, ensure_compatible, model::DesktopSnapshot, open_route, sidecar::Sidecar, updater,
 };
 
-const TRAY_ID: &str = "switchyard-tray";
+const TRAY_ID: &str = "envarium-tray";
 const RESOURCE_LIMIT: usize = 8;
 
 pub fn install<R: Runtime>(
@@ -25,7 +25,7 @@ pub fn install<R: Runtime>(
                 .cloned()
                 .ok_or_else(|| tauri::Error::AssetNotFound("default window icon".into()))?,
         )
-        .tooltip("Switchyard — connecting")
+        .tooltip("Envarium — connecting")
         .on_menu_event(handle_menu)
         .on_tray_icon_event(|tray, event| {
             if matches!(
@@ -48,7 +48,7 @@ pub fn refresh<R: Runtime>(app: &AppHandle<R>, snapshot: &DesktopSnapshot) -> ta
     if let Some(tray) = app.tray_by_id(TRAY_ID) {
         tray.set_menu(Some(menu))?;
         tray.set_tooltip(Some(format!(
-            "Switchyard — {} project(s), daemon {}",
+            "Envarium — {} project(s), daemon {}",
             snapshot.projects.len(),
             snapshot.system.status
         )))?;
@@ -83,7 +83,7 @@ fn build_menu<R: Runtime>(
     let mut builder = MenuBuilder::new(app)
         .item(&status_item)
         .separator()
-        .text("open:home", "Open Switchyard");
+        .text("open:home", "Open Envarium");
 
     if let Some(snapshot) = snapshot {
         let mut projects = SubmenuBuilder::new(app, "Projects");
@@ -131,7 +131,7 @@ fn build_menu<R: Runtime>(
         .item(&launch_at_login)
         .text("update:check", "Check for Updates…")
         .separator()
-        .text("app:quit", "Quit Switchyard")
+        .text("app:quit", "Quit Envarium")
         .build()
 }
 
@@ -181,7 +181,7 @@ fn handle_menu<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
                         let _ = app
                             .notification()
                             .builder()
-                            .title("Switchyard action blocked")
+                            .title("Envarium action blocked")
                             .body(error)
                             .show();
                         return;
@@ -191,7 +191,7 @@ fn handle_menu<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
                     let _ = app
                         .notification()
                         .builder()
-                        .title("Switchyard action failed")
+                        .title("Envarium action failed")
                         .body(error.to_string())
                         .show();
                 }
@@ -212,7 +212,7 @@ fn toggle_keep_running<R: Runtime>(app: &AppHandle<R>) {
         let _ = app
             .notification()
             .builder()
-            .title("Switchyard preference was not saved")
+            .title("Envarium preference was not saved")
             .body(error.to_string())
             .show();
     }

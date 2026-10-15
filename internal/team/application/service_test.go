@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/team/domain"
+	"envarium.dev/envarium/internal/team/domain"
 )
 
 func TestSignedBundleTrustVerificationAndTamperRejection(t *testing.T) {
@@ -110,7 +110,7 @@ func TestTemplateRenderAndEncryptedSyncReview(t *testing.T) {
 		t.Fatal(err)
 	}
 	template := signTeamBundle(t, privateKey, domain.KindProjectTemplate, "template.go", domain.ProjectTemplate{
-		Manifest:  json.RawMessage(`{"schemaVersion":"switchyard.dev/v1alpha1","name":"{{name}}","root":"{{root}}"}`),
+		Manifest:  json.RawMessage(`{"schemaVersion":"envarium.dev/v1alpha1","name":"{{name}}","root":"{{root}}"}`),
 		Variables: []domain.TemplateVariable{{ID: "name", Label: "Name", Required: true}, {ID: "root", Label: "Root", Default: "."}},
 	})
 	installTeamBundle(t, service, template)

@@ -30,9 +30,9 @@ export interface ReleaseChannel {
 }
 
 export interface ReleaseManifest {
-  schemaVersion: 'switchyard.release-manifest/v1'
+  schemaVersion: 'envarium.release-manifest/v1'
   generatedAt: string
-  repository: 'dcuellar322/switchyard'
+  repository: 'dcuellar322/envarium'
   channels: Partial<Record<ReleaseChannelName, ReleaseChannel>>
   releases: ReleaseChannel[]
 }

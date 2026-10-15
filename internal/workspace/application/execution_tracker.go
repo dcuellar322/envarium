@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/workspace/domain"
+	"envarium.dev/envarium/internal/workspace/domain"
 )
 
 type executionTracker struct {

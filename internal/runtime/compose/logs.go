@@ -11,11 +11,11 @@ import (
 	"sync"
 	"time"
 
+	"envarium.dev/envarium/internal/runtime/domain"
 	"github.com/moby/moby/api/pkg/stdcopy"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/client"
 	"golang.org/x/sync/errgroup"
-	"switchyard.dev/switchyard/internal/runtime/domain"
 )
 
 func (d *Driver) streamLogs(ctx context.Context, request domain.LogRequest, config normalizedConfig, sink domain.LogSink) error {

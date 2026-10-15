@@ -27,7 +27,7 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|app, args, _| {
             if let Some(route) = args
                 .iter()
-                .find(|argument| argument.starts_with("switchyard://"))
+                .find(|argument| argument.starts_with("envarium://"))
                 .and_then(|argument| navigation::parse_deep_link(argument).ok())
                 .map(|destination| destination.route())
             {
@@ -107,7 +107,7 @@ pub fn run() {
             }
         })
         .run(tauri::generate_context!())
-        .expect("failed to run Switchyard desktop shell");
+        .expect("failed to run Envarium desktop shell");
 }
 
 async fn bootstrap<R: Runtime>(app: AppHandle<R>, route: String) -> Result<(), String> {
@@ -135,7 +135,7 @@ async fn poll<R: Runtime>(app: AppHandle<R>, mut tracker: Tracker) {
                     let _ = app
                         .notification()
                         .builder()
-                        .title("Switchyard daemon reconnected")
+                        .title("Envarium daemon reconnected")
                         .body("Local project observation and controls are available again.")
                         .show();
                     disconnected = false;
@@ -159,7 +159,7 @@ async fn poll<R: Runtime>(app: AppHandle<R>, mut tracker: Tracker) {
                     let _ = app
                         .notification()
                         .builder()
-                        .title("Switchyard daemon disconnected")
+                        .title("Envarium daemon disconnected")
                         .body(error.to_string())
                         .show();
                 }
@@ -174,7 +174,7 @@ pub(crate) fn open_route<R: Runtime>(app: AppHandle<R>, route: String) {
             let _ = app
                 .notification()
                 .builder()
-                .title("Switchyard could not open")
+                .title("Envarium could not open")
                 .body(error)
                 .show();
             return;
@@ -183,7 +183,7 @@ pub(crate) fn open_route<R: Runtime>(app: AppHandle<R>, route: String) {
             let _ = app
                 .notification()
                 .builder()
-                .title("Switchyard could not open")
+                .title("Envarium could not open")
                 .body(error)
                 .show();
             return;
@@ -224,7 +224,7 @@ fn show_startup_error<R: Runtime>(app: &AppHandle<R>, error: &str) {
     let payload =
         serde_json::to_string(error).unwrap_or_else(|_| "\"Unknown startup error\"".into());
     if let Some(window) = app.get_webview_window("main") {
-        let _ = window.eval(format!("window.switchyardStartupError({payload})"));
+        let _ = window.eval(format!("window.envariumStartupError({payload})"));
         let _ = window.show();
         let _ = window.set_focus();
     }

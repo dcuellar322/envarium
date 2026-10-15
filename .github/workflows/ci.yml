@@ -49,7 +49,7 @@ jobs:
           cache-dependency-path: go.sum
       - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
-          version: v2.13.0
+          version: v2.14.0
 
   platforms:
     name: ${{ matrix.name }} adapters
@@ -71,7 +71,7 @@ jobs:
           go-version-file: ${{ env.GO_VERSION_FILE }}
           cache-dependency-path: go.sum
       - run: go test ./internal/actions/adapters ./internal/agents/providers/process ./internal/bootstrap ./internal/foundation/secretfile ./internal/platform/localipc ./internal/platform/processgroup ./internal/plugins/adapters ./internal/runtime/process ./internal/support/adapters ./internal/terminal/adapters ./internal/transport/cli ./internal/ports/adapters
-      - run: go build ./cmd/switchyard
+      - run: go build ./cmd/envarium
 
   frontend:
     name: Frontend quality
@@ -137,13 +137,13 @@ jobs:
       - run: rustup show
       - run: make desktop-quality
       - run: make desktop-build
-      - run: codesign --force --deep --sign - desktop/src-tauri/target/debug/bundle/macos/Switchyard.app
-      - run: codesign --verify --deep --strict desktop/src-tauri/target/debug/bundle/macos/Switchyard.app
+      - run: codesign --force --deep --sign - desktop/src-tauri/target/debug/bundle/macos/Envarium.app
+      - run: codesign --verify --deep --strict desktop/src-tauri/target/debug/bundle/macos/Envarium.app
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: switchyard-desktop-debug
+          name: envarium-desktop-debug
           path: |
-            desktop/src-tauri/target/debug/bundle/macos/Switchyard.app
+            desktop/src-tauri/target/debug/bundle/macos/Envarium.app
             desktop/src-tauri/target/debug/bundle/dmg/*.dmg
           retention-days: 7
 
@@ -190,4 +190,4 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: make build
       - run: ./scripts/test-mcp-inspector.sh
-      - run: ./bin/switchyard version
+      - run: ./bin/envarium version

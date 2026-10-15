@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/sdk/plugin"
-	"switchyard.dev/switchyard/sdk/plugin/plugintest"
+	"envarium.dev/envarium/sdk/plugin"
+	"envarium.dev/envarium/sdk/plugin/plugintest"
 )
 
 type fixtureHandler struct{}

@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	manifest "switchyard.dev/switchyard/internal/manifest/domain"
-	observability "switchyard.dev/switchyard/internal/observability/domain"
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	manifest "envarium.dev/envarium/internal/manifest/domain"
+	observability "envarium.dev/envarium/internal/observability/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestResourceBudgetRejectsInvalidSignedThresholds(t *testing.T) {

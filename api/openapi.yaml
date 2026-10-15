@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Switchyard Local API
+  title: Envarium Local API
   version: 1.0.0
   description: Local control-plane contract shared by browser, desktop, and CLI clients.
 servers:
@@ -971,7 +971,7 @@ paths:
   /machines:
     get:
       operationId: listMachines
-      summary: List explicitly configured remote Switchyard machines
+      summary: List explicitly configured remote Envarium machines
       responses:
         "200":
           description: Redacted machine inventory and connection state
@@ -984,7 +984,7 @@ paths:
           $ref: "#/components/responses/Problem"
     post:
       operationId: createMachine
-      summary: Register and probe a certificate-pinned remote Switchyard machine
+      summary: Register and probe a certificate-pinned remote Envarium machine
       requestBody:
         required: true
         content:
@@ -1995,7 +1995,7 @@ components:
       additionalProperties: false
       required: [schemaVersion, kind, metadata, payload, signature]
       properties:
-        schemaVersion: { type: string, enum: [switchyard.bundle/v1] }
+        schemaVersion: { type: string, enum: [envarium.bundle/v1] }
         kind: { $ref: "#/components/schemas/TeamBundleKind" }
         metadata: { $ref: "#/components/schemas/TeamBundleMetadata" }
         payload: { type: object, additionalProperties: true }
@@ -2047,7 +2047,7 @@ components:
       additionalProperties: false
       required: [schemaVersion, publishers, bundles, exportedAt]
       properties:
-        schemaVersion: { type: string, enum: [switchyard.sync/v1] }
+        schemaVersion: { type: string, enum: [envarium.sync/v1] }
         publishers: { type: array, maxItems: 100, items: { $ref: "#/components/schemas/TeamPublisher" } }
         bundles: { type: array, maxItems: 1000, items: { $ref: "#/components/schemas/TeamBundle" } }
         exportedAt: { type: string, format: date-time }
@@ -2098,7 +2098,7 @@ components:
       additionalProperties: false
       required: [schemaVersion, installationId, version, os, architecture, counters, generatedAt]
       properties:
-        schemaVersion: { type: string, enum: [switchyard.telemetry/v1] }
+        schemaVersion: { type: string, enum: [envarium.telemetry/v1] }
         installationId: { type: string }
         version: { type: string }
         os: { type: string }
@@ -2177,7 +2177,7 @@ components:
       additionalProperties: false
       required: [protocolVersion, machineId, name, version, os, architecture, capabilities]
       properties:
-        protocolVersion: { type: string, enum: [switchyard.remote/v1] }
+        protocolVersion: { type: string, enum: [envarium.remote/v1] }
         machineId: { type: string }
         name: { type: string }
         version: { type: string }
@@ -2230,7 +2230,7 @@ components:
         requestId: { type: string, minLength: 8, maxLength: 128 }
         projectId: { type: string, minLength: 1, maxLength: 128 }
         environmentId: { type: string, minLength: 1, maxLength: 128 }
-        action: { type: string, enum: [start, stop, restart, rebuild] }
+        action: { type: string, enum: [start, stop, restart, deploy, kill, rebuild] }
         confirmRisk: { type: boolean }
     RemoteOperationReceipt:
       type: object
@@ -2354,7 +2354,7 @@ components:
         port: { type: integer, minimum: 1, maximum: 65535 }
         target: { type: integer, minimum: 0, maximum: 65535 }
         protocol: { type: string, enum: [tcp, udp] }
-        source: { type: string, enum: [manifest, compose, switchyard, docker, process, os, manual, worktree] }
+        source: { type: string, enum: [manifest, compose, envarium, docker, process, os, manual, worktree] }
         evidence: { type: string }
         processId: { type: integer, minimum: 1 }
         observedAt: { type: string, format: date-time }
@@ -2794,8 +2794,8 @@ components:
           format: date-time
     RuntimeAction:
       type: string
-      enum: [start, stop, restart, pause, unpause, rebuild, teardown]
-      x-enum-varnames: [Start, Stop, Restart, Pause, Unpause, Rebuild, Teardown]
+      enum: [start, stop, restart, deploy, kill, pause, unpause, rebuild, teardown]
+      x-enum-varnames: [Start, Stop, Restart, Deploy, Kill, Pause, Unpause, Rebuild, Teardown]
     RuntimeActionRequest:
       type: object
       additionalProperties: false
@@ -2803,6 +2803,7 @@ components:
       properties:
         action: { $ref: "#/components/schemas/RuntimeAction" }
         removeVolumes: { type: boolean, default: false }
+        confirmRisk: { type: boolean, default: false }
         services:
           type: array
           minItems: 1
@@ -2923,7 +2924,7 @@ components:
         state:
           type: string
           enum: [unknown, stopped, starting, running, running_external, partially_running, degraded, paused, stopping, failed]
-        origin: { type: string, enum: [switchyard, external] }
+        origin: { type: string, enum: [envarium, external] }
         engine: { $ref: "#/components/schemas/RuntimeEngineObservation" }
         services:
           type: array

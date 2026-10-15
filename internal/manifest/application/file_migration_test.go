@@ -10,12 +10,12 @@ import (
 func TestMigrateFilePreviewsThenAppliesWithBackup(t *testing.T) {
 	t.Parallel()
 	path := filepath.Join(t.TempDir(), "project.yml")
-	contents := []byte("schemaVersion: switchyard.dev/v1alpha1\nkind: Project\nmetadata:\n  id: fixture\n  name: Fixture\nrepository:\n  root: .\n")
+	contents := []byte("schemaVersion: envarium.dev/v1alpha1\nkind: Project\nmetadata:\n  id: fixture\n  name: Fixture\nrepository:\n  root: .\n")
 	if err := os.WriteFile(path, contents, 0o640); err != nil {
 		t.Fatal(err)
 	}
 	preview, err := MigrateFile(path, false)
-	if err != nil || !preview.Changed || preview.Applied || !strings.Contains(preview.Preview, "switchyard.dev/v1") {
+	if err != nil || !preview.Changed || preview.Applied || !strings.Contains(preview.Preview, "envarium.dev/v1") {
 		t.Fatalf("preview = %#v error=%v", preview, err)
 	}
 	unchanged, _ := os.ReadFile(path)
@@ -39,7 +39,7 @@ func TestMigrateFilePreviewsThenAppliesWithBackup(t *testing.T) {
 func TestMigrateFileNeverOverwritesExistingBackup(t *testing.T) {
 	t.Parallel()
 	path := filepath.Join(t.TempDir(), "project.yml")
-	contents := []byte("schemaVersion: switchyard.dev/v1alpha1\nkind: Project\nmetadata:\n  id: fixture\n  name: Fixture\nrepository:\n  root: .\n")
+	contents := []byte("schemaVersion: envarium.dev/v1alpha1\nkind: Project\nmetadata:\n  id: fixture\n  name: Fixture\nrepository:\n  root: .\n")
 	if err := os.WriteFile(path, contents, 0o600); err != nil {
 		t.Fatal(err)
 	}

@@ -13,7 +13,7 @@ import (
 func TestOpenMigratesEmptyDatabase(t *testing.T) {
 	t.Parallel()
 
-	path := filepath.Join(t.TempDir(), "switchyard.db")
+	path := filepath.Join(t.TempDir(), "envarium.db")
 	database, err := Open(context.Background(), path)
 	if err != nil {
 		t.Fatalf("Open() error = %v", err)
@@ -28,8 +28,8 @@ func TestOpenMigratesEmptyDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SchemaVersion() error = %v", err)
 	}
-	if version != 17 {
-		t.Fatalf("SchemaVersion() = %d, want 17", version)
+	if version != 18 {
+		t.Fatalf("SchemaVersion() = %d, want 18", version)
 	}
 	info, err := os.Stat(path)
 	if err != nil {
@@ -43,7 +43,7 @@ func TestOpenMigratesEmptyDatabase(t *testing.T) {
 func TestOpenBacksUpAndPreservesAlphaDataBeforeUpgrade(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	path := filepath.Join(t.TempDir(), "switchyard.db")
+	path := filepath.Join(t.TempDir(), "envarium.db")
 	connection, err := sql.Open("sqlite", sqliteFileDSN(path, ""))
 	if err != nil {
 		t.Fatal(err)
@@ -59,9 +59,9 @@ func TestOpenBacksUpAndPreservesAlphaDataBeforeUpgrade(t *testing.T) {
 		INSERT INTO projects (id, slug, display_name, trust_state, primary_location, created_at, updated_at)
 		VALUES ('project-1','fixture','Fixture','trusted','/tmp/fixture','2026-01-01T00:00:00Z','2026-01-01T00:00:00Z');
 		INSERT INTO manifest_proposals (id, project_id, scanner_version, schema_version, candidate_json, confidence_json, unresolved_json, validation_json, status, created_at)
-		VALUES ('proposal-1','project-1','deterministic/v1','switchyard.dev/v1alpha1','{}','{}','[]','{}','accepted','2026-01-01T00:00:00Z');
+		VALUES ('proposal-1','project-1','deterministic/v1','envarium.dev/v1alpha1','{}','{}','[]','{}','accepted','2026-01-01T00:00:00Z');
 		INSERT INTO manifest_snapshots (project_id, revision, proposal_id, manifest_json, created_at)
-		VALUES ('project-1',1,'proposal-1','{"schemaVersion":"switchyard.dev/v1alpha1"}','2026-01-01T00:00:00Z');
+		VALUES ('project-1',1,'proposal-1','{"schemaVersion":"envarium.dev/v1alpha1"}','2026-01-01T00:00:00Z');
 		INSERT INTO audit_events (event_type, actor_type, actor_id, project_id, detail_json, occurred_at)
 		VALUES ('project.accepted','user','fixture','project-1','{}','2026-01-01T00:00:00Z');
 	`)
@@ -78,7 +78,7 @@ func TestOpenBacksUpAndPreservesAlphaDataBeforeUpgrade(t *testing.T) {
 	if err := database.Close(); err != nil {
 		t.Fatal(err)
 	}
-	backupPath := preMigrationBackupPath(path, 3, 17)
+	backupPath := preMigrationBackupPath(path, 3, 18)
 	for _, candidate := range []string{path, backupPath} {
 		check, err := sql.Open("sqlite", sqliteFileDSN(candidate, ""))
 		if err != nil {
@@ -94,15 +94,87 @@ func TestOpenBacksUpAndPreservesAlphaDataBeforeUpgrade(t *testing.T) {
 		_ = check.Close()
 	}
 	status, err := InspectMigrations(ctx, path)
-	if err != nil || status.CurrentVersion != 17 || status.MigrationRequired {
+	if err != nil || status.CurrentVersion != 18 || status.MigrationRequired {
 		t.Fatalf("status=%#v error=%v", status, err)
+	}
+}
+
+func TestOpenMigratesSwitchyardIdentityToEnvarium(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	path := filepath.Join(t.TempDir(), "envarium.db")
+	connection, err := sql.Open("sqlite", sqliteFileDSN(path, "_pragma=foreign_keys(1)"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	provider, err := migrationProvider(connection)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := provider.UpTo(ctx, 17); err != nil {
+		t.Fatal(err)
+	}
+	_, err = connection.Exec(`
+		INSERT INTO projects (id, slug, display_name, trust_state, primary_location, created_at, updated_at)
+		VALUES ('project-1','switchyard','Switchyard','trusted','/Users/example/dev/switchyard','2026-01-01T00:00:00Z','2026-01-01T00:00:00Z');
+		INSERT INTO manifest_proposals (id, project_id, scanner_version, schema_version, candidate_json, confidence_json, unresolved_json, validation_json, status, created_at)
+		VALUES ('proposal-1','project-1','deterministic/v1','switchyard.dev/v1alpha1','{"schemaVersion":"switchyard.dev/v1alpha1","id":"switchyard","name":"Switchyard","command":["./bin/switchyard"]}','{}','[]','{}','accepted','2026-01-01T00:00:00Z');
+		INSERT INTO manifest_snapshots (project_id, revision, proposal_id, manifest_json, created_at)
+		VALUES ('project-1',1,'proposal-1','{"schemaVersion":"switchyard.dev/v1alpha1","id":"switchyard","name":"Switchyard","command":["./bin/switchyard"]}','2026-01-01T00:00:00Z');
+		INSERT INTO runs (id, project_id, service_id, runtime_driver, origin, started_at, identity_fingerprint)
+		VALUES ('run-1','project-1','api','process','switchyard','2026-01-01T00:00:00Z','fingerprint');
+		INSERT INTO run_processes (run_id, pid, process_group_id, executable, started_at, working_directory, identity_fingerprint, observed_at)
+		VALUES ('run-1',123,123,'go','2026-01-01T00:00:00Z','/Users/example/dev/switchyard','fingerprint','2026-01-01T00:00:00Z');
+	`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := connection.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	database, err := Open(ctx, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := database.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := sql.Open("sqlite", sqliteFileDSN(path, "_pragma=foreign_keys(1)"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = check.Close() }()
+	var slug, name, location, origin, workingDirectory, manifest string
+	if err := check.QueryRow("SELECT slug, display_name, primary_location FROM projects WHERE id = 'project-1'").Scan(&slug, &name, &location); err != nil {
+		t.Fatal(err)
+	}
+	if err := check.QueryRow("SELECT origin FROM runs WHERE id = 'run-1'").Scan(&origin); err != nil {
+		t.Fatal(err)
+	}
+	if err := check.QueryRow("SELECT working_directory FROM run_processes WHERE run_id = 'run-1'").Scan(&workingDirectory); err != nil {
+		t.Fatal(err)
+	}
+	if err := check.QueryRow("SELECT manifest_json FROM manifest_snapshots WHERE project_id = 'project-1'").Scan(&manifest); err != nil {
+		t.Fatal(err)
+	}
+	if slug != "envarium" || name != "Envarium" || location != "/Users/example/dev/envarium" {
+		t.Fatalf("project identity = %q %q %q", slug, name, location)
+	}
+	if origin != "envarium" || workingDirectory != "/Users/example/dev/envarium" {
+		t.Fatalf("runtime identity = %q %q", origin, workingDirectory)
+	}
+	if strings.Contains(manifest, "switchyard") || !strings.Contains(manifest, "envarium.dev") {
+		t.Fatalf("manifest identity = %s", manifest)
 	}
 }
 
 func TestOpenRejectsDatabaseFromNewerBinary(t *testing.T) {
 	t.Parallel()
 
-	path := filepath.Join(t.TempDir(), "switchyard.db")
+	path := filepath.Join(t.TempDir(), "envarium.db")
 	database, err := Open(context.Background(), path)
 	if err != nil {
 		t.Fatalf("Open() error = %v", err)

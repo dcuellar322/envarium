@@ -16,12 +16,12 @@ import (
 
 // DefaultAddress returns a private Unix-domain-socket path.
 func DefaultAddress(dataDir string) string {
-	candidate := filepath.Join(dataDir, "switchyard.sock")
+	candidate := filepath.Join(dataDir, "envarium.sock")
 	if len(candidate) < 96 {
 		return candidate
 	}
 	digest := sha256.Sum256([]byte(candidate))
-	return filepath.Join(os.TempDir(), "switchyard-"+hex.EncodeToString(digest[:8])+".sock")
+	return filepath.Join(os.TempDir(), "envarium-"+hex.EncodeToString(digest[:8])+".sock")
 }
 
 func listen(address string) (net.Listener, error) {

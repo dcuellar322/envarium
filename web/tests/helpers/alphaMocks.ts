@@ -102,7 +102,7 @@ function runtime(projectId: string) {
     driver: projectId === 'storefront' || projectId === 'docs' ? 'process' : 'compose',
     projectIdentity: projectId,
     state: degraded ? 'degraded' : stopped ? 'stopped' : 'running',
-    origin: 'switchyard',
+    origin: 'envarium',
     engine:
       projectId === 'billing'
         ? {
@@ -162,7 +162,7 @@ function git(projectId: string) {
     lastCommit: {
       hash: 'f6d52a0d9b3f0000',
       shortHash: 'f6d52a0',
-      author: 'Switchyard',
+      author: 'Envarium',
       subject: 'feat: polish local workflows',
       committedAt: observedAt,
     },
@@ -317,9 +317,53 @@ export async function installAlphaMocks(page: Page, empty = false) {
     }),
   )
   await page.route('**/api/v1/projects**', async (route) => {
-    if (route.request().method() !== 'GET') return route.fallback()
     const url = new URL(route.request().url())
     const path = url.pathname.replace('/api/v1', '')
+    const runtimePlan = path.match(/^\/projects\/([^/]+)\/runtime\/plan$/)
+    const runtimeOperation = path.match(/^\/projects\/([^/]+)\/operations$/)
+    const runtimeMutation = runtimePlan ?? runtimeOperation
+    if (route.request().method() === 'POST' && runtimeMutation) {
+      const projectId = runtimeMutation[1]!
+      const request = route.request().postDataJSON() as {
+        action: string
+        profiles?: string[]
+        services?: string[]
+        removeVolumes?: boolean
+      }
+      if (runtimePlan) {
+        return json(route, {
+          projectId,
+          driver: runtime(projectId).driver,
+          action: request.action,
+          risk: request.action === 'teardown' ? 'destructive' : 'safe',
+          summary: `${request.action} ${projects.find((item) => item.id === projectId)?.displayName ?? projectId}`,
+          commands: [
+            {
+              executable: runtime(projectId).driver === 'compose' ? 'docker' : 'envarium',
+              arguments:
+                runtime(projectId).driver === 'compose'
+                  ? ['compose', request.action]
+                  : ['runtime', request.action],
+              workingDirectory: `/Users/dev/projects/${projectId}`,
+            },
+          ],
+          effects: ['Changes only the selected project runtime.'],
+          services: request.services ?? [],
+          profiles: request.profiles ?? [],
+          removeVolumes: request.removeVolumes ?? false,
+        })
+      }
+      return json(route, {
+        id: `operation-${projectId}-${request.action}`,
+        projectId,
+        kind: `runtime.${request.action}`,
+        state: 'queued',
+        cancellationRequested: false,
+        requestedAt: observedAt,
+        updatedAt: observedAt,
+      })
+    }
+    if (route.request().method() !== 'GET') return route.fallback()
     if (path === '/projects') return json(route, empty ? [] : projects)
     const match = path.match(/^\/projects\/([^/]+)(?:\/(.*))?$/)
     if (!match) return route.fallback()
@@ -378,13 +422,13 @@ export async function installAlphaMocks(page: Page, empty = false) {
     if (suffix === 'manifest/explain')
       return json(route, {
         manifest: {
-          schemaVersion: 'switchyard.dev/v1',
+          schemaVersion: 'envarium.dev/v1',
           kind: 'Project',
           metadata: { id: projectId },
           runtime: { driver: runtime(projectId).driver },
         },
         provenance: { 'runtime.driver': 'accepted manifest' },
-        sources: [{ name: 'accepted', path: '.switchyard/project.yml' }],
+        sources: [{ name: 'accepted', path: '.envarium/project.yml' }],
       })
     return route.fallback()
   })

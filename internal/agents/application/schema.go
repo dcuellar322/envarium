@@ -14,7 +14,7 @@ import (
 func ProposalOutputSchema() (json.RawMessage, error) {
 	reflector := invopop.Reflector{AllowAdditionalProperties: false, RequiredFromJSONSchemaTags: true}
 	schema := reflector.Reflect(&ProposalOutput{})
-	schema.ID = invopop.ID("https://switchyard.dev/schema/ai-proposal.v1alpha1.json")
+	schema.ID = invopop.ID("https://envarium.dev/schema/ai-proposal.v1alpha1.json")
 	encoded, err := json.Marshal(schema)
 	if err != nil {
 		return nil, fmt.Errorf("encode provider output schema: %w", err)

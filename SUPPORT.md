@@ -2,7 +2,7 @@
 
 Use GitHub Discussions for usage and integration questions and the issue
 templates for reproducible defects or focused feature proposals. Search first,
-include the Switchyard version and platform, and keep reports scoped to one
+include the Envarium version and platform, and keep reports scoped to one
 behavior.
 
 Suspected vulnerabilities must use GitHub private vulnerability reporting, not
@@ -11,8 +11,8 @@ source, browser bootstrap URLs, and personal data from every diagnostic before
 sharing it. See [troubleshooting](docs/troubleshooting.md) for the minimum safe
 evidence.
 
-Run `switchyard doctor --bundle --preview` before creating an archive and
-review the [support-bundle contract](docs/support-bundles.md). Switchyard never
+Run `envarium doctor --bundle --preview` before creating an archive and
+review the [support-bundle contract](docs/support-bundles.md). Envarium never
 uploads a bundle; sharing remains a separate user action.
 
 The project does not promise private support, response-time SLAs, or support

@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"envarium.dev/envarium/internal/runtime/domain"
 	"github.com/moby/moby/client"
-	"switchyard.dev/switchyard/internal/runtime/domain"
 )
 
 const commandOutputLimit = 4 << 20
@@ -81,15 +81,15 @@ func (c dockerConnection) cliPrefix() []string {
 
 func (c dockerConnection) newClient() (*client.Client, error) {
 	if c.FromEnv {
-		return client.New(client.FromEnv, client.WithUserAgent("switchyard/compose-runtime"))
+		return client.New(client.FromEnv, client.WithUserAgent("envarium/compose-runtime"))
 	}
 	if strings.HasPrefix(c.Host, "ssh://") {
 		return nil, fmt.Errorf("docker SSH context %q is not supported by the Engine SDK observer", c.ContextName)
 	}
-	options := []client.Opt{client.WithHost(c.Host), client.WithUserAgent("switchyard/compose-runtime")}
+	options := []client.Opt{client.WithHost(c.Host), client.WithUserAgent("envarium/compose-runtime")}
 	if strings.HasPrefix(c.Host, "tcp://") {
 		if c.SkipTLSVerify {
-			return nil, fmt.Errorf("docker context %q disables TLS verification and is refused by Switchyard", c.ContextName)
+			return nil, fmt.Errorf("docker context %q disables TLS verification and is refused by Envarium", c.ContextName)
 		}
 		ca, cert, key := contextTLSFiles(c.TLSPath)
 		options = append(options, client.WithTLSClientConfig(ca, cert, key))

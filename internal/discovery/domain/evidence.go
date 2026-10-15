@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	manifest "switchyard.dev/switchyard/internal/manifest/domain"
+	manifest "envarium.dev/envarium/internal/manifest/domain"
 )
 
 // ScannerVersion identifies the rules used to build deterministic proposals.

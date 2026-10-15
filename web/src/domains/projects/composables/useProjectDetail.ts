@@ -5,6 +5,7 @@ import type {
   ActionDefinition,
   RuntimeAction,
   RuntimeLogEntry,
+  RuntimePlan,
 } from '../../../api/generated/types.gen'
 import { isActiveState } from '../../../lib/format'
 import { loadProjectEnvironments, registerEnvironments } from '../../environments/api'
@@ -18,8 +19,10 @@ import {
   loadProjectLogs,
   loadProjectMetrics,
   loadProjectRuntime,
+  previewRuntimeAction,
   runProjectAction,
   runRuntimeAction,
+  type RuntimeSelection,
 } from '../api'
 import { markProjectAccess } from '../recent'
 import { useProjectLogStream } from './useProjectLogStream'
@@ -27,6 +30,8 @@ import { useProjectLogStream } from './useProjectLogStream'
 export function useProjectDetail(projectId: ComputedRef<string>) {
   const operationError = ref('')
   const liveLogs = ref<Array<RuntimeLogEntry>>([])
+  const lifecyclePlan = ref<RuntimePlan>()
+  const lifecycleSelection = ref<RuntimeSelection>({})
   const project = useQuery({
     queryKey: computed(() => ['project', projectId.value]),
     queryFn: () => loadProject(projectId.value),
@@ -84,9 +89,13 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
   })
 
   const lifecycle = useMutation({
-    mutationFn: ({ action, profiles }: { action: RuntimeAction; profiles: string[] }) =>
-      runRuntimeAction(projectId.value, action, profiles),
+    mutationFn: ({ action, selection }: { action: RuntimeAction; selection: RuntimeSelection }) =>
+      runRuntimeAction(projectId.value, action, selection),
     onSuccess: trackOperation,
+  })
+  const lifecyclePreview = useMutation({
+    mutationFn: ({ action, selection }: { action: RuntimeAction; selection: RuntimeSelection }) =>
+      previewRuntimeAction(projectId.value, action, selection),
   })
   const customAction = useMutation({
     mutationFn: (action: ActionDefinition) => runProjectAction(projectId.value, action.id),
@@ -162,14 +171,35 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
     ),
   )
 
-  async function runLifecycle(action: RuntimeAction, profiles: string[] = []) {
+  async function requestLifecycle(action: RuntimeAction, selection: RuntimeSelection = {}) {
     operationError.value = ''
     try {
-      await lifecycle.mutateAsync({ action, profiles })
+      lifecycleSelection.value = selection
+      lifecyclePlan.value = await lifecyclePreview.mutateAsync({ action, selection })
+    } catch (cause) {
+      operationError.value =
+        cause instanceof Error ? cause.message : 'The lifecycle preview could not be prepared.'
+    }
+  }
+
+  async function confirmLifecycle() {
+    if (!lifecyclePlan.value) return
+    operationError.value = ''
+    try {
+      await lifecycle.mutateAsync({
+        action: lifecyclePlan.value.action,
+        selection: { ...lifecycleSelection.value, confirmRisk: true },
+      })
+      closeLifecyclePlan()
     } catch (cause) {
       operationError.value =
         cause instanceof Error ? cause.message : 'The lifecycle operation could not be queued.'
     }
+  }
+
+  function closeLifecyclePlan() {
+    lifecyclePlan.value = undefined
+    lifecycleSelection.value = {}
   }
 
   async function runAction(action: ActionDefinition | undefined) {
@@ -196,6 +226,8 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
     liveLogs,
     logConnection,
     lifecycle,
+    lifecyclePreview,
+    lifecyclePlan,
     customAction,
     registerWorktrees,
     state,
@@ -214,7 +246,9 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
     quickActions,
     requiredHealth,
     isPartial,
-    runLifecycle,
+    requestLifecycle,
+    confirmLifecycle,
+    closeLifecyclePlan,
     runAction,
   }
 }

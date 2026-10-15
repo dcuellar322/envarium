@@ -2,14 +2,14 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 type ConnectionState = 'connecting' | 'connected' | 'disconnected'
 
-type SwitchyardEvent = {
+type EnvariumEvent = {
   type?: string
   projectId?: string
   operationId?: string
   sequence?: number
 }
 
-export function useEventConnection(onEvent?: (event: SwitchyardEvent) => void) {
+export function useEventConnection(onEvent?: (event: EnvariumEvent) => void) {
   const state = ref<ConnectionState>('connecting')
   let socket: WebSocket | undefined
   let reconnectTimer: number | undefined
@@ -28,7 +28,7 @@ export function useEventConnection(onEvent?: (event: SwitchyardEvent) => void) {
     )
     socket.addEventListener('message', (message) => {
       try {
-        const event = JSON.parse(String(message.data)) as SwitchyardEvent
+        const event = JSON.parse(String(message.data)) as EnvariumEvent
         if (typeof event.sequence === 'number')
           lastSequence = Math.max(lastSequence, event.sequence)
         onEvent?.(event)

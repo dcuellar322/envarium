@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/settings/domain"
+	"envarium.dev/envarium/internal/settings/domain"
 )
 
 func TestSettingsLifecycleRestartEffectsAndRootAuthorization(t *testing.T) {

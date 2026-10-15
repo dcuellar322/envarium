@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/team/domain"
+	"envarium.dev/envarium/internal/team/domain"
 )
 
 func TestEncryptedSyncRoundTripAndWrongIdentity(t *testing.T) {

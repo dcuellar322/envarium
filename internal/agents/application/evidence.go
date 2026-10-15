@@ -11,8 +11,8 @@ import (
 	"sort"
 	"strings"
 
-	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
+	discoveryDomain "envarium.dev/envarium/internal/discovery/domain"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
 )
 
 const maxExcerptBytes = 4 << 10
@@ -121,7 +121,7 @@ func buildEvidenceItem(ctx context.Context, source discoveryEvidence, root strin
 		Location: source.Location, Confidence: source.Confidence, Data: data,
 		Warnings: append([]string(nil), source.Warnings...),
 	}
-	if reader == nil || source.Kind == "switchyard.manifest" || sensitivePath(source.SourcePath) {
+	if reader == nil || source.Kind == "envarium.manifest" || sensitivePath(source.SourcePath) {
 		return item, redactions, nil
 	}
 	excerpt, truncated, readErr := reader.ReadExcerpt(ctx, root, source.SourcePath, source.Location, maxExcerptBytes)

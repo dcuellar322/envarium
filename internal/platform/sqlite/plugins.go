@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	pluginsApplication "switchyard.dev/switchyard/internal/plugins/application"
-	"switchyard.dev/switchyard/internal/plugins/domain"
+	pluginsApplication "envarium.dev/envarium/internal/plugins/application"
+	"envarium.dev/envarium/internal/plugins/domain"
 )
 
 // PluginRepository persists reviewed external-process identities and health.

@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	observabilityAdapters "switchyard.dev/switchyard/internal/observability/adapters"
-	observability "switchyard.dev/switchyard/internal/observability/domain"
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	observabilityAdapters "envarium.dev/envarium/internal/observability/adapters"
+	observability "envarium.dev/envarium/internal/observability/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestLogStoreRedactsLivePersistedExportAndDiagnosticQueries(t *testing.T) {
@@ -158,7 +158,7 @@ func TestLogStoreRecoveryCannotDeleteThroughStagedSymlink(t *testing.T) {
 func newTestLogStore(t *testing.T, config LogStoreConfig) (*Database, *LogStore, string) {
 	t.Helper()
 	root := t.TempDir()
-	database, err := Open(context.Background(), filepath.Join(root, "switchyard.db"))
+	database, err := Open(context.Background(), filepath.Join(root, "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

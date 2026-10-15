@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
+	"envarium.dev/envarium/internal/runtime/domain"
 	"github.com/moby/moby/api/pkg/stdcopy"
 	"github.com/moby/moby/api/types/container"
-	"switchyard.dev/switchyard/internal/runtime/domain"
 )
 
 func TestStreamContainerLogsPreservesIdentityAndStreams(t *testing.T) {

@@ -7,7 +7,7 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-This document records the v1 review of Switchyard's local trust boundaries.
+This document records the v1 review of Envarium's local trust boundaries.
 The secure default is a single user operating approved local repositories;
 repository content, browser pages, processes, containers, plugins, agents, and
 AI output are not trusted merely because they are local.

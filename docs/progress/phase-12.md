@@ -1,6 +1,6 @@
 ---
 title: "Phase 12: Resource and storage intelligence"
-description: Implementation evidence for Switchyard product phase 12.
+description: Implementation evidence for Envarium product phase 12.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -37,7 +37,7 @@ lastVerified: 2026-07-17
 - Replaced the dashboard fan-out with one resource overview query, separate
   cached storage query, retained time-series charts with visible gaps and an
   accessible table, project/service consumers, sustained warnings, retention
-  facts, and Switchyard's own footprint.
+  facts, and Envarium's own footprint.
 - Replaced the project Storage placeholder with real project-scoped resource
   navigation. Project overview and service rows now distinguish unavailable
   CPU/memory and link into durable `?project=` history/storage context.
@@ -138,7 +138,7 @@ For live verification, the release binary ran against an isolated data
 directory and Unix socket for 32 seconds. It measured `0.0%` CPU and `22.8 MiB`
 RSS, below both idle targets. A request to `/api/v1/resources` over that socket
 returned the empty-project overview, actual Docker storage inventory,
-Switchyard footprint, default retention policy, and explicit attribution
+Envarium footprint, default retention policy, and explicit attribution
 warning without starting or mutating any project.
 
 ## Known limitations and deferred work

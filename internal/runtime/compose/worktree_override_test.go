@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestPortOverrideYAMLUsesExactLeasesWithoutEnvironment(t *testing.T) {

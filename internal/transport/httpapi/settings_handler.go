@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	settingsApplication "switchyard.dev/switchyard/internal/settings/application"
-	settingsDomain "switchyard.dev/switchyard/internal/settings/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	settingsApplication "envarium.dev/envarium/internal/settings/application"
+	settingsDomain "envarium.dev/envarium/internal/settings/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) GetDaemonSettings(w http.ResponseWriter, r *http.Request) {

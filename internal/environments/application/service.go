@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/environments/domain"
-	routingDomain "switchyard.dev/switchyard/internal/routing/domain"
+	"envarium.dev/envarium/internal/environments/domain"
+	routingDomain "envarium.dev/envarium/internal/routing/domain"
 )
 
 var (

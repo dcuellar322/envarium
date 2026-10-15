@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) CreateBrowserBootstrapToken(w http.ResponseWriter, r *http.Request) {

@@ -14,7 +14,7 @@ func TestVersionCommand(t *testing.T) {
 	if err := Execute(context.Background(), []string{"version"}, &output, &output); err != nil {
 		t.Fatalf("Execute() error = %v", err)
 	}
-	if !strings.HasPrefix(output.String(), "Switchyard dev") {
+	if !strings.HasPrefix(output.String(), "Envarium dev") {
 		t.Fatalf("output = %q", output.String())
 	}
 }

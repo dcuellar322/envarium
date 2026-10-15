@@ -1,6 +1,6 @@
 ---
 title: "Phase 18: Cross-platform hardening and open-source v1.0"
-description: Implementation evidence for Switchyard product phase 18.
+description: Implementation evidence for Envarium product phase 18.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-20
@@ -147,7 +147,7 @@ Fresh verification from this checkout passed:
   found no known JavaScript vulnerabilities. A local RustSec scan of all 533
   locked desktop crates found no vulnerability advisories. It reported 17
   informational maintenance/unsoundness warnings in Tauri transitive crates;
-  the affected `glib::VariantStrIter` API is not used by Switchyard and the
+  the affected `glib::VariantStrIter` API is not used by Envarium and the
   patched `glib` series is not compatible with the latest Tauri Linux GTK3
   graph. The security workflow scans the nested desktop lockfile so upstream
   fixes cannot pass unnoticed.

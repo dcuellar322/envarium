@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
+	agents "envarium.dev/envarium/internal/agents/application"
 )
 
 // AgentRunRepository persists assisted-onboarding evidence receipts and review results.

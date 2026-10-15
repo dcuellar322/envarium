@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/telemetry/domain"
+	"envarium.dev/envarium/internal/telemetry/domain"
 )
 
 func TestTelemetryRepositoryDefaultsDisabledAndClearsOnOptOut(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

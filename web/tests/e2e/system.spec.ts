@@ -35,7 +35,7 @@ test('renders the alpha shell, keyboard palette, and live daemon settings', asyn
 
   await page.getByRole('link', { name: 'Settings' }).click()
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
-  await expect(page.getByText('Switchyard daemon')).toBeVisible()
+  await expect(page.getByText('Envarium daemon')).toBeVisible()
   await expect(page.getByText('ready', { exact: true })).toBeVisible()
   await expect(page.getByText('API / schema')).toBeVisible()
   await expect(page.getByText(/Revision \d+/)).toBeVisible()

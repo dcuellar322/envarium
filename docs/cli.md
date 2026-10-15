@@ -1,15 +1,15 @@
 ---
-title: Switchyard CLI contract
-description: Commands, automation modes, JSON envelopes, and exit codes for the Switchyard CLI.
+title: Envarium CLI contract
+description: Commands, automation modes, JSON envelopes, and exit codes for the Envarium CLI.
 category: reference
 audience: [user, integrator]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
 lastVerified: 2026-07-17
-searchTerms: [switchyard command, jsonl, exit code, shell completion]
+searchTerms: [envarium command, jsonl, exit code, shell completion]
 ---
 
-The `switchyard` binary is both the daemon and its terminal client. Client
+The `envarium` binary is both the daemon and its terminal client. Client
 commands use private local IPC and start the same binary as a detached daemon
 when no healthy daemon is already listening. The command result does not change
 based on which process started the daemon.
@@ -17,42 +17,42 @@ based on which process started the daemon.
 ## Project and operation commands
 
 ```text
-switchyard list
-switchyard add <repository>
-switchyard project list
-switchyard project get <id|unique-slug|path>
-switchyard project add <repository> [--allow-outside-roots]
-switchyard project trust <project> --yes
-switchyard project remove <project> --yes
+envarium list
+envarium add <repository>
+envarium project list
+envarium project get <id|unique-slug|path>
+envarium project add <repository> [--allow-outside-roots]
+envarium project trust <project> --yes
+envarium project remove <project> --yes
 
-switchyard operation list [--project <project>] [--limit 100]
-switchyard operation get <operation-id>
-switchyard operation cancel <operation-id>
+envarium operation list [--project <project>] [--limit 100]
+envarium operation get <operation-id>
+envarium operation cancel <operation-id>
 
-switchyard manifest explain <project>
-switchyard manifest diff <project>
-switchyard manifest validate <project>
-switchyard open <project> [--print]
-switchyard ui [--path /projects/<id>]
-switchyard plugin list
-switchyard plugin refresh
-switchyard machine list
-switchyard machine show <machine>
-switchyard machine probe <machine>
-switchyard machine snapshot <machine>
-switchyard doctor
-switchyard doctor --bundle --preview
-switchyard doctor --bundle [--output <new-file.zip>]
-switchyard debug logs [--level debug|info|warn|error] [--limit 200]
-switchyard settings show
-switchyard settings export <new-json-file>
-switchyard settings apply <json-file> --yes
+envarium manifest explain <project>
+envarium manifest diff <project>
+envarium manifest validate <project>
+envarium open <project> [--print]
+envarium ui [--path /projects/<id>]
+envarium plugin list
+envarium plugin refresh
+envarium machine list
+envarium machine show <machine>
+envarium machine probe <machine>
+envarium machine snapshot <machine>
+envarium doctor
+envarium doctor --bundle --preview
+envarium doctor --bundle [--output <new-file.zip>]
+envarium debug logs [--level debug|info|warn|error] [--limit 200]
+envarium settings show
+envarium settings export <new-json-file>
+envarium settings apply <json-file> --yes
 ```
 
 Selection checks opaque ID first, then an exact unique slug, then a canonical
 repository path. Missing and ambiguous selections fail instead of guessing.
 Catalog removal never changes repository files. Trust and removal require
-`--yes`; Switchyard does not hide an interactive confirmation inside automation
+`--yes`; Envarium does not hide an interactive confirmation inside automation
 mode.
 
 Project discovery is confined to the canonical roots shown in Settings. The
@@ -80,7 +80,7 @@ remote origins, fragments, dot segments, backslashes, and caller-supplied
 bootstrap credentials are rejected. The native desktop adapter uses the same
 command after its compatibility preflight.
 
-`switchyard desktop snapshot --json` is a versioned, bounded native-adapter
+`envarium desktop snapshot --json` is a versioned, bounded native-adapter
 contract containing daemon identity, project runtime/health summaries,
 workspaces, recent operations, diagnostic alerts, host pressure, and
 port-conflict count. It is
@@ -99,14 +99,14 @@ audited operation. No plugin command exposes an arbitrary shell.
 Remote-machine commands are optional and preserve local-only operation:
 
 ```text
-switchyard machine add <name> <https-endpoint> --server-fingerprint <sha256>
+envarium machine add <name> <https-endpoint> --server-fingerprint <sha256>
   --ca <absolute-path> --client-certificate <absolute-path>
   --client-key <absolute-path> [--grant inventory.read] --yes
-switchyard machine access <machine> --grant inventory.read
+envarium machine access <machine> --grant inventory.read
   [--grant project.operate] [--grant environment.manage] --yes
-switchyard machine disable <machine> --yes
-switchyard machine remove <machine> --yes
-switchyard machine run <machine> <remote-project> <start|stop|restart|rebuild>
+envarium machine disable <machine> --yes
+envarium machine remove <machine> --yes
+envarium machine run <machine> <remote-project> <start|stop|restart|deploy|kill|rebuild>
   [--environment <remote-environment>] [--request-id <stable-id>] --yes
 ```
 
@@ -120,24 +120,24 @@ trust model.
 Signed shared configuration is optional and remains independent of federation:
 
 ```text
-switchyard team publisher list
-switchyard team publisher trust --name <name> --public-key <base64> --yes
-switchyard team key generate --output <new-private-key-file>
-switchyard team bundle sign <kind> <bundle-id> --name <name> --version <version>
+envarium team publisher list
+envarium team publisher trust --name <name> --public-key <base64> --yes
+envarium team key generate --output <new-private-key-file>
+envarium team bundle sign <kind> <bundle-id> --name <name> --version <version>
   --payload <json> --key <private-key-file> --output <new-bundle-file>
-switchyard team bundle install <bundle-file> --yes
-switchyard team template render <bundle> --set name=value
-switchyard team policy
-switchyard team registry
-switchyard team sync key-generate --output <new-age-identity>
-switchyard team sync export --recipient <age-recipient> --output <new-age-file>
-switchyard team sync preview <age-file> --identity <age-identity>
-switchyard team sync import <age-file> --identity <age-identity> --yes
+envarium team bundle install <bundle-file> --yes
+envarium team template render <bundle> --set name=value
+envarium team policy
+envarium team registry
+envarium team sync key-generate --output <new-age-identity>
+envarium team sync export --recipient <age-recipient> --output <new-age-file>
+envarium team sync preview <age-file> --identity <age-identity>
+envarium team sync import <age-file> --identity <age-identity> --yes
 
-switchyard telemetry status
-switchyard telemetry enable --endpoint <https-url> --yes
-switchyard telemetry send
-switchyard telemetry disable
+envarium telemetry status
+envarium telemetry enable --endpoint <https-url> --yes
+envarium telemetry send
+envarium telemetry disable
 ```
 
 Private signing keys and age identities are written only as new owner-only
@@ -150,21 +150,21 @@ nothing until explicit opt-in. See the
 ## Diagnosis and safe automation
 
 ```text
-switchyard diagnose <project> [--provider <configured-provider>]
-switchyard diagnose latest <project>
-switchyard diagnose feedback <diagnosis> <hypothesis>
+envarium diagnose <project> [--provider <configured-provider>]
+envarium diagnose latest <project>
+envarium diagnose feedback <diagnosis> <hypothesis>
   --verdict accurate|false_positive [--note <local-note>]
-switchyard diagnose run <diagnosis> <action> --yes
-switchyard diagnose notifications [project] [--all]
-switchyard diagnose notifications acknowledge <notification>
+envarium diagnose run <diagnosis> <action> --yes
+envarium diagnose notifications [project] [--all]
+envarium diagnose notifications acknowledge <notification>
 
-switchyard automation list [project]
-switchyard automation create <project> <action>
+envarium automation list [project]
+envarium automation create <project> <action>
   --name <name> --trigger <deterministic-code>
   [--cooldown 3600] [--max-per-day 3]
-switchyard automation enable <recipe> --yes
-switchyard automation disable <recipe>
-switchyard automation evaluate <project>
+envarium automation enable <recipe> --yes
+envarium automation disable <recipe>
+envarium automation evaluate <project>
 ```
 
 Diagnosis always collects a bounded redacted bundle and runs deterministic
@@ -190,25 +190,25 @@ Trusted Compose and native-process projects expose live runtime queries and
 durable lifecycle operations:
 
 ```text
-switchyard status <project>
-switchyard plan <start|stop|restart|pause|unpause|rebuild|teardown> <project> [--profile name]
-switchyard start|rebuild <project> [--profile name]
-switchyard stop|restart|pause|unpause <project>
-switchyard teardown <project> [--volumes] --yes
-switchyard logs <project> [--service name] [--since 10m] [--run id] [--operation id] [--tail 200]
-switchyard logs <project> [--service name] [--run id] [--operation id] --export plain|ndjson
-switchyard metrics <project> [--service name]
+envarium status <project>
+envarium plan <start|stop|restart|deploy|kill|pause|unpause|rebuild|teardown> <project> [--profile name]
+envarium start|deploy|rebuild <project> [--profile name]
+envarium stop|restart|kill|pause|unpause <project>
+envarium teardown <project> [--volumes] --yes
+envarium logs <project> [--service name] [--since 10m] [--run id] [--operation id] [--tail 200]
+envarium logs <project> [--service name] [--run id] [--operation id] --export plain|ndjson
+envarium metrics <project> [--service name]
 ```
 
 ## Ports, Git, and trusted actions
 
 ```text
-switchyard ports list
-switchyard ports next [--range 15000-19999] [--protocol tcp|udp]
+envarium ports list
+envarium ports next [--range 15000-19999] [--protocol tcp|udp]
   [--project <project>] [--exclude 15001,15002]
-switchyard git <project>
-switchyard action list <project>
-switchyard action run <project> <action> [--yes] [--allow-outside-root]
+envarium git <project>
+envarium action list <project>
+envarium action run <project> <action> [--yes] [--allow-outside-root]
 ```
 
 `ports list` combines accepted declarations, persistent stopped-project
@@ -231,10 +231,16 @@ are confined to the trusted root after symlink resolution unless the caller
 also supplies the explicit `--allow-outside-root` permission.
 
 Lifecycle commands return a durable operation immediately. Read it with
-`switchyard operation get <id>` or list recent project operations. `stop`
+`envarium operation get <id>` or list recent project operations. `stop`
 preserves containers and volumes. `teardown` is destructive, requires `--yes`,
 and removes volumes only when the reviewed plan and operation include
 `--volumes`.
+
+`deploy` reconciles the trusted current definition: Compose pulls newer images,
+force-recreates declared services, removes orphans, and preserves volumes;
+native-process services restart from their current manifest definition. `kill`
+force-stops selected services without a graceful timeout, while retaining the
+same ownership checks and operation audit trail.
 
 Compose discovery records profile names without adding their services to the
 default topology. `start` and `rebuild` may opt into one or more names declared
@@ -243,7 +249,7 @@ Start control presents the same allowlisted choices. A project-wide `stop` and
 `teardown` select all Compose profiles, so optional services started during the
 run are not left behind.
 
-Native process runtimes support `start`, `stop`, and `restart`. They reject
+Native process runtimes support `start`, `stop`, `restart`, `deploy`, and `kill`. They reject
 container-only pause, unpause, rebuild, teardown, and volume semantics. Start
 plans show executable, argument array, working directory, environment-key
 count, and keychain-reference count without revealing environment values.
@@ -262,7 +268,7 @@ Daemon log bounds and extra redaction rules are configurable without changing
 project manifests:
 
 ```text
-switchyard daemon \
+envarium daemon \
   --log-ring-entries 2000 \
   --log-segment-bytes 1048576 \
   --log-retention-age 168h \
@@ -277,11 +283,11 @@ administrative metadata, projects monorepo subdirectories into every checkout,
 and persists stable environment identities and isolation allocations:
 
 ```text
-switchyard environment list <project>
-switchyard environment register <project>
-switchyard environment get <environment-id>
-switchyard environment hostname <environment-id> <name.localhost>
-switchyard environment routes
+envarium environment list <project>
+envarium environment register <project>
+envarium environment get <environment-id>
+envarium environment hostname <environment-id> <name.localhost>
+envarium environment routes
 ```
 
 Workspaces are reviewed JSON graph documents. Members may be trusted project
@@ -289,14 +295,14 @@ IDs or registered environment IDs. Dependencies must be acyclic; profiles can
 select a dependency-closed subset and cap parallelism.
 
 ```text
-switchyard workspace list
-switchyard workspace get <workspace-id>
-switchyard workspace create <definition.json>
-switchyard workspace update <workspace-id> <update.json>
-switchyard workspace delete <workspace-id> --yes
-switchyard workspace start <workspace-id> [--policy rollback|continue]
+envarium workspace list
+envarium workspace get <workspace-id>
+envarium workspace create <definition.json>
+envarium workspace update <workspace-id> <update.json>
+envarium workspace delete <workspace-id> --yes
+envarium workspace start <workspace-id> [--policy rollback|continue]
   [--profile <profile-id>] [--run-recipes]
-switchyard workspace stop <workspace-id> [--profile <profile-id>]
+envarium workspace stop <workspace-id> [--profile <profile-id>]
   [--remove-data --yes]
 ```
 
@@ -322,12 +328,12 @@ All query and mutation commands accept global flags after or before the command:
 --no-color         suppress ANSI output
 ```
 
-Switchyard currently emits no ANSI sequences when output is redirected, and
+Envarium currently emits no ANSI sequences when output is redirected, and
 all Phase 4 commands are prompt-free. JSON has this top-level shape:
 
 ```json
 {
-  "schemaVersion": "switchyard.cli/v1",
+  "schemaVersion": "envarium.cli/v1",
   "command": "project.get",
   "data": {}
 }
@@ -337,7 +343,7 @@ Errors are written to stderr as one object when `--json` or `--jsonl` is set:
 
 ```json
 {
-  "schemaVersion": "switchyard.cli/v1",
+  "schemaVersion": "envarium.cli/v1",
   "error": {
     "code": "PROJECT_NOT_FOUND",
     "message": "project ... was not found by ID, slug, or path",
@@ -346,8 +352,8 @@ Errors are written to stderr as one object when `--json` or `--jsonl` is set:
 }
 ```
 
-`switchyard schema cli <command>` prints the current draft 2020-12 envelope
-schema and its generated OpenAPI data-model reference. Use `switchyard
+`envarium schema cli <command>` prints the current draft 2020-12 envelope
+schema and its generated OpenAPI data-model reference. Use `envarium
 completion bash|zsh|fish|powershell` to generate shell completion.
 
 ## Exit codes
@@ -366,13 +372,13 @@ operation behavior remains in application services behind the generated local
 API.
 ## Offline data and manifest migration
 
-`switchyard data inspect`, `data backup`, and `data migrate` operate directly
+`envarium data inspect`, `data backup`, and `data migrate` operate directly
 on the configured data directory without starting the daemon. Inspection and
 migration preview are read-only. `data migrate --write` requires the daemon to
 be stopped and creates a verified non-overwriting pre-migration backup before
 changing schema. `data backup --output <path>` refuses to overwrite its output.
 
-`switchyard manifest migrate <path>` previews the stable v1 YAML. `--write`
+`envarium manifest migrate <path>` previews the stable v1 YAML. `--write`
 creates a `.v1alpha1.bak` copy and atomically replaces the source. These
 commands follow the same JSON envelope and semantic error behavior as other
 CLI groups.

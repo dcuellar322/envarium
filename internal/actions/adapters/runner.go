@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/actions/domain"
+	"envarium.dev/envarium/internal/actions/domain"
 )
 
 // ErrPrivilegeEscalation rejects action definitions that invoke sudo or doas.

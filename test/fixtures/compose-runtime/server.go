@@ -38,7 +38,7 @@ func run() error {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = fmt.Fprintln(w, "switchyard compose runtime fixture")
+		_, _ = fmt.Fprintln(w, "envarium compose runtime fixture")
 	})
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) { _, _ = fmt.Fprintln(w, "ok") })
 	server := &http.Server{Addr: ":8080", Handler: mux, ReadHeaderTimeout: 2 * time.Second}

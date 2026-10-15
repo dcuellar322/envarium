@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 // ProjectEnvironments lists durable worktree registrations for one project.

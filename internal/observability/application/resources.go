@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/observability/domain"
+	"envarium.dev/envarium/internal/observability/domain"
 )
 
 const (

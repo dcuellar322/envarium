@@ -61,7 +61,7 @@ func inspect(root string) ([]finding, error) {
 		contains []string
 	}{
 		{path: "LICENSE", contains: []string{"Apache License", "Version 2.0, January 2004"}},
-		{path: "NOTICE", contains: []string{"Switchyard", "Switchyard contributors"}},
+		{path: "NOTICE", contains: []string{"Envarium", "Envarium contributors"}},
 		{path: ".reuse/dep5", contains: []string{"Format:", "Files: *", "License: Apache-2.0"}},
 		{path: "package.json", contains: []string{`"license": "Apache-2.0"`}},
 		{path: "desktop/src-tauri/Cargo.toml", contains: []string{`license = "Apache-2.0"`}},
@@ -115,7 +115,7 @@ func inspect(root string) ([]finding, error) {
 
 func inspectGovernance(root string) []finding {
 	required := []string{
-		"AGENTS.md", "SWITCHYARD_IMPLEMENTATION_PLAN.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md", "SUPPORT.md",
+		"AGENTS.md", "ENVARIUM_IMPLEMENTATION_PLAN.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md", "SUPPORT.md",
 		".github/ISSUE_TEMPLATE/bug_report.yml", ".github/ISSUE_TEMPLATE/feature_request.yml", ".github/pull_request_template.md",
 		".github/workflows/ci.yml", ".github/workflows/nightly.yml", ".github/workflows/release.yml", ".github/workflows/security.yml",
 		"docs/getting-started.md", "docs/desktop-installation.md", "docs/manifest-reference.md", "docs/cli.md", "docs/mcp.md",
@@ -186,7 +186,7 @@ func inspectProgressEvidence(path string, contents []byte) []finding {
 
 func ignoredDirectory(name string) bool {
 	switch name {
-	case ".git", ".cache", ".switchyard-data", "bin", "coverage", "dist", "node_modules", "playwright-report", "target", "test-results":
+	case ".git", ".cache", ".envarium-data", "bin", "coverage", "dist", "node_modules", "playwright-report", "target", "test-results":
 		return true
 	default:
 		return false

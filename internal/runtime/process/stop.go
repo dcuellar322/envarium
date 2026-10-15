@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func (d *Driver) stopAll(ctx context.Context, plan executionPlan, sink domain.ProgressSink, reason string) error {
@@ -75,6 +75,10 @@ func (d *Driver) stopRun(ctx context.Context, run domain.RunRecord, timeout time
 	if forced {
 		reason += "_forced"
 	}
+	return d.finishStoppedRun(ctx, run, managed, reason)
+}
+
+func (d *Driver) finishStoppedRun(ctx context.Context, run domain.RunRecord, managed *managedRun, reason string) error {
 	endedAt := d.now().UTC()
 	if err := d.store.FinishRun(context.WithoutCancel(ctx), run.ID, endedAt, nil, reason); err != nil {
 		return err

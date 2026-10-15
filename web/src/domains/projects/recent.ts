@@ -1,4 +1,4 @@
-const storageKey = 'switchyard.recent-projects.v1'
+const storageKey = 'envarium.recent-projects.v1'
 
 type RecentMap = Record<string, string>
 

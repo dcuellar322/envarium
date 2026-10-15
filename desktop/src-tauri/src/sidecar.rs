@@ -83,7 +83,7 @@ impl<R: Runtime> Sidecar<R> {
         let output = self
             .app
             .shell()
-            .sidecar("switchyard")
+            .sidecar("envarium")
             .map_err(|error| SidecarError(format!("bundled sidecar unavailable: {error}")))?
             .args(complete_args)
             .output()
@@ -135,7 +135,7 @@ fn validate_envelope<T>(
     envelope: &Envelope<T>,
     expected_command: &str,
 ) -> Result<(), SidecarError> {
-    if envelope.schema_version != "switchyard.cli/v1" || envelope.command != expected_command {
+    if envelope.schema_version != "envarium.cli/v1" || envelope.command != expected_command {
         return Err(SidecarError(
             "sidecar response is incompatible with this desktop shell".into(),
         ));

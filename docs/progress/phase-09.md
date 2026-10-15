@@ -1,6 +1,6 @@
 ---
 title: "Phase 9: Dashboard alpha"
-description: Implementation evidence for Switchyard product phase 9.
+description: Implementation evidence for Envarium product phase 9.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -94,7 +94,7 @@ through typed server operations; Vue components do not know command syntax.
 go test ./internal/runtime/compose -count=1
 PASS
 
-SWITCHYARD_DOCKER_INTEGRATION=1 go test -tags=integration ./test/integration \
+ENVARIUM_DOCKER_INTEGRATION=1 go test -tags=integration ./test/integration \
   -run TestComposeRuntimeLifecycleObservationLogsMetricsAndExternalRecognition
 PASS: lifecycle, ownership, logs, metrics, pause, restart, rebuild, volumes,
 and external recognition against Docker Engine

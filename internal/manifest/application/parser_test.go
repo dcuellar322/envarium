@@ -8,7 +8,7 @@ import (
 func TestParseYAMLRejectsUnknownFields(t *testing.T) {
 	t.Parallel()
 	_, err := ParseYAML([]byte(`
-schemaVersion: switchyard.dev/v1alpha1
+schemaVersion: envarium.dev/v1alpha1
 kind: Project
 metadata:
   id: example
@@ -25,7 +25,7 @@ repository:
 func TestParseYAMLRejectsImplicitShellAndDependencyCycles(t *testing.T) {
 	t.Parallel()
 	_, err := ParseYAML([]byte(`
-schemaVersion: switchyard.dev/v1alpha1
+schemaVersion: envarium.dev/v1alpha1
 kind: Project
 metadata: {id: unsafe, name: Unsafe}
 repository: {root: .}
@@ -51,7 +51,7 @@ services:
 func TestParseYAMLAcceptsKeychainReferencesWithoutSecretValues(t *testing.T) {
 	t.Parallel()
 	manifest, err := ParseYAML([]byte(`
-schemaVersion: switchyard.dev/v1alpha1
+schemaVersion: envarium.dev/v1alpha1
 kind: Project
 metadata: {id: safe, name: Safe}
 repository: {root: .}
@@ -59,7 +59,7 @@ runtime:
   driver: process
   process:
     secrets:
-      API_TOKEN: {provider: keychain, key: switchyard-test, account: developer}
+      API_TOKEN: {provider: keychain, key: envarium-test, account: developer}
     processes:
       - id: api
         command: [uv, run, app.py]
@@ -70,7 +70,7 @@ services:
 	if err != nil {
 		t.Fatal(err)
 	}
-	if manifest.Runtime.Process.Secrets["API_TOKEN"].Key != "switchyard-test" {
+	if manifest.Runtime.Process.Secrets["API_TOKEN"].Key != "envarium-test" {
 		t.Fatalf("secret reference = %#v", manifest.Runtime.Process.Secrets)
 	}
 }

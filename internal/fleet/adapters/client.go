@@ -16,15 +16,15 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/fleet/domain"
-	"switchyard.dev/switchyard/internal/foundation/secretfile"
+	"envarium.dev/envarium/internal/fleet/domain"
+	"envarium.dev/envarium/internal/foundation/secretfile"
 )
 
 const maximumRemoteResponse = 1 << 20
 
 // HTTPSPeerClient connects directly to an explicitly configured peer endpoint.
 // An operator-provided tunnel may carry that connection, but TLS identity and
-// application authorization remain Switchyard responsibilities.
+// application authorization remain Envarium responsibilities.
 type HTTPSPeerClient struct{ timeout time.Duration }
 
 // NewHTTPSPeerClient creates a bounded peer client.

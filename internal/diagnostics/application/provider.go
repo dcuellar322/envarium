@@ -12,10 +12,10 @@ import (
 	invopop "github.com/invopop/jsonschema"
 	validator "github.com/santhosh-tekuri/jsonschema/v6"
 
-	"switchyard.dev/switchyard/internal/diagnostics/domain"
+	"envarium.dev/envarium/internal/diagnostics/domain"
 )
 
-const providerOutputVersion = "switchyard.dev/ai-diagnosis/v1alpha1"
+const providerOutputVersion = "envarium.dev/ai-diagnosis/v1alpha1"
 
 type providerHypothesis struct {
 	ID          string   `json:"id" jsonschema:"required,pattern=^[a-zA-Z0-9._-]+$,maxLength=80"`
@@ -28,7 +28,7 @@ type providerHypothesis struct {
 }
 
 type providerOutput struct {
-	Version    string               `json:"version" jsonschema:"required,enum=switchyard.dev/ai-diagnosis/v1alpha1"`
+	Version    string               `json:"version" jsonschema:"required,enum=envarium.dev/ai-diagnosis/v1alpha1"`
 	Hypotheses []providerHypothesis `json:"hypotheses" jsonschema:"required,maxItems=10"`
 	Warnings   []string             `json:"warnings" jsonschema:"required,maxItems=10"`
 }
@@ -36,7 +36,7 @@ type providerOutput struct {
 func providerOutputSchema() (json.RawMessage, error) {
 	reflector := invopop.Reflector{AllowAdditionalProperties: false, RequiredFromJSONSchemaTags: true}
 	schema := reflector.Reflect(&providerOutput{})
-	schema.ID = invopop.ID("https://switchyard.dev/schema/ai-diagnosis.v1alpha1.json")
+	schema.ID = invopop.ID("https://envarium.dev/schema/ai-diagnosis.v1alpha1.json")
 	encoded, err := json.Marshal(schema)
 	if err != nil {
 		return nil, fmt.Errorf("encode AI diagnosis schema: %w", err)

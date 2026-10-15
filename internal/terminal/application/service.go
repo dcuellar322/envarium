@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	"switchyard.dev/switchyard/internal/terminal/domain"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/terminal/domain"
 )
 
 var (

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/routing/domain"
+	"envarium.dev/envarium/internal/routing/domain"
 )
 
 func TestProxyForwardsActiveRouteToLoopbackHTTP(t *testing.T) {

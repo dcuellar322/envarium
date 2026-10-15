@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"envarium.dev/envarium/internal/runtime/domain"
 	"golang.org/x/sync/singleflight"
-	"switchyard.dev/switchyard/internal/runtime/domain"
 )
 
 const observationCoalescingWindow = time.Second

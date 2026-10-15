@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/platform/processgroup"
+	"envarium.dev/envarium/internal/platform/processgroup"
 )
 
 // Command is an argument-array subprocess request with a deliberately small environment.

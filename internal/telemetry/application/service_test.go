@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/telemetry/domain"
+	"envarium.dev/envarium/internal/telemetry/domain"
 )
 
 func TestTelemetryRequiresConsentAndEmitsOnlyFixedCounters(t *testing.T) {

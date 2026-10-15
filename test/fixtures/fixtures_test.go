@@ -10,10 +10,10 @@ import (
 	"strings"
 	"testing"
 
-	discoveryAdapters "switchyard.dev/switchyard/internal/discovery/adapters"
-	discovery "switchyard.dev/switchyard/internal/discovery/application"
-	discoveryDomain "switchyard.dev/switchyard/internal/discovery/domain"
-	manifest "switchyard.dev/switchyard/internal/manifest/application"
+	discoveryAdapters "envarium.dev/envarium/internal/discovery/adapters"
+	discovery "envarium.dev/envarium/internal/discovery/application"
+	discoveryDomain "envarium.dev/envarium/internal/discovery/domain"
+	manifest "envarium.dev/envarium/internal/manifest/application"
 )
 
 var requiredScenarios = []string{
@@ -46,7 +46,7 @@ func TestImplementationPlanFixtureInventory(t *testing.T) {
 
 func TestPortableFixtureManifestsAreStrictAndValid(t *testing.T) {
 	t.Parallel()
-	paths, err := filepath.Glob(filepath.Join("*", ".switchyard", "project.yml"))
+	paths, err := filepath.Glob(filepath.Join("*", ".envarium", "project.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -132,7 +132,7 @@ func TestAdversarialFixturesRemainInertAndSecretFree(t *testing.T) {
 			}
 		}
 	}
-	if _, err := os.Stat("/tmp/switchyard-malicious-readme-executed"); !errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Stat("/tmp/envarium-malicious-readme-executed"); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("adversarial README sentinel exists: %v", err)
 	}
 }

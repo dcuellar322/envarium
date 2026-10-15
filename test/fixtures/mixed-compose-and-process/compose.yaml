@@ -1,4 +1,4 @@
-name: switchyard-mixed-runtime-fixture
+name: envarium-mixed-runtime-fixture
 
 services:
   database:

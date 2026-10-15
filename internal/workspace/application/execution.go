@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	"switchyard.dev/switchyard/internal/workspace/domain"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/workspace/domain"
 )
 
 type projectOutcome struct {

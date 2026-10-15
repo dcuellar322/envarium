@@ -28,7 +28,7 @@ const settings = defineModel<DaemonSettings>({ required: true })
       >
       <label
         >Theme<select v-model="settings.appearance.theme">
-          <option value="dark">Switchyard dark</option>
+          <option value="dark">Envarium dark</option>
           <option value="high-contrast">High contrast</option>
         </select></label
       >

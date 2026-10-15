@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestInspectCoalescesConcurrentObservationsAndReturnsIndependentValues(t *testing.T) {

@@ -5,8 +5,8 @@ import (
 	"io"
 	"net/http"
 
-	operations "switchyard.dev/switchyard/internal/operations/application"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	operations "envarium.dev/envarium/internal/operations/application"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) ListPlugins(w http.ResponseWriter, r *http.Request) {

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"switchyard.dev/switchyard/internal/workspace/domain"
+	"envarium.dev/envarium/internal/workspace/domain"
 )
 
 func (s *Service) executeStop(

@@ -33,7 +33,7 @@ const machine = {
 } as const
 const snapshot = {
   identity: {
-    protocolVersion: 'switchyard.remote/v1',
+    protocolVersion: 'envarium.remote/v1',
     machineId: 'peer-1',
     name: 'Build box',
     version: '1.0.0',
@@ -92,7 +92,7 @@ test('renders authenticated machine inventory and explicit local-first safety', 
 
 test('companion is read-only and omits trust and mutation controls', async () => {
   renderView(true)
-  expect(await screen.findByRole('heading', { name: 'Switchyard companion' })).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Envarium companion' })).toBeInTheDocument()
   expect(await screen.findByText('Example API')).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Add remote machine' })).not.toBeInTheDocument()
   expect(screen.queryByRole('heading', { name: 'Controller grants' })).not.toBeInTheDocument()

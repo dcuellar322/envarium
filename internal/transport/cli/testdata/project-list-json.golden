@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "switchyard.cli/v1",
+  "schemaVersion": "envarium.cli/v1",
   "command": "project.list",
   "data": [
     {

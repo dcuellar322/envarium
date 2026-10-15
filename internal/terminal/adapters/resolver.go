@@ -10,14 +10,14 @@ import (
 	"regexp"
 	"strings"
 
-	actionsApplication "switchyard.dev/switchyard/internal/actions/application"
-	actionsDomain "switchyard.dev/switchyard/internal/actions/domain"
-	catalogApplication "switchyard.dev/switchyard/internal/catalog/application"
-	catalogDomain "switchyard.dev/switchyard/internal/catalog/domain"
-	environmentsDomain "switchyard.dev/switchyard/internal/environments/domain"
-	manifestDomain "switchyard.dev/switchyard/internal/manifest/domain"
-	"switchyard.dev/switchyard/internal/terminal/application"
-	"switchyard.dev/switchyard/internal/terminal/domain"
+	actionsApplication "envarium.dev/envarium/internal/actions/application"
+	actionsDomain "envarium.dev/envarium/internal/actions/domain"
+	catalogApplication "envarium.dev/envarium/internal/catalog/application"
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
+	environmentsDomain "envarium.dev/envarium/internal/environments/domain"
+	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
+	"envarium.dev/envarium/internal/terminal/application"
+	"envarium.dev/envarium/internal/terminal/domain"
 )
 
 var (

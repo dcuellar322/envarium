@@ -1,10 +1,24 @@
 <script setup lang="ts">
-import { ArrowLeft, ExternalLink, Play, RefreshCw, Square, Terminal } from '@lucide/vue'
+import {
+  ArrowLeft,
+  Ban,
+  ExternalLink,
+  Hammer,
+  MoreHorizontal,
+  Pause,
+  Play,
+  RefreshCw,
+  Rocket,
+  Square,
+  Terminal,
+  Trash2,
+} from '@lucide/vue'
 import { ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import type { ActionDefinition, Project, RuntimeAction } from '../../../api/generated/types.gen'
 import { projectInitials, stateLabel } from '../../../lib/format'
+import type { RuntimeSelection } from '../api'
 
 const props = defineProps<{
   project: Project
@@ -18,13 +32,15 @@ const props = defineProps<{
   partial: boolean
   dockerUnavailable: boolean
   availableProfiles: string[]
+  driver?: string
 }>()
 const emit = defineEmits<{
   action: [action: ActionDefinition | undefined]
-  lifecycle: [action: RuntimeAction, profiles: string[]]
+  lifecycle: [action: RuntimeAction, selection: RuntimeSelection]
   terminal: []
 }>()
 const showStartOptions = ref(false)
+const showMore = ref(false)
 const selectedProfiles = ref<string[]>([])
 
 watch(
@@ -36,19 +52,24 @@ watch(
 
 function requestLifecycle() {
   if (props.active) {
-    emit('lifecycle', 'stop', [])
+    queueLifecycle('stop')
     return
   }
   if (props.availableProfiles.length === 0) {
-    emit('lifecycle', 'start', [])
+    queueLifecycle('start')
     return
   }
   showStartOptions.value = true
 }
 
 function startProject() {
-  emit('lifecycle', 'start', [...selectedProfiles.value])
+  queueLifecycle('start', { profiles: [...selectedProfiles.value] })
   closeStartOptions()
+}
+
+function queueLifecycle(action: RuntimeAction, selection: RuntimeSelection = {}) {
+  showMore.value = false
+  emit('lifecycle', action, selection)
 }
 
 function closeStartOptions() {
@@ -101,15 +122,78 @@ function profileLabel(profile: string) {
         v-if="active"
         type="button"
         :disabled="lifecyclePending"
-        @click="$emit('lifecycle', 'restart', [])"
+        @click="queueLifecycle('restart')"
       >
         <RefreshCw :size="16" aria-hidden="true" />Restart
+      </button>
+      <button type="button" :disabled="lifecyclePending" @click="queueLifecycle('deploy')">
+        <Rocket :size="16" aria-hidden="true" />Deploy
       </button>
       <button class="primary" type="button" :disabled="lifecyclePending" @click="requestLifecycle">
         <Square v-if="active" :size="14" fill="currentColor" aria-hidden="true" />
         <Play v-else :size="16" aria-hidden="true" />
         {{ active ? 'Stop' : 'Start' }}
       </button>
+      <div class="lifecycle-menu">
+        <button
+          type="button"
+          aria-label="More lifecycle operations"
+          :aria-expanded="showMore"
+          :disabled="lifecyclePending"
+          @click="showMore = !showMore"
+        >
+          <MoreHorizontal :size="17" aria-hidden="true" />
+        </button>
+        <div
+          v-if="showMore"
+          class="lifecycle-menu__items"
+          role="menu"
+          @keydown.esc="showMore = false"
+        >
+          <button
+            v-if="driver === 'compose' && active && state !== 'paused'"
+            type="button"
+            role="menuitem"
+            @click="queueLifecycle('pause')"
+          >
+            <Pause :size="14" aria-hidden="true" />Pause
+          </button>
+          <button
+            v-if="driver === 'compose' && state === 'paused'"
+            type="button"
+            role="menuitem"
+            @click="queueLifecycle('unpause')"
+          >
+            <Play :size="14" aria-hidden="true" />Resume
+          </button>
+          <button
+            v-if="driver === 'compose'"
+            type="button"
+            role="menuitem"
+            @click="queueLifecycle('rebuild')"
+          >
+            <Hammer :size="14" aria-hidden="true" />Rebuild
+          </button>
+          <button
+            v-if="active"
+            class="danger-text"
+            type="button"
+            role="menuitem"
+            @click="queueLifecycle('kill')"
+          >
+            <Ban :size="14" aria-hidden="true" />Force stop
+          </button>
+          <button
+            v-if="driver === 'compose'"
+            class="danger-text"
+            type="button"
+            role="menuitem"
+            @click="queueLifecycle('teardown')"
+          >
+            <Trash2 :size="14" aria-hidden="true" />Tear down
+          </button>
+        </div>
+      </div>
     </div>
   </header>
   <form

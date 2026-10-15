@@ -1,6 +1,6 @@
 ---
 title: "Phase 1: Walking skeleton and quality pipeline"
-description: Implementation evidence for Switchyard product phase 1.
+description: Implementation evidence for Envarium product phase 1.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -20,7 +20,7 @@ lastVerified: 2026-07-17
   boundary.
 - Built the Vue/Vite walking skeleton with live daemon, version, database, and
   event-stream state using TanStack Query.
-- Added `switchyard version`, `daemon`, `ui`, and `doctor` commands and embedded
+- Added `envarium version`, `daemon`, `ui`, and `doctor` commands and embedded
   the production Vue build in the Go binary.
 - Added pinned toolchains, Make targets, generated-code checks, dependency
   automation, GitHub Actions jobs, linting, vulnerability scanning, unit/race,
@@ -30,7 +30,7 @@ lastVerified: 2026-07-17
 
 ## Files and modules added
 
-- `cmd/switchyard` and `internal/bootstrap` process composition.
+- `cmd/envarium` and `internal/bootstrap` process composition.
 - `internal/foundation`, `internal/system`, and transport adapters under
   `internal/transport`.
 - `internal/platform/sqlite`, `migrations`, `queries`, and generated sqlc code.
@@ -43,7 +43,7 @@ lastVerified: 2026-07-17
 
 - ADR-0001 dependency direction is enforced by `archcheck` and depguard.
 - ADR-0002 keeps application and orchestration logic in Go.
-- ADR-0003 provides one `switchyard` binary with daemon and client subcommands.
+- ADR-0003 provides one `envarium` binary with daemon and client subcommands.
 - ADR-0004 makes OpenAPI and the WebSocket envelope explicit contracts.
 - ADR-0005 uses private local SQLite, sqlc, and forward-only embedded migrations.
 - ADR-0013 restricts the Phase 1 browser server to loopback; authenticated local
@@ -64,7 +64,7 @@ lastVerified: 2026-07-17
 ## Commands run and results
 
 Browser E2E and visual tests use a dedicated, overridable daemon address so the
-quality gate can run while a normal Switchyard daemon is active on port 19616.
+quality gate can run while a normal Envarium daemon is active on port 19616.
 
 ```text
 make generate: passed; OpenAPI, sqlc, and TypeScript outputs reproduced
@@ -76,16 +76,16 @@ make migrate-check: passed from an empty temporary directory
 make vuln: passed; no vulnerabilities found
 make test-e2e: passed; 1 browser test
 make test-visual: passed; 1 visual test
-make build: passed; production Vue assets embedded in bin/switchyard
+make build: passed; production Vue assets embedded in bin/envarium
 GOOS=windows GOARCH=amd64 go test -c ./internal/bootstrap: passed
-packaged smoke test: /api/v1/system, embedded UI, and switchyard doctor passed
+packaged smoke test: /api/v1/system, embedded UI, and envarium doctor passed
 permission smoke test: data directory 0700, lock and database 0600
 shutdown smoke test: SIGINT and Playwright SIGTERM both removed daemon.lock
 ```
 
 ## Acceptance criteria status
 
-- [x] `switchyard daemon` serves an embedded page showing real daemon status.
+- [x] `envarium daemon` serves an embedded page showing real daemon status.
 - [x] Local quality commands and matching CI jobs cover generation, formatting,
   lint, architecture, type, unit, race, migration, vulnerability, browser,
   visual, and release-build gates.
@@ -102,7 +102,7 @@ shutdown smoke test: SIGINT and Playwright SIGTERM both removed daemon.lock
   2 work.
 - The event stream contains only the walking-skeleton connection event; durable
   operation replay begins in Phase 2.
-- `switchyard ui` prints the local URL. Desktop-aware browser launching begins
+- `envarium ui` prints the local URL. Desktop-aware browser launching begins
   in Phase 8.
 
 ## Deferred work
@@ -113,10 +113,10 @@ shutdown smoke test: SIGINT and Playwright SIGTERM both removed daemon.lock
 ## Manual verification
 
 1. Run `make build`.
-2. Run `./bin/switchyard daemon --data-dir .switchyard-data/manual`.
+2. Run `./bin/envarium daemon --data-dir .envarium-data/manual`.
 3. Open `http://127.0.0.1:19616` and confirm daemon, event stream, build, and
    database schema state are live.
-4. Run `./bin/switchyard doctor` in another terminal.
+4. Run `./bin/envarium doctor` in another terminal.
 5. Stop the daemon with Ctrl-C and confirm `daemon.lock` is absent.
 
 ## 2026-07-17 CI stabilization evidence

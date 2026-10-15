@@ -1,18 +1,18 @@
 [package]
-name = "switchyard-desktop"
+name = "envarium-desktop"
 version = "1.0.0"
-description = "Thin native desktop shell for Switchyard"
-authors = ["Switchyard contributors"]
+description = "Thin native desktop shell for Envarium"
+authors = ["Envarium contributors"]
 edition = "2024"
 license = "Apache-2.0"
 publish = false
 
 [lib]
-name = "switchyard_desktop"
+name = "envarium_desktop"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [[bin]]
-name = "switchyard-desktop"
+name = "envarium-desktop"
 path = "src/main.rs"
 
 [build-dependencies]

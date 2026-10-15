@@ -15,7 +15,7 @@ import (
 	"slices"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/team/domain"
+	"envarium.dev/envarium/internal/team/domain"
 )
 
 var portableID = regexp.MustCompile(`^[a-z][a-z0-9.-]{0,127}$`)

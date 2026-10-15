@@ -53,7 +53,7 @@ direct CLI, browser, and MCP operations.
 Worktrees are never registered during deterministic discovery. After project
 trust, an explicit registration reads `git worktree list --porcelain` and
 persists one stable environment per checkout. For a project in a monorepo,
-Switchyard computes its path relative to the primary Git worktree and projects
+Envarium computes its path relative to the primary Git worktree and projects
 that subdirectory into every alternate checkout.
 
 Each environment receives:

@@ -5,12 +5,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
+	manifestApplication "envarium.dev/envarium/internal/manifest/application"
 )
 
 func TestPublishedProjectExamplesValidate(t *testing.T) {
 	t.Parallel()
-	paths, err := filepath.Glob(filepath.Join("..", "examples", "projects", "*", ".switchyard", "project.yml"))
+	paths, err := filepath.Glob(filepath.Join("..", "examples", "projects", "*", ".envarium", "project.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}

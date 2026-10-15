@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/foundation/events"
+	"envarium.dev/envarium/internal/foundation/events"
 )
 
 func TestJournalPersistsReplaysAndPublishes(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	database, err := Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatalf("Open() error = %v", err)
 	}

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"switchyard.dev/switchyard/internal/telemetry/domain"
+	"envarium.dev/envarium/internal/telemetry/domain"
 )
 
 // TelemetryRepository persists consent and anonymous aggregate counters.

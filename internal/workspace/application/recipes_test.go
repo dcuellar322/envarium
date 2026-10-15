@@ -6,7 +6,7 @@ import (
 	"slices"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/workspace/domain"
+	"envarium.dev/envarium/internal/workspace/domain"
 )
 
 func TestExecuteRecipesRunsExplicitRecipesInStableOrder(t *testing.T) {

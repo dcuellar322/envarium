@@ -123,6 +123,33 @@
     color: #07111d;
     font-weight: 800;
   }
+  .lifecycle-menu {
+    position: relative;
+  }
+  .lifecycle-menu__items {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 6px);
+    right: 0;
+    display: grid;
+    width: 170px;
+    padding: 5px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--panel-2);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.42);
+  }
+  .lifecycle-menu__items button {
+    justify-content: flex-start;
+    border: 0;
+    background: transparent;
+  }
+  .lifecycle-menu__items button:hover {
+    background: var(--panel-3);
+  }
+  .lifecycle-menu__items .danger-text {
+    color: var(--red);
+  }
   .start-options {
     display: grid;
     grid-template-columns: minmax(220px, 1fr) auto auto;
@@ -256,7 +283,7 @@
   }
   .service-row {
     display: grid;
-    grid-template-columns: 1.1fr 0.85fr 0.8fr 0.7fr 0.6fr 0.7fr;
+    grid-template-columns: 1.1fr 0.85fr 0.8fr 0.7fr 0.7fr 150px;
     gap: 10px;
     padding: 9px 11px;
     border-top: 1px solid var(--border);
@@ -275,6 +302,63 @@
   }
   .service-row strong {
     color: var(--text);
+  }
+  .service-entry {
+    border-top: 1px solid var(--border);
+  }
+  .service-entry .service-row {
+    border-top: 0;
+  }
+  .service-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+  .service-actions button {
+    width: 29px;
+    min-height: 29px;
+    padding: 0;
+    color: var(--muted);
+  }
+  .service-actions button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .service-actions-heading {
+    text-align: right;
+  }
+  .service-inspector {
+    padding: 0 11px 9px;
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .service-inspector summary,
+  .log-fields summary,
+  .download-menu summary {
+    cursor: pointer;
+    color: var(--accent);
+  }
+  .service-inspector dl {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    margin: 9px 0 0;
+  }
+  .service-inspector dl > div {
+    min-width: 0;
+    padding: 7px;
+    border-radius: 6px;
+    background: #0b1017;
+  }
+  .service-inspector dt {
+    color: var(--soft);
+  }
+  .service-inspector dd {
+    margin: 3px 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+    white-space: nowrap;
   }
   .dot {
     display: inline-block;
@@ -350,6 +434,268 @@
   }
   .log-lines--full {
     height: min(650px, calc(100vh - 260px));
+  }
+  .log-panel-head {
+    align-items: flex-start;
+  }
+  .log-resource-pills,
+  .project-log-filters {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .log-resource-pills > span {
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    color: var(--muted);
+  }
+  .log-resource-pills strong {
+    color: var(--text);
+  }
+  .project-log-filters {
+    margin-bottom: 10px;
+  }
+  .project-log-filters label:first-child {
+    flex: 1;
+  }
+  .project-log-filters input,
+  .project-log-filters select,
+  .project-log-filters button,
+  .download-menu summary {
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--panel-2);
+    color: var(--muted);
+  }
+  .project-log-filters input,
+  .project-log-filters select {
+    width: 100%;
+    padding: 0 9px;
+  }
+  .project-log-filters button,
+  .download-menu summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 9px;
+    white-space: nowrap;
+  }
+  .download-menu {
+    position: relative;
+  }
+  .download-menu > div {
+    position: absolute;
+    z-index: 10;
+    top: calc(100% + 5px);
+    right: 0;
+    display: grid;
+    width: 130px;
+    gap: 3px;
+    padding: 5px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-2);
+  }
+  .download-menu > div button {
+    justify-content: flex-start;
+  }
+  .log-notice {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border: 1px solid rgba(241, 199, 91, 0.24);
+    border-radius: 7px;
+    background: rgba(241, 199, 91, 0.06);
+    color: var(--yellow);
+    font-size: 10px;
+  }
+  .log-lines--structured > .structured-log-row {
+    grid-template-columns: 76px 84px 54px minmax(0, 1fr) auto;
+    align-items: start;
+    border-top: 1px solid rgba(255, 255, 255, 0.025);
+  }
+  .structured-log-row pre {
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #b9c7da;
+    font: inherit;
+    white-space: pre-wrap;
+  }
+  .structured-log-row pre.stderr {
+    color: var(--yellow);
+  }
+  .structured-log-row em {
+    color: var(--soft);
+    font-style: normal;
+  }
+  .structured-log-row .level--error,
+  .structured-log-row .level--fatal {
+    color: var(--red);
+  }
+  .structured-log-row .level--warn,
+  .structured-log-row .level--warning {
+    color: var(--yellow);
+  }
+  .log-fields {
+    position: relative;
+  }
+  .log-fields dl {
+    position: absolute;
+    z-index: 8;
+    right: 0;
+    width: min(420px, 70vw);
+    max-height: 260px;
+    margin: 5px 0 0;
+    overflow: auto;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--panel-2);
+  }
+  .log-fields dl > div {
+    display: grid;
+    grid-template-columns: minmax(80px, 0.4fr) 1fr;
+    gap: 8px;
+    padding: 3px;
+  }
+  .log-fields dt {
+    color: var(--accent);
+  }
+  .log-fields dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--text);
+  }
+  .modal-backdrop {
+    position: fixed;
+    z-index: 100;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(3, 6, 10, 0.78);
+    backdrop-filter: blur(5px);
+  }
+  .runtime-plan-dialog {
+    width: min(680px, 100%);
+    max-height: min(820px, calc(100vh - 48px));
+    overflow: auto;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: var(--panel);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  }
+  .runtime-plan-dialog > header,
+  .runtime-plan-dialog > footer,
+  .plan-risk {
+    display: flex;
+    align-items: center;
+  }
+  .runtime-plan-dialog > header,
+  .runtime-plan-dialog > footer {
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .runtime-plan-dialog header p {
+    margin: 0;
+    color: var(--accent);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .runtime-plan-dialog h2 {
+    margin: 4px 0 0;
+    font-size: 18px;
+  }
+  .runtime-plan-dialog button {
+    display: inline-flex;
+    min-height: 35px;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-2);
+    color: var(--text);
+  }
+  .runtime-plan-dialog .primary {
+    border-color: rgba(120, 166, 255, 0.5);
+    background: var(--accent);
+    color: #07111d;
+    font-weight: 800;
+  }
+  .runtime-plan-dialog .primary.danger {
+    border-color: rgba(255, 115, 115, 0.55);
+    background: var(--red);
+  }
+  .plan-risk {
+    gap: 8px;
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid rgba(120, 166, 255, 0.25);
+    border-radius: 8px;
+    color: var(--accent);
+    text-transform: capitalize;
+  }
+  .plan-risk--caution {
+    border-color: rgba(241, 199, 91, 0.25);
+    color: var(--yellow);
+  }
+  .plan-risk--destructive {
+    border-color: rgba(255, 115, 115, 0.3);
+    color: var(--red);
+  }
+  .plan-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .plan-facts > div,
+  .plan-command {
+    padding: 9px;
+    border-radius: 7px;
+    background: #0b1017;
+  }
+  .plan-facts dt {
+    color: var(--soft);
+  }
+  .plan-facts dd {
+    margin: 3px 0 0;
+    color: var(--text);
+  }
+  .plan-section {
+    margin-top: 15px;
+  }
+  .plan-section h3 {
+    margin: 0 0 8px;
+    font-size: 12px;
+  }
+  .plan-section ul {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--muted);
+  }
+  .plan-command {
+    display: grid;
+    gap: 5px;
+    margin-top: 6px;
+  }
+  .plan-command code {
+    overflow-wrap: anywhere;
+    color: var(--text);
+  }
+  .plan-command small {
+    color: var(--soft);
+  }
+  .runtime-plan-dialog > footer {
+    margin-top: 18px;
+    justify-content: flex-end;
   }
   .resource-card dl {
     display: grid;
@@ -622,6 +968,26 @@
     }
     .log-lines > div {
       grid-template-columns: 65px 60px minmax(0, 1fr);
+    }
+    .service-actions {
+      justify-content: flex-start;
+    }
+    .service-inspector dl,
+    .plan-facts {
+      grid-template-columns: 1fr;
+    }
+    .project-log-filters,
+    .log-resource-pills {
+      flex-wrap: wrap;
+    }
+    .project-log-filters label:first-child {
+      flex-basis: 100%;
+    }
+    .log-lines--structured > .structured-log-row {
+      grid-template-columns: 65px 65px 48px minmax(0, 1fr);
+    }
+    .structured-log-row .log-fields {
+      grid-column: 1 / -1;
     }
   }
 }

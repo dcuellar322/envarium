@@ -9,10 +9,10 @@ import (
 	"strings"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/discovery/adapters"
-	"switchyard.dev/switchyard/internal/discovery/application"
-	manifestApplication "switchyard.dev/switchyard/internal/manifest/application"
-	manifest "switchyard.dev/switchyard/internal/manifest/domain"
+	"envarium.dev/envarium/internal/discovery/adapters"
+	"envarium.dev/envarium/internal/discovery/application"
+	manifestApplication "envarium.dev/envarium/internal/manifest/application"
+	manifest "envarium.dev/envarium/internal/manifest/domain"
 )
 
 func TestMixedFixtureProducesEvidenceBackedProposalWithoutSecrets(t *testing.T) {
@@ -59,7 +59,7 @@ func TestMixedFixtureProducesEvidenceBackedProposalWithoutSecrets(t *testing.T) 
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, secret := range []string{"switchyard-secret-canary-never-return", "sk-fixture-secret-never-return"} {
+	for _, secret := range []string{"envarium-secret-canary-never-return", "sk-fixture-secret-never-return"} {
 		if strings.Contains(string(encoded), secret) {
 			t.Fatalf("proposal leaked secret %q", secret)
 		}

@@ -88,7 +88,7 @@ is never persisted or returned. Local endpoints may omit it.
 
 Providers return a complete candidate plus claims at a fixed set of JSON
 Pointers. Claims may reference only evidence IDs present in the sent bundle.
-Switchyard computes confidence from those evidence records and caps provider
+Envarium computes confidence from those evidence records and caps provider
 confidence below deterministic authority; model-reported confidence is not
 accepted.
 

@@ -29,7 +29,7 @@ attestation, and SBOM as applicable. Follow the
 ## 3. Confirm local capabilities
 
 ```bash
-switchyard doctor
+envarium doctor
 ```
 
 Expected success is a versioned report with local IPC, database/schema, Git,
@@ -39,7 +39,7 @@ first project uses only native processes.
 ## 4. Open the product
 
 ```bash
-switchyard ui
+envarium ui
 ```
 
 The command prints a short-lived authenticated loopback URL. Do not paste that

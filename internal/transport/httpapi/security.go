@@ -8,15 +8,15 @@ import (
 	"regexp"
 	"strings"
 
-	session "switchyard.dev/switchyard/internal/session/application"
+	session "envarium.dev/envarium/internal/session/application"
 )
 
 const (
-	sessionCookieName = "switchyard_session"
+	sessionCookieName = "envarium_session"
 	csrfHeader        = "X-CSRF-Token"
 	idempotencyHeader = "Idempotency-Key"
-	actorTypeHeader   = "X-Switchyard-Actor-Type"
-	actorIDHeader     = "X-Switchyard-Actor-ID"
+	actorTypeHeader   = "X-Envarium-Actor-Type"
+	actorIDHeader     = "X-Envarium-Actor-ID"
 )
 
 var agentActorPattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,127}$`)
@@ -91,7 +91,7 @@ func withBrowserSecurity(sessions sessionService, next http.Handler) http.Handle
 		}
 		cookie, err := r.Cookie(sessionCookieName)
 		if err != nil {
-			writeProblem(w, r, http.StatusUnauthorized, "SESSION_REQUIRED", "Browser session required", "Launch the UI through switchyard ui.")
+			writeProblem(w, r, http.StatusUnauthorized, "SESSION_REQUIRED", "Browser session required", "Launch the UI through envarium ui.")
 			return
 		}
 		active, err := sessions.ValidateSession(cookie.Value)

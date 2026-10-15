@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"switchyard.dev/switchyard/internal/support/domain"
+	"envarium.dev/envarium/internal/support/domain"
 )
 
 const configurationFile = "support-config.json"

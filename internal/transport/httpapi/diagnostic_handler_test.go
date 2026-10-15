@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	diagnostics "switchyard.dev/switchyard/internal/diagnostics/application"
-	diagnosticsDomain "switchyard.dev/switchyard/internal/diagnostics/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	diagnostics "envarium.dev/envarium/internal/diagnostics/application"
+	diagnosticsDomain "envarium.dev/envarium/internal/diagnostics/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 type diagnosticServiceStub struct {

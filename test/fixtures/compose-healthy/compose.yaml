@@ -1,10 +1,10 @@
-name: switchyard-compose-healthy-fixture
+name: envarium-compose-healthy-fixture
 
 services:
   web:
     build:
       context: .
-    image: switchyard/compose-healthy-fixture:v1
+    image: envarium/compose-healthy-fixture:v1
     pull_policy: build
     healthcheck:
       test: ["CMD", "/server", "healthcheck"]

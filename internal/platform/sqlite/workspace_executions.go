@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"switchyard.dev/switchyard/internal/workspace/domain"
+	"envarium.dev/envarium/internal/workspace/domain"
 )
 
 // RecoverWorkspaceExecutions closes snapshots interrupted by daemon restart.

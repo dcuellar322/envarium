@@ -8,10 +8,10 @@ export async function GET(context: { site?: URL }) {
   return rss({
     title: `${PRODUCT_NAME} releases`,
     description: SITE_DESCRIPTION,
-    site: context.site ?? new URL('https://switchyard.davidcuellar.tech'),
+    site: context.site ?? new URL('https://envarium.davidcuellar.tech'),
     items: manifest.releases.map((release) => ({
       title: release.title,
-      description: release.summary ?? `Release notes for Switchyard ${release.tag}.`,
+      description: release.summary ?? `Release notes for Envarium ${release.tag}.`,
       pubDate: new Date(release.publishedAt),
       link: `/changelog/${release.tag}/`,
       categories: [release.channel],

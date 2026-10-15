@@ -10,7 +10,7 @@ import (
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/mem"
 
-	"switchyard.dev/switchyard/internal/system/application"
+	"envarium.dev/envarium/internal/system/application"
 )
 
 type dockerUsage func(context.Context) (int64, int64, error)

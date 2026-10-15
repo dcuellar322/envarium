@@ -29,7 +29,7 @@ test('diagnostic review keeps evidence, actions, alerts, and automation limits v
       contentType: 'application/json',
       json: {
         id: 'diagnosis-alpha',
-        version: 'switchyard.dev/diagnosis/v1alpha1',
+        version: 'envarium.dev/diagnosis/v1alpha1',
         projectId: 'alpha',
         bundleSha256: 'a'.repeat(64),
         bundleBytes: 8421,

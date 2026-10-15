@@ -8,7 +8,7 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Switchyard v1 supports native arm64 and amd64 installations on the following
+Envarium v1 supports native arm64 and amd64 installations on the following
 platform families. The control plane, CLI, browser UI, and MCP server share the
 same support level; desktop packaging depends on the platform row.
 
@@ -38,13 +38,13 @@ artifacts, and creates attestations. The detailed operator checklist is in
 
 ## WSL2 behavior
 
-Install and run the Linux `switchyard` binary inside each WSL distribution
+Install and run the Linux `envarium` binary inside each WSL distribution
 whose repositories it manages. Its data directory, Unix socket, child
 processes, terminals, Docker context, and repository paths stay inside that
 distribution's security boundary.
 
 The Windows desktop does not attach directly to a WSL Unix socket, and a WSL
-CLI does not attach to the Windows named pipe. Use `switchyard ui` inside WSL
+CLI does not attach to the Windows named pipe. Use `envarium ui` inside WSL
 and open its loopback URL through Windows' localhost forwarding. Docker Desktop
 integration works when `docker` and `docker compose` work inside that same WSL
 distribution. Windows notifications and startup settings are not projected
@@ -53,6 +53,6 @@ supported graphical session.
 
 Repositories under the WSL filesystem are recommended. `/mnt/c` repositories
 work but inherit Windows filesystem performance, case-sensitivity, permissions,
-and file-watching limitations. Switchyard reports adapter failures rather than
+and file-watching limitations. Envarium reports adapter failures rather than
 claiming parity when the host disables localhost forwarding, systemd user
 services, Secret Service, or Docker integration.

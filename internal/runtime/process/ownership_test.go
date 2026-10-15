@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestBoundedPIDRejectsInvalidNativeValues(t *testing.T) {

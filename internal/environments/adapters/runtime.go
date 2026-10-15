@@ -3,9 +3,9 @@ package adapters
 import (
 	"context"
 
-	"switchyard.dev/switchyard/internal/environments/application"
-	"switchyard.dev/switchyard/internal/environments/domain"
-	runtimeApplication "switchyard.dev/switchyard/internal/runtime/application"
+	"envarium.dev/envarium/internal/environments/application"
+	"envarium.dev/envarium/internal/environments/domain"
+	runtimeApplication "envarium.dev/envarium/internal/runtime/application"
 )
 
 // RuntimeSource adapts durable environments to the runtime consumer's narrow DTO.

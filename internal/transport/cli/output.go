@@ -7,7 +7,7 @@ import (
 	"reflect"
 )
 
-const cliSchemaVersion = "switchyard.cli/v1"
+const cliSchemaVersion = "envarium.cli/v1"
 
 type outputEnvelope struct {
 	SchemaVersion string `json:"schemaVersion"`

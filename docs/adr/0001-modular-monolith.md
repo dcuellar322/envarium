@@ -1,6 +1,6 @@
 ---
 title: "ADR-0001: Modular monolith and domain dependency direction"
-description: Keep Switchyard cohesive while enforcing bounded-context dependency rules.
+description: Keep Envarium cohesive while enforcing bounded-context dependency rules.
 category: concept
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -11,7 +11,7 @@ lastVerified: 2026-07-17
 
 ## Context
 
-Switchyard coordinates many local capabilities but ships and evolves as one
+Envarium coordinates many local capabilities but ships and evolves as one
 coherent product. Premature services would add deployment and consistency costs
 without independent scaling or ownership needs.
 

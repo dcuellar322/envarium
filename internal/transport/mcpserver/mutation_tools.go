@@ -8,36 +8,38 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	agents "switchyard.dev/switchyard/internal/agents/application"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	agents "envarium.dev/envarium/internal/agents/application"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (s *Server) addMutationTools() {
 	if s.scope.Allows(agents.CapabilityLifecycle) {
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_start", "Start project", "Queue an idempotent start for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionStart, agents.CapabilityLifecycle))
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_stop", "Stop project", "Queue an idempotent stop for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionStop, agents.CapabilityLifecycle))
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_restart", "Restart project", "Queue a restart for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, false, false), lifecycleHandler(s, generated.RuntimeActionRestart, agents.CapabilityLifecycle))
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_pause", "Pause project", "Queue an idempotent pause for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionPause, agents.CapabilityLifecycle))
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_resume", "Resume project", "Queue an idempotent resume for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionUnpause, agents.CapabilityLifecycle))
-		mcp.AddTool(s.mcp, mutationTool("switchyard_workspace_start", "Start workspace", "Queue dependency-ordered workspace start with bounded concurrency.", "mutating", agents.ProfileDevelop, false, true, false), s.workspaceStart)
-		mcp.AddTool(s.mcp, mutationTool("switchyard_workspace_stop", "Stop workspace", "Queue dependency-safe workspace stop; data removal is separately authorized.", "conditional-destructive", agents.ProfileDevelop, true, true, false), s.workspaceStop)
-		mcp.AddTool(s.mcp, mutationTool("switchyard_environments_register", "Register worktree environments", "Reconcile trusted Git worktrees and allocate exact ports without running repository code.", "filesystem-read", agents.ProfileDevelop, false, true, false), s.environmentsRegister)
+		mcp.AddTool(s.mcp, mutationTool("envarium_project_start", "Start project", "Queue an idempotent start for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionStart, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("envarium_project_stop", "Stop project", "Queue an idempotent stop for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionStop, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("envarium_project_restart", "Restart project", "Queue a restart for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, false, false), lifecycleHandler(s, generated.RuntimeActionRestart, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("envarium_project_kill", "Force-stop project", "Forcefully terminate a project or selected declared services without waiting for graceful shutdown.", "interrupting-mutating", agents.ProfileDevelop, true, false, false), lifecycleHandler(s, generated.RuntimeActionKill, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("envarium_project_pause", "Pause project", "Queue an idempotent pause for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionPause, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("envarium_project_resume", "Resume project", "Queue an idempotent resume for a project or selected declared services.", "mutating", agents.ProfileDevelop, false, true, false), lifecycleHandler(s, generated.RuntimeActionUnpause, agents.CapabilityLifecycle))
+		mcp.AddTool(s.mcp, mutationTool("envarium_workspace_start", "Start workspace", "Queue dependency-ordered workspace start with bounded concurrency.", "mutating", agents.ProfileDevelop, false, true, false), s.workspaceStart)
+		mcp.AddTool(s.mcp, mutationTool("envarium_workspace_stop", "Stop workspace", "Queue dependency-safe workspace stop; data removal is separately authorized.", "conditional-destructive", agents.ProfileDevelop, true, true, false), s.workspaceStop)
+		mcp.AddTool(s.mcp, mutationTool("envarium_environments_register", "Register worktree environments", "Reconcile trusted Git worktrees and allocate exact ports without running repository code.", "filesystem-read", agents.ProfileDevelop, false, true, false), s.environmentsRegister)
 	}
 	if s.scope.Allows(agents.CapabilityRebuild) {
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_rebuild", "Rebuild project", "Queue an explicit rebuild for a project or selected declared services.", "mutating", agents.ProfileMaintain, false, false, true), lifecycleHandler(s, generated.RuntimeActionRebuild, agents.CapabilityRebuild))
+		mcp.AddTool(s.mcp, mutationTool("envarium_project_deploy", "Deploy project", "Pull newer Compose images when available and reconcile the current trusted definition, or restart native services with their current definition.", "networked-mutating", agents.ProfileMaintain, false, false, true), lifecycleHandler(s, generated.RuntimeActionDeploy, agents.CapabilityRebuild))
+		mcp.AddTool(s.mcp, mutationTool("envarium_project_rebuild", "Rebuild project", "Queue an explicit rebuild for a project or selected declared services.", "mutating", agents.ProfileMaintain, false, false, true), lifecycleHandler(s, generated.RuntimeActionRebuild, agents.CapabilityRebuild))
 	}
 	if s.scope.Allows(agents.CapabilityAction) {
-		mcp.AddTool(s.mcp, mutationTool("switchyard_action_run", "Run trusted action", "Queue one reviewed manifest action; risk confirmation is enforced.", "declared", agents.ProfileDevelop, true, false, true), s.actionRun)
-		mcp.AddTool(s.mcp, mutationTool("switchyard_operation_cancel", "Cancel operation", "Request cooperative cancellation of one durable operation.", "mutating", agents.ProfileDevelop, false, true, false), s.operationCancel)
+		mcp.AddTool(s.mcp, mutationTool("envarium_action_run", "Run trusted action", "Queue one reviewed manifest action; risk confirmation is enforced.", "declared", agents.ProfileDevelop, true, false, true), s.actionRun)
+		mcp.AddTool(s.mcp, mutationTool("envarium_operation_cancel", "Cancel operation", "Request cooperative cancellation of one durable operation.", "mutating", agents.ProfileDevelop, false, true, false), s.operationCancel)
 	}
 	if s.scope.Allows(agents.CapabilityProposalCreate) {
-		mcp.AddTool(s.mcp, mutationTool("switchyard_manifest_proposal_create", "Create manifest proposal", "Scan a local repository without executing its code and return an untrusted proposal for review.", "filesystem-read", agents.ProfileMaintain, false, true, false), s.proposalCreate)
+		mcp.AddTool(s.mcp, mutationTool("envarium_manifest_proposal_create", "Create manifest proposal", "Scan a local repository without executing its code and return an untrusted proposal for review.", "filesystem-read", agents.ProfileMaintain, false, true, false), s.proposalCreate)
 	}
 	if s.scope.Allows(agents.CapabilityProposalAccept) {
-		mcp.AddTool(s.mcp, mutationTool("switchyard_manifest_proposal_accept", "Accept manifest proposal", "Accept a previously validated proposal as an explicit trust decision.", "trust-decision", agents.ProfileAdmin, false, true, false), s.proposalAccept)
+		mcp.AddTool(s.mcp, mutationTool("envarium_manifest_proposal_accept", "Accept manifest proposal", "Accept a previously validated proposal as an explicit trust decision.", "trust-decision", agents.ProfileAdmin, false, true, false), s.proposalAccept)
 	}
 	if s.scope.Allows(agents.CapabilityDestructive) {
-		mcp.AddTool(s.mcp, mutationTool("switchyard_project_teardown", "Tear down project", "Tear down Compose resources; volume removal is explicit and destructive.", "destructive", agents.ProfileAdmin, true, true, false), s.teardown)
+		mcp.AddTool(s.mcp, mutationTool("envarium_project_teardown", "Tear down project", "Tear down Compose resources; volume removal is explicit and destructive.", "destructive", agents.ProfileAdmin, true, true, false), s.teardown)
 	}
 }
 

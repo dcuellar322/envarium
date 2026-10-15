@@ -3,7 +3,7 @@ package mcpserver
 import (
 	"context"
 
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 // backend is the application-use-case façade consumed by MCP handlers.

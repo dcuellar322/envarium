@@ -11,7 +11,7 @@ import (
 	"filippo.io/age"
 	"filippo.io/age/armor"
 
-	"switchyard.dev/switchyard/internal/team/domain"
+	"envarium.dev/envarium/internal/team/domain"
 )
 
 const maximumSyncDocumentSize = 10 << 20

@@ -1,6 +1,6 @@
 ---
 title: "Phase 17: Intelligent diagnosis and safe automation"
-description: Implementation evidence for Switchyard product phase 17.
+description: Implementation evidence for Envarium product phase 17.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17

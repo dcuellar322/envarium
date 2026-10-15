@@ -6,18 +6,18 @@ import (
 	"path/filepath"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/manifest/domain"
+	"envarium.dev/envarium/internal/manifest/domain"
 )
 
 func TestResolveLocalOverlayWinsWithoutModifyingPortableManifest(t *testing.T) {
 	t.Parallel()
 	root := t.TempDir()
-	manifestDirectory := filepath.Join(root, ".switchyard")
+	manifestDirectory := filepath.Join(root, ".envarium")
 	if err := os.MkdirAll(manifestDirectory, 0o700); err != nil {
 		t.Fatal(err)
 	}
 	portable := []byte(`
-schemaVersion: switchyard.dev/v1alpha1
+schemaVersion: envarium.dev/v1alpha1
 kind: Project
 metadata: {id: overlay-test, name: Portable Name}
 repository: {root: .}

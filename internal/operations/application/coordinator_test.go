@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/operations/application"
-	"switchyard.dev/switchyard/internal/operations/domain"
-	"switchyard.dev/switchyard/internal/platform/sqlite"
+	"envarium.dev/envarium/internal/operations/application"
+	"envarium.dev/envarium/internal/operations/domain"
+	"envarium.dev/envarium/internal/platform/sqlite"
 )
 
 func TestCoordinatorIdempotencyAndProjectSerialization(t *testing.T) {
@@ -170,7 +170,7 @@ func request(projectID, key string) application.SubmitRequest {
 
 func operationFixture(ctx context.Context, t *testing.T) (*sqlite.Database, *sqlite.OperationRepository, *sqlite.Journal) {
 	t.Helper()
-	database, err := sqlite.Open(ctx, t.TempDir()+"/switchyard.db")
+	database, err := sqlite.Open(ctx, t.TempDir()+"/envarium.db")
 	if err != nil {
 		t.Fatalf("sqlite.Open() error = %v", err)
 	}

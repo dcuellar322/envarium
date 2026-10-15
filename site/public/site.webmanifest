@@ -1,6 +1,6 @@
 {
-  "name": "Switchyard — Local Development Command Center",
-  "short_name": "Switchyard",
+  "name": "Envarium — Local Development Command Center",
+  "short_name": "Envarium",
   "description": "An open-source, local-first development command center.",
   "start_url": "/",
   "display": "standalone",

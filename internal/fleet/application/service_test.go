@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/fleet/domain"
+	"envarium.dev/envarium/internal/fleet/domain"
 )
 
 type memoryRepository struct {

@@ -6,12 +6,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	observabilityAdapters "switchyard.dev/switchyard/internal/observability/adapters"
-	"switchyard.dev/switchyard/internal/platform/daemonlog"
-	settingsDomain "switchyard.dev/switchyard/internal/settings/domain"
-	supportAdapters "switchyard.dev/switchyard/internal/support/adapters"
-	supportApplication "switchyard.dev/switchyard/internal/support/application"
-	"switchyard.dev/switchyard/internal/support/domain"
+	observabilityAdapters "envarium.dev/envarium/internal/observability/adapters"
+	"envarium.dev/envarium/internal/platform/daemonlog"
+	settingsDomain "envarium.dev/envarium/internal/settings/domain"
+	supportAdapters "envarium.dev/envarium/internal/support/adapters"
+	supportApplication "envarium.dev/envarium/internal/support/application"
+	"envarium.dev/envarium/internal/support/domain"
 )
 
 func prepareDaemonSupport(config Config) (*observabilityAdapters.Redactor, *daemonlog.FileHandler, *slog.Logger, error) {

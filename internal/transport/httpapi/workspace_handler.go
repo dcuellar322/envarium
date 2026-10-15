@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	operations "switchyard.dev/switchyard/internal/operations/application"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
-	workspace "switchyard.dev/switchyard/internal/workspace/application"
-	workspaceDomain "switchyard.dev/switchyard/internal/workspace/domain"
+	operations "envarium.dev/envarium/internal/operations/application"
+	"envarium.dev/envarium/internal/transport/contract/generated"
+	workspace "envarium.dev/envarium/internal/workspace/application"
+	workspaceDomain "envarium.dev/envarium/internal/workspace/domain"
 )
 
 const maximumWorkspaceDocumentBytes = 256 << 10

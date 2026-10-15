@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 const (
@@ -99,7 +99,9 @@ func (d *Driver) Execute(ctx context.Context, plan domain.Plan, sink domain.Prog
 		return d.startAll(ctx, data, sink)
 	case domain.ActionStop:
 		return d.stopAll(ctx, data, sink, "stopped")
-	case domain.ActionRestart:
+	case domain.ActionKill:
+		return d.killAll(ctx, data, sink)
+	case domain.ActionRestart, domain.ActionDeploy:
 		stopPlan := data
 		stopPlan.services = append([]servicePlan(nil), data.services...)
 		reverseServices(stopPlan.services)

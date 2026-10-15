@@ -5,7 +5,7 @@ import (
 	"strings"
 	"sync"
 
-	runtime "switchyard.dev/switchyard/internal/runtime/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
 )
 
 const redactionMarker = "[REDACTED]"

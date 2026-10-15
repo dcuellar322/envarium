@@ -10,8 +10,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"switchyard.dev/switchyard/internal/foundation/identifier"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	"envarium.dev/envarium/internal/foundation/identifier"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func newSettingsCommand(options *rootOptions) *cobra.Command {

@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	teamAdapters "switchyard.dev/switchyard/internal/team/adapters"
-	teamDomain "switchyard.dev/switchyard/internal/team/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	teamAdapters "envarium.dev/envarium/internal/team/adapters"
+	teamDomain "envarium.dev/envarium/internal/team/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func newTeamSyncCommand(options *rootOptions) *cobra.Command {

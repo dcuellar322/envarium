@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	observabilityApplication "switchyard.dev/switchyard/internal/observability/application"
-	observability "switchyard.dev/switchyard/internal/observability/domain"
+	observabilityApplication "envarium.dev/envarium/internal/observability/application"
+	observability "envarium.dev/envarium/internal/observability/domain"
 )
 
 // MaintainMetricHistory upserts complete rollups before pruning aligned source buckets.

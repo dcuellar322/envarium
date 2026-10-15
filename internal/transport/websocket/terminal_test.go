@@ -13,7 +13,7 @@ import (
 	"github.com/coder/websocket"
 	"github.com/go-chi/chi/v5"
 
-	terminalDomain "switchyard.dev/switchyard/internal/terminal/domain"
+	terminalDomain "envarium.dev/envarium/internal/terminal/domain"
 )
 
 func TestTerminalWebSocketCarriesReadyScrollbackInputResizeAndOutput(t *testing.T) {

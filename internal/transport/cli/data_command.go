@@ -8,11 +8,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"switchyard.dev/switchyard/internal/bootstrap"
+	"envarium.dev/envarium/internal/bootstrap"
 )
 
 func newDataCommand(options *rootOptions) *cobra.Command {
-	command := &cobra.Command{Use: "data", Short: "Inspect, back up, and migrate local Switchyard data"}
+	command := &cobra.Command{Use: "data", Short: "Inspect, back up, and migrate local Envarium data"}
 	command.AddCommand(newDataInspectCommand(options), newDataBackupCommand(options), newDataMigrateCommand(options))
 	return command
 }
@@ -39,7 +39,7 @@ func newDataBackupCommand(options *rootOptions) *cobra.Command {
 		Use: "backup", Short: "Create a verified SQLite-consistent backup", Args: cobra.NoArgs,
 		RunE: func(command *cobra.Command, _ []string) error {
 			if output == "" {
-				output = filepath.Join(options.dataDir, "switchyard.db.manual-"+time.Now().UTC().Format("20060102T150405Z")+".bak")
+				output = filepath.Join(options.dataDir, "envarium.db.manual-"+time.Now().UTC().Format("20060102T150405Z")+".bak")
 			}
 			if err := bootstrap.BackupData(command.Context(), options.dataDir, output); err != nil {
 				return err

@@ -22,9 +22,9 @@ required health gates.
 ## Start from the CLI
 
 ```bash
-switchyard workspace list
-switchyard workspace get <workspace-id>
-switchyard workspace start <workspace-id>
+envarium workspace list
+envarium workspace get <workspace-id>
+envarium workspace start <workspace-id>
 ```
 
 The start command returns a durable operation. Open the workspace progress

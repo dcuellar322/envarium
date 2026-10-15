@@ -1,31 +1,24 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
-import { computed, ref } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 
 import AgentSessionsPanel from '../../terminal/components/AgentSessionsPanel.vue'
 import TerminalPanel from '../../terminal/components/TerminalPanel.vue'
-import { loadPortRegistry } from '../../ports/api'
 import ProjectConfigTab from '../components/ProjectConfigTab.vue'
 import ProjectGitTab from '../components/ProjectGitTab.vue'
 import ProjectHeader from '../components/ProjectHeader.vue'
 import ProjectLogsTab from '../components/ProjectLogsTab.vue'
 import ProjectOverviewTab from '../components/ProjectOverviewTab.vue'
 import ProjectPortsTab from '../components/ProjectPortsTab.vue'
+import RuntimePlanDialog from '../components/RuntimePlanDialog.vue'
 import ProjectStorageTab from '../components/ProjectStorageTab.vue'
 import ProjectTabList from '../components/ProjectTabList.vue'
 import { useProjectDetail } from '../composables/useProjectDetail'
-import { projectTabs, type ProjectTab } from '../projectTabs'
+import { useProjectTabs } from '../composables/useProjectTabs'
 
 const props = defineProps<{ projectId: string }>()
-const route = useRoute()
-const router = useRouter()
 const projectId = computed(() => props.projectId)
-const activeTab = ref<ProjectTab>(
-  projectTabs.includes(route.query.tab as ProjectTab)
-    ? (route.query.tab as ProjectTab)
-    : 'overview',
-)
+const { activeTab, projectPorts, selectTab } = useProjectTabs(projectId)
 const {
   project,
   runtime,
@@ -39,6 +32,8 @@ const {
   liveLogs,
   logConnection,
   lifecycle,
+  lifecyclePreview,
+  lifecyclePlan,
   customAction,
   registerWorktrees,
   state,
@@ -57,24 +52,11 @@ const {
   quickActions,
   requiredHealth,
   isPartial,
-  runLifecycle,
+  requestLifecycle,
+  confirmLifecycle,
+  closeLifecyclePlan,
   runAction,
 } = useProjectDetail(projectId)
-const portRegistry = useQuery({
-  queryKey: ['ports'],
-  queryFn: loadPortRegistry,
-  enabled: computed(() => activeTab.value === 'ports'),
-  refetchInterval: computed(() => (activeTab.value === 'ports' ? 10_000 : false)),
-})
-const projectPorts = computed(
-  () => portRegistry.data.value?.facts.filter((fact) => fact.projectId === projectId.value) ?? [],
-)
-
-async function selectTab(tab: ProjectTab) {
-  activeTab.value = tab
-  await router.replace({ query: tab === 'overview' ? {} : { tab } })
-}
-
 function openPreferredTerminal() {
   if (terminalAction.value) {
     void runAction(terminalAction.value)
@@ -102,15 +84,16 @@ function openPreferredTerminal() {
         :active="active"
         :browser-action="browserAction"
         :action-pending="customAction.isPending.value"
-        :lifecycle-pending="lifecycle.isPending.value"
+        :lifecycle-pending="lifecycle.isPending.value || lifecyclePreview.isPending.value"
         :operation-error="operationError"
         :partial="isPartial"
         :docker-unavailable="
           runtime.data.value?.driver === 'compose' && runtime.data.value.engine?.connected === false
         "
         :available-profiles="runtime.data.value?.availableProfiles ?? []"
+        :driver="runtime.data.value?.driver"
         @action="runAction"
-        @lifecycle="runLifecycle"
+        @lifecycle="requestLifecycle"
         @terminal="openPreferredTerminal"
       />
       <ProjectTabList :active="activeTab" @select="selectTab" />
@@ -141,8 +124,10 @@ function openPreferredTerminal() {
           :endpoints="endpoints"
           :quick-actions="quickActions"
           :action-pending="customAction.isPending.value"
+          :lifecycle-pending="lifecycle.isPending.value || lifecyclePreview.isPending.value"
           @select-tab="selectTab"
           @run-action="runAction"
+          @lifecycle="requestLifecycle"
         />
       </div>
       <div
@@ -153,7 +138,13 @@ function openPreferredTerminal() {
         tabindex="0"
         aria-labelledby="tab-logs"
       >
-        <ProjectLogsTab :entries="liveLogs" :connection="logConnection.state.value" />
+        <ProjectLogsTab
+          :project-id="projectId"
+          :entries="liveLogs"
+          :connection="logConnection.state.value"
+          :services="runtime.data.value?.services.map((service) => service.id) ?? []"
+          :metrics="metrics.data.value ?? []"
+        />
       </div>
       <div
         v-else-if="activeTab === 'terminal'"
@@ -238,6 +229,13 @@ function openPreferredTerminal() {
           :error="manifest.isError.value"
         />
       </div>
+      <RuntimePlanDialog
+        v-if="lifecyclePlan"
+        :plan="lifecyclePlan"
+        :pending="lifecycle.isPending.value"
+        @cancel="closeLifecyclePlan"
+        @confirm="confirmLifecycle"
+      />
     </template>
   </section>
 </template>

@@ -1,6 +1,6 @@
 ---
 title: Reference
-description: Exact Switchyard commands, schemas, API operations, settings, tools, compatibility, and platform contracts.
+description: Exact Envarium commands, schemas, API operations, settings, tools, compatibility, and platform contracts.
 slug: docs/reference
 category: reference
 audience: [user, contributor, integrator]
@@ -18,6 +18,7 @@ Reference pages describe exact contracts rather than task sequences:
 - [Plugin protocol](../plugin-sdk.md)
 - [Supported platforms](../platform-support.md)
 - [Compatibility policy](../compatibility.md)
+- [Arcane capability review](arcane-capability-review.md)
 
 Machine-generated pages under [`generated/`](../generated/cli-schemas.md) are
 rebuilt from the production binary and canonical schemas during CI.

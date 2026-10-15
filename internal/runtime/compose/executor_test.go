@@ -6,7 +6,7 @@ import (
 	"io"
 	"testing"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestExecutorUsesDurableProgressStates(t *testing.T) {

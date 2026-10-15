@@ -13,8 +13,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"switchyard.dev/switchyard/internal/discovery/application"
-	"switchyard.dev/switchyard/internal/discovery/domain"
+	"envarium.dev/envarium/internal/discovery/application"
+	"envarium.dev/envarium/internal/discovery/domain"
 )
 
 type composeScanner struct{}

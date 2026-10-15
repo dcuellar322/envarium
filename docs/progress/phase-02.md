@@ -1,6 +1,6 @@
 ---
 title: "Phase 2: Operations kernel and local IPC"
-description: Implementation evidence for Switchyard product phase 2.
+description: Implementation evidence for Envarium product phase 2.
 category: contributor
 audience: [contributor, maintainer]
 lastVerified: 2026-07-17
@@ -26,7 +26,7 @@ lastVerified: 2026-07-17
 - Added one-time browser bootstrap tokens, HttpOnly SameSite sessions, CSRF
   enforcement, idempotency-key validation, exact WebSocket origin validation,
   and browser security headers.
-- Updated `switchyard doctor` and `switchyard ui` to use local IPC. The latter
+- Updated `envarium doctor` and `envarium ui` to use local IPC. The latter
   returns a one-time authenticated browser URL.
 - Added stable RFC 9457-style error codes and generated operation/session API
   contracts for Go and TypeScript.
@@ -89,7 +89,7 @@ packaged doctor over Unix IPC: ready, API v1, schema 2
 packaged browser smoke: unauthenticated 401, token exchange 201, token reuse 401,
   missing CSRF 403, authorized missing operation 404
 permission smoke: data directory 0700; database and Unix socket 0600
-shutdown smoke: daemon.lock and switchyard.sock both removed
+shutdown smoke: daemon.lock and envarium.sock both removed
 ```
 
 ## Acceptance criteria status
@@ -123,9 +123,9 @@ shutdown smoke: daemon.lock and switchyard.sock both removed
 ## Manual verification
 
 1. Run `make build` and start the daemon with a temporary `--data-dir`.
-2. Run `switchyard --data-dir <same-dir> doctor`; verify it succeeds through
-   `switchyard.sock`.
-3. Run `switchyard --data-dir <same-dir> ui` and open its one-time URL.
+2. Run `envarium --data-dir <same-dir> doctor`; verify it succeeds through
+   `envarium.sock`.
+3. Run `envarium --data-dir <same-dir> ui` and open its one-time URL.
 4. Confirm reusing the bootstrap URL fails and direct `/api/v1/system` requests
    without its cookie return `SESSION_REQUIRED`.
-5. Stop the daemon and confirm both `daemon.lock` and `switchyard.sock` are gone.
+5. Stop the daemon and confirm both `daemon.lock` and `envarium.sock` are gone.

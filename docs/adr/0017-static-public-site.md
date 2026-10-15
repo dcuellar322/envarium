@@ -11,7 +11,7 @@ lastVerified: 2026-07-17
 
 ## Context
 
-Switchyard needs a public product site, documentation portal, download
+Envarium needs a public product site, documentation portal, download
 experience, and contribution funnel. The local Vue application is an
 authenticated adapter over privileged daemon capabilities and has a different
 deployment, navigation, content, and trust lifecycle from a public website.
@@ -29,7 +29,7 @@ approved generated tokens and sanitized product screenshots but may not import
 Vue stores, generated API clients, or application domain services.
 
 The sole production origin is
-`https://switchyard.davidcuellar.tech`. Canonical URLs, sitemap entries, feeds,
+`https://envarium.davidcuellar.tech`. Canonical URLs, sitemap entries, feeds,
 structured data, and social metadata derive from one typed configuration.
 Cloudflare Pages hosts the static output. Preview output is non-indexable, and
 the generated Pages production hostname must redirect path-for-path to the

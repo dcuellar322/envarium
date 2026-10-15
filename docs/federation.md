@@ -7,7 +7,7 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Switchyard can connect directly to another Switchyard daemon for bounded
+Envarium can connect directly to another Envarium daemon for bounded
 machine inventory and typed lifecycle operations. Federation is disabled by
 default. It introduces no account, hosted control plane, or dependency for
 local projects.
@@ -15,7 +15,7 @@ local projects.
 ## Trust and transport model
 
 An operator supplies the network path, such as a WireGuard or Tailscale link or
-an SSH local forward. Switchyard does not configure or trust that tunnel. The
+an SSH local forward. Envarium does not configure or trust that tunnel. The
 remote-agent listener independently requires TLS 1.3 mutual authentication,
 and both sides pin identity:
 
@@ -29,7 +29,7 @@ and both sides pin identity:
   machine identity, request identity, capability outcome, and operation ID.
 
 The remote protocol contains identity, project/environment summaries, and
-`start`, `stop`, `restart`, or `rebuild`. It has no terminal, generic shell,
+`start`, `stop`, `restart`, `deploy`, `kill`, or `rebuild`. It has no terminal, generic shell,
 SQL, Docker, log, secret, source-file, plugin, or MCP endpoint. Inventory omits
 repository locations, runtime-native identifiers, Git changes, environment
 values, logs, and terminal output.
@@ -44,7 +44,7 @@ leaf certificate through an independent channel.
 Run the peer daemon explicitly:
 
 ```text
-switchyard daemon \
+envarium daemon \
   --remote-address 127.0.0.1:19618 \
   --remote-tls-certificate /absolute/pki/agent.pem \
   --remote-tls-key /absolute/pki/agent-key.pem \
@@ -68,7 +68,7 @@ is never fetched from a cloud service.
 Register the peer through the Machines view or CLI:
 
 ```text
-switchyard machine add "Build box" https://127.0.0.1:19618 \
+envarium machine add "Build box" https://127.0.0.1:19618 \
   --server-fingerprint <agent-sha256> \
   --ca /absolute/pki/agent-ca.pem \
   --client-certificate /absolute/pki/controller.pem \
@@ -82,14 +82,14 @@ placed in SQLite or an API response; the database retains only its local file
 reference. Review additional access separately:
 
 ```text
-switchyard machine access <machine> \
+envarium machine access <machine> \
   --grant inventory.read \
   --grant project.operate \
   --yes
 
-switchyard machine snapshot <machine>
-switchyard machine run <machine> <remote-project-id> restart --yes
-switchyard machine disable <machine> --yes
+envarium machine snapshot <machine>
+envarium machine run <machine> <remote-project-id> restart --yes
+envarium machine disable <machine> --yes
 ```
 
 `machine remove` deletes only the controller registration. It does not contact

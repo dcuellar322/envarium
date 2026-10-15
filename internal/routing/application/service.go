@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/routing/domain"
+	"envarium.dev/envarium/internal/routing/domain"
 )
 
 // CandidateSource builds current route candidates from another application

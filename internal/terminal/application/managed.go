@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/terminal/domain"
+	"envarium.dev/envarium/internal/terminal/domain"
 )
 
 type managedSession struct {

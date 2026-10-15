@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"switchyard.dev/switchyard/internal/sourcecontrol/domain"
+	"envarium.dev/envarium/internal/sourcecontrol/domain"
 )
 
 type gitRunner interface {

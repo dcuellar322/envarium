@@ -6,8 +6,8 @@ import (
 	"sort"
 	"sync"
 
-	"switchyard.dev/switchyard/internal/environments/application"
-	"switchyard.dev/switchyard/internal/environments/domain"
+	"envarium.dev/envarium/internal/environments/application"
+	"envarium.dev/envarium/internal/environments/domain"
 )
 
 // ErrEnvironmentNotFound identifies an unknown environment record.

@@ -1,5 +1,5 @@
 ---
-title: "ADR-0003: One Switchyard binary with daemon, CLI, and MCP subcommands"
+title: "ADR-0003: One Envarium binary with daemon, CLI, and MCP subcommands"
 description: Ship one versioned executable over cohesive internal packages.
 category: concept
 audience: [contributor, maintainer]
@@ -16,7 +16,7 @@ compatibility, and desktop sidecar packaging.
 
 ## Decision
 
-Ship one primary executable named `switchyard`. `cmd/switchyard` is a small
+Ship one primary executable named `envarium`. `cmd/envarium` is a small
 composition root; command groups delegate to client or application packages.
 The binary exposes daemon, CLI, UI, doctor, and MCP entry points without
 centralizing their behavior in one package.

@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	actionsDomain "switchyard.dev/switchyard/internal/actions/domain"
-	operations "switchyard.dev/switchyard/internal/operations/application"
-	portsDomain "switchyard.dev/switchyard/internal/ports/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	actionsDomain "envarium.dev/envarium/internal/actions/domain"
+	operations "envarium.dev/envarium/internal/operations/application"
+	portsDomain "envarium.dev/envarium/internal/ports/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) GetPortRegistry(w http.ResponseWriter, r *http.Request) {

@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"switchyard.dev/switchyard/internal/environments/application"
-	"switchyard.dev/switchyard/internal/environments/domain"
-	portsApplication "switchyard.dev/switchyard/internal/ports/application"
-	portsDomain "switchyard.dev/switchyard/internal/ports/domain"
+	"envarium.dev/envarium/internal/environments/application"
+	"envarium.dev/envarium/internal/environments/domain"
+	portsApplication "envarium.dev/envarium/internal/ports/application"
+	portsDomain "envarium.dev/envarium/internal/ports/domain"
 )
 
 // PortDeclarations adapts the accepted-manifest port registry to registration.

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"switchyard.dev/switchyard/internal/routing/domain"
+	"envarium.dev/envarium/internal/routing/domain"
 )
 
 // Resolver returns the current bounded local-route resolution.

@@ -1,6 +1,6 @@
 ---
-title: Switchyard documentation
-description: Install Switchyard, bring a project online, connect coding agents, troubleshoot safely, or inspect the complete reference.
+title: Envarium documentation
+description: Install Envarium, bring a project online, connect coding agents, troubleshoot safely, or inspect the complete reference.
 category: tutorial
 audience: [user, contributor, integrator]
 since: 1.0.0
@@ -14,7 +14,7 @@ hero:
       link: /docs/start/
       icon: right-arrow
       variant: primary
-    - text: Download Switchyard
+    - text: Download Envarium
       link: /download/
       icon: download
 ---

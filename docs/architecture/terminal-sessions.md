@@ -8,7 +8,7 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Switchyard owns interactive PTYs in the Go control plane. The browser is a
+Envarium owns interactive PTYs in the Go control plane. The browser is a
 bounded input/output adapter; Vue, xterm.js, HTTP, and WebSocket handlers do not
 resolve commands or own process lifetime.
 
@@ -82,9 +82,9 @@ states are explicit.
 
 ## Agent metadata boundary
 
-An agent session is a terminal session with provider metadata. Switchyard
+An agent session is a terminal session with provider metadata. Envarium
 records provider, project, checkout/worktree, working directory, lifecycle,
 visible-output byte count, and reconnect-buffer truncation. The capture policy
-is literally `user_visible_terminal_output_only`: Switchyard neither requests
+is literally `user_visible_terminal_output_only`: Envarium neither requests
 nor claims access to hidden reasoning or provider-private state. Rich provider
 SDK orchestration remains outside this reliable PTY boundary.

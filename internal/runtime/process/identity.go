@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"envarium.dev/envarium/internal/runtime/domain"
 	"github.com/shirou/gopsutil/v4/mem"
 	gnet "github.com/shirou/gopsutil/v4/net"
 	gprocess "github.com/shirou/gopsutil/v4/process"
-	"switchyard.dev/switchyard/internal/runtime/domain"
 )
 
 type processUsage struct {

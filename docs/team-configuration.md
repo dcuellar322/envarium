@@ -7,14 +7,14 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Switchyard can share portable project templates, policy packs, curated plugin
+Envarium can share portable project templates, policy packs, curated plugin
 metadata, and enterprise configuration without a hosted account. This feature
 is optional: a fresh installation has no trusted publisher, bundle, sync key,
 registry, or remote dependency.
 
 ## Trust model
 
-Every `switchyard.bundle/v1` document is signed with Ed25519 over a canonical
+Every `envarium.bundle/v1` document is signed with Ed25519 over a canonical
 envelope. Installation succeeds only when all of these checks pass:
 
 1. the publisher's exact public key was trusted with explicit confirmation;
@@ -30,9 +30,9 @@ identity, and trust the public half through an independently authenticated
 channel:
 
 ```text
-switchyard team key generate --output maintainer.signing-key.json
-switchyard team key show maintainer.signing-key.json
-switchyard team publisher trust --name "Maintainers" \
+envarium team key generate --output maintainer.signing-key.json
+envarium team key show maintainer.signing-key.json
+envarium team publisher trust --name "Maintainers" \
   --public-key <reviewed-base64-public-key> --yes
 ```
 
@@ -47,15 +47,15 @@ Payloads are ordinary bounded JSON documents. Sign and install them as separate
 reviewed operations:
 
 ```text
-switchyard team bundle sign policy-pack org-policy \
+envarium team bundle sign policy-pack org-policy \
   --name "Organization policy" --version 1.0.0 \
   --payload policy.json --key maintainer.signing-key.json \
   --output org-policy.bundle.json
 
-switchyard team bundle install org-policy.bundle.json --yes
-switchyard team bundle list
-switchyard team policy
-switchyard team registry
+envarium team bundle install org-policy.bundle.json --yes
+envarium team bundle list
+envarium team policy
+envarium team registry
 ```
 
 Project-template payloads contain a manifest and a bounded variable catalog.
@@ -64,9 +64,9 @@ complete result with the normal project-manifest validator before it can be
 written:
 
 ```text
-switchyard team template render template.go-service \
+envarium team template render template.go-service \
   --set name=payments --set root=/work/payments \
-  --output switchyard.project.json
+  --output envarium.project.json
 ```
 
 Policy packs use allowlists. Multiple packs and enterprise configurations are
@@ -91,11 +91,11 @@ Create an age X25519 identity on the receiving machine and share only its
 recipient string:
 
 ```text
-switchyard team sync key-generate --output receiving-machine.agekey
-switchyard team sync export --recipient age1... --output team-config.age
-switchyard team sync preview team-config.age \
+envarium team sync key-generate --output receiving-machine.agekey
+envarium team sync export --recipient age1... --output team-config.age
+envarium team sync preview team-config.age \
   --identity receiving-machine.agekey
-switchyard team sync import team-config.age \
+envarium team sync import team-config.age \
   --identity receiving-machine.agekey --yes
 ```
 

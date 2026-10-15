@@ -13,13 +13,13 @@ sidebar:
 ## Inspect the conflict
 
 ```bash
-switchyard ports list
+envarium ports list
 ```
 
 The registry keeps three facts distinct:
 
 - a manifest or Compose **declaration**;
-- a Switchyard **reservation or lease**, including stopped projects;
+- a Envarium **reservation or lease**, including stopped projects;
 - a live operating-system or Docker **binding**.
 
 Open the conflict drawer in the port registry to see the project, service,
@@ -28,7 +28,7 @@ protocol, host address, and evidence source for both sides.
 ## Ask for a bounded suggestion
 
 ```bash
-switchyard ports next --range 15000-19999 --project <project> --json
+envarium ports next --range 15000-19999 --project <project> --json
 ```
 
 The suggestion considers declarations, leases, current listeners, excluded
@@ -40,8 +40,8 @@ Update the portable manifest or machine-local overlay, then validate and
 preview start again:
 
 ```bash
-switchyard manifest validate <project>
-switchyard plan start <project>
+envarium manifest validate <project>
+envarium plan start <project>
 ```
 
 Success is a clean port registry and a plan whose exact host port matches the

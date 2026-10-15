@@ -32,7 +32,7 @@ func MigrateFile(path string, apply bool) (MigrationResult, error) {
 	if err != nil {
 		return MigrationResult{}, err
 	}
-	result := MigrationResult{Path: absolute, From: "switchyard.dev/v1alpha1", To: "switchyard.dev/v1", Changed: changed}
+	result := MigrationResult{Path: absolute, From: "envarium.dev/v1alpha1", To: "envarium.dev/v1", Changed: changed}
 	if !changed || !apply {
 		if changed {
 			result.Preview = string(migrated)
@@ -71,7 +71,7 @@ func writeExclusiveFile(path string, contents []byte, mode os.FileMode) error {
 }
 
 func replaceFile(path string, contents []byte, mode os.FileMode) error {
-	temporary, err := os.CreateTemp(filepath.Dir(path), ".switchyard-manifest-*.tmp")
+	temporary, err := os.CreateTemp(filepath.Dir(path), ".envarium-manifest-*.tmp")
 	if err != nil {
 		return err
 	}

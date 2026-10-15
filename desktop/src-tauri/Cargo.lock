@@ -1008,6 +1008,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "envarium-desktop"
+version = "1.0.0"
+dependencies = [
+ "semver",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-autostart",
+ "tauri-plugin-deep-link",
+ "tauri-plugin-notification",
+ "tauri-plugin-shell",
+ "tauri-plugin-single-instance",
+ "tauri-plugin-updater",
+ "url",
+]
+
+[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3724,24 +3742,6 @@ dependencies = [
  "base64 0.21.7",
  "serde",
  "serde_json",
-]
-
-[[package]]
-name = "switchyard-desktop"
-version = "1.0.0"
-dependencies = [
- "semver",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-autostart",
- "tauri-plugin-deep-link",
- "tauri-plugin-notification",
- "tauri-plugin-shell",
- "tauri-plugin-single-instance",
- "tauri-plugin-updater",
- "url",
 ]
 
 [[package]]

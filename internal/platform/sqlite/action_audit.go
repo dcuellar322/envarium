@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"switchyard.dev/switchyard/internal/actions/domain"
+	"envarium.dev/envarium/internal/actions/domain"
 )
 
 // ActionAuditRepository persists command-free, environment-free action audits.

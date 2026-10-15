@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 type managedRun struct {
@@ -37,7 +37,7 @@ func (d *Driver) startAll(ctx context.Context, plan executionPlan, sink domain.P
 		if created {
 			started = append(started, managed)
 		}
-		message := "already running with verified Switchyard ownership"
+		message := "already running with verified Envarium ownership"
 		if created {
 			managed.mu.Lock()
 			pid := managed.run.Processes[0].PID

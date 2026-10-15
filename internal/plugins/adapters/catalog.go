@@ -3,7 +3,7 @@ package adapters
 import (
 	"context"
 
-	pluginsApplication "switchyard.dev/switchyard/internal/plugins/application"
+	pluginsApplication "envarium.dev/envarium/internal/plugins/application"
 )
 
 // ProjectLookup is implemented with a function at composition time so this

@@ -6,14 +6,14 @@ import (
 	"testing"
 	"time"
 
-	settingsApplication "switchyard.dev/switchyard/internal/settings/application"
-	"switchyard.dev/switchyard/internal/settings/domain"
+	settingsApplication "envarium.dev/envarium/internal/settings/application"
+	"envarium.dev/envarium/internal/settings/domain"
 )
 
 func TestSettingsRepositoryPersistsRevisionAndValueFreeAudit(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	database, err := Open(ctx, filepath.Join(t.TempDir(), "switchyard.db"))
+	database, err := Open(ctx, filepath.Join(t.TempDir(), "envarium.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

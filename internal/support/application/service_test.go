@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"switchyard.dev/switchyard/internal/support/domain"
+	"envarium.dev/envarium/internal/support/domain"
 )
 
 type probeStub struct{ values []domain.AdapterAvailability }

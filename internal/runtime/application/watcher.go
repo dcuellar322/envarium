@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"switchyard.dev/switchyard/internal/runtime/domain"
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 const watcherRefreshInterval = 2 * time.Second

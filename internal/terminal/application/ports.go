@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"switchyard.dev/switchyard/internal/terminal/domain"
+	"envarium.dev/envarium/internal/terminal/domain"
 )
 
 // LaunchPlan is a trusted, fully resolved argument-array PTY command. Command

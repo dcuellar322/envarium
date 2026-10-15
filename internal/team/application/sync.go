@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"slices"
 
-	"switchyard.dev/switchyard/internal/team/domain"
+	"envarium.dev/envarium/internal/team/domain"
 )
 
 // ExportSync returns configuration-only data for caller-side encryption.

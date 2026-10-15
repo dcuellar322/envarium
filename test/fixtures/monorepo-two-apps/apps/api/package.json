@@ -1,5 +1,5 @@
 {
-  "name": "@switchyard-fixture/api",
+  "name": "@envarium-fixture/api",
   "private": true,
   "scripts": {
     "dev": "node server.js"

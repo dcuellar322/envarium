@@ -1,6 +1,6 @@
 ---
 title: Product concepts
-description: Mental models for Switchyard projects, runtimes, operations, trust, evidence, agents, workspaces, and adapters.
+description: Mental models for Envarium projects, runtimes, operations, trust, evidence, agents, workspaces, and adapters.
 slug: docs/concepts
 category: concept
 audience: [user, contributor, integrator]
@@ -8,7 +8,7 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Switchyard models a repository and its local operational environment as a
+Envarium models a repository and its local operational environment as a
 project. The [glossary](../glossary.md) defines the stable vocabulary for
 projects, services, runtimes, runs, operations, actions, declarations,
 reservations, and bindings.

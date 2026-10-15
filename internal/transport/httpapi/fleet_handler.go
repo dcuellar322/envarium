@@ -6,9 +6,9 @@ import (
 	"io"
 	"net/http"
 
-	fleetApplication "switchyard.dev/switchyard/internal/fleet/application"
-	"switchyard.dev/switchyard/internal/fleet/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	fleetApplication "envarium.dev/envarium/internal/fleet/application"
+	"envarium.dev/envarium/internal/fleet/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) ListMachines(w http.ResponseWriter, r *http.Request) {

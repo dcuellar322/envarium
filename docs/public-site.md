@@ -1,20 +1,20 @@
 ---
 title: Public site launch contract
-description: Canonical identity, domain, audience, privacy, and launch boundaries for the Switchyard website.
+description: Canonical identity, domain, audience, privacy, and launch boundaries for the Envarium website.
 category: contributor
 audience: [maintainer, contributor]
 since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Switchyard's public identity is **Switchyard — Local Development Command
+Envarium's public identity is **Envarium — Local Development Command
 Center**. The primary promise is: **Your local development command center.**
 
 The product is an open-source, local-first command center for managing local
 repositories and development environments as projects rather than as
 disconnected containers, scripts, and terminal tabs. Public copy pairs the
 name with “Local Development Command Center” to distinguish it from unrelated
-products named Switchyard.
+products named Envarium.
 
 ## Audience and outcomes
 
@@ -32,14 +32,14 @@ request.
 
 ## Canonical and hosting policy
 
-- Canonical origin: `https://switchyard.davidcuellar.tech`
+- Canonical origin: `https://envarium.davidcuellar.tech`
 - Documentation: `/docs/`
 - Downloads: `/download/`, linked directly to GitHub Release assets
 - Hosting: Cloudflare Pages static output
 - Preview deployments: non-indexable
 - Generated Pages production hostname: permanent path-preserving redirect to
   the canonical origin
-- Optional `davidcuellar.tech/switchyard` route: redirect only, never duplicate
+- Optional `davidcuellar.tech/envarium` route: redirect only, never duplicate
   content
 
 The repository controls build output, redirect requirements, headers, and
@@ -49,9 +49,9 @@ and GitHub repository metadata are external launch checklist items.
 ## Naming and collision review
 
 Search results contain unrelated historic and current software named
-Switchyard. Metadata, social cards, release stories, and major documentation
+Envarium. Metadata, social cards, release stories, and major documentation
 entry pages therefore use the full descriptive identity. The repository and
-binary names remain `switchyard`; a later legal review may supersede this
+binary names remain `envarium`; a later legal review may supersede this
 decision without changing public URL paths.
 
 ## Privacy

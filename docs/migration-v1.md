@@ -8,24 +8,24 @@ since: 1.0.0
 lastVerified: 2026-07-17
 ---
 
-Normal v1 startup migrates an older Switchyard database automatically while
+Normal v1 startup migrates an older Envarium database automatically while
 holding the single-daemon lock. Before the first schema change, it runs SQLite
 `quick_check`, creates a consistent private backup named
-`switchyard.db.v<old>.pre-v<new>.bak`, verifies that backup, and only then
+`envarium.db.v<old>.pre-v<new>.bak`, verifies that backup, and only then
 applies ordered embedded migrations. A newer-than-supported database is never
 opened for mutation.
 
 For an explicit offline review:
 
 ```bash
-switchyard data inspect
-switchyard data backup --output /private/path/switchyard-before-v1.bak
-switchyard data migrate
-switchyard data migrate --write
+envarium data inspect
+envarium data backup --output /private/path/envarium-before-v1.bak
+envarium data migrate
+envarium data migrate --write
 ```
 
 `data inspect` and the default `data migrate` are read-only. `--write` refuses
-to run while `daemon.lock` exists. Stop Switchyard first; do not delete a live
+to run while `daemon.lock` exists. Stop Envarium first; do not delete a live
 lock. The automatic backup is non-overwriting, so a failed prior attempt stays
 available for inspection rather than being replaced.
 

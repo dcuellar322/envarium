@@ -74,7 +74,7 @@ are mode `0600`, and the data directory is `0700`.
 
 The loopback browser API is a separate router:
 
-1. `switchyard ui` requests a one-time, one-minute bootstrap token over local
+1. `envarium ui` requests a one-time, one-minute bootstrap token over local
    IPC.
 2. The browser exchanges that token once for an HttpOnly, SameSite=Strict
    session cookie and an eight-hour CSRF token.

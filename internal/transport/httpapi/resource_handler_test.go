@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	resources "switchyard.dev/switchyard/internal/observability/application"
-	"switchyard.dev/switchyard/internal/observability/domain"
-	"switchyard.dev/switchyard/internal/transport/contract/generated"
+	resources "envarium.dev/envarium/internal/observability/application"
+	"envarium.dev/envarium/internal/observability/domain"
+	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 type resourceStub struct {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"switchyard.dev/switchyard/internal/transport/httpclient"
+	"envarium.dev/envarium/internal/transport/httpclient"
 )
 
 const (

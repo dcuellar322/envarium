@@ -25,8 +25,8 @@ func (l platformLauncher) OpenTerminal(ctx context.Context, workingDirectory str
 	case "iterm":
 		script = `tell application "iTerm"` + "\n" +
 			`activate` + "\n" +
-			`set switchyardWindow to (create window with default profile)` + "\n" +
-			`tell current session of switchyardWindow to write text "` + appleScriptQuote(shellCommand) + `"` + "\n" +
+			`set envariumWindow to (create window with default profile)` + "\n" +
+			`tell current session of envariumWindow to write text "` + appleScriptQuote(shellCommand) + `"` + "\n" +
 			`end tell`
 	default:
 		return errors.New("unsupported terminal provider")
