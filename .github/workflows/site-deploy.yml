@@ -93,6 +93,7 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_PROJECT_NAME: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
       ENVARIUM_DOMAIN: envarium.davidcuellar.tech
+      CLOUDFLARE_ZONE_NAME: davidcuellar.tech
       LEGACY_CLOUDFLARE_PROJECT_NAME: switchyard-dcuellar
     steps:
       - name: Check deployment configuration
@@ -143,6 +144,54 @@ jobs:
               --data "$(jq -nc --arg name "$ENVARIUM_DOMAIN" '{name: $name}')")"
             jq -e '.success == true' <<< "$response" >/dev/null
           fi
+      - name: Ensure canonical DNS record
+        if: steps.deployment.outputs.configured == 'true'
+        run: |
+          api="https://api.cloudflare.com/client/v4"
+          auth_header="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+          zones="$(curl --fail-with-body --silent --show-error \
+            "$api/zones?name=$CLOUDFLARE_ZONE_NAME&status=active" \
+            --header "$auth_header" \
+            --header 'Content-Type: application/json')"
+          zone_id="$(jq -r --arg name "$CLOUDFLARE_ZONE_NAME" \
+            '.result[]? | select(.name == $name) | .id' <<< "$zones" | head -n 1)"
+          if [[ -z "$zone_id" ]]; then
+            echo "::error::Cloudflare zone $CLOUDFLARE_ZONE_NAME was not found or is not readable by the deployment token."
+            exit 1
+          fi
+
+          records_endpoint="$api/zones/$zone_id/dns_records"
+          records="$(curl --fail-with-body --silent --show-error \
+            "$records_endpoint?name=$ENVARIUM_DOMAIN" \
+            --header "$auth_header" \
+            --header 'Content-Type: application/json')"
+          record_id="$(jq -r '.result[0].id // empty' <<< "$records")"
+          record_type="$(jq -r '.result[0].type // empty' <<< "$records")"
+          if [[ -n "$record_id" && "$record_type" != "CNAME" ]]; then
+            echo "::error::$ENVARIUM_DOMAIN already has a non-CNAME DNS record; refusing to replace it automatically."
+            exit 1
+          fi
+
+          target="$CLOUDFLARE_PROJECT_NAME.pages.dev"
+          payload="$(jq -nc \
+            --arg type CNAME \
+            --arg name "$ENVARIUM_DOMAIN" \
+            --arg content "$target" \
+            '{type: $type, name: $name, content: $content, proxied: true, ttl: 1}')"
+          if [[ -n "$record_id" ]]; then
+            response="$(curl --fail-with-body --silent --show-error --request PUT \
+              "$records_endpoint/$record_id" \
+              --header "$auth_header" \
+              --header 'Content-Type: application/json' \
+              --data "$payload")"
+          else
+            response="$(curl --fail-with-body --silent --show-error --request POST \
+              "$records_endpoint" \
+              --header "$auth_header" \
+              --header 'Content-Type: application/json' \
+              --data "$payload")"
+          fi
+          jq -e '.success == true' <<< "$response" >/dev/null
       - name: Redirect legacy Switchyard hostname
         if: steps.deployment.outputs.configured == 'true'
         run: |
@@ -150,5 +199,16 @@ jobs:
           mkdir -p "$legacy_directory"
           printf '/* https://%s/:splat 301\n' "$ENVARIUM_DOMAIN" > "$legacy_directory/_redirects"
           pnpm --dir site exec wrangler pages deploy "$legacy_directory" --project-name "$LEGACY_CLOUDFLARE_PROJECT_NAME" --branch master --commit-dirty=true
-      - if: steps.deployment.outputs.configured == 'true'
-        run: pnpm --dir site smoke
+      - name: Smoke canonical domain
+        if: steps.deployment.outputs.configured == 'true'
+        run: |
+          for attempt in $(seq 1 30); do
+            if pnpm --dir site smoke; then
+              exit 0
+            fi
+            if [[ "$attempt" -lt 30 ]]; then
+              echo "Canonical domain is not ready yet; retrying in 10 seconds ($attempt/30)."
+              sleep 10
+            fi
+          done
+          exit 1
