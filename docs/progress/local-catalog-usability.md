@@ -1,3 +1,11 @@
+---
+title: Local catalog usability
+description: Real-project import, lifecycle, observation, desktop, and deployment verification.
+category: contributor
+audience: [contributor, maintainer]
+lastVerified: 2026-10-15
+---
+
 # Local catalog usability — October 15, 2026
 
 This follow-up exercises the application against a real development directory,
