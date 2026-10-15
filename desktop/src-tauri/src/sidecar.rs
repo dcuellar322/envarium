@@ -86,6 +86,7 @@ impl<R: Runtime> Sidecar<R> {
             .sidecar("envarium")
             .map_err(|error| SidecarError(format!("bundled sidecar unavailable: {error}")))?
             .args(complete_args)
+            .env("PATH", crate::environment::sidecar_path())
             .output()
             .await
             .map_err(|error| SidecarError(format!("sidecar launch failed: {error}")))?;

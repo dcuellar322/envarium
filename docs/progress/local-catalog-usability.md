@@ -27,6 +27,9 @@ with both native commands and Docker Compose projects.
   and unavailable-data claims. Missing Git/resource data is shown explicitly.
 - Initialized routing after the one-time browser credential is removed so the
   router cannot restore it to the address bar.
+- Supplemented the desktop sidecar's macOS tool path with stable Homebrew,
+  Docker, and user-tool directories so Finder and launch-at-login can find local
+  runtimes without executing shell profiles or changing the user's shell setup.
 - Shared the Docker context/TLS resolver across runtime, host, and storage
   observers. A slow disk-usage request no longer marks a responding Engine
   offline; expensive host disk inspection is cached separately from CPU/memory.
@@ -64,6 +67,13 @@ with both native commands and Docker Compose projects.
   validation on this workstation after one schema compilation.
 - Five browser E2E scenarios pass, including a real Docker lifecycle and the
   authenticated settings flow. All fourteen visual scenarios pass.
+- All fourteen native unit tests, Rust formatting, and strict Clippy checks pass,
+  including Finder PATH precedence, missing-home, and empty-PATH cases.
+- The macOS app and disk image build successfully; the local app is installed
+  in `~/Applications`. Desktop cold-start on this workstation is blocked inside
+  WebKit's synchronous power-source query before application setup runs. A
+  separate `pmset -g batt` query also hangs. No system power service was restarted;
+  the authenticated browser dashboard is the working handoff surface.
 
 Native packaging and production results are reported with the delivered
 revision. Canonical DNS activation still requires zone authorization; a

@@ -135,5 +135,12 @@ access to systems outside this checkout or an explicit product/brand decision.
 - [ ] Build signed CLI and desktop artifacts on macOS, Linux, and Windows.
 - [ ] Install fresh, upgrade from the last former-name build if supported, migrate
       data, exercise deep links, connect MCP clients, and uninstall cleanly.
+- [x] Import this workstation's eleven runnable development projects, validate
+      their manifests/start plans, smoke-test native and Compose lifecycle/log
+      controls, and leave the authenticated browser dashboard open. See
+      [local catalog usability](progress/local-catalog-usability.md) for the
+      macOS WebKit/power-service startup limitation affecting the installed shell.
+- [x] Deploy the renamed public site, pass its seven-route production smoke
+      check, and verify a temporary legacy redirect to the reachable Pages origin.
 - [ ] Crawl the production site and documentation for broken links, mixed branding,
       incorrect canonical URLs, and old download artifacts.
