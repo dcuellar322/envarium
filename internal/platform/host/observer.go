@@ -76,7 +76,7 @@ func (o *Observer) Observe(ctx context.Context) application.HostObservation {
 			docker.StorageBytes, docker.ReclaimableBytes = &storage, &reclaimable
 			docker.Attribution = "shared"
 		}
-		o.dockerCached, o.dockerUntil = &docker, now.Add(30*time.Second)
+		o.dockerCached, o.dockerUntil = &docker, o.now().UTC().Add(5*time.Minute)
 	}
 	result.Docker = *o.dockerCached
 	result.Warnings = append(result.Warnings, o.dockerWarnings...)

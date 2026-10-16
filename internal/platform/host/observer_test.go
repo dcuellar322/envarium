@@ -81,3 +81,21 @@ func TestSlowStorageDoesNotMarkConnectedEngineOffline(t *testing.T) {
 		t.Fatalf("partial Docker observation = %#v", got)
 	}
 }
+
+func TestHostStorageFailureBackoffDoesNotFreezeCapacity(t *testing.T) {
+	t.Parallel()
+	at := time.Now()
+	calls, cpuCalls := 0, 0
+	o := &Observer{cpu: func(context.Context, time.Duration, bool) ([]float64, error) { cpuCalls++; return []float64{1}, nil }, memory: func(context.Context) (*mem.VirtualMemoryStat, error) { return &mem.VirtualMemoryStat{}, nil }, docker: func(context.Context) (int64, int64, error) { calls++; return 0, 0, errDockerStorageUnavailable }, now: func() time.Time { return at }}
+	_ = o.Observe(context.Background())
+	at = at.Add(time.Minute)
+	got := o.Observe(context.Background())
+	if calls != 1 || cpuCalls != 2 || len(got.Warnings) != 1 {
+		t.Fatalf("storage=%d cpu=%d observation=%#v", calls, cpuCalls, got)
+	}
+	at = at.Add(5 * time.Minute)
+	_ = o.Observe(context.Background())
+	if calls != 2 {
+		t.Fatal("storage retry never resumed")
+	}
+}

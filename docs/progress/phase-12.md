@@ -151,3 +151,42 @@ warning without starting or mutating any project.
 - Network and disk values are cumulative provider counters. The retained chart
   exposes exact observed values and gaps; rate derivation with reset metadata
   can be added as a later coherent analytics slice.
+
+## 2026-10-16 — Bound expensive Docker inventory retries
+
+Live diagnosis found Docker Desktop VM CPU above 200% while application
+containers were nearly idle. An 8-second Engine CPU profile accumulated 20.63
+CPU-seconds; volume directory walks and image metadata traversal dominated.
+Pausing Envarium and allowing in-flight work to drain yielded zero Engine CPU
+samples in a 10-second profile. Resuming it reproduced the load.
+
+The resource sampler cached successful storage inventories but retried failed
+five-second scans every ten seconds. Engine filesystem work can continue after
+the request times out. Cache failures as explicit unavailable results for five
+minutes, preserve caller-cancellation semantics, allow the background inventory
+30 seconds, and start cache expiry after completion. Host storage observations
+also use a five-minute cache while retaining their three-second request bound
+and normal CPU/memory refresh cadence. No cleanup or resource deletion occurs.
+
+Targeted adapter and host tests passed with the race detector; targeted go vet
+and the CLI build passed. Tests cover failure backoff, retry recovery, caller
+cancellation, and CPU refresh while Docker storage is unavailable. The rebuilt
+local bin/envarium was installed with a rollback copy at
+/tmp/envarium-before-cpu-fix, and the existing daemon was restarted for live
+verification. Monitoring thresholds and intervals are unchanged.
+
+Live verification at 15:01 CDT: patched daemon reports ready; all four
+monitoring HTTP readiness checks return 200, both Prometheus exporter targets
+are Up, and all seven Kuma monitors have fresh Up samples. Docker VM CPU sampled
+29.9% after installation versus 232.8% before. A 10-second post-fix Engine
+profile recorded 510ms CPU (5.1%), down from 257.84% in the active pre-fix
+profile. The normal two-second runtime watcher remains running. Slow storage
+inventories can still produce bounded work every five minutes; this change
+prevents continuous retries rather than deleting or suppressing inventory.
+
+PR #50 CI follow-up: the Public site CI generated-file check detected that
+these progress notes were missing from `site/public/llms-full.txt`. Regenerated
+the documentation bundle through the site generator. Site typecheck, lint, all 19 unit
+tests with coverage, the static build, and content/build validation passed
+locally. The regenerated CLI, manifest, settings, MCP, API, and plugin reference
+files remain unchanged.

@@ -179,3 +179,40 @@ func int64Pointer(value int64) *int64 { return &value }
 func sameInt64Pointer(left, right *int64) bool {
 	return left == nil && right == nil || left != nil && right != nil && *left == *right
 }
+
+func TestDockerStorageBacksOffFailuresAndRecovers(t *testing.T) {
+	t.Parallel()
+	clock := time.Now()
+	engine := &dockerDiskClientFake{err: context.DeadlineExceeded}
+	storage := &DockerStorage{clientFactory: func(context.Context) (dockerDiskClient, error) { return engine, nil }, now: func() time.Time { return clock }, cacheFor: 5 * time.Minute}
+	for i := 0; i < 12; i++ {
+		got, err := storage.InspectStorage(context.Background(), nil)
+		if err != nil || got.Connected || len(got.Warnings) == 0 {
+			t.Fatalf("failure hidden: %#v %v", got, err)
+		}
+		clock = clock.Add(10 * time.Second)
+	}
+	if engine.calls != 1 {
+		t.Fatalf("failed inventory retried %d times before backoff expired", engine.calls)
+	}
+	clock = clock.Add(5 * time.Minute)
+	engine.err = nil
+	got, err := storage.InspectStorage(context.Background(), nil)
+	if err != nil || !got.Connected || engine.calls != 2 {
+		t.Fatalf("did not recover: %#v %v calls=%d", got, err, engine.calls)
+	}
+}
+
+func TestDockerStorageDoesNotCacheCallerCancellation(t *testing.T) {
+	t.Parallel()
+	engine := &dockerDiskClientFake{err: context.Canceled}
+	storage := &DockerStorage{clientFactory: func(context.Context) (dockerDiskClient, error) { return engine, nil }, now: time.Now, cacheFor: 5 * time.Minute}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	_, _ = storage.InspectStorage(ctx, nil)
+	engine.err = nil
+	got, _ := storage.InspectStorage(context.Background(), nil)
+	if !got.Connected || engine.calls != 2 {
+		t.Fatal("caller cancellation poisoned inventory cache")
+	}
+}
