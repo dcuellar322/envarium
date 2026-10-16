@@ -183,3 +183,10 @@ profile recorded 510ms CPU (5.1%), down from 257.84% in the active pre-fix
 profile. The normal two-second runtime watcher remains running. Slow storage
 inventories can still produce bounded work every five minutes; this change
 prevents continuous retries rather than deleting or suppressing inventory.
+
+PR #50 CI follow-up: the Public site CI generated-file check detected that
+these progress notes were missing from `site/public/llms-full.txt`. Regenerated
+the documentation bundle through the site generator. Site typecheck, lint, all 19 unit
+tests with coverage, the static build, and content/build validation passed
+locally. The regenerated CLI, manifest, settings, MCP, API, and plugin reference
+files remain unchanged.
