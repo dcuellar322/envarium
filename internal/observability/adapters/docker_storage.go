@@ -32,13 +32,14 @@ type DockerStorage struct {
 	mu       sync.Mutex
 	cached   *client.DiskUsageResult
 	cacheTil time.Time
+	lastErr  error
 }
 
 // NewDockerStorage creates a cached Docker SDK storage observer.
 func NewDockerStorage() *DockerStorage {
 	return &DockerStorage{
 		clientFactory: func(ctx context.Context) (dockerDiskClient, error) { return dockerengine.NewClient(ctx) },
-		now:           time.Now, cacheFor: 2 * time.Minute, timeout: 5 * time.Second,
+		now:           time.Now, cacheFor: 5 * time.Minute, timeout: 30 * time.Second,
 	}
 }
 
@@ -61,26 +62,40 @@ func (s *DockerStorage) diskUsage(ctx context.Context) (client.DiskUsageResult, 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	now := s.now().UTC()
-	if s.cached != nil && now.Before(s.cacheTil) {
-		return *s.cached, nil
+	if now.Before(s.cacheTil) {
+		if s.lastErr != nil {
+			return client.DiskUsageResult{}, s.lastErr
+		}
+		if s.cached != nil {
+			return *s.cached, nil
+		}
 	}
 	timeout := s.timeout
 	if timeout <= 0 {
-		timeout = 5 * time.Second
+		timeout = 30 * time.Second
 	}
 	inspectCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	engine, err := s.clientFactory(inspectCtx)
 	if err != nil {
-		return client.DiskUsageResult{}, err
+		return s.cacheFailure(ctx, err)
 	}
 	defer func() { _ = engine.Close() }()
 	usage, err := engine.DiskUsage(inspectCtx, client.DiskUsageOptions{Containers: true, Images: true, Volumes: true, BuildCache: true, Verbose: true})
 	if err != nil {
-		return client.DiskUsageResult{}, err
+		return s.cacheFailure(ctx, err)
 	}
-	s.cached, s.cacheTil = &usage, now.Add(s.cacheFor)
+	s.cached, s.cacheTil, s.lastErr = &usage, s.now().UTC().Add(s.cacheFor), nil
 	return usage, nil
+}
+
+// Failed disk scans also need backoff: canceling an Engine request does not
+// necessarily cancel its filesystem traversal on the daemon.
+func (s *DockerStorage) cacheFailure(ctx context.Context, err error) (client.DiskUsageResult, error) {
+	if ctx.Err() == nil {
+		s.lastErr, s.cacheTil = err, s.now().UTC().Add(s.cacheFor)
+	}
+	return client.DiskUsageResult{}, err
 }
 
 func classifyDiskUsage(usage client.DiskUsageResult, projects []domain.ProjectDescriptor, observedAt time.Time) domain.StorageInventory {
