@@ -9374,6 +9374,29 @@ production build and preserves every existing browser, accessibility and
 visual assertion. Required verification includes the unified local quality
 gate and the full hosted matrix for the final master commit.
 
+The first master commit, `d2f469a`, passes the full local `make quality`, all
+hosted core CI jobs, public-site CI and public-site deployment. The full local
+site suite passes 38 browser/accessibility cases with 14 intentional skips and
+four visual cases. The new foreground preview server terminates with its test
+run; no listener remains on its test port.
+
+The hosted Rust audit then exposed RUSTSEC-2026-0367, RUSTSEC-2026-0368 and
+RUSTSEC-2026-0369 in the Windows updater's ZIP 4 dependency. The published
+updater still requires ZIP 4. Pin the
+[upstream ZIP 9 fix](https://github.com/tauri-apps/plugins-workspace/commit/ba98bfadc4c868c9a7e1a226c83af528e1f11b89)
+at its exact revision, with its required stable Tauri 2.12.4 runtime and 2.7.3
+build tooling. The lockfile resolves ZIP 9.0.5. This is a temporary immutable
+upstream pin until a patched updater release is published. Update verification
+and archive support remain enabled; no advisory ignore is added.
+
+The resulting local Rust audit reports zero vulnerabilities, with four upstream
+maintenance warnings and one existing GLib unsoundness warning. Strict Clippy
+and all seventeen native tests pass. The Windows sidecar job now also runs
+`cargo check --all-targets --locked` against the native manifest so the
+Windows-only archive dependency is compiled in hosted CI. Native app packaging
+and the release-only updater path are additionally checked locally; compile-only
+updater fixture values are not signed or installed release configuration.
+
 ---
 
 # Phase 19: Post-v1 optional expansion

@@ -171,6 +171,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: node desktop/scripts/build-sidecar.mjs
+      - if: runner.os == 'Windows'
+        run: rustup show
+      - if: runner.os == 'Windows'
+        run: cargo check --manifest-path desktop/src-tauri/Cargo.toml --all-targets --locked
 
   release-build:
     name: Embedded release build
