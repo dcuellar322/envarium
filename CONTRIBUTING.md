@@ -28,6 +28,11 @@ abstractions.
 ## Verification
 
 Run the relevant superset of the quality commands documented in `AGENTS.md`.
+
+After changing documentation or API contracts, run `pnpm site:generate` and
+include `docs/generated/`, `site/public/llms.txt`, and `site/public/llms-full.txt`
+in the same commit. `make quality` and public-site CI both run
+`make site-generate-check` to detect stale generated documentation.
 The repository `Makefile` and CI workflow become the canonical entry points as
 they are introduced. Generated contracts and schemas must be reproducible and
 clean after generation.

@@ -229,62 +229,45 @@ func (r *CatalogRepository) AcceptProposal(ctx context.Context, id string, at ti
 
 // GetProject returns one durable project with its tags.
 func (r *CatalogRepository) GetProject(ctx context.Context, id string) (catalog.Project, error) {
-	row := r.database.connection.QueryRowContext(ctx, `SELECT id, slug, display_name, description, trust_state,
-        primary_location, manifest_revision, created_at, updated_at FROM projects WHERE id = ?`, id)
-	project, err := scanProject(row)
+	row := r.database.queryRowContext(ctx, `SELECT id, slug, display_name, description, trust_state,
+        primary_location, manifest_revision, created_at, updated_at,
+        (SELECT json_group_array(tag) FROM (SELECT tag FROM project_tags WHERE project_id = projects.id ORDER BY tag))
+        FROM projects WHERE id = ?`, id)
+	var tags string
+	project, err := scanProject(row, &tags)
 	if err != nil {
 		return catalog.Project{}, err
 	}
-	project.Tags, err = r.projectTags(ctx, project.ID)
+	err = json.Unmarshal([]byte(tags), &project.Tags)
 	return project, err
 }
 
 // ListProjects returns all durable projects with their tags.
 func (r *CatalogRepository) ListProjects(ctx context.Context) ([]catalog.Project, error) {
-	rows, err := r.database.connection.QueryContext(ctx, `SELECT id, slug, display_name, description, trust_state,
-        primary_location, manifest_revision, created_at, updated_at FROM projects ORDER BY display_name, id`)
-	if err != nil {
-		return nil, err
-	}
-	result := []catalog.Project{}
-	for rows.Next() {
-		project, err := scanProject(rows)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, project)
-	}
-	if err := rows.Err(); err != nil {
-		_ = rows.Close()
-		return nil, err
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	for index := range result {
-		result[index].Tags, err = r.projectTags(ctx, result[index].ID)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return result, nil
-}
-
-func (r *CatalogRepository) projectTags(ctx context.Context, projectID string) ([]string, error) {
-	rows, err := r.database.connection.QueryContext(ctx, `SELECT tag FROM project_tags WHERE project_id = ? ORDER BY tag`, projectID)
+	rows, err := r.database.queryContext(ctx, `SELECT p.id,p.slug,p.display_name,p.description,p.trust_state,
+        p.primary_location,p.manifest_revision,p.created_at,p.updated_at,t.tag
+        FROM projects p LEFT JOIN project_tags t ON t.project_id=p.id
+        ORDER BY p.display_name,p.id,t.tag`)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = rows.Close() }()
-	tags := []string{}
+	result := []catalog.Project{}
 	for rows.Next() {
-		var tag string
-		if err := rows.Scan(&tag); err != nil {
+		var tag sql.NullString
+		project, err := scanProject(rows, &tag)
+		if err != nil {
 			return nil, err
 		}
-		tags = append(tags, tag)
+		if len(result) == 0 || result[len(result)-1].ID != project.ID {
+			project.Tags = []string{}
+			result = append(result, project)
+		}
+		if tag.Valid {
+			result[len(result)-1].Tags = append(result[len(result)-1].Tags, tag.String)
+		}
 	}
-	return tags, rows.Err()
+	return result, rows.Err()
 }
 
 // AcceptedManifest returns the latest immutable trusted manifest revision.
@@ -332,11 +315,12 @@ func (r *CatalogRepository) RemoveProject(ctx context.Context, projectID string,
 
 type rowScanner interface{ Scan(...any) error }
 
-func scanProject(row rowScanner) (catalog.Project, error) {
+func scanProject(row rowScanner, extra ...any) (catalog.Project, error) {
 	var project catalog.Project
 	var created, updated string
-	err := row.Scan(&project.ID, &project.Slug, &project.DisplayName, &project.Description, &project.TrustState,
-		&project.PrimaryLocation, &project.ManifestRevision, &created, &updated)
+	destinations := []any{&project.ID, &project.Slug, &project.DisplayName, &project.Description, &project.TrustState,
+		&project.PrimaryLocation, &project.ManifestRevision, &created, &updated}
+	err := row.Scan(append(destinations, extra...)...)
 	if errors.Is(err, sql.ErrNoRows) {
 		return catalog.Project{}, application.ErrNotFound
 	}

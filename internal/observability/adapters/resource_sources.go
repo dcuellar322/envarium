@@ -34,7 +34,7 @@ func (s *ResourceCatalogSource) ListResourceProjects(ctx context.Context) ([]obs
 		if project.TrustState != catalogDomain.TrustTrusted {
 			continue
 		}
-		effective, effectiveErr := s.catalog.EffectiveManifest(ctx, project.ID, nil)
+		effective, effectiveErr := s.catalog.ResolveManifest(ctx, project, nil)
 		if effectiveErr != nil {
 			return nil, effectiveErr
 		}

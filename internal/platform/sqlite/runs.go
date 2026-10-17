@@ -3,7 +3,9 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"envarium.dev/envarium/internal/runtime/domain"
@@ -72,64 +74,67 @@ func (r *RunRepository) SetRestartCount(ctx context.Context, runID string, count
 
 // ListProjectRuns returns newest runs first with every recorded process fingerprint.
 func (r *RunRepository) ListProjectRuns(ctx context.Context, projectID string) ([]domain.RunRecord, error) {
-	rows, err := r.database.connection.QueryContext(ctx, `SELECT id, project_id, service_id, runtime_driver,
-        origin, started_at, ended_at, exit_code, termination_reason, identity_fingerprint, restart_count, operation_id
-        FROM runs WHERE project_id = ? ORDER BY started_at DESC, id DESC LIMIT 200`, projectID)
+	rows, err := r.database.queryContext(ctx, `WITH selected AS (
+        SELECT * FROM runs WHERE project_id = ? ORDER BY started_at DESC, id DESC LIMIT 200
+    ) SELECT r.id, r.project_id, r.service_id, r.runtime_driver, r.origin, r.started_at,
+        r.ended_at, r.exit_code, r.termination_reason, r.identity_fingerprint, r.restart_count, r.operation_id,
+        p.run_id, p.pid, p.process_group_id, p.executable, p.started_at, p.working_directory,
+        p.identity_fingerprint, p.observed_at FROM selected r
+        LEFT JOIN run_processes p ON p.run_id = r.id
+        ORDER BY r.started_at DESC, r.id DESC, p.observed_at DESC, p.pid`, projectID)
 	if err != nil {
 		return nil, fmt.Errorf("list runtime runs: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 	result := []domain.RunRecord{}
 	for rows.Next() {
-		run, scanErr := scanRun(rows)
-		if scanErr != nil {
-			return nil, scanErr
-		}
-		result = append(result, run)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	for index := range result {
-		result[index].Processes, err = r.runProcesses(ctx, result[index].ID)
+		run, identity, err := scanRunWithProcess(rows)
 		if err != nil {
 			return nil, err
 		}
-	}
-	return result, nil
-}
-
-func (r *RunRepository) runProcesses(ctx context.Context, runID string) ([]domain.ProcessIdentity, error) {
-	rows, err := r.database.connection.QueryContext(ctx, `SELECT run_id, pid, process_group_id, executable,
-        started_at, working_directory, identity_fingerprint, observed_at
-        FROM run_processes WHERE run_id = ? ORDER BY observed_at DESC, pid`, runID)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = rows.Close() }()
-	result := []domain.ProcessIdentity{}
-	for rows.Next() {
-		var item domain.ProcessIdentity
-		var started, observed string
-		if err := rows.Scan(&item.RunID, &item.PID, &item.ProcessGroup, &item.Executable, &started,
-			&item.WorkingDirectory, &item.Fingerprint, &observed); err != nil {
-			return nil, err
+		if len(result) == 0 || result[len(result)-1].ID != run.ID {
+			run.Processes = []domain.ProcessIdentity{}
+			result = append(result, run)
 		}
-		item.StartedAt, _ = parseTime(started)
-		item.ObservedAt, _ = parseTime(observed)
-		result = append(result, item)
+		if identity.RunID != "" {
+			result[len(result)-1].Processes = append(result[len(result)-1].Processes, identity)
+		}
 	}
 	return result, rows.Err()
 }
 
-func scanRun(row rowScanner) (domain.RunRecord, error) {
+func scanRunWithProcess(row rowScanner) (domain.RunRecord, domain.ProcessIdentity, error) {
+	var id, executable, started, directory, fingerprint, observed sql.NullString
+	var pid, group sql.NullInt64
+	run, err := scanRun(row, &id, &pid, &group, &executable, &started, &directory, &fingerprint, &observed)
+	if err != nil || !id.Valid {
+		return run, domain.ProcessIdentity{}, err
+	}
+	if pid.Int64 < math.MinInt32 || pid.Int64 > math.MaxInt32 || group.Int64 < math.MinInt32 || group.Int64 > math.MaxInt32 {
+		return domain.RunRecord{}, domain.ProcessIdentity{}, errors.New("persisted process identity is outside PID range")
+	}
+	began, err := parseTime(started.String)
+	if err != nil {
+		return domain.RunRecord{}, domain.ProcessIdentity{}, err
+	}
+	at, err := parseTime(observed.String)
+	if err != nil {
+		return domain.RunRecord{}, domain.ProcessIdentity{}, err
+	}
+	return run, domain.ProcessIdentity{RunID: id.String, PID: int32(pid.Int64), ProcessGroup: int32(group.Int64),
+		Executable: executable.String, StartedAt: began, WorkingDirectory: directory.String,
+		Fingerprint: fingerprint.String, ObservedAt: at}, nil
+}
+
+func scanRun(row rowScanner, extra ...any) (domain.RunRecord, error) {
 	var run domain.RunRecord
 	var started string
 	var ended sql.NullString
 	var exitCode sql.NullInt64
 	var operationID sql.NullString
-	if err := row.Scan(&run.ID, &run.ProjectID, &run.ServiceID, &run.RuntimeDriver, &run.Origin,
-		&started, &ended, &exitCode, &run.TerminationReason, &run.IdentityFingerprint, &run.RestartCount, &operationID); err != nil {
+	destinations := []any{&run.ID, &run.ProjectID, &run.ServiceID, &run.RuntimeDriver, &run.Origin,
+		&started, &ended, &exitCode, &run.TerminationReason, &run.IdentityFingerprint, &run.RestartCount, &operationID}
+	if err := row.Scan(append(destinations, extra...)...); err != nil {
 		return domain.RunRecord{}, err
 	}
 	run.StartedAt, _ = parseTime(started)

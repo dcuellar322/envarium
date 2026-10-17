@@ -3,7 +3,6 @@ package compose
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -25,20 +24,12 @@ func (r contextResolver) Resolve(ctx context.Context, requested, workingDirector
 	if requested == "" && os.Getenv(client.EnvOverrideHost) != "" && os.Getenv("DOCKER_CONTEXT") == "" {
 		return dockerConnection{FromEnv: true}, nil
 	}
-	name := requested
-	if name == "" {
-		var stdout, stderr limitedBuffer
-		err := r.runner.Run(ctx, domain.Command{Executable: "docker", Arguments: []string{"context", "show"}, WorkingDirectory: workingDirectory}, &stdout, &stderr)
-		if err != nil {
-			return dockerConnection{}, commandError("read active Docker context", err, stderr.String())
-		}
-		name = strings.TrimSpace(stdout.String())
-	}
-	if name == "" {
-		return dockerConnection{}, errors.New("docker context name is empty")
+	arguments := []string{"context", "inspect"}
+	if requested != "" {
+		arguments = append(arguments, requested)
 	}
 	var stdout, stderr limitedBuffer
-	err := r.runner.Run(ctx, domain.Command{Executable: "docker", Arguments: []string{"context", "inspect", name}, WorkingDirectory: workingDirectory}, &stdout, &stderr)
+	err := r.runner.Run(ctx, domain.Command{Executable: "docker", Arguments: arguments, WorkingDirectory: workingDirectory}, &stdout, &stderr)
 	if err != nil {
 		return dockerConnection{}, commandError("inspect Docker context", err, stderr.String())
 	}

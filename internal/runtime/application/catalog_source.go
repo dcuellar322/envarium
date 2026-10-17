@@ -2,9 +2,6 @@ package application
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -21,6 +18,7 @@ var ErrProjectUntrusted = errors.New("project must be trusted before runtime use
 type CatalogSource struct {
 	catalog      *catalog.Service
 	environments EnvironmentSource
+	projections  runtimeProjections
 }
 
 // RuntimeEnvironment is the narrow worktree overlay consumed by runtime
@@ -61,21 +59,39 @@ func (s *CatalogSource) ResolveRuntime(ctx context.Context, projectID string) (d
 	if err != nil {
 		return domain.ProjectRuntime{}, err
 	}
+	return s.runtimeProject(ctx, project, requestedID, environment)
+}
+
+func (s *CatalogSource) runtimeProject(ctx context.Context, project catalogDomain.Project, requestedID string, environment RuntimeEnvironment) (domain.ProjectRuntime, error) {
 	if project.TrustState != catalogDomain.TrustTrusted {
 		return domain.ProjectRuntime{}, ErrProjectUntrusted
 	}
-	effective, err := s.catalog.EffectiveManifest(ctx, projectID, nil)
+	hash, err := s.catalog.ManifestContentHash(ctx, project)
 	if err != nil {
 		return domain.ProjectRuntime{}, err
 	}
-	document, err := json.Marshal(effective.Manifest)
-	if err != nil {
-		return domain.ProjectRuntime{}, fmt.Errorf("encode effective manifest identity: %w", err)
+	result, ok := s.projections.load(project, hash)
+	if !ok {
+		result, err = s.projectRuntime(ctx, project)
+		if err != nil {
+			return domain.ProjectRuntime{}, err
+		}
+		s.projections.store(result)
 	}
-	digest := sha256.Sum256(document)
+	if environment.ID != "" {
+		applyRuntimeEnvironment(&result, requestedID, environment)
+	}
+	return result, nil
+}
+
+func (s *CatalogSource) projectRuntime(ctx context.Context, project catalogDomain.Project) (domain.ProjectRuntime, error) {
+	effective, err := s.catalog.ResolveManifest(ctx, project, nil)
+	if err != nil {
+		return domain.ProjectRuntime{}, err
+	}
 	result := domain.ProjectRuntime{
 		ProjectID: project.ID, ProjectSlug: project.Slug, Root: project.PrimaryLocation,
-		Kind: domain.Kind(effective.Manifest.Runtime.Driver), ManifestHash: hex.EncodeToString(digest[:]), Ports: map[string]domain.PortDeclaration{},
+		Kind: domain.Kind(effective.Manifest.Runtime.Driver), ManifestHash: effective.ContentHash, Ports: map[string]domain.PortDeclaration{},
 	}
 	if compose := effective.Manifest.Runtime.Compose; compose != nil {
 		result.Compose = &domain.ComposeRuntime{
@@ -133,9 +149,6 @@ func (s *CatalogSource) ResolveRuntime(ctx context.Context, projectID string) (d
 			}
 		}
 		result.Services = append(result.Services, declaration)
-	}
-	if environment.ID != "" {
-		applyRuntimeEnvironment(&result, requestedID, environment)
 	}
 	return result, nil
 }

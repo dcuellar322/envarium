@@ -141,3 +141,60 @@ func TestCompositeAnyUsesMemberResults(t *testing.T) {
 		t.Fatalf("result = %#v", result)
 	}
 }
+
+type fixedHealthObserver struct{ observation runtime.Observation }
+
+func (s fixedHealthObserver) Inspect(context.Context, string) (runtime.Observation, error) {
+	return s.observation, nil
+}
+
+type countingHealthEvaluator struct{ calls int }
+
+func (e *countingHealthEvaluator) Evaluate(context.Context, runtime.ProjectRuntime, runtime.Observation, runtime.HealthCheckDefinition) observability.HealthResult {
+	e.calls++
+	return observability.HealthResult{Status: observability.StatusHealthy}
+}
+
+type countingHealthReads struct {
+	healthRepositoryStub
+	reads int
+}
+
+func (r *countingHealthReads) LatestHealth(context.Context, string) ([]observability.HealthResult, error) {
+	r.reads++
+	return nil, nil
+}
+
+func TestStoppedAndPausedHealthDoesNotExecuteOrPersistDiscardedProbes(t *testing.T) {
+	t.Parallel()
+	for _, state := range []runtime.ProjectState{runtime.StateStopped, runtime.StatePaused} {
+		project := runtime.ProjectRuntime{ProjectID: "stopped", Services: []runtime.ServiceDeclaration{{ID: "api", HealthChecks: []runtime.HealthCheckDefinition{{ID: "command", ServiceID: "api", Type: "command", Command: []string{"must-not-run"}, Retries: 3, Required: true}}}}}
+		observer := fixedHealthObserver{observation: runtime.Observation{State: state, ObservedAt: time.Now().UTC()}}
+		repository := &countingHealthReads{}
+		evaluator := &countingHealthEvaluator{}
+		service := NewHealthService(healthSourceStub{project: project}, observer, repository, evaluator)
+		for range 2 {
+			result, err := service.EvaluateProject(context.Background(), project.ProjectID)
+			if err != nil || result.Status != observability.StatusUnknown || len(result.Results) != 0 {
+				t.Fatalf("stopped health: %v %v", result, err)
+			}
+			if _, err := service.Get(context.Background(), project.ProjectID); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if evaluator.calls != 0 || len(repository.results) != 0 || repository.reads != 0 {
+			t.Fatalf("discarded work still ran: probes=%d writes=%d reads=%d", evaluator.calls, len(repository.results), repository.reads)
+		}
+	}
+	// Starting services still execute readiness probes.
+	project := runtime.ProjectRuntime{ProjectID: "starting", Services: []runtime.ServiceDeclaration{{ID: "api", HealthChecks: []runtime.HealthCheckDefinition{{ID: "ready", ServiceID: "api", Type: "process"}}}}}
+	evaluator := &countingHealthEvaluator{}
+	repository := &healthRepositoryStub{}
+	service := NewHealthService(healthSourceStub{project: project}, fixedHealthObserver{observation: runtime.Observation{State: runtime.StateStarting, ObservedAt: time.Now().UTC()}}, repository, evaluator)
+	if _, err := service.EvaluateProject(context.Background(), project.ProjectID); err != nil {
+		t.Fatal(err)
+	}
+	if evaluator.calls != 1 || len(repository.results) != 1 {
+		t.Fatal("starting readiness was disabled")
+	}
+}

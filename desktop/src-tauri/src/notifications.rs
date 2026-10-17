@@ -1,4 +1,6 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
+
+const RECENT_OPERATION_LIMIT: usize = 1_024;
 
 use crate::model::DesktopSnapshot;
 
@@ -12,6 +14,7 @@ pub struct Notice {
 pub struct Tracker {
     initialized: bool,
     operations: HashSet<String>,
+    operation_order: VecDeque<String>,
     health: HashMap<String, String>,
     active_warnings: HashSet<String>,
     diagnostics: HashMap<String, usize>,
@@ -19,11 +22,6 @@ pub struct Tracker {
 
 impl Tracker {
     pub fn observe(&mut self, snapshot: &DesktopSnapshot) -> Vec<Notice> {
-        let operation_ids = snapshot
-            .operations
-            .iter()
-            .map(|operation| operation.id.clone())
-            .collect::<HashSet<_>>();
         let health = snapshot
             .projects
             .iter()
@@ -43,7 +41,7 @@ impl Tracker {
 
         if !self.initialized {
             self.initialized = true;
-            self.operations = operation_ids;
+            self.remember_operations(&snapshot.operations);
             self.health = health;
             self.active_warnings = warnings.keys().cloned().collect();
             self.diagnostics = diagnostics;
@@ -101,11 +99,25 @@ impl Tracker {
             }
         }
 
-        self.operations.extend(operation_ids);
+        self.remember_operations(&snapshot.operations);
         self.health = health;
         self.active_warnings = warnings.keys().cloned().collect();
         self.diagnostics = diagnostics;
         notices
+    }
+
+    fn remember_operations(&mut self, operations: &[crate::model::Operation]) {
+        for operation in operations.iter().rev() {
+            if !self.operations.contains(&operation.id) {
+                self.operations.insert(operation.id.clone());
+                self.operation_order.push_back(operation.id.clone());
+                if self.operation_order.len() > RECENT_OPERATION_LIMIT
+                    && let Some(id) = self.operation_order.pop_front()
+                {
+                    self.operations.remove(&id);
+                }
+            }
+        }
     }
 }
 
@@ -229,5 +241,23 @@ mod tests {
         current.projects[0].health.as_mut().unwrap().status = "healthy".into();
         current.port_conflict_count = 0;
         assert_eq!(tracker.observe(&current).len(), 1);
+    }
+
+    #[test]
+    fn bounds_long_running_operation_deduplication_without_repeating_recent_notices() {
+        let mut tracker = Tracker::default();
+        let mut current = snapshot();
+        tracker.observe(&current);
+        for index in 0..5_000 {
+            current.operations = vec![Operation {
+                id: format!("operation-{index}"),
+                kind: "runtime.start".into(),
+                state: "failed".into(),
+            }];
+            assert_eq!(tracker.observe(&current).len(), 1);
+            assert!(tracker.observe(&current).is_empty());
+            assert!(tracker.operations.len() <= RECENT_OPERATION_LIMIT);
+            assert!(tracker.operation_order.len() <= RECENT_OPERATION_LIMIT);
+        }
     }
 }

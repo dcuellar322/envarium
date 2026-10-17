@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 
 type ConnectionState = 'connecting' | 'connected' | 'disconnected'
 
@@ -9,7 +9,10 @@ type EnvariumEvent = {
   sequence?: number
 }
 
-export function useEventConnection(onEvent?: (event: EnvariumEvent) => void) {
+export function useEventConnection(
+  onEvent?: (event: EnvariumEvent) => void,
+  active?: Ref<boolean>,
+) {
   const state = ref<ConnectionState>('connecting')
   let socket: WebSocket | undefined
   let reconnectTimer: number | undefined
@@ -23,10 +26,12 @@ export function useEventConnection(onEvent?: (event: EnvariumEvent) => void) {
       return
     }
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    socket = new WebSocket(
+    const connection = new WebSocket(
       `${protocol}//${window.location.host}/ws/v1/events?after=${lastSequence}`,
     )
-    socket.addEventListener('message', (message) => {
+    socket = connection
+    connection.addEventListener('message', (message) => {
+      if (socket !== connection || active?.value === false) return
       try {
         const event = JSON.parse(String(message.data)) as EnvariumEvent
         if (typeof event.sequence === 'number')
@@ -39,22 +44,41 @@ export function useEventConnection(onEvent?: (event: EnvariumEvent) => void) {
       attempts = 0
       state.value = 'connected'
     })
-    socket.addEventListener('close', () => {
+    connection.addEventListener('close', () => {
+      if (socket !== connection) return
       state.value = 'disconnected'
-      if (!disposed) {
+      if (!disposed && active?.value !== false) {
         const delay = Math.min(5_000, 250 * 2 ** attempts)
         attempts += 1
         reconnectTimer = window.setTimeout(connect, delay)
       }
     })
-    socket.addEventListener('error', () => {
+    connection.addEventListener('error', () => {
+      if (socket !== connection) return
       state.value = 'disconnected'
       socket?.close()
     })
   }
 
+  function pause() {
+    if (reconnectTimer !== undefined) window.clearTimeout(reconnectTimer)
+    reconnectTimer = undefined
+    const previous = socket
+    socket = undefined
+    previous?.close(1000, 'presentation paused')
+    state.value = 'connecting'
+  }
+  if (active)
+    watch(
+      active,
+      (visible) => {
+        if (visible) connect()
+        else pause()
+      },
+      { flush: 'sync' },
+    )
   onMounted(() => {
-    connect()
+    if (active?.value !== false) connect()
   })
 
   onBeforeUnmount(() => {

@@ -7,33 +7,16 @@ import (
 
 	observabilityDomain "envarium.dev/envarium/internal/observability/domain"
 	operations "envarium.dev/envarium/internal/operations/application"
+	overview "envarium.dev/envarium/internal/overview/application"
 	"envarium.dev/envarium/internal/runtime/domain"
 	"envarium.dev/envarium/internal/transport/contract/generated"
 )
 
 func (h *handler) GetProjectRuntime(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
-	observation, err := h.runtime.Inspect(r.Context(), projectID)
+	observation, err := overview.ObserveRuntime(r.Context(), h.runtime, h.health, projectID)
 	if err != nil {
 		writeApplicationError(w, r, err)
 		return
-	}
-	if h.health != nil {
-		health, healthErr := h.health.Get(r.Context(), projectID)
-		if healthErr == nil && health.Status == "unhealthy" &&
-			(observation.State == domain.StateRunning || observation.State == domain.StateRunningExternal || observation.State == domain.StatePartiallyRunning) {
-			observation.State = domain.StateDegraded
-		} else if healthErr == nil && health.Status == "unknown" && health.ObserverState == "connected" && len(health.Results) > 0 &&
-			(observation.State == domain.StateRunning || observation.State == domain.StateRunningExternal) {
-			observation.State = domain.StateStarting
-		}
-	}
-	if observation.Services == nil {
-		observation.Services = []domain.ServiceObservation{}
-	}
-	for index := range observation.Services {
-		if observation.Services[index].Ports == nil {
-			observation.Services[index].Ports = []domain.PublishedPort{}
-		}
 	}
 	writeJSON(w, http.StatusOK, observation)
 }

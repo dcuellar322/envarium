@@ -12,6 +12,7 @@ import {
   getOperation,
   getProject,
   getProjectGit,
+  getProjectGitStatus,
   getProjectHealth,
   getProjectLogs,
   getProjectMetrics,
@@ -174,8 +175,11 @@ export async function loadManifestProposal(proposalId: string): Promise<Manifest
   return result.data
 }
 
-export async function loadProjectRuntime(projectId: string): Promise<RuntimeObservation> {
-  const result = await getProjectRuntime({ path: { projectId } })
+export async function loadProjectRuntime(
+  projectId: string,
+  signal?: AbortSignal,
+): Promise<RuntimeObservation> {
+  const result = await getProjectRuntime({ path: { projectId }, signal })
   if (result.error || !result.data) throw new Error('Runtime observation is unavailable.')
   return result.data
 }
@@ -207,14 +211,26 @@ export async function loadEffectiveManifest(projectId: string): Promise<Effectiv
   return result.data
 }
 
-export async function loadProjectGit(projectId: string): Promise<GitState> {
-  const result = await getProjectGit({ path: { projectId } })
+export async function loadProjectGit(projectId: string, signal?: AbortSignal): Promise<GitState> {
+  const result = await getProjectGit({ path: { projectId }, signal })
   if (result.error || !result.data) throw new Error('Git state is unavailable.')
   return result.data
 }
 
-export async function loadProjectActions(projectId: string): Promise<ProjectActions> {
-  const result = await listProjectActions({ path: { projectId } })
+export async function loadProjectGitStatus(
+  projectId: string,
+  signal?: AbortSignal,
+): Promise<GitState> {
+  const result = await getProjectGitStatus({ path: { projectId }, signal })
+  if (result.error || !result.data) throw new Error('Git status is unavailable.')
+  return result.data
+}
+
+export async function loadProjectActions(
+  projectId: string,
+  signal?: AbortSignal,
+): Promise<ProjectActions> {
+  const result = await listProjectActions({ path: { projectId }, signal })
   if (result.error || !result.data) throw new Error('Project actions are unavailable.')
   return result.data
 }

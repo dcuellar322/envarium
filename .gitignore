@@ -13,6 +13,7 @@ desktop/src-tauri/gen/schemas/
 desktop/src-tauri/target/
 web/node_modules/
 .pnpm-store/
+.playwright-cli/
 web/dist/*
 !web/dist/.gitkeep
 web/coverage/

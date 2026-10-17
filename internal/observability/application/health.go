@@ -53,8 +53,9 @@ type HealthService struct {
 	evaluator  HealthEvaluator
 	now        func() time.Time
 
-	mu      sync.Mutex
-	nextDue map[string]scheduledHealth
+	mu        sync.Mutex
+	nextDue   map[string]scheduledHealth
+	nextPrune time.Time
 }
 
 type scheduledHealth struct {
@@ -76,6 +77,9 @@ func (s *HealthService) Get(ctx context.Context, projectID string) (observabilit
 	observation, err := s.observer.Inspect(ctx, projectID)
 	if err != nil {
 		return observability.ProjectHealth{}, err
+	}
+	if observation.State == runtime.StateStopped || observation.State == runtime.StatePaused {
+		return aggregateHealth(projectID, observation, nil, s.now().UTC()), nil
 	}
 	results, err := s.repository.LatestHealth(ctx, projectID)
 	if err != nil {
@@ -133,6 +137,11 @@ func (s *HealthService) EvaluateProject(ctx context.Context, projectID string) (
 	observation, err := s.observer.Inspect(ctx, projectID)
 	if err != nil {
 		return observability.ProjectHealth{}, err
+	}
+	// Stopped/paused health is already reported as unknown by aggregateHealth.
+	// Do not execute probes or persist results that would be discarded.
+	if observation.State == runtime.StateStopped || observation.State == runtime.StatePaused {
+		return aggregateHealth(projectID, observation, nil, s.now().UTC()), nil
 	}
 	results := s.evaluateChecks(ctx, project, observation, true)
 	for _, result := range results {

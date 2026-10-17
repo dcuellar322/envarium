@@ -21,30 +21,54 @@ type gitRunner interface {
 	Run(context.Context, string, ...string) ([]byte, error)
 }
 
-type installedGit struct{}
+type installedGit struct{ executable string }
 
-func (installedGit) Run(ctx context.Context, root string, arguments ...string) ([]byte, error) {
+func (g installedGit) Run(ctx context.Context, root string, arguments ...string) ([]byte, error) {
 	args := append([]string{"-C", root}, arguments...)
-	return exec.CommandContext(ctx, "git", args...).Output()
+	executable := g.executable
+	if executable == "" {
+		executable = "git"
+	}
+	output, err := exec.CommandContext(ctx, executable, args...).Output()
+	// A selected toolchain may be removed while the daemon remains running.
+	if executable != "git" && errors.Is(err, os.ErrNotExist) {
+		return exec.CommandContext(ctx, "git", args...).Output()
+	}
+	return output, err
 }
 
 // Git observes one repository without invoking hooks or repository commands.
 type Git struct {
-	runner gitRunner
-	now    func() time.Time
+	runner   gitRunner
+	now      func() time.Time
+	metadata *gitMetadata
 }
 
 // NewGit creates an observer backed by the installed Git executable.
-func NewGit() *Git { return &Git{runner: installedGit{}, now: time.Now} }
+func NewGit() *Git {
+	return &Git{runner: newInstalledGit(), now: time.Now, metadata: &gitMetadata{entries: make(map[string]gitMetadataEntry)}}
+}
 
 // Observe returns a fresh, read-only repository snapshot for one trusted root.
 func (g *Git) Observe(ctx context.Context, projectID, root string) (domain.State, error) {
+	state, err := g.ObserveStatus(ctx, projectID, root)
+	if err != nil || !state.Repository {
+		return state, err
+	}
+	state.LastCommit = g.commitAtHead(ctx, root, state.Head)
+	state.Remotes = g.remotes(ctx, root)
+	state.Worktrees, err = g.ObserveWorktrees(ctx, root)
+	return state, err
+}
+
+// ObserveStatus reads all mutable porcelain status without unused enrichment.
+func (g *Git) ObserveStatus(ctx context.Context, projectID, root string) (domain.State, error) {
 	state := domain.State{ProjectID: projectID, Remotes: []domain.Remote{}, Worktrees: []domain.Worktree{}, ObservedAt: g.now().UTC()}
-	inside, err := g.runner.Run(ctx, root, "rev-parse", "--is-inside-work-tree")
+	directory, err := g.gitDirectory(ctx, root)
 	if err != nil {
 		return state, gitProbeError(ctx, err)
 	}
-	if strings.TrimSpace(string(inside)) != "true" {
+	if directory == "" {
 		return state, nil
 	}
 	state.Repository = true
@@ -53,13 +77,7 @@ func (g *Git) Observe(ctx context.Context, projectID, root string) (domain.State
 		return domain.State{}, fmt.Errorf("read Git porcelain status: %w", err)
 	}
 	parseStatus(status, &state)
-	state.LastCommit = g.lastCommit(ctx, root)
-	state.Remotes = g.remotes(ctx, root)
-	state.Worktrees, err = g.ObserveWorktrees(ctx, root)
-	if err != nil {
-		return domain.State{}, err
-	}
-	state.OperationState = g.operationState(ctx, root)
+	state.OperationState = operationState(directory)
 	return state, nil
 }
 
@@ -176,16 +194,9 @@ func parseWorktrees(output []byte) []domain.Worktree {
 	return result
 }
 
-func (g *Git) operationState(ctx context.Context, root string) string {
+func operationState(directory string) string {
 	for _, candidate := range []struct{ path, state string }{{"MERGE_HEAD", "merge"}, {"rebase-merge", "rebase"}, {"rebase-apply", "rebase"}} {
-		output, err := g.runner.Run(ctx, root, "rev-parse", "--git-path", candidate.path)
-		if err != nil {
-			continue
-		}
-		path := strings.TrimSpace(string(output))
-		if !filepath.IsAbs(path) {
-			path = filepath.Join(root, path)
-		}
+		path := filepath.Join(directory, candidate.path)
 		if _, err := os.Stat(path); err == nil {
 			return candidate.state
 		} else if !errors.Is(err, os.ErrNotExist) {

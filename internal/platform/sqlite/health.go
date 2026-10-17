@@ -18,7 +18,7 @@ func NewHealthRepository(database *Database) *HealthRepository {
 
 // AppendHealth records one sanitized health result.
 func (r *HealthRepository) AppendHealth(ctx context.Context, result observability.HealthResult) error {
-	_, err := r.database.connection.ExecContext(ctx, `INSERT INTO health_samples
+	_, err := r.database.execContext(ctx, `INSERT INTO health_samples
         (project_id, service_id, check_id, check_type, status, severity, required, latency_ms, message, observed_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, result.ProjectID, result.ServiceID, result.CheckID, result.Type,
 		result.Status, result.Severity, result.Required, result.LatencyMS, result.Message, formatTime(result.ObservedAt))
@@ -30,11 +30,17 @@ func (r *HealthRepository) AppendHealth(ctx context.Context, result observabilit
 
 // LatestHealth returns one newest result for each declared project check.
 func (r *HealthRepository) LatestHealth(ctx context.Context, projectID string) ([]observability.HealthResult, error) {
-	rows, err := r.database.connection.QueryContext(ctx, `SELECT project_id, service_id, check_id, check_type,
-        status, severity, required, latency_ms, message, observed_at FROM (
-          SELECT *, ROW_NUMBER() OVER (PARTITION BY service_id, check_id ORDER BY observed_at DESC, id DESC) AS rank
-          FROM health_samples WHERE project_id = ?
-        ) WHERE rank = 1 ORDER BY service_id, check_id`, projectID)
+	rows, err := r.database.queryContext(ctx, `WITH scopes AS MATERIALIZED (
+        SELECT DISTINCT service_id AS service_scope, check_id AS check_scope
+        FROM health_samples WHERE project_id = ?
+      ) SELECT project_id, service_id, check_id, check_type,
+        status, severity, required, latency_ms, message, observed_at
+        FROM scopes CROSS JOIN health_samples AS latest
+        WHERE latest.id = (
+          SELECT id FROM health_samples WHERE project_id = ?
+            AND service_id = service_scope AND check_id = check_scope
+          ORDER BY observed_at DESC, id DESC LIMIT 1
+        ) ORDER BY service_id, check_id`, projectID, projectID)
 	if err != nil {
 		return nil, fmt.Errorf("query latest health: %w", err)
 	}
@@ -58,7 +64,7 @@ func (r *HealthRepository) LatestHealth(ctx context.Context, projectID string) (
 
 // PruneHealth caps health history by age.
 func (r *HealthRepository) PruneHealth(ctx context.Context, before time.Time) error {
-	_, err := r.database.connection.ExecContext(ctx, `DELETE FROM health_samples WHERE observed_at < ?`, formatTime(before))
+	_, err := r.database.execContext(ctx, `DELETE FROM health_samples WHERE observed_at < ?`, formatTime(before))
 	if err != nil {
 		return fmt.Errorf("prune health samples: %w", err)
 	}

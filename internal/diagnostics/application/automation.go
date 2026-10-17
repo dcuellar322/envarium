@@ -112,13 +112,33 @@ func (s *AutomationService) SetEnabled(ctx context.Context, id string, enabled b
 
 // Evaluate runs deterministic diagnosis and dispatches only due, still-safe recipes.
 func (s *AutomationService) Evaluate(ctx context.Context, projectID string) ([]string, error) {
-	diagnosis, err := s.diagnostics.Diagnose(ctx, projectID, "")
+	return s.evaluate(ctx, projectID, false)
+}
+
+func (s *AutomationService) evaluate(ctx context.Context, projectID string, scheduled bool) ([]string, error) {
+	diagnose := func(ctx context.Context, id string) (domain.Diagnosis, error) {
+		return s.diagnostics.Diagnose(ctx, id, "")
+	}
+	if scheduled {
+		diagnose = s.diagnostics.DiagnoseScheduled
+	}
+	diagnosis, err := diagnose(ctx, projectID)
 	if err != nil {
 		return nil, err
 	}
 	recipes, err := s.repo.ListRecipes(ctx, projectID)
 	if err != nil {
 		return nil, err
+	}
+	anyDue := false
+	for _, recipe := range recipes {
+		if recipe.Enabled && due(recipe, s.now().UTC()) {
+			anyDue = true
+			break
+		}
+	}
+	if !anyDue {
+		return []string{}, nil
 	}
 	actions, err := s.actions.ApprovedActions(ctx, projectID)
 	if err != nil {
@@ -166,8 +186,20 @@ func (s *AutomationService) Run(ctx context.Context, interval time.Duration, onE
 				}
 				continue
 			}
+			if len(projects) == 0 {
+				continue
+			}
+			diagnostics, err := s.diagnostics.scheduledScope(ctx)
+			if err != nil {
+				if onError != nil {
+					onError("", err)
+				}
+				continue
+			}
+			cycle := *s
+			cycle.diagnostics = diagnostics
 			for _, projectID := range projects {
-				if _, err := s.Evaluate(ctx, projectID); err != nil {
+				if _, err := cycle.evaluate(ctx, projectID, true); err != nil {
 					if onError != nil {
 						onError(projectID, err)
 					}

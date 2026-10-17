@@ -29,13 +29,16 @@ func (s *ResourceService) Overview(ctx context.Context) (domain.ResourceOverview
 	if err != nil {
 		return domain.ResourceOverview{}, err
 	}
-	inventory, storageErr := s.storage.InspectStorage(ctx, projects)
+	inventory := s.storageSnapshot()
 	footprint, footprintErr := s.metrics.ResourceFootprint(ctx)
 	s.stateMu.RLock()
 	observedAt, states, warnings := s.lastAt, cloneStates(s.states), append([]string(nil), s.warnings...)
 	s.stateMu.RUnlock()
-	if storageErr != nil {
-		warnings = append(warnings, "Docker storage is unavailable.")
+	warnings = append(warnings, inventory.Warnings...)
+	if observedAt.IsZero() {
+		warnings = append(warnings, "Resource observation is pending.")
+	} else if s.now().UTC().Sub(observedAt) > 2*s.config.SampleInterval {
+		warnings = append(warnings, "Resource samples are stale; observation continues independently.")
 	}
 	if footprintErr != nil {
 		warnings = append(warnings, "Envarium footprint is unavailable.")
@@ -79,7 +82,7 @@ func (s *ResourceService) Storage(ctx context.Context) (domain.StorageInventory,
 	if err != nil {
 		return domain.StorageInventory{}, err
 	}
-	return s.storage.InspectStorage(ctx, projects)
+	return s.inspectStorage(ctx, projects)
 }
 
 // CleanupPreview lists exact currently reclaimable resources and cannot execute them.
@@ -112,7 +115,7 @@ func (s *ResourceService) CleanupPreview(ctx context.Context, projectID string) 
 func (s *ResourceService) collectionStale() bool {
 	s.stateMu.RLock()
 	defer s.stateMu.RUnlock()
-	return s.lastAt.IsZero() || s.now().UTC().Sub(s.lastAt) >= s.config.SampleInterval
+	return !s.samplerRunning && (s.lastAt.IsZero() || s.now().UTC().Sub(s.lastAt) >= s.config.SampleInterval)
 }
 
 func (s *ResourceService) retentionPolicy() domain.RetentionPolicy {

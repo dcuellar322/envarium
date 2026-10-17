@@ -12,9 +12,9 @@ OAPI_CODEGEN := $(GO) run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codeg
 SQLC := $(GO) run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 GOVULNCHECK := $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.7.0
 GOLANGCI_LINT := $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.14.0
-PLATFORM_PACKAGES := ./internal/actions/adapters ./internal/agents/providers/process ./internal/bootstrap ./internal/foundation/secretfile ./internal/platform/localipc ./internal/platform/processgroup ./internal/plugins/adapters ./internal/runtime/process ./internal/support/adapters ./internal/terminal/adapters ./internal/transport/cli ./internal/ports/adapters
+PLATFORM_PACKAGES := ./internal/actions/adapters ./internal/agents/providers/process ./internal/bootstrap ./internal/foundation/secretfile ./internal/platform/localipc ./internal/platform/processgroup ./internal/platform/sockets ./internal/plugins/adapters ./internal/runtime/process ./internal/support/adapters ./internal/terminal/adapters ./internal/transport/cli ./internal/ports/adapters
 
-.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check fmt-go-check fmt-web-check lint archcheck repository-check typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality site-dev site-generate site-build site-check site-lint site-test site-test-e2e site-test-visual site-validate site-quality
+.PHONY: bootstrap build run generate generate-go generate-web generate-check fmt fmt-check fmt-go-check fmt-web-check lint archcheck repository-check typecheck test test-race test-e2e test-visual test-visual-update test-mcp-inspector test-plugin-sdk migrate-check platform-check vuln quality frontend-install frontend-build desktop-prepare desktop-fmt desktop-fmt-check desktop-lint desktop-test desktop-build desktop-quality site-dev site-generate site-generate-check site-build site-check site-lint site-test site-test-e2e site-test-visual site-validate site-quality
 
 bootstrap: frontend-install generate
 
@@ -43,6 +43,9 @@ site-dev:
 
 site-generate:
 	$(PNPM) --dir site generate
+
+site-generate-check: site-generate
+	git diff --exit-code -- docs/generated site/public/llms.txt site/public/llms-full.txt
 
 site-build:
 	$(PNPM) --dir site build
@@ -154,4 +157,4 @@ platform-check:
 vuln:
 	GOCACHE=$(GOCACHE) $(GOVULNCHECK) ./...
 
-quality: generate-check repository-check lint typecheck test test-race test-plugin-sdk migrate-check platform-check vuln test-e2e test-visual build test-mcp-inspector desktop-quality desktop-build
+quality: generate-check site-generate-check repository-check lint typecheck test test-race test-plugin-sdk migrate-check platform-check vuln test-e2e test-visual build test-mcp-inspector desktop-quality desktop-build

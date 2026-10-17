@@ -177,3 +177,22 @@ with their required toolchains.
 Focused package tests, both formatting gates, `make platform-check`, and the
 full `make lint` gate pass locally. Hosted Windows execution and the remaining
 pull-request workflows remain the merge gate.
+
+## 2026-10-17 generated-site CI follow-up
+
+The previous public-site CI failure was caused by a documentation change whose
+generated `llms-full.txt` update was missing. Add `make site-generate-check` to
+the unified local quality gate and use the same target in public-site CI. The
+target regenerates CLI/API/schema documentation and both LLM indexes, then
+requires a clean diff; it preserves the existing hosted consistency check.
+Contributor guidance now requires these outputs in the same commit as their
+source changes. The native adapter CI matrix also executes the new socket
+package directly on macOS, Linux and Windows.
+
+The local full-site browser run also exposed Astro's agent-environment behavior:
+the preview CLI detaches, so Playwright sees its managed process exit while the
+server remains orphaned. The test launcher now uses the pinned Astro preview
+API in the foreground with explicit graceful shutdown; it serves the real
+production build and preserves every existing browser, accessibility and
+visual assertion. Required verification includes the unified local quality
+gate and the full hosted matrix for the final master commit.

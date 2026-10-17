@@ -19,21 +19,33 @@ import (
 )
 
 func (d *Driver) streamLogs(ctx context.Context, request domain.LogRequest, config normalizedConfig, sink domain.LogSink) error {
-	engine, _, _, err := d.engine.Connect(ctx, config.Connection)
+	engine, _, err := d.engine.Connect(ctx, config.Connection)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = engine.Close() }()
+	since := time.Now().Add(-time.Second).Unix()
 	containers, err := engine.ContainerList(ctx, client.ContainerListOptions{All: true, Filters: logFilters(config.ProjectName, request.Service)})
 	if err != nil {
 		return fmt.Errorf("list Compose containers for logs: %w", err)
 	}
+	items := composeContainers(containers.Items, config.ProjectName, config.Services)
+	active := false
+	for _, item := range items {
+		active = active || activeContainerState(item.State)
+	}
 	group, groupCtx := errgroup.WithContext(ctx)
-	for _, item := range composeContainers(containers.Items, config.ProjectName, config.Services) {
+	for _, item := range items {
 		item := item
 		group.Go(func() error { return streamContainerLogs(groupCtx, engine, request, item, sink) })
 	}
-	return group.Wait()
+	if err := group.Wait(); err != nil {
+		return err
+	}
+	if request.Follow && !active {
+		return waitForLogChange(ctx, engine, config.ProjectName, since)
+	}
+	return nil
 }
 
 func logFilters(projectName, service string) client.Filters {

@@ -14,6 +14,7 @@ import (
 	"envarium.dev/envarium/internal/foundation/correlation"
 	resources "envarium.dev/envarium/internal/observability/application"
 	operations "envarium.dev/envarium/internal/operations/application"
+	overview "envarium.dev/envarium/internal/overview/application"
 	plugins "envarium.dev/envarium/internal/plugins/application"
 	ports "envarium.dev/envarium/internal/ports/application"
 	runtime "envarium.dev/envarium/internal/runtime/application"
@@ -64,7 +65,7 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 		writeProblem(w, r, http.StatusConflict, "PROPOSAL_REVIEWED", "Manifest proposal already reviewed", "Create a new proposal before making another trust decision.")
 	case errors.Is(err, catalog.ErrHumanApprovalRequired):
 		writeProblem(w, r, http.StatusForbidden, "HUMAN_APPROVAL_REQUIRED", "Human approval required", "Assisted manifest proposals cannot be accepted by an agent identity.")
-	case errors.Is(err, operations.ErrInvalidRequest):
+	case errors.Is(err, operations.ErrInvalidRequest), errors.Is(err, overview.ErrInvalidRequest):
 		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request invalid", "One or more request parameters are outside their supported range.")
 	case errors.Is(err, operations.ErrNotFound):
 		writeProblem(w, r, http.StatusNotFound, "OPERATION_NOT_FOUND", "Operation not found", "No durable operation exists for this identifier.")

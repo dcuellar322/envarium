@@ -85,6 +85,8 @@ func (s *LogService) Run(ctx context.Context, onError func(string, error)) {
 	}
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
+	retention := time.NewTicker(time.Minute)
+	defer retention.Stop()
 	type worker struct{ cancel context.CancelFunc }
 	workers := map[string]worker{}
 	var wait sync.WaitGroup
@@ -127,6 +129,10 @@ func (s *LogService) Run(ctx context.Context, onError func(string, error)) {
 			return
 		case <-ticker.C:
 			refresh()
+		case <-retention.C:
+			if err := s.archive.ApplyRetention(ctx); err != nil && ctx.Err() == nil {
+				onError("", fmt.Errorf("retain runtime logs: %w", err))
+			}
 		}
 	}
 }

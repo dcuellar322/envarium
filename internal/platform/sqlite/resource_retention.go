@@ -58,16 +58,20 @@ type metricBucket struct {
 }
 
 func (d *Database) rollupMetrics(ctx context.Context, sourceResolution, targetResolution int) error {
-	rows, err := d.connection.QueryContext(ctx, `SELECT `+metricColumns+` FROM resource_metric_samples AS source
-		WHERE source.resolution_seconds = ?
-		  AND source.sampled_at >= COALESCE((
-			SELECT MAX(target.sampled_at)
-			FROM resource_metric_samples AS target
-			WHERE target.project_id = source.project_id
-			  AND target.service_id = source.service_id
-			  AND target.resolution_seconds = ?
-		  ), '0001-01-01T00:00:00Z')
-		ORDER BY source.sampled_at, source.id`, sourceResolution, targetResolution)
+	rows, err := d.queryContext(ctx, `WITH scopes AS MATERIALIZED (
+		SELECT DISTINCT project_id AS p, service_id AS s
+		FROM resource_metric_samples WHERE resolution_seconds = ?
+	), latest AS MATERIALIZED (
+		SELECT p, s, COALESCE((
+			SELECT sampled_at FROM resource_metric_samples
+			WHERE project_id = p AND service_id = s AND resolution_seconds = ?
+			ORDER BY sampled_at DESC LIMIT 1
+		), '0001-01-01T00:00:00Z') AS last_at FROM scopes
+	) SELECT `+metricColumns+` FROM latest CROSS JOIN resource_metric_samples AS source
+		INDEXED BY resource_metric_history_idx
+		WHERE source.project_id = latest.p AND source.service_id = latest.s
+		  AND source.resolution_seconds = ? AND source.sampled_at >= latest.last_at
+		ORDER BY source.sampled_at, source.id`, sourceResolution, targetResolution, sourceResolution)
 	if err != nil {
 		return fmt.Errorf("read metric rollup source: %w", err)
 	}
@@ -86,8 +90,13 @@ func (d *Database) rollupMetrics(ctx context.Context, sourceResolution, targetRe
 		return err
 	}
 	defer func() { _ = tx.Rollback() }()
+	statement, err := tx.PrepareContext(ctx, upsertMetricRollupSQL)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = statement.Close() }()
 	for _, bucket := range buckets {
-		if err := upsertRollup(ctx, tx, finishMetricBucket(bucket)); err != nil {
+		if err := upsertRollup(ctx, statement, finishMetricBucket(bucket)); err != nil {
 			return err
 		}
 	}
@@ -154,8 +163,7 @@ func finishMetricBucket(bucket metricBucket) observability.MetricPoint {
 	return bucket.point
 }
 
-func upsertRollup(ctx context.Context, tx *sql.Tx, point observability.MetricPoint) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO resource_metric_samples
+const upsertMetricRollupSQL = `INSERT INTO resource_metric_samples
         (project_id, service_id, sampled_at, resolution_seconds, sample_count,
 		 cpu_percent, cpu_max_percent, cpu_available, memory_bytes, memory_max_bytes, memory_limit, memory_available,
          network_rx_bytes, network_tx_bytes, network_available, disk_read_bytes, disk_write_bytes, disk_available,
@@ -168,7 +176,10 @@ func upsertRollup(ctx context.Context, tx *sql.Tx, point observability.MetricPoi
           disk_read_bytes=excluded.disk_read_bytes, disk_write_bytes=excluded.disk_write_bytes, disk_available=excluded.disk_available,
           process_count=excluded.process_count, restart_count=excluded.restart_count,
           health_latency_ms=excluded.health_latency_ms, health_available=excluded.health_available,
-          storage_bytes=excluded.storage_bytes, storage_classification=excluded.storage_classification, partial=excluded.partial`,
+          storage_bytes=excluded.storage_bytes, storage_classification=excluded.storage_classification, partial=excluded.partial`
+
+func upsertRollup(ctx context.Context, statement *sql.Stmt, point observability.MetricPoint) error {
+	_, err := statement.ExecContext(ctx,
 		point.ProjectID, point.ServiceID, formatTime(point.Timestamp), point.ResolutionSeconds, point.SampleCount,
 		point.CPUPercent, point.CPUMaxPercent, point.CPUAvailable,
 		safeUint(point.MemoryBytes), safeUint(point.MemoryMaxBytes), safeUint(point.MemoryLimit), point.MemoryAvailable,

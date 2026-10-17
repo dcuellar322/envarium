@@ -60,15 +60,20 @@ func (s *Service) refreshWatches(
 	results chan<- watchResult,
 	onError func(string, error),
 ) {
-	ids, err := s.projects.ListRuntimeProjectIDs(ctx)
+	projects, failures, err := snapshotProjects(ctx, s.projects)
 	if err != nil {
 		onError("", err)
 		return
 	}
-	wanted := make(map[string]struct{}, len(ids))
-	for _, id := range ids {
+	wanted := make(map[string]struct{}, len(projects)+len(failures))
+	for _, id := range snapshotIDs(projects, failures) {
 		wanted[id] = struct{}{}
-		project, driver, resolveErr := s.resolve(ctx, id)
+		project := projects[id]
+		resolveErr := failures[id]
+		driver := s.drivers[project.Kind]
+		if resolveErr == nil && driver == nil {
+			resolveErr = domain.ErrUnsupportedDriver
+		}
 		if resolveErr != nil {
 			onError(id, resolveErr)
 			continue

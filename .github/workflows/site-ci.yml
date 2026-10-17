@@ -29,8 +29,7 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm site:generate
-      - run: git diff --exit-code -- docs/generated site/public/llms.txt site/public/llms-full.txt
+      - run: make site-generate-check
       - run: pnpm site:check
       - run: pnpm site:lint
       - run: pnpm site:test

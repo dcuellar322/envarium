@@ -216,6 +216,42 @@ function actions(projectId: string) {
 }
 
 export async function installAlphaMocks(page: Page, empty = false) {
+  await page.route('**/api/v1/project-observations**', (route) => {
+    const query = new URL(route.request().url()).searchParams
+    const kind = query.get('kind')
+    return json(route, {
+      kind,
+      observedAt,
+      projects: query.getAll('projectId').map((id) => ({
+        projectId: id,
+        ...(kind === 'runtime'
+          ? { runtime: runtime(id) }
+          : kind === 'git-status'
+            ? { git: git(id) }
+            : { actions: actions(id) }),
+      })),
+    })
+  })
+  await page.route('**/api/v1/resources', (route) =>
+    json(route, {
+      observedAt,
+      projects: empty
+        ? []
+        : projects.map((project) => {
+            const samples = metrics(project.id)
+            const active = project.id !== 'docs' && project.id !== 'billing'
+            return {
+              projectId: project.id,
+              active,
+              metric: { cpuAvailable: active, memoryAvailable: active, partial: !active },
+              services: active
+                ? samples.map((metric) => ({ serviceId: metric.serviceId, metric }))
+                : [],
+            }
+          }),
+      warnings: [],
+    }),
+  )
   await page.route('**/api/v1/settings', (route) =>
     json(route, {
       settings: {
@@ -417,7 +453,7 @@ export async function installAlphaMocks(page: Page, empty = false) {
         })),
       )
     if (suffix === 'metrics') return json(route, metrics(projectId))
-    if (suffix === 'git') return json(route, git(projectId))
+    if (suffix === 'git' || suffix === 'git/status') return json(route, git(projectId))
     if (suffix === 'actions') return json(route, actions(projectId))
     if (suffix === 'manifest/explain')
       return json(route, {

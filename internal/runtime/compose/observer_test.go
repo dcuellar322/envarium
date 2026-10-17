@@ -27,7 +27,8 @@ func TestInspectUsesComposeLabelsAndRecognizesExternalProject(t *testing.T) {
 			"owned-by-label": {Name: "/fixture-web-1", State: &container.State{Running: true, Status: container.ContainerState("running")}},
 		},
 	}
-	driver := &Driver{engine: fakeConnector{engine: engine, ping: client.PingResult{APIVersion: "1.55"}, version: client.ServerVersionResult{Version: "29.5"}}, managed: newManagedContainers()}
+	engine.version = client.ServerVersionResult{Version: "29.5"}
+	driver := &Driver{engine: fakeConnector{engine: engine, ping: client.PingResult{APIVersion: "1.55"}}, managed: newManagedContainers()}
 	project := domain.ProjectRuntime{ProjectID: "project-1", Services: []domain.ServiceDeclaration{{ID: "api", RuntimeName: "web"}}}
 	observation, err := driver.inspect(context.Background(), project, normalizedConfig{ProjectName: "fixture", Services: []string{"web"}})
 	if err != nil {

@@ -21,11 +21,15 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 	if project.Compose != nil {
 		observation.AvailableProfiles = append([]string(nil), project.Compose.Profiles...)
 	}
-	engine, ping, version, err := d.engine.Connect(ctx, config.Connection)
+	engine, ping, err := d.engine.Connect(ctx, config.Connection)
 	if err != nil {
 		return disconnectedObservation(project, config, err), nil
 	}
 	defer func() { _ = engine.Close() }()
+	version, err := engine.ServerVersion(ctx, client.ServerVersionOptions{})
+	if err != nil {
+		return disconnectedObservation(project, config, err), nil
+	}
 	observation.Engine.Connected = true
 	observation.Engine.APIVersion = ping.APIVersion
 	observation.Engine.ServerVersion = version.Version

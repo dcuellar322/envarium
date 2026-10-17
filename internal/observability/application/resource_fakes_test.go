@@ -104,6 +104,7 @@ func newResourceServiceForTest(t testing.TB, projects ResourceProjectSource, run
 	if err != nil {
 		t.Fatalf("NewResourceService() error = %v", err)
 	}
+	_, _ = service.Storage(context.Background())
 	return service
 }
 

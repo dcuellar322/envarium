@@ -11,7 +11,7 @@ use crate::{
 };
 
 const TRAY_ID: &str = "envarium-tray";
-const RESOURCE_LIMIT: usize = 8;
+pub(crate) const RESOURCE_LIMIT: usize = 8;
 
 pub fn install<R: Runtime>(
     app: &AppHandle<R>,
@@ -44,6 +44,23 @@ pub fn install<R: Runtime>(
 }
 
 pub fn refresh<R: Runtime>(app: &AppHandle<R>, snapshot: &DesktopSnapshot) -> tauri::Result<()> {
+    let preferences = app
+        .try_state::<DesktopState>()
+        .and_then(|state| state.preferences.lock().ok().map(|value| value.clone()))
+        .unwrap_or_default();
+    let presentation = crate::tray_presentation::Presentation::new(
+        snapshot,
+        preferences.keep_running,
+        app.autolaunch().is_enabled().unwrap_or(false),
+    );
+    let state = app.state::<DesktopState>();
+    let mut previous = state
+        .tray_presentation
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    if previous.as_ref() == Some(&presentation) {
+        return Ok(());
+    }
     let menu = build_menu(app, Some(snapshot))?;
     if let Some(tray) = app.tray_by_id(TRAY_ID) {
         tray.set_menu(Some(menu))?;
@@ -52,6 +69,7 @@ pub fn refresh<R: Runtime>(app: &AppHandle<R>, snapshot: &DesktopSnapshot) -> ta
             snapshot.projects.len(),
             snapshot.system.status
         )))?;
+        *previous = Some(presentation);
     }
     Ok(())
 }

@@ -30,6 +30,9 @@ func writeResult(options *rootOptions, command string, data any, human func(io.W
 		return nil
 	}
 	if options.json {
+		if options.compact {
+			return json.NewEncoder(options.stdout).Encode(outputEnvelope{SchemaVersion: cliSchemaVersion, Command: command, Data: data})
+		}
 		return writePrettyJSON(options.stdout, outputEnvelope{SchemaVersion: cliSchemaVersion, Command: command, Data: data})
 	}
 	return human(options.stdout)

@@ -32,11 +32,35 @@ type Observer struct {
 	dockerCached   *application.DockerObservation
 	dockerWarnings []string
 	dockerUntil    time.Time
+	dockerCacheFor time.Duration
 }
 
 // NewObserver creates the production host observer.
 func NewObserver() *Observer {
 	return &Observer{cpu: cpu.PercentWithContext, memory: mem.VirtualMemoryWithContext, docker: readDockerUsage, now: time.Now}
+}
+
+// NewObserverWithStorage shares the resource sampler's disk snapshot. A cheap
+// ping distinguishes connected-but-unknown storage without another disk scan.
+func NewObserverWithStorage(storage func() (int64, int64, bool)) *Observer {
+	observer := NewObserver()
+	observer.dockerCacheFor = 5 * time.Second
+	observer.docker = func(ctx context.Context) (int64, int64, error) {
+		bytes, reclaimable, available := storage()
+		if available {
+			return bytes, reclaimable, nil
+		}
+		engine, err := dockerengine.NewClient(ctx)
+		if err != nil {
+			return 0, 0, err
+		}
+		defer func() { _ = engine.Close() }()
+		if _, err := engine.Ping(ctx, client.PingOptions{NegotiateAPIVersion: true}); err != nil {
+			return 0, 0, err
+		}
+		return 0, 0, errDockerStorageUnavailable
+	}
+	return observer
 }
 
 // Observe returns partial data with explicit warnings when an optional source is unavailable.
@@ -76,7 +100,11 @@ func (o *Observer) Observe(ctx context.Context) application.HostObservation {
 			docker.StorageBytes, docker.ReclaimableBytes = &storage, &reclaimable
 			docker.Attribution = "shared"
 		}
-		o.dockerCached, o.dockerUntil = &docker, o.now().UTC().Add(5*time.Minute)
+		cacheFor := o.dockerCacheFor
+		if cacheFor <= 0 {
+			cacheFor = 5 * time.Minute
+		}
+		o.dockerCached, o.dockerUntil = &docker, o.now().UTC().Add(cacheFor)
 	}
 	result.Docker = *o.dockerCached
 	result.Warnings = append(result.Warnings, o.dockerWarnings...)

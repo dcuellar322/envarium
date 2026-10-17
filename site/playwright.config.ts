@@ -17,10 +17,11 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   webServer: {
-    command: 'pnpm build && pnpm exec astro preview --host 127.0.0.1 --port 4322',
+    command: 'pnpm build && node --import tsx scripts/preview-test-server.ts',
     url: 'http://127.0.0.1:4322',
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    gracefulShutdown: { signal: 'SIGTERM', timeout: 5_000 },
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },

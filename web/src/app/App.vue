@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
-import { queryClient } from '../queryClient'
+import { providePresentationActivity } from '../domains/system/composables/usePresentationActivity'
 import { useEventConnection } from '../domains/system/composables/useEventConnection'
 import { loadDaemonSettings } from '../domains/system/settingsApi'
 import AppSidebar from './components/AppSidebar.vue'
@@ -11,6 +11,8 @@ import AppTopbar from './components/AppTopbar.vue'
 import CommandPalette from './components/CommandPalette.vue'
 import OperationCenter from './components/OperationCenter.vue'
 
+const queryClient = useQueryClient()
+const presentationActive = providePresentationActivity()
 const paletteOpen = ref(false)
 const preferences = useQuery({
   queryKey: ['daemon-settings'],
@@ -28,6 +30,7 @@ watch(
 )
 const pendingProjects = new Set<string>()
 let operationsInvalid = false
+let refreshAll = false
 let invalidationTimer: number | undefined
 const terminalOperationEvents = new Set([
   'operation.succeeded',
@@ -37,22 +40,37 @@ const terminalOperationEvents = new Set([
 
 function flushInvalidations() {
   invalidationTimer = undefined
-  if (operationsInvalid) void queryClient.invalidateQueries({ queryKey: ['operations'] })
+  const refetchType = presentationActive.value ? 'active' : 'none'
+  if (refreshAll) {
+    refreshAll = false
+    operationsInvalid = false
+    pendingProjects.clear()
+    void queryClient.invalidateQueries({ refetchType })
+    return
+  }
+  if (operationsInvalid)
+    void queryClient.invalidateQueries({ queryKey: ['operations'], refetchType })
   operationsInvalid = false
   if (pendingProjects.size)
-    void queryClient.invalidateQueries({ queryKey: ['dashboard-snapshots'] })
+    void queryClient.invalidateQueries({
+      queryKey: ['project-observations', 'runtime'],
+      refetchType,
+    })
   for (const projectId of pendingProjects) {
     void queryClient.invalidateQueries({
       queryKey: ['project-runtime', projectId],
+      refetchType,
     })
     void queryClient.invalidateQueries({
       queryKey: ['project-health', projectId],
+      refetchType,
     })
   }
   pendingProjects.clear()
 }
 
 const events = useEventConnection((event) => {
+  if (event.type === 'system.refresh_required') refreshAll = true
   if (event.operationId || event.type?.startsWith('operation.')) operationsInvalid = true
   if (
     event.projectId &&
@@ -60,9 +78,9 @@ const events = useEventConnection((event) => {
   ) {
     pendingProjects.add(event.projectId)
   }
-  if (invalidationTimer === undefined)
+  if ((refreshAll || operationsInvalid || pendingProjects.size) && invalidationTimer === undefined)
     invalidationTimer = window.setTimeout(flushInvalidations, 2_000)
-})
+}, presentationActive)
 
 function onGlobalKeydown(event: KeyboardEvent) {
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
@@ -87,7 +105,7 @@ onBeforeUnmount(() => {
       <main id="main-content"><RouterView /></main>
     </div>
     <CommandPalette :open="paletteOpen" @close="paletteOpen = false" />
-    <OperationCenter />
+    <OperationCenter :connected="events === 'connected'" />
   </div>
 </template>
 

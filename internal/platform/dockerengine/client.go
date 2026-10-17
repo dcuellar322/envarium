@@ -7,10 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/moby/moby/client"
 )
@@ -26,16 +24,7 @@ type Connection struct {
 
 // NewClient connects SDK observers to the same active context as the Docker CLI.
 func NewClient(ctx context.Context) (*client.Client, error) {
-	if os.Getenv(client.EnvOverrideHost) != "" && os.Getenv("DOCKER_CONTEXT") == "" {
-		return (Connection{FromEnv: true}).NewClient()
-	}
-	command := exec.CommandContext(ctx, "docker", "context", "inspect")
-	command.WaitDelay = time.Second
-	output, err := command.Output()
-	if err != nil {
-		return nil, fmt.Errorf("inspect active Docker context: %w", err)
-	}
-	connection, err := DecodeContext(output)
+	connection, err := ReadConnection(ctx, "", "")
 	if err != nil {
 		return nil, err
 	}

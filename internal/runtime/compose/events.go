@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"envarium.dev/envarium/internal/runtime/domain"
@@ -12,7 +13,7 @@ import (
 )
 
 func (d *Driver) watchEvents(ctx context.Context, config normalizedConfig, sink domain.EventSink) error {
-	engine, _, _, err := d.engine.Connect(ctx, config.Connection)
+	engine, _, err := d.engine.Connect(ctx, config.Connection)
 	if err != nil {
 		return err
 	}
@@ -32,7 +33,7 @@ func (d *Driver) watchEvents(ctx context.Context, config normalizedConfig, sink 
 			if !ok {
 				return nil
 			}
-			if event.Actor.Attributes[labelProject] != config.ProjectName {
+			if event.Actor.Attributes[labelProject] != config.ProjectName || !runtimeRelevantAction(string(event.Action)) {
 				continue
 			}
 			occurred := time.Unix(0, event.TimeNano).UTC()
@@ -47,5 +48,18 @@ func (d *Driver) watchEvents(ctx context.Context, config normalizedConfig, sink 
 				return err
 			}
 		}
+	}
+}
+
+// Exec lifecycle events include periodic health-check command execution. They
+// change no container lifecycle/identity fact; health_status still reconciles.
+// Unknown future events remain observable rather than being silently dropped.
+func runtimeRelevantAction(action string) bool {
+	kind, _, _ := strings.Cut(action, ":")
+	switch strings.TrimSpace(kind) {
+	case "exec_create", "exec_start", "exec_die":
+		return false
+	default:
+		return true
 	}
 }

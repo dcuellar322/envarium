@@ -6,7 +6,9 @@ mod notifications;
 mod preferences;
 mod sidecar;
 mod tray;
+mod tray_presentation;
 mod updater;
+mod visibility;
 
 use std::{sync::Mutex, time::Duration};
 
@@ -21,6 +23,7 @@ use sidecar::Sidecar;
 
 pub(crate) struct DesktopState {
     preferences: Mutex<Preferences>,
+    tray_presentation: Mutex<Option<tray_presentation::Presentation>>,
 }
 
 pub fn run() {
@@ -53,6 +56,7 @@ pub fn run() {
             let handle = app.handle().clone();
             handle.manage(DesktopState {
                 preferences: Mutex::new(Preferences::load(&handle)),
+                tray_presentation: Mutex::new(None),
             });
             tray::install(&handle, None)?;
 
@@ -87,6 +91,9 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| {
+            if let WindowEvent::Focused(active) = event {
+                visibility::update(window, *active);
+            }
             if let WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
                 let keep_running = window

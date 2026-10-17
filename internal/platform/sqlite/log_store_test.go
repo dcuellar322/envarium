@@ -16,7 +16,7 @@ import (
 func TestLogStoreRedactsLivePersistedExportAndDiagnosticQueries(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	_, store, root := newTestLogStore(t, LogStoreConfig{RingCapacity: 2, SegmentBytes: 1 << 20, RetentionBytes: 1 << 20})
+	_, store, root := newTestLogStore(t, LogStoreConfig{SegmentBytes: 1 << 20, RetentionBytes: 1 << 20})
 	live, cancel := store.SubscribeLogs(2)
 	defer cancel()
 	entry := runtime.LogEntry{Timestamp: time.Now().UTC(), ProjectID: "project-1", ServiceID: "api", RunID: "run-1",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 )
 
 type retainedSegment struct {
@@ -18,7 +19,38 @@ func (s *LogStore) ApplyRetention(ctx context.Context) error {
 	return s.applyRetentionLocked(ctx)
 }
 
+const maximumActiveLogSegments = 128
+
+func (s *LogStore) makeSegmentRoom(ctx context.Context) error {
+	if len(s.active) < maximumActiveLogSegments {
+		return nil
+	}
+	var oldestKey string
+	var oldest *activeLogSegment
+	for key, segment := range s.active {
+		if oldest == nil || segment.lastWrite.Before(oldest.lastWrite) {
+			oldestKey, oldest = key, segment
+		}
+	}
+	if err := s.closeSegment(ctx, oldest); err != nil {
+		return err
+	}
+	delete(s.active, oldestKey)
+	return nil
+}
+
 func (s *LogStore) applyRetentionLocked(ctx context.Context) error {
+	// Closing an append segment is safe even if a producer later resumes: the
+	// next append opens a new segment without disrupting sequence-based replay.
+	cutoffIdle := s.now().UTC().Add(-min(time.Minute, s.config.RetentionAge))
+	for key, segment := range s.active {
+		if !segment.lastWrite.After(cutoffIdle) {
+			if err := s.closeSegment(ctx, segment); err != nil {
+				return err
+			}
+			delete(s.active, key)
+		}
+	}
 	rows, err := s.database.connection.QueryContext(ctx, `SELECT id, path, created_at, size_bytes FROM log_segments ORDER BY created_at, id`)
 	if err != nil {
 		return fmt.Errorf("list retained log segments: %w", err)

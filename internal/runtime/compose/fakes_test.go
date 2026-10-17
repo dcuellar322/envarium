@@ -10,17 +10,20 @@ import (
 )
 
 type fakeConnector struct {
-	engine  engineClient
-	ping    client.PingResult
-	version client.ServerVersionResult
-	err     error
+	engine engineClient
+	ping   client.PingResult
+	err    error
 }
 
-func (f fakeConnector) Connect(context.Context, dockerConnection) (engineClient, client.PingResult, client.ServerVersionResult, error) {
-	return f.engine, f.ping, f.version, f.err
+func (f fakeConnector) Connect(context.Context, dockerConnection) (engineClient, client.PingResult, error) {
+	return f.engine, f.ping, f.err
 }
 
 type fakeEngine struct {
+	version      client.ServerVersionResult
+	versionErr   error
+	versionCalls int
+
 	containers []container.Summary
 	inspects   map[string]container.InspectResponse
 	inspectErr map[string]error
@@ -34,8 +37,9 @@ func (*fakeEngine) Ping(context.Context, client.PingOptions) (client.PingResult,
 	return client.PingResult{}, nil
 }
 
-func (*fakeEngine) ServerVersion(context.Context, client.ServerVersionOptions) (client.ServerVersionResult, error) {
-	return client.ServerVersionResult{}, nil
+func (f *fakeEngine) ServerVersion(context.Context, client.ServerVersionOptions) (client.ServerVersionResult, error) {
+	f.versionCalls++
+	return f.version, f.versionErr
 }
 
 func (f *fakeEngine) ContainerList(context.Context, client.ContainerListOptions) (client.ContainerListResult, error) {

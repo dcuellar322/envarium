@@ -4,6 +4,19 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}/api/v1` | (string & {});
 };
 
+export type ProjectObservationBatch = {
+    kind: 'runtime' | 'git-status' | 'actions' | 'status';
+    observedAt: string;
+    projects: Array<{
+        projectId: string;
+        runtime?: RuntimeObservation;
+        git?: GitState;
+        actions?: ProjectActions;
+        health?: ProjectHealth;
+        warning?: string;
+    }>;
+};
+
 export type DaemonSettingsStatus = {
     settings: DaemonSettings;
     pendingRestart: Array<'retention' | 'ai.providers'>;
@@ -2440,6 +2453,61 @@ export type GetProjectGitResponses = {
 };
 
 export type GetProjectGitResponse = GetProjectGitResponses[keyof GetProjectGitResponses];
+
+export type GetProjectObservationsData = {
+    body?: never;
+    path?: never;
+    query: {
+        kind: 'runtime' | 'git-status' | 'actions' | 'status';
+        projectId: Array<string>;
+    };
+    url: '/project-observations';
+};
+
+export type GetProjectObservationsErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetProjectObservationsError = GetProjectObservationsErrors[keyof GetProjectObservationsErrors];
+
+export type GetProjectObservationsResponses = {
+    /**
+     * Ordered observations with explicit per-project warnings
+     */
+    200: ProjectObservationBatch;
+};
+
+export type GetProjectObservationsResponse = GetProjectObservationsResponses[keyof GetProjectObservationsResponses];
+
+export type GetProjectGitStatusData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/git/status';
+};
+
+export type GetProjectGitStatusErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetProjectGitStatusError = GetProjectGitStatusErrors[keyof GetProjectGitStatusErrors];
+
+export type GetProjectGitStatusResponses = {
+    /**
+     * Current porcelain status with empty remote and worktree arrays and no lastCommit.
+     */
+    200: GitState;
+};
+
+export type GetProjectGitStatusResponse = GetProjectGitStatusResponses[keyof GetProjectGitStatusResponses];
 
 export type ListProjectEnvironmentsData = {
     body?: never;

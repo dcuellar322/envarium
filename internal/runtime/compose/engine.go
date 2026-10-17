@@ -30,28 +30,27 @@ type engineClient interface {
 	Close() error
 }
 
-type engineFactory struct{}
+type engineFactory struct{ clients *engineClients }
 
 type engineConnector interface {
-	Connect(context.Context, dockerConnection) (engineClient, client.PingResult, client.ServerVersionResult, error)
+	Connect(context.Context, dockerConnection) (engineClient, client.PingResult, error)
 }
 
-func (engineFactory) Connect(ctx context.Context, connection dockerConnection) (engineClient, client.PingResult, client.ServerVersionResult, error) {
-	engine, err := connection.NewClient()
+func (f engineFactory) Connect(ctx context.Context, connection dockerConnection) (engineClient, client.PingResult, error) {
+	engine, err := f.clients.borrow(connection, func() (engineClient, error) { return connection.NewClient() })
 	if err != nil {
-		return nil, client.PingResult{}, client.ServerVersionResult{}, fmt.Errorf("%w: %v", ErrEngineUnavailable, err)
+		return nil, client.PingResult{}, fmt.Errorf("%w: %v", ErrEngineUnavailable, err)
 	}
 	ping, err := engine.Ping(ctx, client.PingOptions{NegotiateAPIVersion: true})
 	if err != nil {
-		_ = engine.Close()
-		return nil, client.PingResult{}, client.ServerVersionResult{}, fmt.Errorf("%w for context %q: %v", ErrEngineUnavailable, connection.ContextName, err)
+		if lease, ok := engine.(*engineLease); ok {
+			_ = lease.discard()
+		} else {
+			_ = engine.Close()
+		}
+		return nil, client.PingResult{}, fmt.Errorf("%w for context %q: %v", ErrEngineUnavailable, connection.ContextName, err)
 	}
-	version, err := engine.ServerVersion(ctx, client.ServerVersionOptions{})
-	if err != nil {
-		_ = engine.Close()
-		return nil, client.PingResult{}, client.ServerVersionResult{}, fmt.Errorf("%w for context %q: %v", ErrEngineUnavailable, connection.ContextName, err)
-	}
-	return engine, ping, version, nil
+	return engine, ping, nil
 }
 
 func projectFilters(projectName string) client.Filters {

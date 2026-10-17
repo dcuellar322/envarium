@@ -1165,6 +1165,30 @@ func (e ProjectHealthStatus) Valid() bool {
 	}
 }
 
+// Defines values for ProjectObservationBatchKind.
+const (
+	ProjectObservationBatchKindActions   ProjectObservationBatchKind = "actions"
+	ProjectObservationBatchKindGitStatus ProjectObservationBatchKind = "git-status"
+	ProjectObservationBatchKindRuntime   ProjectObservationBatchKind = "runtime"
+	ProjectObservationBatchKindStatus    ProjectObservationBatchKind = "status"
+)
+
+// Valid indicates whether the value is a known member of the ProjectObservationBatchKind enum.
+func (e ProjectObservationBatchKind) Valid() bool {
+	switch e {
+	case ProjectObservationBatchKindActions:
+		return true
+	case ProjectObservationBatchKindGitStatus:
+		return true
+	case ProjectObservationBatchKindRuntime:
+		return true
+	case ProjectObservationBatchKindStatus:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for PublishedPortProtocol.
 const (
 	Sctp PublishedPortProtocol = "sctp"
@@ -1969,6 +1993,30 @@ func (e WorkspaceRecipeKind) Valid() bool {
 	case OpenUrl:
 		return true
 	case StartAgent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GetProjectObservationsParamsKind.
+const (
+	GetProjectObservationsParamsKindActions   GetProjectObservationsParamsKind = "actions"
+	GetProjectObservationsParamsKindGitStatus GetProjectObservationsParamsKind = "git-status"
+	GetProjectObservationsParamsKindRuntime   GetProjectObservationsParamsKind = "runtime"
+	GetProjectObservationsParamsKindStatus    GetProjectObservationsParamsKind = "status"
+)
+
+// Valid indicates whether the value is a known member of the GetProjectObservationsParamsKind enum.
+func (e GetProjectObservationsParamsKind) Valid() bool {
+	switch e {
+	case GetProjectObservationsParamsKindActions:
+		return true
+	case GetProjectObservationsParamsKindGitStatus:
+		return true
+	case GetProjectObservationsParamsKindRuntime:
+		return true
+	case GetProjectObservationsParamsKindStatus:
 		return true
 	default:
 		return false
@@ -3088,6 +3136,23 @@ type ProjectHealthObserverState string
 // ProjectHealthStatus defines model for ProjectHealth.Status.
 type ProjectHealthStatus string
 
+// ProjectObservationBatch defines model for ProjectObservationBatch.
+type ProjectObservationBatch struct {
+	Kind       ProjectObservationBatchKind `json:"kind"`
+	ObservedAt time.Time                   `json:"observedAt"`
+	Projects   []struct {
+		Actions   *ProjectActions     `json:"actions,omitempty"`
+		Git       *GitState           `json:"git,omitempty"`
+		Health    *ProjectHealth      `json:"health,omitempty"`
+		ProjectId string              `json:"projectId"`
+		Runtime   *RuntimeObservation `json:"runtime,omitempty"`
+		Warning   *string             `json:"warning,omitempty"`
+	} `json:"projects"`
+}
+
+// ProjectObservationBatchKind defines model for ProjectObservationBatch.Kind.
+type ProjectObservationBatchKind string
+
 // ProjectStorage defines model for ProjectStorage.
 type ProjectStorage struct {
 	ProjectId       string         `json:"projectId"`
@@ -3912,6 +3977,15 @@ type CreatePortSuggestionParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
 
+// GetProjectObservationsParams defines parameters for GetProjectObservations.
+type GetProjectObservationsParams struct {
+	Kind      GetProjectObservationsParamsKind `form:"kind" json:"kind"`
+	ProjectId []string                         `form:"projectId" json:"projectId"`
+}
+
+// GetProjectObservationsParamsKind defines parameters for GetProjectObservations.
+type GetProjectObservationsParamsKind string
+
 // RemoveProjectParams defines parameters for RemoveProject.
 type RemoveProjectParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
@@ -4565,6 +4639,13 @@ type ClientInterface interface {
 	// Corresponds with POST /ports/suggestions (the `CreatePortSuggestion` operationId).
 	CreatePortSuggestion(ctx context.Context, params *CreatePortSuggestionParams, body CreatePortSuggestionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetProjectObservations Read one kind of fresh project observations in a bounded batch
+	//
+	// Runtime observations include current health-derived degraded/starting states. The status kind returns both runtime and health facts for native notification consumers, with explicit per-project partial warnings.
+	//
+	// Corresponds with GET /project-observations (the `GetProjectObservations` operationId).
+	GetProjectObservations(ctx context.Context, params *GetProjectObservationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListProjects List registered projects
 	//
 	// Corresponds with GET /projects (the `ListProjects` operationId).
@@ -4637,6 +4718,13 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /projects/{projectId}/git (the `GetProjectGit` operationId).
 	GetProjectGit(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetProjectGitStatus Read fresh working-tree and branch status for a trusted project
+	//
+	// Omits commit enrichment, remote inventory and worktree inventory. Those remain available from the full Git endpoint.
+	//
+	// Corresponds with GET /projects/{projectId}/git/status (the `GetProjectGitStatus` operationId).
+	GetProjectGitStatus(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetProjectHealth Read current persisted health diagnostics
 	//
@@ -5955,6 +6043,23 @@ func (c *Client) CreatePortSuggestion(ctx context.Context, params *CreatePortSug
 	return c.Client.Do(req)
 }
 
+// GetProjectObservations Read one kind of fresh project observations in a bounded batch
+//
+// Runtime observations include current health-derived degraded/starting states. The status kind returns both runtime and health facts for native notification consumers, with explicit per-project partial warnings.
+//
+// Corresponds with GET /project-observations (the `GetProjectObservations` operationId).
+func (c *Client) GetProjectObservations(ctx context.Context, params *GetProjectObservationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProjectObservationsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // ListProjects List registered projects
 //
 // Corresponds with GET /projects (the `ListProjects` operationId).
@@ -6148,6 +6253,23 @@ func (c *Client) RegisterProjectEnvironments(ctx context.Context, projectId Proj
 // Corresponds with GET /projects/{projectId}/git (the `GetProjectGit` operationId).
 func (c *Client) GetProjectGit(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProjectGitRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetProjectGitStatus Read fresh working-tree and branch status for a trusted project
+//
+// Omits commit enrichment, remote inventory and worktree inventory. Those remain available from the full Git endpoint.
+//
+// Corresponds with GET /projects/{projectId}/git/status (the `GetProjectGitStatus` operationId).
+func (c *Client) GetProjectGitStatus(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProjectGitStatusRequest(c.Server, projectId)
 	if err != nil {
 		return nil, err
 	}
@@ -9031,6 +9153,68 @@ func NewCreatePortSuggestionRequestWithBody(server string, params *CreatePortSug
 	return req, nil
 }
 
+// NewGetProjectObservationsRequest constructs an http.Request for the GetProjectObservations method
+func NewGetProjectObservationsRequest(server string, params *GetProjectObservationsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/project-observations")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if queryFrag, err := runtime.StyleParamWithOptions("form", true, "kind", params.Kind, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			return nil, err
+		} else {
+			for _, qp := range strings.Split(queryFrag, "&") {
+				rawQueryFragments = append(rawQueryFragments, qp)
+			}
+		}
+
+		if params.ProjectId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "projectId", params.ProjectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListProjectsRequest constructs an http.Request for the ListProjects method
 func NewListProjectsRequest(server string) (*http.Request, error) {
 	var err error
@@ -9453,6 +9637,40 @@ func NewGetProjectGitRequest(server string, projectId ProjectId) (*http.Request,
 	}
 
 	operationPath := fmt.Sprintf("/projects/%s/git", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetProjectGitStatusRequest constructs an http.Request for the GetProjectGitStatus method
+func NewGetProjectGitStatusRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/git/status", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -11783,6 +12001,15 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /ports/suggestions (the `CreatePortSuggestion` operationId).
 	CreatePortSuggestionWithResponse(ctx context.Context, params *CreatePortSuggestionParams, body CreatePortSuggestionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePortSuggestionResponse, error)
 
+	// GetProjectObservationsWithResponse Read one kind of fresh project observations in a bounded batch
+	//
+	// Runtime observations include current health-derived degraded/starting states. The status kind returns both runtime and health facts for native notification consumers, with explicit per-project partial warnings.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /project-observations (the `GetProjectObservations` operationId).
+	GetProjectObservationsWithResponse(ctx context.Context, params *GetProjectObservationsParams, reqEditors ...RequestEditorFn) (*GetProjectObservationsResponse, error)
+
 	// ListProjectsWithResponse List registered projects
 	//
 	// Returns a wrapper object for the known response body format(s).
@@ -11873,6 +12100,15 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /projects/{projectId}/git (the `GetProjectGit` operationId).
 	GetProjectGitWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectGitResponse, error)
+
+	// GetProjectGitStatusWithResponse Read fresh working-tree and branch status for a trusted project
+	//
+	// Omits commit enrichment, remote inventory and worktree inventory. Those remain available from the full Git endpoint.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /projects/{projectId}/git/status (the `GetProjectGitStatus` operationId).
+	GetProjectGitStatusWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectGitStatusResponse, error)
 
 	// GetProjectHealthWithResponse Read current persisted health diagnostics
 	//
@@ -13776,6 +14012,39 @@ func (r CreatePortSuggestionResponse) ContentType() string {
 	return ""
 }
 
+type GetProjectObservationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *ProjectObservationBatch
+	// ApplicationproblemJSONDefault the response for an HTTP default `application/problem+json` response
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProjectObservationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProjectObservationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetProjectObservationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListProjectsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -14131,6 +14400,39 @@ func (r GetProjectGitResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetProjectGitResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetProjectGitStatusResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *GitState
+	// ApplicationproblemJSONDefault the response for an HTTP default `application/problem+json` response
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProjectGitStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProjectGitStatusResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetProjectGitStatusResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -16292,6 +16594,21 @@ func (c *ClientWithResponses) CreatePortSuggestionWithResponse(ctx context.Conte
 	return ParseCreatePortSuggestionResponse(rsp)
 }
 
+// GetProjectObservationsWithResponse Read one kind of fresh project observations in a bounded batch
+//
+// Runtime observations include current health-derived degraded/starting states. The status kind returns both runtime and health facts for native notification consumers, with explicit per-project partial warnings.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /project-observations (the `GetProjectObservations` operationId).
+func (c *ClientWithResponses) GetProjectObservationsWithResponse(ctx context.Context, params *GetProjectObservationsParams, reqEditors ...RequestEditorFn) (*GetProjectObservationsResponse, error) {
+	rsp, err := c.GetProjectObservations(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProjectObservationsResponse(rsp)
+}
+
 // ListProjectsWithResponse List registered projects
 //
 // Returns a wrapper object for the known response body format(s).
@@ -16459,6 +16776,21 @@ func (c *ClientWithResponses) GetProjectGitWithResponse(ctx context.Context, pro
 		return nil, err
 	}
 	return ParseGetProjectGitResponse(rsp)
+}
+
+// GetProjectGitStatusWithResponse Read fresh working-tree and branch status for a trusted project
+//
+// Omits commit enrichment, remote inventory and worktree inventory. Those remain available from the full Git endpoint.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /projects/{projectId}/git/status (the `GetProjectGitStatus` operationId).
+func (c *ClientWithResponses) GetProjectGitStatusWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectGitStatusResponse, error) {
+	rsp, err := c.GetProjectGitStatus(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProjectGitStatusResponse(rsp)
 }
 
 // GetProjectHealthWithResponse Read current persisted health diagnostics
@@ -18690,6 +19022,39 @@ func ParseCreatePortSuggestionResponse(rsp *http.Response) (*CreatePortSuggestio
 	return response, nil
 }
 
+// ParseGetProjectObservationsResponse parses an HTTP response from a GetProjectObservationsWithResponse call
+func ParseGetProjectObservationsResponse(rsp *http.Response) (*GetProjectObservationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProjectObservationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ProjectObservationBatch
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListProjectsResponse parses an HTTP response from a ListProjectsWithResponse call
 func ParseListProjectsResponse(rsp *http.Response) (*ListProjectsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -19025,6 +19390,39 @@ func ParseGetProjectGitResponse(rsp *http.Response) (*GetProjectGitResponse, err
 	}
 
 	response := &GetProjectGitResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GitState
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetProjectGitStatusResponse parses an HTTP response from a GetProjectGitStatusWithResponse call
+func ParseGetProjectGitStatusResponse(rsp *http.Response) (*GetProjectGitStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProjectGitStatusResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -20531,6 +20929,9 @@ type ServerInterface interface {
 	// CreatePortSuggestion Suggest the first free port in an explicit preferred range
 	// (POST /ports/suggestions)
 	CreatePortSuggestion(w http.ResponseWriter, r *http.Request, params CreatePortSuggestionParams)
+	// GetProjectObservations Read one kind of fresh project observations in a bounded batch
+	// (GET /project-observations)
+	GetProjectObservations(w http.ResponseWriter, r *http.Request, params GetProjectObservationsParams)
 	// ListProjects List registered projects
 	// (GET /projects)
 	ListProjects(w http.ResponseWriter, r *http.Request)
@@ -20564,6 +20965,9 @@ type ServerInterface interface {
 	// GetProjectGit Read a fresh Git porcelain snapshot for a trusted project
 	// (GET /projects/{projectId}/git)
 	GetProjectGit(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// GetProjectGitStatus Read fresh working-tree and branch status for a trusted project
+	// (GET /projects/{projectId}/git/status)
+	GetProjectGitStatus(w http.ResponseWriter, r *http.Request, projectId ProjectId)
 	// GetProjectHealth Read current persisted health diagnostics
 	// (GET /projects/{projectId}/health)
 	GetProjectHealth(w http.ResponseWriter, r *http.Request, projectId ProjectId)
@@ -20969,6 +21373,12 @@ func (_ Unimplemented) CreatePortSuggestion(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// GetProjectObservations Read one kind of fresh project observations in a bounded batch
+// (GET /project-observations)
+func (_ Unimplemented) GetProjectObservations(w http.ResponseWriter, r *http.Request, params GetProjectObservationsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // ListProjects List registered projects
 // (GET /projects)
 func (_ Unimplemented) ListProjects(w http.ResponseWriter, r *http.Request) {
@@ -21032,6 +21442,12 @@ func (_ Unimplemented) RegisterProjectEnvironments(w http.ResponseWriter, r *htt
 // GetProjectGit Read a fresh Git porcelain snapshot for a trusted project
 // (GET /projects/{projectId}/git)
 func (_ Unimplemented) GetProjectGit(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// GetProjectGitStatus Read fresh working-tree and branch status for a trusted project
+// (GET /projects/{projectId}/git/status)
+func (_ Unimplemented) GetProjectGitStatus(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -22770,6 +23186,52 @@ func (siw *ServerInterfaceWrapper) CreatePortSuggestion(w http.ResponseWriter, r
 	handler.ServeHTTP(w, r)
 }
 
+// GetProjectObservations operation middleware
+func (siw *ServerInterfaceWrapper) GetProjectObservations(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetProjectObservationsParams
+
+	// ------------- Required query parameter "kind" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "kind", r.URL.Query(), &params.Kind, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "kind"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "kind", Err: err})
+		}
+		return
+	}
+
+	// ------------- Required query parameter "projectId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "projectId", r.URL.Query(), &params.ProjectId, runtime.BindQueryParameterOptions{Type: "array", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "projectId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProjectObservations(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ListProjects operation middleware
 func (siw *ServerInterfaceWrapper) ListProjects(w http.ResponseWriter, r *http.Request) {
 
@@ -23128,6 +23590,32 @@ func (siw *ServerInterfaceWrapper) GetProjectGit(w http.ResponseWriter, r *http.
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetProjectGit(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetProjectGitStatus operation middleware
+func (siw *ServerInterfaceWrapper) GetProjectGitStatus(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProjectGitStatus(w, r, projectId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -24716,6 +25204,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/ports/suggestions", wrapper.CreatePortSuggestion)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/project-observations", wrapper.GetProjectObservations)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects", wrapper.ListProjects)
 	})
 	r.Group(func(r chi.Router) {
@@ -24747,6 +25238,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/git", wrapper.GetProjectGit)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/git/status", wrapper.GetProjectGitStatus)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/health", wrapper.GetProjectHealth)

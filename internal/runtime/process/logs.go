@@ -11,6 +11,9 @@ import (
 type logBuffer struct {
 	mu          sync.RWMutex
 	capacity    int
+	head        int
+	size        int
+	bytes       int
 	entries     []domain.LogEntry
 	subscribers map[chan domain.LogEntry]struct{}
 }
@@ -21,11 +24,25 @@ func newLogBuffer(capacity int) *logBuffer {
 
 func (b *logBuffer) add(entry domain.LogEntry) {
 	b.mu.Lock()
-	if len(b.entries) == b.capacity {
-		copy(b.entries, b.entries[1:])
-		b.entries[len(b.entries)-1] = entry
-	} else {
-		b.entries = append(b.entries, entry)
+	// Count metadata conservatively as well as message/attribute payloads.
+	size := logEntryBytes(entry)
+	if size <= defaultLogByteCapacity {
+		for b.size > 0 && (b.size == b.capacity || b.bytes+size > defaultLogByteCapacity) {
+			b.bytes -= logEntryBytes(b.entries[b.head])
+			b.entries[b.head] = domain.LogEntry{}
+			b.head = (b.head + 1) % len(b.entries)
+			b.size--
+		}
+		if b.size == len(b.entries) {
+			entries := make([]domain.LogEntry, min(b.capacity, max(16, len(b.entries)*2)))
+			for index := 0; index < b.size; index++ {
+				entries[index] = b.entries[(b.head+index)%len(b.entries)]
+			}
+			b.entries, b.head = entries, 0
+		}
+		b.entries[(b.head+b.size)%len(b.entries)] = entry
+		b.size++
+		b.bytes += size
 	}
 	for subscriber := range b.subscribers {
 		select {
@@ -39,8 +56,12 @@ func (b *logBuffer) add(entry domain.LogEntry) {
 func (b *logBuffer) snapshot(tail int) []domain.LogEntry {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
-	start := max(0, len(b.entries)-tail)
-	return append([]domain.LogEntry(nil), b.entries[start:]...)
+	count := min(b.size, max(0, tail))
+	result := make([]domain.LogEntry, 0, count)
+	for index := b.size - count; index < b.size; index++ {
+		result = append(result, b.entries[(b.head+index)%len(b.entries)])
+	}
+	return result
 }
 
 func (b *logBuffer) subscribe() (<-chan domain.LogEntry, func()) {
@@ -71,22 +92,27 @@ func (d *Driver) streamLogs(ctx context.Context, request domain.LogRequest, sink
 }
 
 func (d *Driver) selectLogBuffers(ctx context.Context, request domain.LogRequest) ([]*logBuffer, error) {
-	runs, err := d.store.ListProjectRuns(ctx, request.Project.ProjectID)
-	if err != nil {
+	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
 	selected := []*logBuffer{}
-	d.mu.RLock()
-	for index := len(runs) - 1; index >= 0; index-- {
-		run := runs[index]
-		if request.Service != "" && run.ServiceID != request.Service {
+	for _, service := range request.Project.Services {
+		if request.Service != "" && service.ID != request.Service {
 			continue
 		}
-		if buffer := d.logs[run.ID]; buffer != nil {
+		if request.Follow {
+			// Subscribe before the first run as well as across restarts. An idle
+			// service needs no repeated run-history queries or collector reconnects.
+			selected = append(selected, d.serviceLogBuffer(request.Project.ProjectID, service.ID))
+			continue
+		}
+		d.mu.RLock()
+		buffer := d.logs[serviceKey(request.Project.ProjectID, service.ID)]
+		d.mu.RUnlock()
+		if buffer != nil {
 			selected = append(selected, buffer)
 		}
 	}
-	d.mu.RUnlock()
 	return selected, nil
 }
 
@@ -108,6 +134,8 @@ func writeLogSnapshot(ctx context.Context, selected []*logBuffer, tail int, sink
 }
 
 func followLogBuffers(ctx context.Context, selected []*logBuffer, sink domain.LogSink) error {
+	ctx, cancelContext := context.WithCancel(ctx)
+	var workers sync.WaitGroup
 	type subscription struct {
 		entries <-chan domain.LogEntry
 		cancel  func()
@@ -117,7 +145,9 @@ func followLogBuffers(ctx context.Context, selected []*logBuffer, sink domain.Lo
 	for _, buffer := range selected {
 		entries, cancel := buffer.subscribe()
 		subscriptions = append(subscriptions, subscription{entries: entries, cancel: cancel})
+		workers.Add(1)
 		go func(source <-chan domain.LogEntry) {
+			defer workers.Done()
 			for entry := range source {
 				select {
 				case merged <- entry:
@@ -128,9 +158,11 @@ func followLogBuffers(ctx context.Context, selected []*logBuffer, sink domain.Lo
 		}(entries)
 	}
 	defer func() {
+		cancelContext()
 		for _, item := range subscriptions {
 			item.cancel()
 		}
+		workers.Wait()
 	}()
 	for {
 		select {
@@ -142,4 +174,26 @@ func followLogBuffers(ctx context.Context, selected []*logBuffer, sink domain.Lo
 			}
 		}
 	}
+}
+
+// logEntryBytes bounds retained payload plus fixed entry/map overhead.
+func logEntryBytes(entry domain.LogEntry) int {
+	size := 256 + len(entry.Message) + len(entry.ProjectID) + len(entry.ServiceID) + len(entry.RunID) + len(entry.OperationID) + len(entry.Source) + len(entry.Stream) + len(entry.Level)
+	for key, value := range entry.Attributes {
+		size += 32 + len(key) + len(value)
+	}
+	return size
+}
+
+// serviceLogBuffer shares one bounded history and follow stream across restarts.
+func (d *Driver) serviceLogBuffer(projectID, serviceID string) *logBuffer {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	key := serviceKey(projectID, serviceID)
+	if buffer := d.logs[key]; buffer != nil {
+		return buffer
+	}
+	buffer := newLogBuffer(d.logCapacity)
+	d.logs[key] = buffer
+	return buffer
 }

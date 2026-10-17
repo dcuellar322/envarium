@@ -21,8 +21,13 @@ func (d *Database) WriteMetricPoints(ctx context.Context, points []observability
 		return fmt.Errorf("begin metric append: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	statement, err := tx.PrepareContext(ctx, insertMetricSQL)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = statement.Close() }()
 	for _, point := range points {
-		if err := writeMetricPoint(ctx, tx, point); err != nil {
+		if err := writeMetricPoint(ctx, statement, point); err != nil {
 			return err
 		}
 	}
@@ -32,24 +37,22 @@ func (d *Database) WriteMetricPoints(ctx context.Context, points []observability
 	return nil
 }
 
-type sqlExecutor interface {
-	ExecContext(context.Context, string, ...any) (sql.Result, error)
-}
+const insertMetricSQL = `INSERT INTO resource_metric_samples
+        (project_id, service_id, sampled_at, resolution_seconds, sample_count,
+		 cpu_percent, cpu_max_percent, cpu_available, memory_bytes, memory_max_bytes, memory_limit, memory_available,
+         network_rx_bytes, network_tx_bytes, network_available, disk_read_bytes, disk_write_bytes, disk_available,
+         process_count, restart_count, health_latency_ms, health_available, storage_bytes, storage_classification, partial)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(project_id, service_id, resolution_seconds, sampled_at) DO NOTHING`
 
-func writeMetricPoint(ctx context.Context, executor sqlExecutor, point observability.MetricPoint) error {
+func writeMetricPoint(ctx context.Context, statement *sql.Stmt, point observability.MetricPoint) error {
 	if point.Timestamp.IsZero() || point.ProjectID == "" {
 		return fmt.Errorf("metric point requires project and timestamp")
 	}
 	if point.SampleCount <= 0 {
 		point.SampleCount = 1
 	}
-	_, err := executor.ExecContext(ctx, `INSERT INTO resource_metric_samples
-        (project_id, service_id, sampled_at, resolution_seconds, sample_count,
-		 cpu_percent, cpu_max_percent, cpu_available, memory_bytes, memory_max_bytes, memory_limit, memory_available,
-         network_rx_bytes, network_tx_bytes, network_available, disk_read_bytes, disk_write_bytes, disk_available,
-         process_count, restart_count, health_latency_ms, health_available, storage_bytes, storage_classification, partial)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(project_id, service_id, resolution_seconds, sampled_at) DO NOTHING`,
+	_, err := statement.ExecContext(ctx,
 		point.ProjectID, point.ServiceID, formatTime(point.Timestamp), point.ResolutionSeconds, point.SampleCount,
 		point.CPUPercent, max(point.CPUMaxPercent, point.CPUPercent), point.CPUAvailable,
 		safeUint(point.MemoryBytes), safeUint(max(point.MemoryMaxBytes, point.MemoryBytes)), safeUint(point.MemoryLimit), point.MemoryAvailable,
@@ -65,7 +68,7 @@ func writeMetricPoint(ctx context.Context, executor sqlExecutor, point observabi
 func (d *Database) LatestMetricPoints(ctx context.Context, projectIDs []string) (map[string][]observability.MetricPoint, error) {
 	result := make(map[string][]observability.MetricPoint, len(projectIDs))
 	for _, projectID := range projectIDs {
-		rows, err := d.connection.QueryContext(ctx, `SELECT `+metricColumns+` FROM resource_metric_samples
+		rows, err := d.queryContext(ctx, `SELECT `+metricColumns+` FROM resource_metric_samples
             WHERE project_id = ? AND resolution_seconds = 0 AND sampled_at = (
                 SELECT MAX(sampled_at) FROM resource_metric_samples WHERE project_id = ? AND resolution_seconds = 0
             ) ORDER BY service_id`, projectID, projectID)
@@ -85,7 +88,7 @@ func (d *Database) LatestMetricPoints(ctx context.Context, projectIDs []string) 
 func (d *Database) RecentProjectMetricPoints(ctx context.Context, projectIDs []string, limit int) (map[string][]observability.MetricPoint, error) {
 	result := make(map[string][]observability.MetricPoint, len(projectIDs))
 	for _, projectID := range projectIDs {
-		rows, err := d.connection.QueryContext(ctx, `SELECT `+metricColumns+` FROM resource_metric_samples
+		rows, err := d.queryContext(ctx, `SELECT `+metricColumns+` FROM resource_metric_samples
             WHERE project_id = ? AND service_id = '' AND resolution_seconds = 0 ORDER BY sampled_at DESC, id DESC LIMIT ?`, projectID, limit)
 		if err != nil {
 			return nil, fmt.Errorf("query recent metric points: %w", err)
@@ -101,7 +104,7 @@ func (d *Database) RecentProjectMetricPoints(ctx context.Context, projectIDs []s
 
 // MetricHistory returns a bounded chronological series from one stored tier.
 func (d *Database) MetricHistory(ctx context.Context, projectID, serviceID string, from, to time.Time, resolution, limit int) ([]observability.MetricPoint, error) {
-	rows, err := d.connection.QueryContext(ctx, `SELECT `+metricColumns+` FROM resource_metric_samples
+	rows, err := d.queryContext(ctx, `SELECT `+metricColumns+` FROM resource_metric_samples
         WHERE project_id = ? AND service_id = ? AND resolution_seconds = ? AND sampled_at >= ? AND sampled_at <= ?
         ORDER BY sampled_at, id LIMIT ?`, projectID, serviceID, resolution, formatTime(from), formatTime(to), limit)
 	if err != nil {
@@ -192,12 +195,17 @@ func (d *Database) ResourceFootprint(ctx context.Context) (observability.Footpri
 	result.DatabaseBytes = fileSize(d.path)
 	result.DatabaseWALBytes = fileSize(d.path + "-wal")
 	result.DatabaseSHMBytes = fileSize(d.path + "-shm")
-	if err := d.connection.QueryRowContext(ctx, `SELECT COALESCE(SUM(size_bytes), 0), COUNT(*) FROM log_segments`).Scan(&result.LogBytes, &result.LogSegments); err != nil {
-		return observability.Footprint{}, fmt.Errorf("query log footprint: %w", err)
-	}
 	var oldest sql.NullString
-	if err := d.connection.QueryRowContext(ctx, `SELECT COUNT(*), MIN(sampled_at) FROM resource_metric_samples`).Scan(&result.MetricRows, &oldest); err != nil {
-		return observability.Footprint{}, fmt.Errorf("query metric footprint: %w", err)
+	// Independent scalar subqueries retain COUNT's table-count fast path and
+	// indexed MIN seeks, while one read snapshot avoids repeated WAL locking.
+	if err := d.queryRowContext(ctx, `SELECT logs.bytes, logs.segments,
+		(SELECT COUNT(*) FROM resource_metric_samples),
+		(SELECT MIN(first_at) FROM (
+			SELECT MIN(sampled_at) AS first_at FROM resource_metric_samples WHERE resolution_seconds = 0
+			UNION ALL SELECT MIN(sampled_at) FROM resource_metric_samples WHERE resolution_seconds = 60
+			UNION ALL SELECT MIN(sampled_at) FROM resource_metric_samples WHERE resolution_seconds = 900
+		)) FROM (SELECT COALESCE(SUM(size_bytes), 0) AS bytes, COUNT(*) AS segments FROM log_segments) AS logs`).Scan(&result.LogBytes, &result.LogSegments, &result.MetricRows, &oldest); err != nil {
+		return observability.Footprint{}, fmt.Errorf("query resource footprint: %w", err)
 	}
 	if oldest.Valid {
 		value, err := parseTime(oldest.String)

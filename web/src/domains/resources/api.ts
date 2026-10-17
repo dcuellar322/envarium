@@ -11,8 +11,8 @@ import type {
   StorageInventory,
 } from '../../api/generated/types.gen'
 
-export async function loadResourceOverview(): Promise<ResourceOverview> {
-  const result = await getResourceOverview()
+export async function loadResourceOverview(signal?: AbortSignal): Promise<ResourceOverview> {
+  const result = await getResourceOverview({ signal })
   if (result.error || !result.data) throw new Error('Resource intelligence is unavailable.')
   return result.data
 }

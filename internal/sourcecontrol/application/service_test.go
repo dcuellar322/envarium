@@ -36,6 +36,24 @@ func TestListWorktreesPreservesTrustAndCapabilityErrors(t *testing.T) {
 	}
 }
 
+func TestStatusPreservesTrustAndFallbackBoundaries(t *testing.T) {
+	t.Parallel()
+	denied := errors.New("denied")
+	service := NewService(projectSourceStub{err: denied}, observeOnlyStub{})
+	if _, err := service.GetStatus(context.Background(), "one"); !errors.Is(err, denied) {
+		t.Fatalf("trust: %v", err)
+	}
+	service = NewService(projectSourceStub{root: "/repo"}, observeOnlyStub{})
+	if _, err := service.GetStatus(context.Background(), "one"); err != nil {
+		t.Fatal(err)
+	}
+	canceled, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, err := service.GetStatus(canceled, "one"); !errors.Is(err, context.Canceled) {
+		t.Fatalf("cancellation: %v", err)
+	}
+}
+
 type projectSourceStub struct {
 	root string
 	err  error

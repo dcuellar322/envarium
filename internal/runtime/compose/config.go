@@ -20,6 +20,7 @@ type normalizedConfig struct {
 }
 
 type configReader struct {
+	metadata          *metadataMemo
 	runner            commandRunner
 	contexts          contextResolver
 	artifactDirectory string

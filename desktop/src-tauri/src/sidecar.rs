@@ -78,7 +78,7 @@ impl<R: Runtime> Sidecar<R> {
     }
 
     async fn run<T: DeserializeOwned>(&self, args: &[&str]) -> Result<T, SidecarError> {
-        let mut complete_args = vec!["--json", "--non-interactive", "--no-color"];
+        let mut complete_args = vec!["--json", "--compact", "--non-interactive", "--no-color"];
         complete_args.extend_from_slice(args);
         let output = self
             .app

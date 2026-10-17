@@ -12,7 +12,7 @@ import {
 export function useResourcesView() {
   const overview = useQuery({
     queryKey: ['resource-overview'],
-    queryFn: loadResourceOverview,
+    queryFn: ({ signal }) => loadResourceOverview(signal),
     refetchInterval: 10_000,
   })
   const storage = useQuery({

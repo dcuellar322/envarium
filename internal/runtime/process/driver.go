@@ -7,13 +7,15 @@ import (
 	"sync"
 	"time"
 
+	"envarium.dev/envarium/internal/platform/sockets"
 	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 const (
-	defaultStopTimeout   = 10 * time.Second
-	defaultLogCapacity   = 10_000
-	identityHandoffGrace = 2 * time.Second
+	defaultStopTimeout     = 10 * time.Second
+	defaultLogCapacity     = 10_000
+	defaultLogByteCapacity = 1 << 20
+	identityHandoffGrace   = 2 * time.Second
 )
 
 var (
@@ -44,12 +46,14 @@ type SecretObserver interface {
 
 // Driver supervises native process groups and reconciles them against durable fingerprints.
 type Driver struct {
-	ctx            context.Context
-	store          RunStore
-	inspector      processInspector
-	secrets        SecretResolver
-	secretObserver SecretObserver
-	now            func() time.Time
+	ctx               context.Context
+	store             RunStore
+	inspector         processInspector
+	observedInspector processInspector
+	secrets           SecretResolver
+	secretObserver    SecretObserver
+	now               func() time.Time
+	logCapacity       int
 
 	mu          sync.RWMutex
 	managed     map[string]*managedRun
@@ -60,15 +64,26 @@ type Driver struct {
 // NewDriver creates a production native-process driver scoped to the daemon lifecycle.
 func NewDriver(ctx context.Context, store RunStore, observers ...SecretObserver) *Driver {
 	driver := newDriver(ctx, store, gopsutilInspector{}, keychainResolver{})
+	driver.observedInspector = gopsutilInspector{connections: sockets.NewTCPObserver().Connections}
 	if len(observers) > 0 {
 		driver.secretObserver = observers[0]
 	}
 	return driver
 }
 
+// NewDriverWithLogCapacity sets the entry ceiling for each service's capture ring.
+// The independent byte ceiling applies even when a larger entry count is selected.
+func NewDriverWithLogCapacity(ctx context.Context, store RunStore, capacity int, observers ...SecretObserver) *Driver {
+	driver := NewDriver(ctx, store, observers...)
+	if capacity > 0 {
+		driver.logCapacity = capacity
+	}
+	return driver
+}
+
 func newDriver(ctx context.Context, store RunStore, inspector processInspector, secrets SecretResolver) *Driver {
 	return &Driver{
-		ctx: ctx, store: store, inspector: inspector, secrets: secrets, now: time.Now,
+		ctx: ctx, store: store, inspector: inspector, observedInspector: inspector, secrets: secrets, now: time.Now, logCapacity: defaultLogCapacity,
 		managed: make(map[string]*managedRun), logs: make(map[string]*logBuffer),
 		subscribers: make(map[string]map[chan domain.RuntimeEvent]struct{}),
 	}

@@ -2,6 +2,8 @@ package process
 
 import (
 	"context"
+	"errors"
+	gnet "github.com/shirou/gopsutil/v4/net"
 	"testing"
 	"time"
 
@@ -65,5 +67,39 @@ func TestInspectLabelsMatchingExternalListenerHonestly(t *testing.T) {
 	}
 	if observation.State != domain.StateRunningExternal || observation.Origin != domain.OriginExternal || observation.Services[0].Process.RunID != "" {
 		t.Fatalf("observation = %#v", observation)
+	}
+}
+
+func TestStartRechecksListenersAfterCachedStoppedObservation(t *testing.T) {
+	t.Parallel()
+	service := servicePlan{
+		service:    domain.ServiceDeclaration{ID: "api", RuntimeName: "api", HostPorts: []int{18082}},
+		definition: domain.ProcessDefinition{ID: "api", Command: []string{"uv", "run", "api.py"}},
+	}
+	project := processProject("/repo", []servicePlan{service})
+	fresh := inspectorFake{listeners: map[int][]domain.ProcessIdentity{18082: {{PID: 99, Executable: "/usr/bin/uv", Fingerprint: "external"}}}}
+	driver := newDriver(context.Background(), newMemoryRunStore(), fresh, &secretResolverFake{})
+	driver.observedInspector = inspectorFake{}
+	observation, err := driver.Inspect(context.Background(), project)
+	if err != nil || observation.State != domain.StateStopped {
+		t.Fatalf("observation: %v %v", observation, err)
+	}
+	if _, _, err := driver.startService(context.Background(), project, service); !errors.Is(err, ErrExternalProcess) {
+		t.Fatalf("start used stale empty inventory: %v", err)
+	}
+	runs, _ := driver.store.ListProjectRuns(context.Background(), project.ProjectID)
+	if len(runs) != 0 {
+		t.Fatal("external process was adopted")
+	}
+}
+
+func TestCachedListenerPIDsStillRequireFreshIdentity(t *testing.T) {
+	t.Parallel()
+	inspector := gopsutilInspector{connections: func(context.Context) ([]gnet.ConnectionStat, error) {
+		return []gnet.ConnectionStat{{Status: "LISTEN", Pid: 2147483647, Laddr: gnet.Addr{Port: 3000}}}, nil
+	}}
+	values, err := inspector.Listeners(context.Background(), 3000)
+	if err != nil || len(values) != 0 {
+		t.Fatalf("stale PID treated as live identity: %v %v", values, err)
 	}
 }

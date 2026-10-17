@@ -16,6 +16,8 @@ type Driver struct {
 	executor executor
 	engine   engineConnector
 	managed  *managedContainers
+	observed *observationConfigs
+	clients  *engineClients
 }
 
 // NewDriver creates a production Compose driver using the installed Docker CLI.
@@ -28,11 +30,20 @@ func NewDriver() *Driver {
 func NewDriverWithArtifacts(artifactDirectory string) *Driver {
 	runner := osCommandRunner{}
 	managed := newManagedContainers()
+	clients := newEngineClients()
 	return &Driver{
-		config:  configReader{runner: runner, contexts: contextResolver{runner: runner}, artifactDirectory: artifactDirectory},
+		config:  configReader{metadata: newMetadataMemo(), runner: runner, contexts: contextResolver{runner: runner}, artifactDirectory: artifactDirectory},
 		builder: commandBuilder{}, executor: executor{runner: runner, managed: managed},
-		engine: engineFactory{}, managed: managed,
+		engine: engineFactory{clients: clients}, managed: managed, observed: newObservationConfigs(), clients: clients,
 	}
+}
+
+// Close releases retained idle Engine transports. Active leases close on return.
+func (d *Driver) Close() error {
+	if d.clients == nil {
+		return nil
+	}
+	return d.clients.close()
 }
 
 // Kind identifies the driver contract.
@@ -54,7 +65,7 @@ func (d *Driver) Execute(ctx context.Context, plan domain.Plan, sink domain.Prog
 
 // Inspect derives project state from canonical Compose labels and Engine metadata.
 func (d *Driver) Inspect(ctx context.Context, project domain.ProjectRuntime) (domain.Observation, error) {
-	config, err := d.config.Normalize(ctx, project)
+	config, err := d.observationConfig(ctx, project)
 	if err != nil {
 		return disconnectedObservation(project, normalizedConfig{}, err), nil
 	}
@@ -63,7 +74,7 @@ func (d *Driver) Inspect(ctx context.Context, project domain.ProjectRuntime) (do
 
 // StreamLogs reads container output through the Engine SDK.
 func (d *Driver) StreamLogs(ctx context.Context, request domain.LogRequest, sink domain.LogSink) error {
-	config, err := d.config.Normalize(ctx, request.Project)
+	config, err := d.observationConfig(ctx, request.Project)
 	if err != nil {
 		return err
 	}
@@ -84,7 +95,7 @@ func (s operationLogSink) WriteLog(ctx context.Context, entry domain.LogEntry) e
 
 // StreamMetrics reads current container stats through the Engine SDK.
 func (d *Driver) StreamMetrics(ctx context.Context, request domain.MetricRequest, sink domain.MetricSink) error {
-	config, err := d.config.Normalize(ctx, request.Project)
+	config, err := d.observationConfig(ctx, request.Project)
 	if err != nil {
 		return err
 	}
@@ -93,7 +104,7 @@ func (d *Driver) StreamMetrics(ctx context.Context, request domain.MetricRequest
 
 // WatchEvents subscribes to Engine events filtered by canonical project labels.
 func (d *Driver) WatchEvents(ctx context.Context, project domain.ProjectRuntime, sink domain.EventSink) error {
-	config, err := d.config.Normalize(ctx, project)
+	config, err := d.observationConfig(ctx, project)
 	if err != nil {
 		return err
 	}

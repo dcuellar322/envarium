@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { useMutation, useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery, type Query } from '@tanstack/vue-query'
 import { computed, onBeforeUnmount, watch } from 'vue'
 
+import { usePresentationActivity } from '../../domains/system/composables/usePresentationActivity'
 import { isTerminalOperation, stateLabel } from '../../lib/format'
+import type { Operation } from '../../api/generated/types.gen'
 import { loadOperations, requestOperationCancellation } from '../../domains/operations/api'
 import {
   mergeTrackedOperations,
@@ -10,11 +12,22 @@ import {
   useOperationStore,
 } from '../../domains/operations/store'
 
+const props = defineProps<{ connected?: boolean }>()
 const store = useOperationStore()
+const active = usePresentationActivity()
 const query = useQuery({
+  shallow: true,
+  enabled: active,
   queryKey: ['operations'],
   queryFn: loadOperations,
-  refetchInterval: 1_500,
+  refetchInterval: computed(() => {
+    if (!active.value) return false
+    const connected = props.connected
+    return (query: Query<Operation[], Error, Operation[], string[]>) =>
+      !connected || query.state.data?.some((operation) => !isTerminalOperation(operation.state))
+        ? 1_500
+        : 15_000
+  }),
 })
 watch(
   () => query.data.value,

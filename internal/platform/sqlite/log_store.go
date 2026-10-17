@@ -24,21 +24,16 @@ type LogRedactor interface {
 // LogStoreConfig bounds memory, segment size, retention age, and disk usage.
 type LogStoreConfig struct {
 	Directory      string
-	RingCapacity   int
 	SegmentBytes   int64
 	RetentionAge   time.Duration
 	RetentionBytes int64
 }
 
 type activeLogSegment struct {
-	id, path string
-	lines    int64
-	size     int64
-}
-
-type logRing struct {
-	entries []runtime.LogEntry
-	limit   int
+	id, path  string
+	lines     int64
+	size      int64
+	lastWrite time.Time
 }
 
 // LogStore is a redaction-first rotating NDJSON store with SQLite segment metadata.
@@ -50,16 +45,12 @@ type LogStore struct {
 
 	mu          sync.Mutex
 	active      map[string]*activeLogSegment
-	rings       map[string]*logRing
 	subscribers map[chan runtime.LogEntry]struct{}
 	writes      int
 }
 
 // NewLogStore creates private log storage and applies retention before collection begins.
 func NewLogStore(database *Database, config LogStoreConfig, redactor LogRedactor) (*LogStore, error) {
-	if config.RingCapacity <= 0 {
-		config.RingCapacity = 2_000
-	}
 	if config.SegmentBytes <= 0 {
 		config.SegmentBytes = 1 << 20
 	}
@@ -73,7 +64,7 @@ func NewLogStore(database *Database, config LogStoreConfig, redactor LogRedactor
 		return nil, fmt.Errorf("create log directory: %w", err)
 	}
 	store := &LogStore{database: database, config: config, redactor: redactor, now: time.Now,
-		active: map[string]*activeLogSegment{}, rings: map[string]*logRing{}, subscribers: map[chan runtime.LogEntry]struct{}{}}
+		active: map[string]*activeLogSegment{}, subscribers: map[chan runtime.LogEntry]struct{}{}}
 	if err := store.recoverStagedDeletions(context.Background()); err != nil {
 		return nil, err
 	}
@@ -136,21 +127,20 @@ func (s *LogStore) WriteLog(ctx context.Context, entry runtime.LogEntry) error {
 	}
 	entry = s.redactor.RedactLog(entry)
 	entry.Sequence = 0
-	digest, err := logDigest(entry)
+	digest, encodedSize, err := logDigest(entry)
 	if err != nil {
 		return err
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	var existing int64
-	err = s.database.connection.QueryRowContext(ctx, `SELECT sequence FROM log_entries WHERE digest = ?`, digest).Scan(&existing)
+	err = s.database.queryRowContext(ctx, `SELECT sequence FROM log_entries WHERE digest = ?`, digest).Scan(&existing)
 	if err == nil {
 		return nil
 	}
 	key := logSegmentKey(entry)
 	segment := s.active[key]
-	estimate, _ := json.Marshal(entry)
-	if segment != nil && segment.lines > 0 && segment.size+int64(len(estimate)+1) > s.config.SegmentBytes {
+	if segment != nil && segment.lines > 0 && segment.size+int64(encodedSize+1) > s.config.SegmentBytes {
 		if err := s.closeSegment(ctx, segment); err != nil {
 			return err
 		}
@@ -158,6 +148,9 @@ func (s *LogStore) WriteLog(ctx context.Context, entry runtime.LogEntry) error {
 		segment = nil
 	}
 	if segment == nil {
+		if err := s.makeSegmentRoom(ctx); err != nil {
+			return err
+		}
 		segment, err = s.createSegment(ctx, entry)
 		if err != nil {
 			return err
@@ -215,7 +208,7 @@ func (s *LogStore) WriteLog(ctx context.Context, entry runtime.LogEntry) error {
 	}
 	segment.lines = nextLines
 	segment.size = nextSize
-	s.addRing(entry)
+	segment.lastWrite = s.now().UTC()
 	s.publish(entry)
 	s.writes++
 	if s.writes%100 == 0 {
@@ -260,21 +253,6 @@ func (s *LogStore) closeSegment(ctx context.Context, segment *activeLogSegment) 
 	_, err = s.database.connection.ExecContext(ctx, `UPDATE log_segments SET closed_at = ?, sha256 = ? WHERE id = ?`,
 		formatTime(s.now().UTC()), hex.EncodeToString(sum[:]), segment.id)
 	return err
-}
-
-func (s *LogStore) addRing(entry runtime.LogEntry) {
-	key := entry.ProjectID + "\x00" + entry.ServiceID
-	ring := s.rings[key]
-	if ring == nil {
-		ring = &logRing{limit: s.config.RingCapacity}
-		s.rings[key] = ring
-	}
-	if len(ring.entries) == ring.limit {
-		copy(ring.entries, ring.entries[1:])
-		ring.entries[len(ring.entries)-1] = entry
-	} else {
-		ring.entries = append(ring.entries, entry)
-	}
 }
 
 func (s *LogStore) publish(entry runtime.LogEntry) {
@@ -337,13 +315,13 @@ func appendPrivateLine(path string, encoded []byte) error {
 	return nil
 }
 
-func logDigest(entry runtime.LogEntry) (string, error) {
+func logDigest(entry runtime.LogEntry) (string, int, error) {
 	encoded, err := json.Marshal(entry)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	sum := sha256.Sum256(encoded)
-	return hex.EncodeToString(sum[:]), nil
+	return hex.EncodeToString(sum[:]), len(encoded), nil
 }
 
 func logSegmentKey(entry runtime.LogEntry) string {

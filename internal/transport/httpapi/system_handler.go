@@ -22,6 +22,7 @@ import (
 	observabilityDomain "envarium.dev/envarium/internal/observability/domain"
 	operationsApplication "envarium.dev/envarium/internal/operations/application"
 	operationsDomain "envarium.dev/envarium/internal/operations/domain"
+	overviewApplication "envarium.dev/envarium/internal/overview/application"
 	pluginsDomain "envarium.dev/envarium/internal/plugins/domain"
 	portsDomain "envarium.dev/envarium/internal/ports/domain"
 	routingDomain "envarium.dev/envarium/internal/routing/domain"
@@ -51,6 +52,10 @@ type hostQuery interface {
 	Get(context.Context) application.HostObservation
 }
 
+type overviewService interface {
+	Read(context.Context, string, []string) (overviewApplication.Batch, error)
+}
+
 type handler struct {
 	system                  systemQuery
 	host                    hostQuery
@@ -63,6 +68,7 @@ type handler struct {
 	ports                   portService
 	git                     gitService
 	actions                 actionService
+	overview                overviewService
 	ai                      aiOnboardingService
 	resources               resourceService
 	plugins                 pluginService
@@ -189,6 +195,7 @@ type portService interface {
 
 type gitService interface {
 	Get(context.Context, string) (sourcecontrolDomain.State, error)
+	GetStatus(context.Context, string) (sourcecontrolDomain.State, error)
 }
 
 type actionService interface {

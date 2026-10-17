@@ -66,7 +66,27 @@ func NewService(collector Collector, provider Provider, repo Repository) (*Servi
 
 // Diagnose always evaluates deterministic rules before any optional provider call.
 func (s *Service) Diagnose(ctx context.Context, projectID, providerID string) (domain.Diagnosis, error) {
-	bundle, err := s.collector.Collect(ctx, projectID)
+	return s.diagnose(ctx, projectID, providerID, false)
+}
+
+// ScheduledCollector provides current evidence for every notifying rule while
+// omitting full interactive-only enrichment. See ADR-0023.
+type ScheduledCollector interface {
+	CollectScheduled(context.Context, string) (domain.Bundle, error)
+}
+
+// DiagnoseScheduled preserves automatic notifications and supported recipe
+// triggers without generating recommendations from omitted evidence.
+func (s *Service) DiagnoseScheduled(ctx context.Context, projectID string) (domain.Diagnosis, error) {
+	return s.diagnose(ctx, projectID, "", true)
+}
+
+func (s *Service) diagnose(ctx context.Context, projectID, providerID string, scheduled bool) (domain.Diagnosis, error) {
+	collect := s.collector.Collect
+	if source, ok := s.collector.(ScheduledCollector); scheduled && ok {
+		collect = source.CollectScheduled
+	}
+	bundle, err := collect(ctx, projectID)
 	if err != nil {
 		return domain.Diagnosis{}, err
 	}
@@ -81,6 +101,15 @@ func (s *Service) Diagnose(ctx context.Context, projectID, providerID string) (d
 		ID: id, Version: domain.DiagnosisVersion, ProjectID: projectID, Provider: providerID,
 		Bundle: bundle, Hypotheses: Evaluate(bundle), Warnings: append([]string(nil), bundle.Warnings...),
 		GeneratedAt: s.now().UTC(), Deterministic: providerID == "",
+	}
+	if scheduled {
+		notifications := make([]domain.Hypothesis, 0, len(diagnosis.Hypotheses))
+		for _, hypothesis := range diagnosis.Hypotheses {
+			if hypothesis.Notifies {
+				notifications = append(notifications, hypothesis)
+			}
+		}
+		diagnosis.Hypotheses = notifications
 	}
 	if providerID != "" {
 		s.enhance(ctx, &diagnosis, providerID)

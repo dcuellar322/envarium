@@ -63,7 +63,7 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime) (do
 				stale++
 				_ = d.store.FinishRun(context.WithoutCancel(ctx), run.ID, observation.ObservedAt, nil, "identity_lost")
 			}
-		} else if identity, found, externalErr := d.externalService(ctx, project, service); externalErr != nil {
+		} else if identity, found, externalErr := d.externalService(ctx, service, d.observedInspector); externalErr != nil {
 			serviceObservation.State = "unknown"
 			stale++
 		} else if found {
@@ -113,20 +113,20 @@ func processProjectState(declared, managed, external, starting, failed, stale in
 
 func (d *Driver) externalService(
 	ctx context.Context,
-	_ domain.ProjectRuntime,
 	service servicePlan,
+	inspector processInspector,
 ) (domain.ProcessIdentity, bool, error) {
 	if service.definition.Shell || len(service.definition.Command) == 0 {
 		return domain.ProcessIdentity{}, false, nil
 	}
 	for _, port := range service.service.HostPorts {
-		listeners, err := d.inspector.Listeners(ctx, port)
+		listeners, err := inspector.Listeners(ctx, port)
 		if err != nil {
 			return domain.ProcessIdentity{}, false, err
 		}
 		for _, identity := range listeners {
 			if executableMatches(service.definition.Command[0], identity) ||
-				d.inspector.MatchesCommand(ctx, identity.PID, service.definition.Command[0]) {
+				inspector.MatchesCommand(ctx, identity.PID, service.definition.Command[0]) {
 				return identity, true, nil
 			}
 		}

@@ -299,3 +299,29 @@ func BenchmarkResourceSamplerFiftyIdleProjects(b *testing.B) {
 		}
 	}
 }
+
+func TestActiveSamplesRemainFrequentWhileRollupsRunOncePerMinute(t *testing.T) {
+	t.Parallel()
+	metrics := &metricRepositoryFake{}
+	runtime := &resourceRuntimeFake{observe: func(_ context.Context, p domain.ProjectDescriptor) (domain.RuntimeSnapshot, error) {
+		return domain.RuntimeSnapshot{ProjectID: p.ID, Active: true, State: "running", Samples: []domain.MetricPoint{{ServiceID: "api", CPUAvailable: true, CPUPercent: 1}}}, nil
+	}}
+	service := newResourceServiceForTest(t, resourceProjectSourceFake{projects: []domain.ProjectDescriptor{{ID: "active", Name: "Active"}}}, runtime, metrics, &storageInspectorFake{}, ResourceConfig{})
+	now := time.Now().UTC()
+	service.now = func() time.Time { return now }
+	for range 6 {
+		if err := service.Collect(context.Background()); err != nil {
+			t.Fatal(err)
+		}
+		now = now.Add(10 * time.Second)
+	}
+	if runtime.calls.Load() != 6 || len(metrics.writtenPoints()) != 12 || metrics.maintainCalls.Load() != 1 {
+		t.Fatal("live sampling or rollup cadence changed incorrectly")
+	}
+	if err := service.Collect(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if metrics.maintainCalls.Load() != 2 {
+		t.Fatal("minute rollup not maintained")
+	}
+}

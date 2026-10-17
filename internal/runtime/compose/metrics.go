@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"sync"
 	"time"
 
 	"envarium.dev/envarium/internal/runtime/domain"
@@ -13,7 +14,7 @@ import (
 )
 
 func (d *Driver) streamMetrics(ctx context.Context, request domain.MetricRequest, config normalizedConfig, sink domain.MetricSink) error {
-	engine, _, _, err := d.engine.Connect(ctx, config.Connection)
+	engine, _, err := d.engine.Connect(ctx, config.Connection)
 	if err != nil {
 		return err
 	}
@@ -23,18 +24,51 @@ func (d *Driver) streamMetrics(ctx context.Context, request domain.MetricRequest
 		return fmt.Errorf("list Compose containers for metrics: %w", err)
 	}
 	items := composeContainers(containers.Items, config.ProjectName, config.Services)
+	// Eight workers bound Engine load while preventing sequential two-sample
+	// statistics reads from exhausting the entire project's sampling deadline.
+	type result struct {
+		samples []domain.MetricSample
+		err     error
+	}
+	results := make([]result, len(items))
+	jobs := make(chan int)
+	var workers sync.WaitGroup
+	for range min(8, len(items)) {
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
+			for index := range jobs {
+				buffer := &metricSampleBuffer{}
+				sampleCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+				err := sampleContainer(sampleCtx, engine, request.Project, items[index], buffer)
+				cancel()
+				results[index] = result{samples: buffer.samples, err: err}
+			}
+		}()
+	}
+	for index := range items {
+		jobs <- index
+	}
+	close(jobs)
+	workers.Wait()
+	// Retain deterministic replica ordering and never require thread-safe sinks.
 	sampled := 0
 	var lastErr error
-	for _, item := range items {
-		if err := sampleContainer(ctx, engine, request.Project, item, sink); err != nil {
-			lastErr = err
-			if writeErr := sink.WriteMetric(ctx, domain.MetricSample{
+	for index, result := range results {
+		if result.err != nil {
+			lastErr = result.err
+			if err := sink.WriteMetric(ctx, domain.MetricSample{
 				Timestamp: time.Now().UTC(), ProjectID: request.Project.ProjectID,
-				ServiceID: productServiceID(request.Project, item.Labels[labelService]), InstanceID: item.ID, Partial: true,
-			}); writeErr != nil {
-				return writeErr
+				ServiceID: productServiceID(request.Project, items[index].Labels[labelService]), InstanceID: items[index].ID, Partial: true,
+			}); err != nil {
+				return err
 			}
 			continue
+		}
+		for _, sample := range result.samples {
+			if err := sink.WriteMetric(ctx, sample); err != nil {
+				return err
+			}
 		}
 		sampled++
 	}
@@ -129,4 +163,12 @@ func diskTotals(stats container.StatsResponse) (uint64, uint64, bool) {
 		available = true
 	}
 	return read, written, available
+}
+
+// metricSampleBuffer belongs to one worker invocation only.
+type metricSampleBuffer struct{ samples []domain.MetricSample }
+
+func (s *metricSampleBuffer) WriteMetric(_ context.Context, sample domain.MetricSample) error {
+	s.samples = append(s.samples, sample)
+	return nil
 }

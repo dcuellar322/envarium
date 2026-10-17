@@ -56,6 +56,10 @@ const memory = computed(
 const cpu = computed(
   () => props.snapshot.metrics?.reduce((total, sample) => total + sample.cpuPercent, 0) ?? 0,
 )
+const memoryAvailable = computed(() =>
+  props.snapshot.metrics?.every((sample) => sample.memoryAvailable),
+)
+const cpuAvailable = computed(() => props.snapshot.metrics?.every((sample) => sample.cpuAvailable))
 const primaryAction = computed<RuntimeAction>(() => (isActiveState(state.value) ? 'stop' : 'start'))
 const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? [])
 </script>
@@ -109,7 +113,9 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
       <div class="meta-box">
         <span>Resources</span
         ><strong>{{
-          snapshot.metrics ? `${formatBytes(memory)} · ${cpu.toFixed(1)}%` : '—'
+          snapshot.metrics
+            ? `${memoryAvailable ? formatBytes(memory) : '—'} · ${cpuAvailable ? cpu.toFixed(1) + '%' : '—'}`
+            : '—'
         }}</strong>
       </div>
     </div>
@@ -190,6 +196,7 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
 
 <style scoped>
 .project-card {
+  contain: layout paint;
   border: 1px solid var(--border);
   background: linear-gradient(145deg, rgba(19, 25, 34, 0.98), rgba(14, 19, 27, 0.98));
   border-radius: 15px;

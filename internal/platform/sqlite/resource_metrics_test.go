@@ -232,6 +232,41 @@ func oneMetricAtResolution(t testing.TB, database *Database, projectID, serviceI
 
 type resolutionCounts struct{ raw, minute, quarter int }
 
+// Each service has its own watermark, including new services and late points
+// in the current bucket.
+func TestMetricRollupIndependentWatermarksAndLateSamples(t *testing.T) {
+	t.Parallel()
+	d := newResourceMetricDatabase(t)
+	ctx := context.Background()
+	base := time.Date(2026, 10, 17, 12, 0, 0, 0, time.UTC)
+	write := func(service string, offset time.Duration, cpu float64) {
+		t.Helper()
+		if err := d.WriteMetricPoints(ctx, []observability.MetricPoint{{ProjectID: "project-1", ServiceID: service, Timestamp: base.Add(offset), CPUPercent: cpu, CPUAvailable: true}}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("api", 10*time.Second, 10)
+	if err := d.rollupMetrics(ctx, 0, 60); err != nil {
+		t.Fatal(err)
+	}
+	write("api", 40*time.Second, 30)
+	write("worker", -50*time.Second, 50)
+	for range 2 {
+		if err := d.rollupMetrics(ctx, 0, 60); err != nil {
+			t.Fatal(err)
+		}
+		api := oneMetricAtResolution(t, d, "project-1", "api", 60)
+		worker := oneMetricAtResolution(t, d, "project-1", "worker", 60)
+		if api.SampleCount != 2 || api.CPUPercent != 20 || worker.SampleCount != 1 || worker.CPUPercent != 50 {
+			t.Fatalf("api=%#v worker=%#v", api, worker)
+		}
+	}
+	footprint, err := d.ResourceFootprint(ctx)
+	if err != nil || footprint.MetricRows != 5 || footprint.OldestMetricAt == nil || !footprint.OldestMetricAt.Equal(base.Add(-time.Minute)) {
+		t.Fatalf("footprint=%#v err=%v", footprint, err)
+	}
+}
+
 func metricCountsByResolution(t testing.TB, database *Database) resolutionCounts {
 	t.Helper()
 	var result resolutionCounts

@@ -80,6 +80,16 @@ func NewCollector(catalog catalogSource, runtime runtimeSource, health healthSou
 
 // Collect creates a bounded, redacted bundle and preserves partial-source warnings.
 func (c *Collector) Collect(ctx context.Context, projectID string) (domain.Bundle, error) {
+	return c.collect(ctx, projectID, false)
+}
+
+// CollectScheduled retains every notification-rule input, without unrelated
+// Git state or cleanup recommendations. Full collection stays available on demand.
+func (c *Collector) CollectScheduled(ctx context.Context, projectID string) (domain.Bundle, error) {
+	return c.collect(ctx, projectID, true)
+}
+
+func (c *Collector) collect(ctx context.Context, projectID string, scheduled bool) (domain.Bundle, error) {
 	project, err := c.catalog.GetProject(ctx, projectID)
 	if err != nil {
 		return domain.Bundle{}, err
@@ -94,11 +104,15 @@ func (c *Collector) Collect(ctx context.Context, projectID string) (domain.Bundl
 	c.addEvidence(&bundle, "project", "project", "Registered project identity and age", "catalog", project, false, false, false, now)
 	c.collectRuntime(ctx, &bundle)
 	c.collectHealth(ctx, &bundle)
-	c.collectGit(ctx, &bundle)
+	if scheduled {
+		bundle.Warnings = append(bundle.Warnings, "Scheduled diagnosis omits Git state and cleanup recommendations; request a full diagnosis for those details.")
+	} else {
+		c.collectGit(ctx, &bundle)
+	}
 	c.collectPorts(ctx, &bundle)
 	c.collectConfig(ctx, &bundle)
 	c.collectLogs(ctx, &bundle)
-	c.collectResources(ctx, &bundle)
+	c.collectResources(ctx, &bundle, !scheduled)
 	c.collectOperations(ctx, &bundle)
 	actions, actionErr := c.ApprovedActions(ctx, projectID)
 	if actionErr != nil {
@@ -244,7 +258,7 @@ func (c *Collector) collectLogs(ctx context.Context, bundle *domain.Bundle) {
 	}
 }
 
-func (c *Collector) collectResources(ctx context.Context, bundle *domain.Bundle) {
+func (c *Collector) collectResources(ctx context.Context, bundle *domain.Bundle, includeCleanup bool) {
 	overview, err := c.resources.Overview(ctx)
 	if err != nil {
 		bundle.Warnings = append(bundle.Warnings, "Resource observations are unavailable.")
@@ -262,6 +276,9 @@ func (c *Collector) collectResources(ctx context.Context, bundle *domain.Bundle)
 			c.addEvidence(bundle, "resources", "resources", "Current usage and sustained budget warnings", "resources", snapshot, false, false, false, overview.ObservedAt)
 			break
 		}
+	}
+	if !includeCleanup {
+		return
 	}
 	preview, previewErr := c.resources.CleanupPreview(ctx, bundle.ProjectID)
 	if previewErr != nil {

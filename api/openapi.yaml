@@ -627,6 +627,48 @@ paths:
               schema: { $ref: "#/components/schemas/GitState" }
         default:
           $ref: "#/components/responses/Problem"
+  /project-observations:
+    get:
+      operationId: getProjectObservations
+      summary: Read one kind of fresh project observations in a bounded batch
+      description: Runtime observations include current health-derived degraded/starting states. The status kind returns both runtime and health facts for native notification consumers, with explicit per-project partial warnings.
+      parameters:
+        - name: kind
+          in: query
+          required: true
+          schema: { type: string, enum: [runtime, git-status, actions, status] }
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 64
+            uniqueItems: true
+            items: { type: string, minLength: 1, maxLength: 256 }
+      responses:
+        "200":
+          description: Ordered observations with explicit per-project warnings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectObservationBatch" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/git/status:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: getProjectGitStatus
+      summary: Read fresh working-tree and branch status for a trusted project
+      description: Omits commit enrichment, remote inventory and worktree inventory. Those remain available from the full Git endpoint.
+      responses:
+        "200":
+          description: Current porcelain status with empty remote and worktree arrays and no lastCommit.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GitState" }
+        default:
+          $ref: "#/components/responses/Problem"
   /projects/{projectId}/environments:
     parameters:
       - $ref: "#/components/parameters/ProjectId"
@@ -1699,6 +1741,24 @@ components:
           schema:
             $ref: "#/components/schemas/ProblemDetails"
   schemas:
+    ProjectObservationBatch:
+      type: object
+      required: [kind, observedAt, projects]
+      properties:
+        kind: { type: string, enum: [runtime, git-status, actions, status] }
+        observedAt: { type: string, format: date-time }
+        projects:
+          type: array
+          items:
+            type: object
+            required: [projectId]
+            properties:
+              projectId: { type: string }
+              runtime: { $ref: "#/components/schemas/RuntimeObservation" }
+              git: { $ref: "#/components/schemas/GitState" }
+              actions: { $ref: "#/components/schemas/ProjectActions" }
+              health: { $ref: "#/components/schemas/ProjectHealth" }
+              warning: { type: string }
     DaemonSettingsStatus:
       type: object
       additionalProperties: false

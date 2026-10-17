@@ -122,6 +122,8 @@ type ResourceService struct {
 	lastAt          time.Time
 	states          map[string]domain.RuntimeSnapshot
 	warnings        []string
+	storageState    domain.StorageInventory
+	samplerRunning  bool
 }
 
 // NewResourceService creates the observability resource intelligence use cases.
@@ -130,11 +132,18 @@ func NewResourceService(projects ResourceProjectSource, runtime ResourceRuntimeS
 	if err := config.validate(); err != nil {
 		return nil, err
 	}
-	return &ResourceService{projects: projects, runtime: runtime, metrics: metrics, storage: storage, config: config, now: time.Now, states: map[string]domain.RuntimeSnapshot{}}, nil
+	return &ResourceService{projects: projects, runtime: runtime, metrics: metrics, storage: storage, config: config, now: time.Now, states: map[string]domain.RuntimeSnapshot{}, storageState: domain.StorageInventory{Summary: domain.StorageSummary{Classification: domain.StorageUnknown}, Warnings: []string{"Docker storage observation is pending."}}}, nil
 }
 
 // Run samples on one process-wide ticker and exits on cancellation.
 func (s *ResourceService) Run(ctx context.Context, report func(error)) {
+	s.stateMu.Lock()
+	s.samplerRunning = true
+	s.stateMu.Unlock()
+	defer func() { s.stateMu.Lock(); s.samplerRunning = false; s.stateMu.Unlock() }()
+	storageDone := make(chan struct{})
+	go func() { defer close(storageDone); s.runStorage(ctx) }()
+	defer func() { <-storageDone }()
 	s.collectAndReport(ctx, report)
 	ticker := time.NewTicker(s.config.SampleInterval)
 	defer ticker.Stop()
@@ -162,13 +171,10 @@ func (s *ResourceService) Collect(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	inventory, storageErr := s.storage.InspectStorage(ctx, projects)
+	inventory := s.storageSnapshot()
 	storageByProject := projectStorageMap(inventory)
 	states, points, warnings := s.collectProjects(ctx, projects, storageByProject)
 	warnings = append(warnings, inventory.Warnings...)
-	if storageErr != nil {
-		warnings = append(warnings, "Docker storage inspection is unavailable; runtime history remains active.")
-	}
 	warnings = sortedUnique(warnings)
 	now := s.now().UTC()
 	if len(points) > 0 {
@@ -176,7 +182,11 @@ func (s *ResourceService) Collect(ctx context.Context) error {
 			return err
 		}
 	}
-	if len(points) > 0 || s.lastMaintenance.IsZero() || now.Sub(s.lastMaintenance) >= 15*time.Minute {
+	maintenanceInterval := 15 * time.Minute
+	if len(points) > 0 {
+		maintenanceInterval = time.Minute
+	}
+	if s.lastMaintenance.IsZero() || now.Sub(s.lastMaintenance) >= maintenanceInterval {
 		if err := s.metrics.MaintainMetricHistory(ctx, now, s.config); err != nil {
 			return err
 		}

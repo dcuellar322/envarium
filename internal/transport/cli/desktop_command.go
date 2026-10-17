@@ -83,21 +83,9 @@ func newDesktopSnapshotCommand(options *rootOptions) *cobra.Command {
 				snapshot.Warnings = append(snapshot.Warnings, "port conflict snapshot unavailable")
 			}
 
-			for _, project := range projects {
-				item := desktopProjectSnapshot{Project: project, Warnings: []string{}}
-				if project.TrustState == generated.ProjectTrustStateTrusted {
-					if runtime, runtimeErr := client.Runtime(command.Context(), project.Id); runtimeErr == nil {
-						item.Runtime = &runtime
-					} else {
-						item.Warnings = append(item.Warnings, "runtime observation unavailable")
-					}
-					if health, healthErr := client.Health(command.Context(), project.Id); healthErr == nil {
-						item.Health = &health
-					} else {
-						item.Warnings = append(item.Warnings, "health observation unavailable")
-					}
-				}
-				snapshot.Projects = append(snapshot.Projects, item)
+			snapshot.Projects, err = desktopProjects(command.Context(), client, projects)
+			if err != nil {
+				return err
 			}
 
 			return writeResult(options, "desktop.snapshot", snapshot, func(writer io.Writer) error {

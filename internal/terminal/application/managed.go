@@ -60,9 +60,8 @@ func (s *managedSession) detach(id uint64, at time.Time) bool {
 }
 
 func (s *managedSession) appendOutput(value []byte, at time.Time) {
-	s.scrollback.Write(value)
-	_, truncated := s.scrollback.Snapshot()
 	s.mu.Lock()
+	truncated := s.scrollback.Write(value)
 	s.session.OutputBytes += int64(len(value))
 	s.session.OutputTruncated = truncated
 	s.session.LastOutputAt = timePointer(at)

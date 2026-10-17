@@ -20,7 +20,7 @@ func NewEnvironmentRepository(database *Database) *EnvironmentRepository {
 
 // List returns every environment and its exact port leases in stable order.
 func (r *EnvironmentRepository) List(ctx context.Context) ([]domain.Environment, error) {
-	rows, err := r.database.connection.QueryContext(ctx, `SELECT id, project_id, name, path, head, branch,
+	rows, err := r.database.queryContext(ctx, `SELECT id, project_id, name, path, head, branch,
         detached, bare, locked, is_primary, availability, unavailable_reason, runtime_state, hostname, target,
         compose_project_name, port_lease_namespace, port_offset, registered_at, last_observed_at, updated_at
         FROM project_environments ORDER BY project_id, is_primary DESC, name, id`)
@@ -51,7 +51,7 @@ func (r *EnvironmentRepository) List(ctx context.Context) ([]domain.Environment,
 
 // Get returns one registered environment with its exact leases.
 func (r *EnvironmentRepository) Get(ctx context.Context, id string) (domain.Environment, error) {
-	row := r.database.connection.QueryRowContext(ctx, `SELECT id, project_id, name, path, head, branch,
+	row := r.database.queryRowContext(ctx, `SELECT id, project_id, name, path, head, branch,
         detached, bare, locked, is_primary, availability, unavailable_reason, runtime_state, hostname, target,
         compose_project_name, port_lease_namespace, port_offset, registered_at, last_observed_at, updated_at
         FROM project_environments WHERE id = ?`, id)

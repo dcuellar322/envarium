@@ -40,3 +40,26 @@ func (s *recordingEventSink) WriteRuntimeEvent(_ context.Context, event domain.R
 	s.events = append(s.events, event)
 	return nil
 }
+
+func TestWatchEventsSkipsExecChatterButKeepsHealthLifecycleAndUnknownEvents(t *testing.T) {
+	t.Parallel()
+	actions := []string{"exec_create: /bin/sh -c health-probe", "exec_start: /bin/sh -c health-probe", "exec_die", "health_status: unhealthy", "start", "die", "oom", "update", "future_action", "exec_create_future"}
+	messages := make(chan apiEvents.Message, len(actions))
+	for _, action := range actions {
+		messages <- apiEvents.Message{Action: apiEvents.Action(action), Actor: apiEvents.Actor{ID: "container", Attributes: map[string]string{labelProject: "fixture", labelService: "api"}}}
+	}
+	close(messages)
+	driver := &Driver{engine: fakeConnector{engine: &fakeEngine{events: client.EventsResult{Messages: messages, Err: make(chan error)}}}}
+	sink := &recordingEventSink{}
+	if err := driver.watchEvents(context.Background(), normalizedConfig{ProjectName: "fixture"}, sink); err != nil {
+		t.Fatal(err)
+	}
+	if len(sink.events) != len(actions)-3 {
+		t.Fatalf("events=%#v", sink.events)
+	}
+	for i, event := range sink.events {
+		if event.Action != actions[i+3] {
+			t.Fatalf("lost health/lifecycle event: %#v", event)
+		}
+	}
+}

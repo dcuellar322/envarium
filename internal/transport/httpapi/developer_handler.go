@@ -61,6 +61,24 @@ func (h *handler) GetProjectGit(w http.ResponseWriter, r *http.Request, projectI
 	writeJSON(w, http.StatusOK, state)
 }
 
+func (h *handler) GetProjectObservations(w http.ResponseWriter, r *http.Request, params generated.GetProjectObservationsParams) {
+	result, err := h.overview.Read(r.Context(), string(params.Kind), params.ProjectId)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
+}
+
+func (h *handler) GetProjectGitStatus(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
+	state, err := h.git.GetStatus(r.Context(), projectID)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, state)
+}
+
 func (h *handler) ListProjectActions(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
 	actions, err := h.actions.List(r.Context(), projectID)
 	if err != nil {

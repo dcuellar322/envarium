@@ -32,6 +32,7 @@ import (
 	observabilityApplication "envarium.dev/envarium/internal/observability/application"
 	operations "envarium.dev/envarium/internal/operations/application"
 	"envarium.dev/envarium/internal/operations/domain"
+	overviewApplication "envarium.dev/envarium/internal/overview/application"
 	"envarium.dev/envarium/internal/platform/daemonlog"
 	hostPlatform "envarium.dev/envarium/internal/platform/host"
 	"envarium.dev/envarium/internal/platform/sqlite"
@@ -94,13 +95,15 @@ func RunDaemon(ctx context.Context, config Config) error {
 		sqlite.NewEnvironmentRepository(database),
 	)
 	runtimeSource := runtimeApplication.NewCatalogSource(catalogService, environmentsAdapters.NewRuntimeSource(environmentService))
+	composeDriver := compose.NewDriverWithArtifacts(filepath.Join(config.DataDir, "runtime", "compose"))
+	defer closeComposeDriver(config.Logger, composeDriver)
 	runtimeService := runtimeApplication.NewService(
 		runtimeSource,
-		compose.NewDriverWithArtifacts(filepath.Join(config.DataDir, "runtime", "compose")),
-		processRuntime.NewDriver(ctx, sqlite.NewRunRepository(database), redactor),
+		composeDriver,
+		processRuntime.NewDriverWithLogCapacity(ctx, sqlite.NewRunRepository(database), config.LogRingCapacity, redactor),
 	)
 	logStore, err := sqlite.NewLogStore(database, sqlite.LogStoreConfig{
-		Directory: filepath.Join(config.DataDir, "logs"), RingCapacity: config.LogRingCapacity,
+		Directory:    filepath.Join(config.DataDir, "logs"),
 		SegmentBytes: config.LogSegmentBytes, RetentionAge: config.LogRetentionAge, RetentionBytes: config.LogRetentionBytes,
 	}, redactor)
 	if err != nil {
@@ -229,11 +232,14 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}
 	sessions := session.NewManager()
 	system := application.NewQuery(database, buildinfo.Current(), time.Now())
-	host := application.NewHostQuery(hostPlatform.NewObserver())
+	host := application.NewHostQuery(hostPlatform.NewObserverWithStorage(func() (int64, int64, bool) {
+		summary, available := resourceService.CachedStorageSummary()
+		return summary.Bytes, summary.ReclaimableBytes, available
+	}))
 	dependencies := httpapi.Dependencies{
 		System: system, Host: host, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
 		Health: healthService, LogService: logService, Events: eventtransport.NewEvents(journal), Logs: eventtransport.NewLogs(logService),
-		Ports: portService, Git: gitService, Actions: actionService,
+		Ports: portService, Git: gitService, Actions: actionService, Overview: overviewApplication.NewService(runtimeService, gitService, actionService, healthService),
 		AI: aiService, Resources: resourceService, Plugins: extensions.plugin, Diagnostics: diagnosticService, Automations: automationService,
 		Workspaces: workspaceService, Environments: environmentService, EnvironmentRegistration: environmentRegistration, Routes: routeRegistry,
 		Fleet: fleetService, Team: extensions.shared.team, Telemetry: extensions.shared.telemetry, Settings: settingsService,
@@ -325,6 +331,12 @@ func closeInternalLog(logger *slog.Logger, handler *daemonlog.FileHandler) {
 func closeDatabase(logger *slog.Logger, database *sqlite.Database) {
 	if err := database.Close(); err != nil {
 		logger.Error("close database", "component", "bootstrap", "error", err)
+	}
+}
+
+func closeComposeDriver(logger *slog.Logger, driver *compose.Driver) {
+	if err := driver.Close(); err != nil {
+		logger.Warn("close Compose Engine clients", "error", err)
 	}
 }
 

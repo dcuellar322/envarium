@@ -4,6 +4,7 @@ package application
 import (
 	"context"
 	"errors"
+	"golang.org/x/sync/singleflight"
 
 	catalog "envarium.dev/envarium/internal/catalog/application"
 	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
@@ -28,6 +29,12 @@ type Observer interface {
 	Observe(context.Context, string, string) (domain.State, error)
 }
 
+// StatusObserver avoids inventory/enrichment reads when only working-tree facts
+// are consumed. It must preserve the same fresh porcelain and operation state.
+type StatusObserver interface {
+	ObserveStatus(context.Context, string, string) (domain.State, error)
+}
+
 // WorktreeObserver reads only Git's administrative worktree metadata. It must
 // never invoke repository-defined commands or hooks.
 type WorktreeObserver interface {
@@ -36,13 +43,15 @@ type WorktreeObserver interface {
 
 // Service resolves a trusted root before delegating read-only Git observation.
 type Service struct {
-	projects ProjectSource
-	observer Observer
+	projects     ProjectSource
+	observer     Observer
+	observations singleflight.Group
+	gitReads     chan struct{}
 }
 
 // NewService creates the source-control application boundary.
 func NewService(projects ProjectSource, observer Observer) *Service {
-	return &Service{projects: projects, observer: observer}
+	return &Service{projects: projects, observer: observer, gitReads: make(chan struct{}, 4)}
 }
 
 // Get returns current source-control state for a trusted project.
@@ -51,7 +60,16 @@ func (s *Service) Get(ctx context.Context, projectID string) (domain.State, erro
 	if err != nil {
 		return domain.State{}, err
 	}
-	return s.observer.Observe(ctx, projectID, root)
+	return s.coalescedObservation(ctx, projectID, root, false)
+}
+
+// GetStatus resolves current trust before a fresh dashboard status observation.
+func (s *Service) GetStatus(ctx context.Context, projectID string) (domain.State, error) {
+	root, err := s.projects.Root(ctx, projectID)
+	if err != nil {
+		return domain.State{}, err
+	}
+	return s.coalescedObservation(ctx, projectID, root, true)
 }
 
 // ListWorktrees returns the trusted repository's current worktree inventory.

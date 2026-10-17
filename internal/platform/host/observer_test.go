@@ -29,6 +29,27 @@ func TestObserverKeepsPartialHostDataHonest(t *testing.T) {
 	}
 }
 
+func TestHostReusesCurrentResourceStorageWithoutDiskTraversal(t *testing.T) {
+	t.Parallel()
+	at := time.Now()
+	bytes := int64(42)
+	calls := 0
+	observer := NewObserverWithStorage(func() (int64, int64, bool) { calls++; return bytes, 7, true })
+	observer.cpu = func(context.Context, time.Duration, bool) ([]float64, error) { return []float64{1}, nil }
+	observer.memory = func(context.Context) (*mem.VirtualMemoryStat, error) { return &mem.VirtualMemoryStat{}, nil }
+	observer.now = func() time.Time { return at }
+	first := observer.Observe(context.Background())
+	if first.Docker.StorageBytes == nil || *first.Docker.StorageBytes != 42 {
+		t.Fatal("shared inventory missing")
+	}
+	bytes = 84
+	at = at.Add(6 * time.Second)
+	next := observer.Observe(context.Background())
+	if calls != 2 || next.Docker.StorageBytes == nil || *next.Docker.StorageBytes != 84 {
+		t.Fatal("updated storage snapshot was hidden")
+	}
+}
+
 func TestObserverLabelsDockerTotalsAsShared(t *testing.T) {
 	t.Parallel()
 	observer := &Observer{

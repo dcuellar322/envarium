@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"envarium.dev/envarium/internal/platform/sockets"
 	"envarium.dev/envarium/internal/runtime/domain"
 	"github.com/shirou/gopsutil/v4/mem"
 	gnet "github.com/shirou/gopsutil/v4/net"
@@ -36,7 +37,9 @@ type processInspector interface {
 	Usage(context.Context, int32) (processUsage, error)
 }
 
-type gopsutilInspector struct{}
+type gopsutilInspector struct {
+	connections func(context.Context) ([]gnet.ConnectionStat, error)
+}
 
 func (gopsutilInspector) Snapshot(ctx context.Context, pid int32) (domain.ProcessIdentity, error) {
 	process, err := gprocess.NewProcessWithContext(ctx, pid)
@@ -104,7 +107,11 @@ func (inspector gopsutilInspector) GroupMembers(ctx context.Context, group int32
 }
 
 func (inspector gopsutilInspector) Listeners(ctx context.Context, port int) ([]domain.ProcessIdentity, error) {
-	connections, err := gnet.ConnectionsWithContext(ctx, "tcp")
+	read := inspector.connections
+	if read == nil {
+		read = func(ctx context.Context) ([]gnet.ConnectionStat, error) { return sockets.Connections(ctx, "tcp") }
+	}
+	connections, err := read(ctx)
 	if err != nil {
 		return nil, err
 	}

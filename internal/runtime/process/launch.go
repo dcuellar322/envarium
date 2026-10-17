@@ -35,7 +35,7 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 			return nil, false, err
 		}
 	}
-	external, found, err := d.externalService(ctx, project, service)
+	external, found, err := d.externalService(ctx, service, d.inspector)
 	if err != nil {
 		return nil, false, err
 	}
@@ -50,7 +50,7 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 	if err != nil {
 		return nil, false, err
 	}
-	buffer := newLogBuffer(defaultLogCapacity)
+	buffer := d.serviceLogBuffer(project.ProjectID, service.service.ID)
 	managed := &managedRun{
 		run: domain.RunRecord{
 			ID: runID, ProjectID: project.ProjectID, ServiceID: service.service.ID,
@@ -79,7 +79,6 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 	}
 	d.mu.Lock()
 	d.managed[serviceKey(project.ProjectID, service.service.ID)] = managed
-	d.logs[runID] = buffer
 	d.mu.Unlock()
 	d.emit(project.ProjectID, domain.RuntimeEvent{
 		Driver: domain.KindProcess, ProjectIdentity: project.ProjectSlug, ServiceIdentity: service.service.ID,

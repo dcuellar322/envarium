@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/pressly/goose/v3"
 	// Register the pure-Go SQLite driver with database/sql.
@@ -21,9 +22,12 @@ import (
 
 // Database is a migrated SQLite connection and its typed queries.
 type Database struct {
-	connection *sql.DB
-	queries    *generated.Queries
-	path       string
+	connection     *sql.DB
+	queries        *generated.Queries
+	path           string
+	statementMu    sync.Mutex
+	statements     map[string]*sql.Stmt
+	statementBytes int
 }
 
 // MigrationStatus is the side-effect-free compatibility view used by the v1

@@ -49,6 +49,8 @@ page manually.
 | `GET` | `/api/v1/projects/{projectId}/metrics` | `getProjectMetrics` |
 | `GET` | `/api/v1/projects/{projectId}/metrics/history` | `getMetricHistory` |
 | `GET` | `/api/v1/projects/{projectId}/git` | `getProjectGit` |
+| `GET` | `/api/v1/project-observations` | `getProjectObservations` |
+| `GET` | `/api/v1/projects/{projectId}/git/status` | `getProjectGitStatus` |
 | `GET` | `/api/v1/projects/{projectId}/environments` | `listProjectEnvironments` |
 | `POST` | `/api/v1/projects/{projectId}/environments` | `registerProjectEnvironments` |
 | `GET` | `/api/v1/environments/{environmentId}` | `getEnvironment` |

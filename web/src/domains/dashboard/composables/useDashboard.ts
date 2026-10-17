@@ -7,26 +7,25 @@ import { trackOperation } from '../../operations/store'
 import { loadPortRegistry } from '../../ports/api'
 import { loadProjects, runRuntimeAction } from '../../projects/api'
 import { loadRecentProjects, markProjectAccess } from '../../projects/recent'
+import { usePresentationActivity } from '../../system/composables/usePresentationActivity'
 import { useHostObservation } from '../../system/composables/useHostObservation'
-import { loadProjectSnapshots, type ProjectSnapshot } from '../api'
+import type { ProjectSnapshot } from '../api'
+import { useDashboardObservations } from './useDashboardObservations'
 
 export function useDashboard() {
+  const active = usePresentationActivity()
   const projects = useQuery({
+    shallow: true,
+    enabled: active,
     queryKey: ['projects'],
     queryFn: loadProjects,
     refetchInterval: 15_000,
   })
   const projectList = computed(() => projects.data.value ?? [])
-  const snapshots = useQuery({
-    queryKey: computed(() => [
-      'dashboard-snapshots',
-      ...projectList.value.map((project) => project.id),
-    ]),
-    queryFn: () => loadProjectSnapshots(projectList.value),
-    enabled: computed(() => projectList.value.length > 0),
-    refetchInterval: 15_000,
-  })
+  const snapshots = useDashboardObservations(projectList)
   const ports = useQuery({
+    shallow: true,
+    enabled: active,
     queryKey: ['ports'],
     queryFn: loadPortRegistry,
     refetchInterval: 10_000,

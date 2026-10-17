@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -62,6 +63,7 @@ var systemActor = MutationActor{Type: "system", ID: "catalog-service"}
 // Service is the project onboarding use-case boundary.
 type Service struct {
 	repository Repository
+	manifests  *manifest.Resolver
 	scanners   []discovery.Scanner
 	rootPolicy ProjectRootPolicy
 	now        func() time.Time
@@ -69,7 +71,7 @@ type Service struct {
 
 // NewService creates project onboarding use cases with explicit scanner adapters.
 func NewService(repository Repository, scanners []discovery.Scanner, policies ...ProjectRootPolicy) *Service {
-	service := &Service{repository: repository, scanners: slices.Clone(scanners), now: time.Now}
+	service := &Service{repository: repository, manifests: manifest.NewResolver(), scanners: slices.Clone(scanners), now: time.Now}
 	if len(policies) > 0 {
 		service.rootPolicy = policies[0]
 	}
@@ -316,11 +318,36 @@ func (s *Service) EffectiveManifest(ctx context.Context, projectID string, runti
 	if err != nil {
 		return manifest.EffectiveManifest{}, err
 	}
-	accepted, err := s.repository.AcceptedManifest(ctx, projectID)
+	return s.ResolveManifest(ctx, project, runtimeOverride)
+}
+
+// ResolveManifest resolves a catalog project already read by the caller. The
+// caller retains its trust/authorization check; current source files are reread.
+func (s *Service) ResolveManifest(ctx context.Context, project catalog.Project, runtimeOverride []byte) (manifest.EffectiveManifest, error) {
+	projectID := project.ID
+	load := func() (manifestDomain.Manifest, error) { return s.repository.AcceptedManifest(ctx, projectID) }
+	if project.ManifestRevision > 0 {
+		revision := project.ID + ":" + strconv.FormatInt(project.ManifestRevision, 10)
+		return s.manifests.ResolveRevision(project.PrimaryLocation, revision, load, runtimeOverride)
+	}
+	accepted, err := load()
 	if err != nil {
 		return manifest.EffectiveManifest{}, err
 	}
-	return manifest.Resolve(project.PrimaryLocation, manifestDomain.Manifest{}, accepted, runtimeOverride)
+	return s.manifests.Resolve(project.PrimaryLocation, manifestDomain.Manifest{}, accepted, runtimeOverride)
+}
+
+// ManifestContentHash resolves fresh inputs without copying the entire retained
+// declaration when a consumer needs only its immutable content identity.
+func (s *Service) ManifestContentHash(ctx context.Context, project catalog.Project) (string, error) {
+	if project.ManifestRevision > 0 {
+		revision := project.ID + ":" + strconv.FormatInt(project.ManifestRevision, 10)
+		return s.manifests.RevisionContentHash(project.PrimaryLocation, revision, func() (manifestDomain.Manifest, error) {
+			return s.repository.AcceptedManifest(ctx, project.ID)
+		}, nil)
+	}
+	effective, err := s.ResolveManifest(ctx, project, nil)
+	return effective.ContentHash, err
 }
 
 // Diff returns canonical JSON source and effective documents for automation-friendly review.

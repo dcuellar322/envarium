@@ -12,16 +12,14 @@ import (
 	gnet "github.com/shirou/gopsutil/v4/net"
 	gprocess "github.com/shirou/gopsutil/v4/process"
 
+	"envarium.dev/envarium/internal/platform/sockets"
 	"envarium.dev/envarium/internal/ports/domain"
 )
 
 type connectionReader func(context.Context, string) ([]gnet.ConnectionStat, error)
 type processNameReader func(context.Context, int32) string
 
-// OSListeners reads local TCP and UDP bindings through gopsutil's portable API.
-// The adapter is intentionally queried only on port-focused screens because
-// some platforms implement the snapshot with a comparatively expensive system
-// process scan.
+// OSListeners reads fresh local TCP and UDP bindings through the OS adapter.
 type OSListeners struct {
 	connections connectionReader
 	processName processNameReader
@@ -30,7 +28,7 @@ type OSListeners struct {
 
 // NewOSListeners creates the portable listener observer.
 func NewOSListeners() *OSListeners {
-	return &OSListeners{connections: gnet.ConnectionsWithContext, processName: observedProcessName, now: time.Now}
+	return &OSListeners{connections: sockets.Connections, processName: observedProcessName, now: time.Now}
 }
 
 // Facts returns deduplicated local TCP listeners and UDP bindings.

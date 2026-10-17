@@ -2,10 +2,6 @@ package dockerengine
 
 import (
 	"context"
-	"os"
-	"path/filepath"
-	"runtime"
-	"strings"
 	"testing"
 )
 
@@ -47,18 +43,9 @@ func TestRefusesMalformedAndUnverifiedContexts(t *testing.T) {
 }
 
 func TestDefaultClientUsesActiveContextAndHonorsCancellation(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("Unix fake Docker command; context decoding is tested on every platform")
-	}
 	directory := t.TempDir()
-	docker := filepath.Join(directory, "docker")
-	// Use the test executable as the Docker CLI so this exercises command
-	// selection without requiring Docker or a running daemon.
-	if err := os.Symlink(os.Args[0], docker); err != nil {
-		t.Fatal(err)
-	}
-	t.Setenv("PATH", directory+string(os.PathListSeparator)+os.Getenv("PATH"))
-	t.Setenv("ENVARIUM_FAKE_DOCKER_CONTEXT", "1")
+	t.Setenv("DOCKER_CONFIG", directory)
+	writeStoredContext(t, directory, "desktop-linux", "unix:///tmp/envarium-context-test.sock", false)
 	t.Setenv("DOCKER_HOST", "unix:///tmp/wrong-context.sock")
 	t.Setenv("DOCKER_CONTEXT", "desktop-linux")
 	engine, err := NewClient(context.Background())
@@ -84,12 +71,4 @@ func TestDefaultClientUsesActiveContextAndHonorsCancellation(t *testing.T) {
 	if _, err := NewClient(ctx); err == nil {
 		t.Fatal("cancelled context lookup succeeded")
 	}
-}
-
-func TestMain(m *testing.M) {
-	if os.Getenv("ENVARIUM_FAKE_DOCKER_CONTEXT") == "1" && strings.Join(os.Args[1:], " ") == "context inspect" {
-		_, _ = os.Stdout.WriteString(`[{"Name":"desktop-linux","Endpoints":{"docker":{"Host":"unix:///tmp/envarium-context-test.sock"}}}]`)
-		os.Exit(0)
-	}
-	os.Exit(m.Run())
 }

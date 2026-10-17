@@ -29,7 +29,7 @@ func (s *HealthService) Run(ctx context.Context, onError func(string, error)) {
 }
 
 func (s *HealthService) runDue(ctx context.Context, onError func(string, error)) {
-	ids, err := s.source.ListRuntimeProjectIDs(ctx)
+	projects, failures, err := healthProjects(ctx, s.source)
 	if err != nil {
 		onError("", err)
 		return
@@ -37,14 +37,18 @@ func (s *HealthService) runDue(ctx context.Context, onError func(string, error))
 	now := s.now().UTC()
 	semaphore := make(chan struct{}, 4)
 	var wait sync.WaitGroup
-	wanted := make(map[string]struct{}, len(ids))
-	for _, id := range ids {
-		wanted[id] = struct{}{}
-		project, resolveErr := s.source.ResolveRuntime(ctx, id)
+	wanted := make(map[string]struct{}, len(projects)+len(failures))
+	for _, id := range healthProjectIDs(projects, failures) {
+		project, resolveErr := projects[id], failures[id]
 		if resolveErr != nil {
+			wanted[id] = struct{}{}
 			onError(id, resolveErr)
 			continue
 		}
+		if !hasHealthChecks(project) {
+			continue
+		}
+		wanted[id] = struct{}{}
 		s.mu.Lock()
 		schedule, scheduled := s.nextDue[id]
 		if !scheduled || schedule.manifestHash != project.ManifestHash {
@@ -62,7 +66,7 @@ func (s *HealthService) runDue(ctx context.Context, onError func(string, error))
 	}
 	wait.Wait()
 	s.removeUnscheduled(wanted)
-	_ = s.repository.PruneHealth(ctx, now.Add(-24*time.Hour))
+	s.pruneHistory(ctx, now, onError)
 }
 
 func (s *HealthService) evaluateScheduled(ctx context.Context, projectID string, semaphore chan struct{}, wait *sync.WaitGroup, onError func(string, error)) {
@@ -116,4 +120,30 @@ func healthInitialDelay(project runtime.ProjectRuntime) time.Duration {
 		}
 	}
 	return delay
+}
+
+// History retention is housekeeping, independent of the one-second check scheduler.
+func (s *HealthService) pruneHistory(ctx context.Context, now time.Time, onError func(string, error)) {
+	s.mu.Lock()
+	if now.Before(s.nextPrune) {
+		s.mu.Unlock()
+		return
+	}
+	s.nextPrune = now.Add(time.Minute)
+	s.mu.Unlock()
+	if err := s.repository.PruneHealth(ctx, now.Add(-24*time.Hour)); err != nil && ctx.Err() == nil {
+		onError("", err)
+	}
+}
+
+// The scheduler persists only declared probe results. With no declarations,
+// EvaluateProject performs reads whose aggregate return value is discarded.
+// Direct health queries still inspect Docker/process state on demand.
+func hasHealthChecks(project runtime.ProjectRuntime) bool {
+	for _, service := range project.Services {
+		if len(service.HealthChecks) > 0 {
+			return true
+		}
+	}
+	return false
 }

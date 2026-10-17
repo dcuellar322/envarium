@@ -36,3 +36,15 @@ Phase 0 subjects remain covered by the accepted records below.
 - [ADR-0016: Optional peer federation and signed shared configuration](0016-optional-federation.md)
 - [ADR-0017: Static public site and documentation portal](0017-static-public-site.md)
 - [ADR-0018: Project-first runtime operations](0018-project-runtime-operations.md)
+
+- [ADR-0019: Log memory ownership](0019-log-memory-ownership.md)
+
+- [ADR-0020: Background configuration resolution without CLI polling](0020-background-configuration-resolution.md)
+
+- [ADR-0021: Direct macOS socket inventory](0021-direct-macos-socket-inventory.md)
+
+- [ADR-0022: Bound default daemon CPU execution parallelism](0022-daemon-execution-parallelism.md)
+
+- [ADR-0023: Scheduled diagnostic evidence](0023-scheduled-diagnostic-evidence.md)
+
+- [ADR-0024: Shared observations and sampling isolation](0024-shared-observation-and-sampling-isolation.md)

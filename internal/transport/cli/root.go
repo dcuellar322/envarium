@@ -23,6 +23,7 @@ type rootOptions struct {
 	ipcAddr                    string
 	routingAddr                string
 	json                       bool
+	compact                    bool
 	jsonl                      bool
 	nonInteractive             bool
 	noColor                    bool
@@ -93,6 +94,7 @@ func newRootCommand(options *rootOptions) *cobra.Command {
 	root.PersistentFlags().StringVar(&options.ipcAddr, "ipc-address", "", "privileged local IPC address")
 	root.PersistentFlags().StringVar(&options.routingAddr, "routing-address", "", "optional loopback HTTP address for .localhost routes")
 	root.PersistentFlags().BoolVar(&options.json, "json", false, "emit a stable JSON envelope")
+	root.PersistentFlags().BoolVar(&options.compact, "compact", false, "omit whitespace from JSON output")
 	root.PersistentFlags().BoolVar(&options.jsonl, "jsonl", false, "emit one stable JSON envelope per item")
 	root.PersistentFlags().BoolVar(&options.nonInteractive, "non-interactive", false, "disable interactive prompts")
 	root.PersistentFlags().BoolVar(&options.noColor, "no-color", false, "disable ANSI color output")
@@ -130,6 +132,8 @@ func newVersionCommand(options *rootOptions) *cobra.Command {
 
 func newDaemonCommand(options *rootOptions) *cobra.Command {
 	command := &cobra.Command{Use: "daemon", Short: "Run the local Envarium control plane", Args: cobra.NoArgs, RunE: func(command *cobra.Command, _ []string) error {
+		restoreRuntime := configureProcessRuntime()
+		defer restoreRuntime()
 		logger := slog.New(slog.NewJSONHandler(options.stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
 		return bootstrap.RunDaemon(command.Context(), bootstrap.Config{
 			DataDir: options.dataDir, HTTPAddr: options.address, IPCAddr: options.ipcAddr, RoutingAddr: options.routingAddr, Logger: logger,
@@ -147,7 +151,7 @@ func newDaemonCommand(options *rootOptions) *cobra.Command {
 			RemoteControllers: options.remoteControllers,
 		})
 	}}
-	command.Flags().IntVar(&options.logRingCapacity, "log-ring-entries", options.logRingCapacity, "redacted in-memory log entries per service")
+	command.Flags().IntVar(&options.logRingCapacity, "log-ring-entries", options.logRingCapacity, "captured in-memory log entries per service (also bounded to 1 MiB)")
 	command.Flags().Int64Var(&options.logSegmentBytes, "log-segment-bytes", options.logSegmentBytes, "maximum bytes per NDJSON log segment")
 	command.Flags().DurationVar(&options.logRetentionAge, "log-retention-age", options.logRetentionAge, "maximum retained log age")
 	command.Flags().Int64Var(&options.logRetentionBytes, "log-retention-bytes", options.logRetentionBytes, "maximum retained log bytes")
@@ -222,6 +226,8 @@ func newCompletionCommand(root *cobra.Command) *cobra.Command {
 
 // Main executes the process CLI and returns a semantic process status.
 func Main(ctx context.Context) int {
+	restore := configureProcessRuntime()
+	defer restore()
 	err := Execute(ctx, os.Args[1:], os.Stdout, os.Stderr)
 	if err == nil {
 		return 0
