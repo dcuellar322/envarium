@@ -43,10 +43,13 @@ test('brand downloads and install icons resolve to real assets', async ({ page, 
   expect((await request.get('/social/default.png')).headers()['content-type']).toContain('image/png')
 })
 
-test('branding fits a narrow screen', async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 812 })
-  for (const route of ['/', '/brand/', '/docs/']) {
-    await page.goto(route)
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), route).toBe(true)
-  }
-})
+for (const width of [320, 375]) {
+  test(`branding fits a ${width}px screen`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 812 })
+    for (const route of ['/', '/brand/', '/docs/']) {
+      await page.goto(route)
+      const dimensions = await page.evaluate(() => ({ content: document.documentElement.scrollWidth, viewport: window.innerWidth }))
+      expect(dimensions.content, `${route} at ${width}px`).toBeLessThanOrEqual(dimensions.viewport)
+    }
+  })
+}

@@ -53,6 +53,7 @@ const stable = (releaseManifest as ReleaseManifest).channels.stable
     font-size: clamp(3.25rem, 6.4vw, 6.75rem);
     letter-spacing: -0.065em;
     line-height: 0.91;
+    overflow-wrap: anywhere;
   }
 
   .lede {
@@ -160,7 +161,7 @@ const stable = (releaseManifest as ReleaseManifest).channels.stable
 
   @media (max-width: 1040px) {
     .hero {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
 
     h1 {
@@ -179,7 +180,7 @@ const stable = (releaseManifest as ReleaseManifest).channels.stable
     }
 
     h1 {
-      font-size: clamp(3rem, 15vw, 4.5rem);
+      font-size: clamp(2.5rem, 13vw, 4.5rem);
     }
   }
 </style>

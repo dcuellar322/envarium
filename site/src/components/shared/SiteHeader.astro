@@ -18,6 +18,7 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
   <div class="header-inner">
     <a class="brand" href="/" aria-label="Envarium home">
       <BrandLogo />
+      <BrandLogo compact />
     </a>
 
     <nav class="desktop-nav" aria-label="Primary navigation">
@@ -67,6 +68,10 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
     align-items: center;
     gap: 0.7rem;
     text-decoration: none;
+  }
+
+  .brand :global(.brand-logo--compact) {
+    display: none;
   }
 
   .desktop-nav {
@@ -181,6 +186,17 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
 
     .header-inner {
       min-height: 4.15rem;
+      gap: 0.5rem;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .brand :global(.brand-logo:not(.brand-logo--compact)) {
+      display: none;
+    }
+
+    .brand :global(.brand-logo--compact) {
+      display: inline-flex;
     }
   }
 </style>

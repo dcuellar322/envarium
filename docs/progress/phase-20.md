@@ -340,3 +340,30 @@ Hosted CI verification is reported against the exact pushed commit separately;
 it is not inferred from these local results.
 No Go, Rust, database schema, or application runtime behavior changed in this
 follow-up; this entry does not claim another full local `make quality` run.
+
+### Hosted narrow-screen follow-up
+
+The first pushed follow-up passed main CI, security, and production deployment,
+but full-site CI reached a previously masked responsive failure. At a 375 px
+viewport, the Linux desktop font made the hero's intrinsic grid track 391 px
+wide. The same failure was reproduced with DejaVu Sans in an isolated Linux
+browser; the original cached Playwright image selected a narrower fallback
+font, so that environment alone had not reproduced it.
+
+The hero now uses a zero-minimum responsive grid track and a fluid headline
+that fits without splitting its long word. Mobile header spacing is reduced;
+below 360 px the approved standalone mark replaces the full wordmark, keeping
+Download and Menu accessible. The brand page's interface downloads use one
+column at that size. The strict overflow assertion remains and now checks both
+320 px and 375 px on the home, brand, and docs routes across all four browser
+projects. Linux screenshots and exact page/viewport widths were reviewed.
+
+The complete site quality target passes again. On macOS, the expanded browser
+suite passes 60 scenarios with 16 intentional skips, and all six visual tests
+pass without baseline changes. The reproduced Linux narrow-screen cases pass
+at both widths. Hosted CI remains the final check on the pushed revision;
+test assertions and committed visual tolerances were not relaxed.
+
+The cleanup also removed the unused `dev.switchyard.desktop` cache, WebKit
+directory, and binary-cookie file after confirming no process had them open.
+Current Envarium identity and browser data were retained.
