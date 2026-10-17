@@ -3346,6 +3346,12 @@ Desktop-only preferences are under the per-application Tauri config directory
 for `dev.envarium.desktop`. Launch-at-login can be disabled from the tray
 before uninstalling; macOS Login Items can also remove it afterward.
 
+The generated Homebrew cask uses that same bundle identifier for preferences,
+WebKit data, caches, and saved window state. Ordinary uninstall retains data;
+`brew uninstall --cask --zap envarium` additionally removes those files and the
+`Envarium` control-plane data directory. Review backups and stop the daemon
+before explicitly requesting zap.
+
 For a complete removal, first stop active project/workspace operations and
 quit the desktop adapter. Stop the daemon gracefully (for example, terminate
 the `envarium daemon` process from Activity Monitor), then choose one of:
@@ -3373,6 +3379,10 @@ that copy. Reinstalling the same or newer compatible v1 bundle attaches to the
 retained daemon data. See [v1 migration](migration-v1.md) for the exact safe
 procedure and [release engineering](release.md) for the tested matrix.
 
+Envarium is pre-launch and has no former Switchyard user base to migrate. It
+uses its own application identity, data directory, and `envarium://` links;
+there is no supported Switchyard importer or former-scheme handler.
+
 ---
 
 # Envarium rebrand checklist
@@ -3381,8 +3391,10 @@ Source: https://envarium.davidcuellar.tech/docs/envarium-rebrand-checklist/
 
 Repository-complete and external follow-up work for adopting the Envarium name.
 
-The repository-side rename is complete. The remaining unchecked items require
-access to systems outside this checkout or an explicit product/brand decision.
+The repository identity and approved visual integration are complete. This
+checklist separates implementation from remaining release, account, and
+verification work; checked historical runs are not claims that every supported
+platform or currently installed bundle has been revalidated.
 
 ## Completed in this repository
 
@@ -3404,6 +3416,11 @@ access to systems outside this checkout or an explicit product/brand decision.
       favicons, social card, and native Tauri icon exports.
 - [x] Regenerate OpenAPI clients, manifest schema, CLI/MCP documentation, and
       SQL bindings from the renamed sources.
+- [x] Align generated Homebrew cleanup paths with the actual desktop bundle ID
+      `dev.envarium.desktop`, retaining data on ordinary uninstall.
+- [x] Resolve former-name compatibility policy: this is pre-launch software
+      with no Switchyard users. No public legacy data importer, schema aliases,
+      transition build, or former deep-link compatibility is required.
 
 ## Source-control hosting
 
@@ -3435,9 +3452,13 @@ access to systems outside this checkout or an explicit product/brand decision.
 - [ ] Update DNS, registrar settings, Cloudflare Pages project/custom domains,
       redirects, certificates, canonical origin, CSP allowlists, analytics/search
       console properties, sitemap submission, and uptime monitors. The remaining
-      immediate blocker is a proxied CNAME for `envarium.davidcuellar.tech` to
-      `envarium-dcuellar.pages.dev`; the retained Pages token cannot read or edit
-      the DNS zone.
+      immediate blocker is a Namecheap Advanced DNS CNAME with Host `envarium`,
+      Value `envarium-dcuellar.pages.dev`, and automatic TTL. An October 17
+      authoritative query confirms `dns1.registrar-servers.com` and
+      `dns2.registrar-servers.com` serve the zone and the subdomain is absent.
+      Keep the existing nameservers; a Cloudflare-proxied record is not required
+      for this externally hosted subdomain. Once the record resolves, confirm
+      the registered Pages custom domain becomes active and HTTPS succeeds.
 - [x] Redirect every former public URL path-for-path where control is retained.
       While canonical DNS/TLS activation is pending, the legacy hostname uses a
       temporary redirect to `envarium-dcuellar.pages.dev/<path>`. Deployment switches
@@ -3454,9 +3475,14 @@ access to systems outside this checkout or an explicit product/brand decision.
 - [ ] Update code-signing/notarization profiles, macOS bundle registration,
       Windows publisher metadata, updater endpoints/public keys, release channels,
       SBOM/provenance subjects, and checksum consumers.
-- [ ] Treat the new desktop bundle identifier and deep-link scheme as a distinct
-      installed application. Decide whether to uninstall the former app, support a
-      transition build, or document side-by-side behavior.
+- [x] Treat the new desktop bundle identifier and deep-link scheme as a distinct
+      installed application. Use only Envarium identity and fresh-install
+      behavior; retire private former-name development state after verification.
+      No automatic legacy discovery or link takeover is implemented.
+- [ ] Configure the `desktop-release` environment and credentials in the
+      [release setup checklist](release.md#release-account-setup). October 17
+      inspection found only `production` and `site-preview` environments and
+      only the two Cloudflare repository secrets; signing/updater setup is absent.
 - [ ] Regenerate all release artifacts and verify their filenames, embedded
       metadata, signatures, quarantine/notarization state, and upgrade behavior on
       every supported platform.
@@ -3476,19 +3502,25 @@ access to systems outside this checkout or an explicit product/brand decision.
 
 ## Existing users and local state
 
-- [x] Retain existing alpha/beta state. With the former daemon stopped, create a
+- [x] Transfer this workstation's development state. With the former daemon stopped, create a
       SQLite-consistent copy at `~/Library/Application Support/Envarium/envarium.db`,
-      preserve the former directory as rollback data, apply schema 18, migrate active
+      initially preserve the former directory as rollback data, apply schema 18, migrate active
       project/manifest/runtime identifiers, copy durable logs/plugin/runtime state,
       and verify foreign keys and migration status.
+      This was a private development transfer. The user subsequently approved
+      retiring original Switchyard data and legacy artifacts because neither
+      product has existing users; no public legacy upgrade path is required.
 - [x] Update active Codex and VS Code project registrations to the renamed checkout;
       confirm no matching macOS launch agent is installed on this workstation.
 - [ ] Update MCP registrations and any remaining editor tasks, shell aliases,
       systemd units, Windows services, desktop shortcuts, firewall prompts, saved
       terminal profiles, and automation scripts on other clients or machines.
 - [x] Update the local Codex trusted-project path to `/Users/dac/dev/envarium`.
-- [ ] Remove stale former-name caches, sockets, sidecars, app bundles, test output,
-      and build artifacts only after backups and migration verification.
+- [x] Remove retired former-name development data, CLI, sockets, and rename
+      backups after confirming they are not used by the active Envarium daemon.
+      October 17 cleanup removed the Switchyard data directory, broken CLI
+      symlink, and three superseded development backups (about 26 GiB); the
+      active Envarium database and running project workload were retained.
 
 ## Brand and legal review
 
@@ -3507,13 +3539,16 @@ access to systems outside this checkout or an explicit product/brand decision.
       scanning, MCP inspection, cross-platform Go compilation, and the macOS
       desktop build all pass.
 - [ ] Build signed CLI and desktop artifacts on macOS, Linux, and Windows.
-- [ ] Install fresh, upgrade from the last former-name build if supported, migrate
-      data, exercise deep links, connect MCP clients, and uninstall cleanly.
+- [ ] Install fresh, verify future Envarium upgrade/data-retention behavior,
+      exercise Envarium deep links, connect MCP clients, and uninstall cleanly.
+      A public upgrade from Switchyard is intentionally outside release scope.
 - [x] Import this workstation's eleven runnable development projects, validate
       their manifests/start plans, smoke-test native and Compose lifecycle/log
-      controls, and leave the authenticated browser dashboard open. See
-      [local catalog usability](progress/local-catalog-usability.md) for the
-      macOS WebKit/power-service startup limitation affecting the installed shell.
+      controls. The October 15 native cold-start failure recorded in
+      [local catalog usability](progress/local-catalog-usability.md) was resolved;
+      later [native verification](progress/phase-12.md) includes visible, hidden,
+      and closed-app measurements with the running workload. The subsequently
+      branded development build still needs installed/release appearance checks.
 - [x] Deploy the renamed public site, pass its seven-route production smoke
       check, and verify a temporary legacy redirect to the reachable Pages origin.
 - [ ] Crawl the production site and documentation for broken links, mixed branding,
@@ -5339,6 +5374,14 @@ Source: https://envarium.davidcuellar.tech/docs/progress/local-catalog-usability
 Real-project import, lifecycle, observation, desktop, and deployment verification.
 
 # Local catalog usability — October 15, 2026
+
+The results below record the October 15 run. The native-startup limitation was
+subsequently resolved: the user confirmed a working native dashboard, and
+October 16–17 verification measured the app visible, hidden, and closed with
+the real project workload. See [Phase 12 verification](phase-12.md) for the
+later build identities, resource measurements, and monitoring-accuracy checks.
+The old startup failure below is historical, not a current blocker. Signed
+release installation across all supported platforms remains unverified.
 
 This follow-up exercises the application against a real development directory,
 with both native commands and Docker Compose projects.
@@ -9619,18 +9662,23 @@ process identity before signalling an owned group.
 
 ## Known limitations
 
-- Hosting, DNS, distribution coordinates, signing accounts, and users' local
-  machine configuration cannot be changed from this checkout.
+- Remaining hosting, DNS, distribution, signing, and other-machine changes
+  require their respective account access and operational verification. Local
+  follow-ups and CI fixes are recorded below rather than classified as external.
 - Envarium intentionally does not become a raw Docker image, volume, network,
   registry, vulnerability-scanning, or Swarm administration console.
-- Existing former-name user data requires an explicit operator migration decision;
-  the new application uses Envarium paths and identifiers.
+- The user confirmed neither product has existing users. No public former-name
+  data migration or compatibility layer is required; retired private development
+  state can be cleaned up. Envarium fresh-install and future upgrade/uninstall
+  verification remains part of release acceptance.
 
 ## Deferred work
 
-Only the unchecked external actions in the rebrand checklist and capabilities
-marked as architectural boundaries are deferred. A boundary item requires a new
-product decision rather than silent scope expansion.
+The rebrand checklist tracks remaining release, external-account, and
+verification work. Capabilities marked as architectural boundaries require a
+new product decision rather than silent scope expansion. Phase 20's completed
+repository identity criteria do not imply signed-release or all-platform
+migration acceptance.
 
 ## Manual verification steps
 
@@ -9794,6 +9842,70 @@ To smoke-check a release: install the packaged build, verify Dock/taskbar/tray
 appearance in the supported OS themes, open the startup and disconnected states,
 switch the app to high contrast, and check the `/brand/` downloads and social
 preview after deploying the website.
+
+## Rebrand follow-up and pre-launch cleanup — October 17, 2026
+
+### Scope and acceptance
+
+This follow-up maps to Phase 20's repository identity and external checklist
+criteria. It verifies the integrated kit, corrects package cleanup identity,
+records DNS/release prerequisites, resolves former-name compatibility policy,
+and reconciles outdated completion claims. No accepted architecture boundary
+changes. Signed release acceptance remains separate from repository completion.
+
+- The approved kit is integrated; the full 127-asset check passes on macOS and
+  Linux. A hosted failure after the branding commit exposed a system-font
+  dependency in the social image and a native icon's one-channel rounding
+  difference. Supporting social text is now outlined, with identical rendered
+  pixels on both platforms. Generated native PNG checks require identical
+  dimensions and pixels except for at most one channel differing by one
+  intensity level. Source/copy/social checks remain exact. A regression test
+  rejects larger or multiple channel differences; the brand check is retained
+  in both frontend and full-site CI.
+- Homebrew zap uses the actual `dev.envarium.desktop` identity for native config,
+  preferences, caches, WebKit storage, and saved application state. A test reads
+  the canonical Tauri config to catch future identity drift. Ordinary uninstall
+  retains durable state; explicit zap is documented as data removal.
+- Authoritative DNS queries identify Namecheap's `dns1.registrar-servers.com`
+  and `dns2.registrar-servers.com`; the canonical subdomain returns NXDOMAIN.
+  The checklist now specifies the Namecheap CNAME rather than requiring a
+  Cloudflare-proxied record. DNS was inspected, not changed.
+- GitHub configuration inspection found no published releases or
+  `desktop-release` environment, and only Cloudflare repository secret names.
+  The release guide lists the required signing credentials, updater feed/key
+  setup, reviewed version/tag, package ownership, protected environments, and
+  signed installation matrix. Secret values were not accessed.
+- The user confirmed neither Envarium nor Switchyard has existing users and
+  explicitly authorized cleanup. No new former-name importer, manifest alias,
+  transition build, or deep-link compatibility is included. The active schema-18
+  development database remains supported by its existing ordered migrations;
+  applied migration history was not rewritten.
+- After checking that no process used the retired paths, removed the Switchyard
+  data directory, broken `~/.local/bin/switchyard` symlink, and three superseded
+  development backups (about 26 GiB). Earlier entries describing retained
+  originals/backups record their historical state; those copies are now retired.
+  The live Envarium database remains schema 18, both Envarium processes remain
+  running, and all 16 original project containers retain the same IDs, start
+  times, restart counts, and running state.
+- Updated the historical native-startup note to point to the subsequent working
+  native dashboard and resource measurements. Repository completion no longer
+  implies that every remaining task is external or that signed release
+  installation has passed.
+
+### Verification
+
+The site quality target passes: Astro reports zero errors/warnings/hints,
+ESLint passes, 20 unit tests pass, the production build emits 153 pages, and
+content/build validation checks 117 documentation sources with bounded assets
+and JavaScript. Brand drift/rounding checks pass, the social card was visually
+reviewed, ZIP integrity passes, and architecture/repository checks pass.
+Generated site references and LLM indexes were regenerated from source.
+The four-project browser suite passes 56 scenarios with 16 intentional skips;
+all six site visual tests pass without changing baselines.
+Hosted CI verification is reported against the exact pushed commit separately;
+it is not inferred from these local results.
+No Go, Rust, database schema, or application runtime behavior changed in this
+follow-up; this entry does not claim another full local `make quality` run.
 
 ---
 
@@ -10366,6 +10478,50 @@ for final human review.
 Before that draft is created, the public-site release contract validates the
 complete stable platform matrix and replaces build-specific digest files with
 one aggregate `checksums.txt` covering every uploaded artifact.
+
+These are workflow capabilities, not evidence of a published signed release.
+On October 17, 2026, the repository had no published releases and no configured
+`desktop-release` environment. Only the two Cloudflare repository secrets were
+present. Passing ordinary CI does not exercise protected release credentials.
+
+## Release account setup
+
+Before tagging the first release, a repository administrator needs to:
+
+1. Create the `desktop-release` GitHub environment, configure release approval
+   and allowed-tag rules, and add the secrets below using GitHub's secure UI.
+   Never paste private keys or passwords into chat, source, issues, or logs.
+2. Supply Apple Developer signing/notarization credentials for
+   `dev.envarium.desktop` and a Developer ID Application identity; supply a
+   Windows Authenticode certificate matching the intended publisher; supply a
+   Linux artifact-signing GPG key with a verified fingerprint.
+3. Generate and securely retain the Tauri updater signing key pair. Select a
+   maintained HTTPS update-feed URL and implement the signed response/artifact
+   hosting for each target, architecture, and release channel. The matching
+   public key is embedded in release builds. A URL and key alone do not publish
+   or maintain an update feed.
+4. Choose the release version/channel and exact reviewed commit. Build a draft
+   from its tag, then complete the signed install, upgrade, retained-data
+   reinstall, deep-link, and uninstall matrix before publishing it.
+5. Select a Homebrew tap and WinGet publisher/package ownership. Create the
+   `package-distribution-review` environment with reviewers. After publishing a
+   stable release, the package workflow uploads checksummed Homebrew/WinGet
+   **drafts** for review; it does not submit or publish either package. Tap
+   write access and WinGet submission/review are separate final steps.
+
+The existing release workflow consumes these environment secret names:
+
+| Purpose | Secrets |
+|---|---|
+| Apple signing and notarization | `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID` |
+| Windows signing | `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD` |
+| Linux signing | `LINUX_GPG_PRIVATE_KEY`, `LINUX_GPG_PASSPHRASE`, `LINUX_GPG_KEY_ID` |
+| Updater signing | `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` |
+| Embedded updater trust and feed | `ENVARIUM_UPDATER_PUBLIC_KEY`, `ENVARIUM_UPDATER_ENDPOINT` |
+
+Public-key and endpoint values are not themselves secrets, but the current
+workflow reads them from environment secrets. Do not change trust configuration
+after producing a reviewed artifact without rebuilding and revalidating it.
 
 ## Release channels
 

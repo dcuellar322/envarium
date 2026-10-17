@@ -96,18 +96,23 @@ process identity before signalling an owned group.
 
 ## Known limitations
 
-- Hosting, DNS, distribution coordinates, signing accounts, and users' local
-  machine configuration cannot be changed from this checkout.
+- Remaining hosting, DNS, distribution, signing, and other-machine changes
+  require their respective account access and operational verification. Local
+  follow-ups and CI fixes are recorded below rather than classified as external.
 - Envarium intentionally does not become a raw Docker image, volume, network,
   registry, vulnerability-scanning, or Swarm administration console.
-- Existing former-name user data requires an explicit operator migration decision;
-  the new application uses Envarium paths and identifiers.
+- The user confirmed neither product has existing users. No public former-name
+  data migration or compatibility layer is required; retired private development
+  state can be cleaned up. Envarium fresh-install and future upgrade/uninstall
+  verification remains part of release acceptance.
 
 ## Deferred work
 
-Only the unchecked external actions in the rebrand checklist and capabilities
-marked as architectural boundaries are deferred. A boundary item requires a new
-product decision rather than silent scope expansion.
+The rebrand checklist tracks remaining release, external-account, and
+verification work. Capabilities marked as architectural boundaries require a
+new product decision rather than silent scope expansion. Phase 20's completed
+repository identity criteria do not imply signed-release or all-platform
+migration acceptance.
 
 ## Manual verification steps
 
@@ -271,3 +276,67 @@ To smoke-check a release: install the packaged build, verify Dock/taskbar/tray
 appearance in the supported OS themes, open the startup and disconnected states,
 switch the app to high contrast, and check the `/brand/` downloads and social
 preview after deploying the website.
+
+## Rebrand follow-up and pre-launch cleanup — October 17, 2026
+
+### Scope and acceptance
+
+This follow-up maps to Phase 20's repository identity and external checklist
+criteria. It verifies the integrated kit, corrects package cleanup identity,
+records DNS/release prerequisites, resolves former-name compatibility policy,
+and reconciles outdated completion claims. No accepted architecture boundary
+changes. Signed release acceptance remains separate from repository completion.
+
+- The approved kit is integrated; the full 127-asset check passes on macOS and
+  Linux. A hosted failure after the branding commit exposed a system-font
+  dependency in the social image and a native icon's one-channel rounding
+  difference. Supporting social text is now outlined, with identical rendered
+  pixels on both platforms. Generated native PNG checks require identical
+  dimensions and pixels except for at most one channel differing by one
+  intensity level. Source/copy/social checks remain exact. A regression test
+  rejects larger or multiple channel differences; the brand check is retained
+  in both frontend and full-site CI.
+- Homebrew zap uses the actual `dev.envarium.desktop` identity for native config,
+  preferences, caches, WebKit storage, and saved application state. A test reads
+  the canonical Tauri config to catch future identity drift. Ordinary uninstall
+  retains durable state; explicit zap is documented as data removal.
+- Authoritative DNS queries identify Namecheap's `dns1.registrar-servers.com`
+  and `dns2.registrar-servers.com`; the canonical subdomain returns NXDOMAIN.
+  The checklist now specifies the Namecheap CNAME rather than requiring a
+  Cloudflare-proxied record. DNS was inspected, not changed.
+- GitHub configuration inspection found no published releases or
+  `desktop-release` environment, and only Cloudflare repository secret names.
+  The release guide lists the required signing credentials, updater feed/key
+  setup, reviewed version/tag, package ownership, protected environments, and
+  signed installation matrix. Secret values were not accessed.
+- The user confirmed neither Envarium nor Switchyard has existing users and
+  explicitly authorized cleanup. No new former-name importer, manifest alias,
+  transition build, or deep-link compatibility is included. The active schema-18
+  development database remains supported by its existing ordered migrations;
+  applied migration history was not rewritten.
+- After checking that no process used the retired paths, removed the Switchyard
+  data directory, broken `~/.local/bin/switchyard` symlink, and three superseded
+  development backups (about 26 GiB). Earlier entries describing retained
+  originals/backups record their historical state; those copies are now retired.
+  The live Envarium database remains schema 18, both Envarium processes remain
+  running, and all 16 original project containers retain the same IDs, start
+  times, restart counts, and running state.
+- Updated the historical native-startup note to point to the subsequent working
+  native dashboard and resource measurements. Repository completion no longer
+  implies that every remaining task is external or that signed release
+  installation has passed.
+
+### Verification
+
+The site quality target passes: Astro reports zero errors/warnings/hints,
+ESLint passes, 20 unit tests pass, the production build emits 153 pages, and
+content/build validation checks 117 documentation sources with bounded assets
+and JavaScript. Brand drift/rounding checks pass, the social card was visually
+reviewed, ZIP integrity passes, and architecture/repository checks pass.
+Generated site references and LLM indexes were regenerated from source.
+The four-project browser suite passes 56 scenarios with 16 intentional skips;
+all six site visual tests pass without changing baselines.
+Hosted CI verification is reported against the exact pushed commit separately;
+it is not inferred from these local results.
+No Go, Rust, database schema, or application runtime behavior changed in this
+follow-up; this entry does not claim another full local `make quality` run.

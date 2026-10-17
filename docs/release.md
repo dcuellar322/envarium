@@ -5,7 +5,7 @@ category: contributor
 audience: [maintainer, contributor]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-17
 ---
 
 Tagged releases are built only from validated `v*` tags by
@@ -19,6 +19,50 @@ for final human review.
 Before that draft is created, the public-site release contract validates the
 complete stable platform matrix and replaces build-specific digest files with
 one aggregate `checksums.txt` covering every uploaded artifact.
+
+These are workflow capabilities, not evidence of a published signed release.
+On October 17, 2026, the repository had no published releases and no configured
+`desktop-release` environment. Only the two Cloudflare repository secrets were
+present. Passing ordinary CI does not exercise protected release credentials.
+
+## Release account setup
+
+Before tagging the first release, a repository administrator needs to:
+
+1. Create the `desktop-release` GitHub environment, configure release approval
+   and allowed-tag rules, and add the secrets below using GitHub's secure UI.
+   Never paste private keys or passwords into chat, source, issues, or logs.
+2. Supply Apple Developer signing/notarization credentials for
+   `dev.envarium.desktop` and a Developer ID Application identity; supply a
+   Windows Authenticode certificate matching the intended publisher; supply a
+   Linux artifact-signing GPG key with a verified fingerprint.
+3. Generate and securely retain the Tauri updater signing key pair. Select a
+   maintained HTTPS update-feed URL and implement the signed response/artifact
+   hosting for each target, architecture, and release channel. The matching
+   public key is embedded in release builds. A URL and key alone do not publish
+   or maintain an update feed.
+4. Choose the release version/channel and exact reviewed commit. Build a draft
+   from its tag, then complete the signed install, upgrade, retained-data
+   reinstall, deep-link, and uninstall matrix before publishing it.
+5. Select a Homebrew tap and WinGet publisher/package ownership. Create the
+   `package-distribution-review` environment with reviewers. After publishing a
+   stable release, the package workflow uploads checksummed Homebrew/WinGet
+   **drafts** for review; it does not submit or publish either package. Tap
+   write access and WinGet submission/review are separate final steps.
+
+The existing release workflow consumes these environment secret names:
+
+| Purpose | Secrets |
+|---|---|
+| Apple signing and notarization | `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID` |
+| Windows signing | `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD` |
+| Linux signing | `LINUX_GPG_PRIVATE_KEY`, `LINUX_GPG_PASSPHRASE`, `LINUX_GPG_KEY_ID` |
+| Updater signing | `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` |
+| Embedded updater trust and feed | `ENVARIUM_UPDATER_PUBLIC_KEY`, `ENVARIUM_UPDATER_ENDPOINT` |
+
+Public-key and endpoint values are not themselves secrets, but the current
+workflow reads them from environment secrets. Do not change trust configuration
+after producing a reviewed artifact without rebuilding and revalidating it.
 
 ## Release channels
 

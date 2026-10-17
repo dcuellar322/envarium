@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
 import { generateHomebrewCask, generateWingetManifests } from '../../src/lib/distribution/generate'
 import { packageRecordMatches } from '../../src/lib/distribution/status'
 import type { ReleaseChannel } from '../../src/lib/releases/types'
@@ -13,6 +14,21 @@ const release: ReleaseChannel = {
 }
 
 describe('package draft generation', () => {
+  it('cleans the actual desktop identity only on explicit zap', () => {
+    const { identifier } = JSON.parse(readFileSync(new URL('../../../desktop/src-tauri/tauri.conf.json', import.meta.url), 'utf8')) as { identifier: string }
+    const cask = generateHomebrewCask(release)
+    for (const path of [
+      `~/Library/Application Support/${identifier}`,
+      `~/Library/Caches/${identifier}`,
+      `~/Library/Preferences/${identifier}.plist`,
+      `~/Library/WebKit/${identifier}`,
+      `~/Library/Saved Application State/${identifier}.savedState`,
+    ]) expect(cask).toContain(`"${path}"`)
+    expect(cask).toContain('zap trash: [')
+    expect(cask).not.toContain('tech.davidcuellar.envarium')
+    expect(cask).not.toContain('uninstall trash:')
+  })
+
   it('derives Homebrew URLs and checksums only from the stable manifest', () => {
     const cask = generateHomebrewCask(release)
     expect(cask).toContain(release.assets[0]!.downloadUrl)

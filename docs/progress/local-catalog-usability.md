@@ -3,10 +3,18 @@ title: Local catalog usability
 description: Real-project import, lifecycle, observation, desktop, and deployment verification.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-10-15
+lastVerified: 2026-10-17
 ---
 
 # Local catalog usability — October 15, 2026
+
+The results below record the October 15 run. The native-startup limitation was
+subsequently resolved: the user confirmed a working native dashboard, and
+October 16–17 verification measured the app visible, hidden, and closed with
+the real project workload. See [Phase 12 verification](phase-12.md) for the
+later build identities, resource measurements, and monitoring-accuracy checks.
+The old startup failure below is historical, not a current blocker. Signed
+release installation across all supported platforms remains unverified.
 
 This follow-up exercises the application against a real development directory,
 with both native commands and Docker Compose projects.

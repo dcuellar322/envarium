@@ -47,6 +47,13 @@ generates palette CSS for each adapter, regenerates platform icons with Tauri,
 and exports a social PNG from `social.svg`. CI checks for drift without changing
 the checkout. It requires the installed workspace dependencies.
 
+The social card's supporting text is outlined from Liberation Sans (Google/Red
+Hat, SIL Open Font License 1.1); these document outlines need no installed font.
+This prevents system-font substitution from changing the generated PNG in CI.
+Native PNG checks allow at most one channel to differ by one intensity level
+between platforms; dimensions and all remaining pixels must match. Source
+artwork, copied assets, and social exports retain exact byte checks.
+
 Brand gradients always use the original blue and violet. Light-theme link colors
 use darker accessible shades; high-contrast mode uses brighter functional colors.
 Small UI text uses `soft-readable` rather than the lower-contrast decorative

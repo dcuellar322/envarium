@@ -4,6 +4,7 @@ import { mkdtemp, readdir, readFile, mkdir, rm, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { equalNativePixels } from './brand-raster.mjs'
 
 // SVGs and palette.json in the approved kit own the identity. Consumers are
 // copied/generated here; --check compares without changing the checkout.
@@ -15,7 +16,7 @@ const sharp = require('sharp')
 const drift = []
 let count = 0
 
-async function emit(target, data) {
+async function emit(target, data, nativePNG = false) {
   const bytes = Buffer.isBuffer(data) ? data : Buffer.from(data)
   const destination = join(root, target)
   const previous = await readFile(destination).catch((error) => {
@@ -24,6 +25,20 @@ async function emit(target, data) {
   })
   count++
   if (previous?.equals(bytes)) return
+  if (check && previous && nativePNG) {
+    const [left, right] = await Promise.all(
+      [previous, bytes].map((input) =>
+        sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true }),
+      ),
+    )
+    if (
+      left.info.width === right.info.width &&
+      left.info.height === right.info.height &&
+      left.info.channels === right.info.channels &&
+      equalNativePixels(left.data, right.data)
+    )
+      return
+  }
   if (check) drift.push(target)
   else {
     await mkdir(dirname(destination), { recursive: true })
@@ -142,6 +157,7 @@ try {
     await emit(
       `desktop/src-tauri/icons/${relative(native, file)}`,
       file.endsWith('.icns') ? canonicalICNS(bytes) : bytes,
+      file.endsWith('.png'),
     )
   }
   const template = await sharp(join(kit, 'tray/envarium-dark-32.png'))

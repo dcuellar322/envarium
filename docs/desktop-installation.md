@@ -5,7 +5,7 @@ category: how-to
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-17
 ---
 
 ## macOS desktop
@@ -121,6 +121,12 @@ Desktop-only preferences are under the per-application Tauri config directory
 for `dev.envarium.desktop`. Launch-at-login can be disabled from the tray
 before uninstalling; macOS Login Items can also remove it afterward.
 
+The generated Homebrew cask uses that same bundle identifier for preferences,
+WebKit data, caches, and saved window state. Ordinary uninstall retains data;
+`brew uninstall --cask --zap envarium` additionally removes those files and the
+`Envarium` control-plane data directory. Review backups and stop the daemon
+before explicitly requesting zap.
+
 For a complete removal, first stop active project/workspace operations and
 quit the desktop adapter. Stop the daemon gracefully (for example, terminate
 the `envarium daemon` process from Activity Monitor), then choose one of:
@@ -147,3 +153,7 @@ backup to a separate data directory, and run the matching old binary against
 that copy. Reinstalling the same or newer compatible v1 bundle attaches to the
 retained daemon data. See [v1 migration](migration-v1.md) for the exact safe
 procedure and [release engineering](release.md) for the tested matrix.
+
+Envarium is pre-launch and has no former Switchyard user base to migrate. It
+uses its own application identity, data directory, and `envarium://` links;
+there is no supported Switchyard importer or former-scheme handler.

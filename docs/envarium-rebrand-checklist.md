@@ -6,8 +6,10 @@ audience: [contributor, maintainer]
 lastVerified: 2026-10-17
 ---
 
-The repository-side rename is complete. The remaining unchecked items require
-access to systems outside this checkout or an explicit product/brand decision.
+The repository identity and approved visual integration are complete. This
+checklist separates implementation from remaining release, account, and
+verification work; checked historical runs are not claims that every supported
+platform or currently installed bundle has been revalidated.
 
 ## Completed in this repository
 
@@ -29,6 +31,11 @@ access to systems outside this checkout or an explicit product/brand decision.
       favicons, social card, and native Tauri icon exports.
 - [x] Regenerate OpenAPI clients, manifest schema, CLI/MCP documentation, and
       SQL bindings from the renamed sources.
+- [x] Align generated Homebrew cleanup paths with the actual desktop bundle ID
+      `dev.envarium.desktop`, retaining data on ordinary uninstall.
+- [x] Resolve former-name compatibility policy: this is pre-launch software
+      with no Switchyard users. No public legacy data importer, schema aliases,
+      transition build, or former deep-link compatibility is required.
 
 ## Source-control hosting
 
@@ -60,9 +67,13 @@ access to systems outside this checkout or an explicit product/brand decision.
 - [ ] Update DNS, registrar settings, Cloudflare Pages project/custom domains,
       redirects, certificates, canonical origin, CSP allowlists, analytics/search
       console properties, sitemap submission, and uptime monitors. The remaining
-      immediate blocker is a proxied CNAME for `envarium.davidcuellar.tech` to
-      `envarium-dcuellar.pages.dev`; the retained Pages token cannot read or edit
-      the DNS zone.
+      immediate blocker is a Namecheap Advanced DNS CNAME with Host `envarium`,
+      Value `envarium-dcuellar.pages.dev`, and automatic TTL. An October 17
+      authoritative query confirms `dns1.registrar-servers.com` and
+      `dns2.registrar-servers.com` serve the zone and the subdomain is absent.
+      Keep the existing nameservers; a Cloudflare-proxied record is not required
+      for this externally hosted subdomain. Once the record resolves, confirm
+      the registered Pages custom domain becomes active and HTTPS succeeds.
 - [x] Redirect every former public URL path-for-path where control is retained.
       While canonical DNS/TLS activation is pending, the legacy hostname uses a
       temporary redirect to `envarium-dcuellar.pages.dev/<path>`. Deployment switches
@@ -79,9 +90,14 @@ access to systems outside this checkout or an explicit product/brand decision.
 - [ ] Update code-signing/notarization profiles, macOS bundle registration,
       Windows publisher metadata, updater endpoints/public keys, release channels,
       SBOM/provenance subjects, and checksum consumers.
-- [ ] Treat the new desktop bundle identifier and deep-link scheme as a distinct
-      installed application. Decide whether to uninstall the former app, support a
-      transition build, or document side-by-side behavior.
+- [x] Treat the new desktop bundle identifier and deep-link scheme as a distinct
+      installed application. Use only Envarium identity and fresh-install
+      behavior; retire private former-name development state after verification.
+      No automatic legacy discovery or link takeover is implemented.
+- [ ] Configure the `desktop-release` environment and credentials in the
+      [release setup checklist](release.md#release-account-setup). October 17
+      inspection found only `production` and `site-preview` environments and
+      only the two Cloudflare repository secrets; signing/updater setup is absent.
 - [ ] Regenerate all release artifacts and verify their filenames, embedded
       metadata, signatures, quarantine/notarization state, and upgrade behavior on
       every supported platform.
@@ -101,19 +117,25 @@ access to systems outside this checkout or an explicit product/brand decision.
 
 ## Existing users and local state
 
-- [x] Retain existing alpha/beta state. With the former daemon stopped, create a
+- [x] Transfer this workstation's development state. With the former daemon stopped, create a
       SQLite-consistent copy at `~/Library/Application Support/Envarium/envarium.db`,
-      preserve the former directory as rollback data, apply schema 18, migrate active
+      initially preserve the former directory as rollback data, apply schema 18, migrate active
       project/manifest/runtime identifiers, copy durable logs/plugin/runtime state,
       and verify foreign keys and migration status.
+      This was a private development transfer. The user subsequently approved
+      retiring original Switchyard data and legacy artifacts because neither
+      product has existing users; no public legacy upgrade path is required.
 - [x] Update active Codex and VS Code project registrations to the renamed checkout;
       confirm no matching macOS launch agent is installed on this workstation.
 - [ ] Update MCP registrations and any remaining editor tasks, shell aliases,
       systemd units, Windows services, desktop shortcuts, firewall prompts, saved
       terminal profiles, and automation scripts on other clients or machines.
 - [x] Update the local Codex trusted-project path to `/Users/dac/dev/envarium`.
-- [ ] Remove stale former-name caches, sockets, sidecars, app bundles, test output,
-      and build artifacts only after backups and migration verification.
+- [x] Remove retired former-name development data, CLI, sockets, and rename
+      backups after confirming they are not used by the active Envarium daemon.
+      October 17 cleanup removed the Switchyard data directory, broken CLI
+      symlink, and three superseded development backups (about 26 GiB); the
+      active Envarium database and running project workload were retained.
 
 ## Brand and legal review
 
@@ -132,13 +154,16 @@ access to systems outside this checkout or an explicit product/brand decision.
       scanning, MCP inspection, cross-platform Go compilation, and the macOS
       desktop build all pass.
 - [ ] Build signed CLI and desktop artifacts on macOS, Linux, and Windows.
-- [ ] Install fresh, upgrade from the last former-name build if supported, migrate
-      data, exercise deep links, connect MCP clients, and uninstall cleanly.
+- [ ] Install fresh, verify future Envarium upgrade/data-retention behavior,
+      exercise Envarium deep links, connect MCP clients, and uninstall cleanly.
+      A public upgrade from Switchyard is intentionally outside release scope.
 - [x] Import this workstation's eleven runnable development projects, validate
       their manifests/start plans, smoke-test native and Compose lifecycle/log
-      controls, and leave the authenticated browser dashboard open. See
-      [local catalog usability](progress/local-catalog-usability.md) for the
-      macOS WebKit/power-service startup limitation affecting the installed shell.
+      controls. The October 15 native cold-start failure recorded in
+      [local catalog usability](progress/local-catalog-usability.md) was resolved;
+      later [native verification](progress/phase-12.md) includes visible, hidden,
+      and closed-app measurements with the running workload. The subsequently
+      branded development build still needs installed/release appearance checks.
 - [x] Deploy the renamed public site, pass its seven-route production smoke
       check, and verify a temporary legacy redirect to the reachable Pages origin.
 - [ ] Crawl the production site and documentation for broken links, mixed branding,

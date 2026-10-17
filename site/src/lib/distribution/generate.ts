@@ -30,8 +30,11 @@ export function generateHomebrewCask(release: ReleaseChannel): string {
 
   zap trash: [
     "~/Library/Application Support/Envarium",
-    "~/Library/Caches/tech.davidcuellar.envarium",
-    "~/Library/Preferences/tech.davidcuellar.envarium.plist",
+    "~/Library/Application Support/dev.envarium.desktop",
+    "~/Library/Caches/dev.envarium.desktop",
+    "~/Library/Preferences/dev.envarium.desktop.plist",
+    "~/Library/WebKit/dev.envarium.desktop",
+    "~/Library/Saved Application State/dev.envarium.desktop.savedState",
   ]
 end
 `
