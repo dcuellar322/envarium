@@ -88,3 +88,17 @@ publication names are independent of the capture platform:
 The fixtures use generic project names and `/Users/dev/projects/...` paths.
 Before every public capture, reviewers verify that no personal path, private
 project name, secret, token, or live diagnostic data appears.
+
+## Browser verification environment
+
+Full-site CI runs in the digest-pinned Playwright 1.62.1 Noble image declared in
+`.github/workflows/site-ci.yml`. Its browsers and fonts match the reviewed
+Linux visual references. Use that environment for Linux baseline review;
+macOS has separate references. A host runner's system font can change text
+wrapping and page height even when the browser version matches.
+
+When updating `@playwright/test`, update the workflow image together with it,
+run the full browser and visual suites, and review any changed references.
+Keep overflow assertions and visual thresholds intact. The branding suite
+checks home, brand, and docs routes at both 320 px and 375 px; verify wider
+system fonts as well when changing the header or headline layout.

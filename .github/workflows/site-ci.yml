@@ -17,6 +17,10 @@ concurrency:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    # Match the browser binaries and fonts used for the reviewed Linux baselines.
+    # Keep this version aligned with site/package.json's @playwright/test.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -36,7 +40,6 @@ jobs:
       - run: pnpm site:test
       - run: pnpm site:build
       - run: pnpm site:validate
-      - run: pnpm --dir site exec playwright install --with-deps chromium firefox webkit
       - run: pnpm site:test:e2e
       - run: pnpm site:test:visual
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

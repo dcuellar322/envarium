@@ -364,6 +364,14 @@ pass without baseline changes. The reproduced Linux narrow-screen cases pass
 at both widths. Hosted CI remains the final check on the pushed revision;
 test assertions and committed visual tolerances were not relaxed.
 
+The Linux visual references were captured in the official Playwright Noble
+image, whose default font differs from the hosted Ubuntu runner's DejaVu Sans.
+Full-site CI now uses the digest-pinned Playwright 1.62.1 image matching those
+reviewed references, including its preinstalled browser binaries and fonts.
+It no longer installs a second browser/dependency set into that environment.
+Keep this image aligned with `site/package.json` when updating Playwright.
+No visual baseline or comparison tolerance was changed to accommodate drift.
+
 The cleanup also removed the unused `dev.switchyard.desktop` cache, WebKit
 directory, and binary-cookie file after confirming no process had them open.
 Current Envarium identity and browser data were retained.
