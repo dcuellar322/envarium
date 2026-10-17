@@ -133,9 +133,9 @@ onBeforeUnmount(() => {
   gap: 10px;
   min-width: 260px;
   padding: 12px 14px;
-  border: 1px solid #344258;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #111720;
+  background: var(--panel);
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
   cursor: pointer;
 }
@@ -183,7 +183,7 @@ onBeforeUnmount(() => {
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(3, 6, 10, 0.52);
+  background: color-mix(in srgb, var(--bg) 52%, transparent);
 }
 .operation-drawer {
   position: absolute;
@@ -193,7 +193,7 @@ onBeforeUnmount(() => {
   height: 100%;
   padding: 18px;
   border-left: 1px solid var(--border);
-  background: #0d1219;
+  background: var(--panel);
   box-shadow: -24px 0 80px rgba(0, 0, 0, 0.38);
 }
 .operation-drawer header {

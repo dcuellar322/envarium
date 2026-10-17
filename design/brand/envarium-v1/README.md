@@ -1,6 +1,6 @@
 # Envarium visual identity v1
 
-Created October 15, 2026. This is a reviewable brand asset package for the Phase 20 identity slice. It does not change the installed application or public website identity.
+Created October 15, 2026. Approved for product integration on October 17, 2026. This package owns the Phase 20 logo, icon, and palette identity used by the application, desktop shell, and public website.
 
 ## Design
 
@@ -28,12 +28,31 @@ A rounded E brings three environment rails into one spine. A square cutout sugge
 - Preserve the mark's proportions and transparent padding. Use the monochrome variants where gradients are unsuitable.
 - Interface icons use `currentColor`, a 1.8-unit stroke, and rounded caps and joins. Inline the SVG to inherit CSS color. When loading via an image element, select an explicit color in a copied asset if needed.
 - Standalone SVGs include accessible names. For decorative inline use, set `aria-hidden="true"` and remove their standalone labeling. For inline logos, give each embedded title a unique ID. Label icon-only buttons by their action.
-- PNG/ICO/ICNS files are exports; the SVG files are the editable production artwork. Platform containers were structurally checked, but native packaging and installed OS appearance were not tested.
+- PNG/ICO/ICNS files are exports; the SVG files are the editable production artwork. The product regenerates native platform icons with its pinned Tauri CLI. Native installed OS appearance still requires platform smoke checks.
 
 ## Creation and review
 
 The built-in image generation tool produced the initial concept using the exact prompt in `references/prompt.txt`. The final mark was reconstructed as clean SVG geometry, with an original path-based wordmark and code-native interface icons. The generated raster is reference material; use the SVG sources and their clean exports in production.
 
-The package has been visually inspected as a rendered contact sheet. XML, dimensions, transparency, and icon-container structure were checked locally. Applying this identity across the application, desktop packaging, and public site remains a separate integration step after human review.
+The package has been visually inspected as a rendered contact sheet. XML, dimensions, transparency, and icon-container structure were checked locally. The identity is integrated across the application, desktop packaging, marketing site, and documentation. Phase 20 progress records verification evidence.
 
 These assets follow the repository's Apache-2.0 license and existing product attribution guidance.
+
+## Updating the integrated identity
+
+`palette.json` owns the core colors; `icons.ts` names the twelve interface icons.
+Run `pnpm brand:sync` from the repository root after approved changes, then run
+`pnpm brand:check`. The sync copies artwork, builds the shared icon sprite,
+generates palette CSS for each adapter, regenerates platform icons with Tauri,
+and exports a social PNG from `social.svg`. CI checks for drift without changing
+the checkout. It requires the installed workspace dependencies.
+
+Brand gradients always use the original blue and violet. Light-theme link colors
+use darker accessible shades; high-contrast mode uses brighter functional colors.
+Small UI text uses `soft-readable` rather than the lower-contrast decorative
+`soft` color. These are accessibility variants of the same palette.
+
+The website `/brand/` page provides individual assets and the ZIP. If artwork or
+this guide changes, rebuild `design/brand/envarium-v1.zip` from the package before
+syncing it to the public site. Website product screenshots are sanitized captures
+of the integrated app under `site/src/assets/product/`.

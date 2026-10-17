@@ -62,7 +62,7 @@ defineEmits<{ acknowledge: [id: string] }>()
   border: 1px solid rgba(255, 117, 117, 0.35);
   border-radius: 9px;
   background: rgba(255, 117, 117, 0.08);
-  color: #ff9b9b;
+  color: var(--red);
 }
 .notification {
   padding: 12px 0;

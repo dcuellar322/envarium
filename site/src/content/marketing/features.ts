@@ -1,3 +1,5 @@
+import type { BrandIconName } from '../../../../design/brand/envarium-v1/icons'
+
 export interface Feature {
   slug: string
   title: string
@@ -5,7 +7,7 @@ export interface Feature {
   description: string
   proof: string[]
   docsHref: string
-  icon: string
+  icon: BrandIconName
 }
 
 export const features: Feature[] = [
@@ -17,7 +19,7 @@ export const features: Feature[] = [
       'Envarium keeps the developer’s project intent above container and process details. Every screen and automation surface resolves back to one reviewed project definition.',
     proof: ['Evidence-backed onboarding', 'Trusted portable manifests', 'Honest external-runtime state'],
     docsHref: '/docs/architecture/project-onboarding/',
-    icon: '◇',
+    icon: 'projects',
   },
   {
     slug: 'runtimes',
@@ -27,7 +29,7 @@ export const features: Feature[] = [
       'The Go control plane plans every lifecycle operation, observes Docker through its API, and owns native process trees without pretending that externally started services belong to it.',
     proof: ['Previewable lifecycle plans', 'No shell by default', 'Compose and process reconciliation'],
     docsHref: '/docs/architecture/docker-compose-runtime/',
-    icon: '▷',
+    icon: 'services',
   },
   {
     slug: 'logs-health-resources',
@@ -37,7 +39,7 @@ export const features: Feature[] = [
       'Live streams and retained evidence share one event model. Health describes readiness separately from process state, while storage values disclose when attribution is shared or estimated.',
     proof: ['Redaction before every sink', 'Start-and-wait health gates', 'Bounded retention'],
     docsHref: '/docs/architecture/observability/',
-    icon: '≋',
+    icon: 'resources',
   },
   {
     slug: 'ports-git-actions',
@@ -47,7 +49,7 @@ export const features: Feature[] = [
       'Declarations, reservations, and live bindings stay distinct, with source evidence for every conflict. Git and action adapters expose practical context without turning Envarium into a broad shell or Git GUI.',
     proof: ['Stopped-project reservations', 'Git porcelain v2', 'Risk-classified actions'],
     docsHref: '/docs/architecture/developer-workflows/',
-    icon: '⇄',
+    icon: 'ports',
   },
   {
     slug: 'workspaces-worktrees',
@@ -57,7 +59,7 @@ export const features: Feature[] = [
       'Workspace graphs coordinate health-gated startup without erasing per-project operations. Worktree environments receive exact Compose identities and port leases so parallel work remains explicit.',
     proof: ['Validated dependency DAGs', 'Partial-failure policy', 'Per-worktree port leases'],
     docsHref: '/docs/architecture/workspaces/',
-    icon: '⌘',
+    icon: 'workspaces',
   },
   {
     slug: 'agents-mcp',
@@ -67,7 +69,7 @@ export const features: Feature[] = [
       'Observe, develop, maintain, and admin profiles are enforced by application services. Tool responses are bounded, structured, redacted, and audited regardless of what repository text or a model requests.',
     proof: ['No generic MCP shell', 'Permission-scoped mutations', 'Schema-constrained proposals'],
     docsHref: '/docs/mcp/',
-    icon: '✦',
+    icon: 'agents',
   },
   {
     slug: 'terminals',
@@ -77,7 +79,7 @@ export const features: Feature[] = [
       'Authenticated terminal sessions preserve resize, Unicode, full-screen applications, bounded scrollback, and explicit ownership. External terminal handoff stays first class.',
     proof: ['Real PTY and ConPTY adapters', 'Session ownership', 'Safe link handling'],
     docsHref: '/docs/architecture/terminal-sessions/',
-    icon: '>_',
+    icon: 'terminal',
   },
   {
     slug: 'plugins',
@@ -87,7 +89,7 @@ export const features: Feature[] = [
       'Plugins run as supervised processes over a versioned protocol, declare capabilities and scopes, and must pass a conformance suite before they are trusted.',
     proof: ['Out-of-process isolation', 'Explicit capability review', 'Versioned JSON-RPC contract'],
     docsHref: '/docs/plugin-sdk/',
-    icon: '⬡',
+    icon: 'settings',
   },
   {
     slug: 'security-local-first',
@@ -97,6 +99,6 @@ export const features: Feature[] = [
       'Essential operation works offline. Privileged clients use user-scoped IPC, browser access stays on loopback with session and CSRF checks, and secrets remain keychain references.',
     proof: ['No cloud account required', 'Explicit repository trust', 'Preview and authorization for risk'],
     docsHref: '/docs/security/threat-model/',
-    icon: '◉',
+    icon: 'health',
   },
 ]

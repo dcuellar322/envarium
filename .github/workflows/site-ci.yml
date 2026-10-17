@@ -2,10 +2,10 @@ name: Public site CI
 
 on:
   pull_request:
-    paths: ["site/**", "docs/**", "web/tests/visual/**", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "Makefile", ".github/workflows/site-*.yml"]
+    paths: ["site/**", "docs/**", "design/brand/**", "scripts/sync-brand.mjs", "web/tests/visual/**", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "Makefile", ".github/workflows/site-*.yml"]
   push:
     branches: [master, main]
-    paths: ["site/**", "docs/**", "web/tests/visual/**", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "Makefile", ".github/workflows/site-*.yml"]
+    paths: ["site/**", "docs/**", "design/brand/**", "scripts/sync-brand.mjs", "web/tests/visual/**", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "Makefile", ".github/workflows/site-*.yml"]
 
 permissions:
   contents: read
@@ -29,6 +29,7 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm brand:check
       - run: make site-generate-check
       - run: pnpm site:check
       - run: pnpm site:lint

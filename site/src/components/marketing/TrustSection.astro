@@ -17,7 +17,7 @@
       <p class="diagram-title">One local control plane</p>
       <div class="clients"><span>Desktop</span><span>CLI</span><span>Browser</span><span>MCP</span></div>
       <div class="connector" aria-hidden="true"><i></i><i></i><i></i></div>
-      <div class="daemon"><span class="mark">S</span><div><strong>local Go daemon</strong><small>user-scoped IPC · loopback browser API</small></div><b>online</b></div>
+      <div class="daemon"><img class="mark" src="/brand/marks/envarium-gradient.svg" alt="" width="40" height="40" /><div><strong>local Go daemon</strong><small>user-scoped IPC · loopback browser API</small></div><b>online</b></div>
       <div class="connector downward" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="adapters"><span>Docker</span><span>Processes</span><span>Git</span><span>Ports</span><span>SQLite</span></div>
       <div class="boundary"><span>LOCAL MACHINE TRUST BOUNDARY</span></div>
@@ -154,14 +154,10 @@
   }
 
   .mark {
-    display: grid;
+    display: block;
     width: 2.3rem;
     height: 2.3rem;
-    place-items: center;
-    border-radius: 0.65rem;
-    background: linear-gradient(135deg, var(--sy-accent-primary), var(--sy-accent-secondary));
-    color: #07101f;
-    font-weight: 900;
+    flex: 0 0 auto;
   }
 
   .daemon div { display: grid; }

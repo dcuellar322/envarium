@@ -1,0 +1,10 @@
+---
+import BrandLogo from '@/components/shared/BrandLogo.astro'
+const { siteTitleHref } = Astro.locals.starlightRoute
+---
+
+<a href={siteTitleHref} class="site-title" aria-label="Envarium documentation"><BrandLogo /></a>
+
+<style>
+  .site-title { display: inline-flex; align-items: center; min-width: 0; }
+</style>

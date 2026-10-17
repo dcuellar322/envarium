@@ -121,7 +121,7 @@ function submit() {
 .notice {
   padding: 10px;
   border-left: 2px solid var(--yellow);
-  background: rgba(241, 199, 91, 0.05);
+  background: color-mix(in srgb, var(--yellow) 5%, transparent);
   color: var(--muted);
   line-height: 1.5;
 }

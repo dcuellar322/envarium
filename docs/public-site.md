@@ -4,7 +4,7 @@ description: Canonical identity, domain, audience, privacy, and launch boundarie
 category: contributor
 audience: [maintainer, contributor]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-17
 ---
 
 Envarium's public identity is **Envarium — Local Development Command
@@ -64,10 +64,18 @@ code is added.
 
 ## Brand and screenshot inventory
 
-The current product mark is the `S` rail icon under `web/public/`. Site colors
-are generated from the product's canvas, panel, border, text, blue-violet
-accent, and status tokens. Initial product media is sourced from deterministic
-Playwright baselines:
+The approved identity is the rounded E and path-based Envarium wordmark in
+`design/brand/envarium-v1/`. Its `palette.json` owns the shared canvas, panel,
+border, text, blue-violet accent, and status colors. `pnpm brand:sync` generates
+consumer palette CSS, copies artwork, creates the interface icon sprite,
+regenerates native icons, and renders the social PNG. `pnpm brand:check` rejects
+drift. The `/brand/` page publishes the complete kit and individual downloads.
+Light-mode links and high-contrast UI use accessible functional shades while
+the brand gradient remains blue to violet.
+
+Published product media under `site/src/assets/product/` is copied from reviewed
+deterministic Playwright baselines with `pnpm --dir site screenshots`. The
+publication names are independent of the capture platform:
 
 - dashboard
 - project detail and live logs

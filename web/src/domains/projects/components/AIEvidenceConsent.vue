@@ -119,9 +119,13 @@ const emit = defineEmits<{
 .ai-card {
   grid-column: 1/-1;
   padding: 22px;
-  border: 1px solid rgba(83, 174, 255, 0.32);
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(18, 31, 46, 0.96), rgba(14, 19, 26, 0.96));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--panel-3) 96%, transparent),
+    color-mix(in srgb, var(--bg) 96%, transparent)
+  );
 }
 .ai-card__heading {
   display: flex;
@@ -166,9 +170,9 @@ select {
   width: 100%;
   padding: 10px 12px;
   color: var(--text);
-  border: 1px solid #344157;
+  border: 1px solid var(--border);
   border-radius: 9px;
-  background: #0b1017;
+  background: var(--panel);
 }
 .ai-actions {
   display: flex;
@@ -179,7 +183,7 @@ button {
   padding: 10px 15px;
   border: 0;
   border-radius: 9px;
-  color: #07111f;
+  color: var(--on-accent);
   background: var(--accent);
   font-weight: 800;
   cursor: pointer;
@@ -189,7 +193,7 @@ button:disabled {
   cursor: not-allowed;
 }
 .button--secondary {
-  border: 1px solid #40506a;
+  border: 1px solid var(--border);
   color: var(--text);
   background: transparent;
 }
@@ -209,7 +213,7 @@ button:disabled {
   padding: 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0d1219;
+  background: var(--panel);
 }
 .receipt__summary span {
   color: var(--soft);
@@ -223,7 +227,7 @@ button:disabled {
 .exact-payload {
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0d1219;
+  background: var(--panel);
 }
 .evidence-list summary {
   display: grid;
@@ -259,7 +263,7 @@ button:disabled {
   align-items: flex-start;
   padding: 12px;
   border-radius: 8px;
-  background: rgba(84, 212, 154, 0.07);
+  background: color-mix(in srgb, var(--green) 7%, transparent);
   font-size: 13px;
 }
 .consent input {

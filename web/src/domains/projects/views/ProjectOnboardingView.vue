@@ -257,10 +257,10 @@ const {
 }
 .safety-note {
   padding: 8px 11px;
-  border: 1px solid rgba(84, 212, 154, 0.35);
+  border: 1px solid color-mix(in srgb, var(--green) 35%, transparent);
   border-radius: 999px;
   color: var(--green);
-  background: rgba(84, 212, 154, 0.08);
+  background: color-mix(in srgb, var(--green) 8%, transparent);
   font-size: 12px;
   white-space: nowrap;
 }
@@ -268,7 +268,7 @@ const {
   padding: 20px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: rgba(17, 22, 30, 0.85);
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
   margin-bottom: 24px;
 }
 .scan-form label {
@@ -285,9 +285,9 @@ input {
   flex: 1;
   padding: 11px 13px;
   color: var(--text);
-  border: 1px solid #344157;
+  border: 1px solid var(--border);
   border-radius: 9px;
-  background: #0b1017;
+  background: var(--panel);
 }
 .root-policy {
   margin: 10px 0 0;
@@ -324,7 +324,7 @@ button {
   padding: 10px 15px;
   border: 0;
   border-radius: 9px;
-  color: #07111f;
+  color: var(--on-accent);
   background: var(--accent);
   font-weight: 800;
   cursor: pointer;
@@ -334,7 +334,7 @@ button:disabled {
   cursor: not-allowed;
 }
 .button--secondary {
-  border: 1px solid #40506a;
+  border: 1px solid var(--border);
   color: var(--text);
   background: transparent;
 }
@@ -348,7 +348,11 @@ button:disabled {
   padding: 22px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(21, 27, 36, 0.96), rgba(14, 19, 26, 0.96));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--panel-2) 96%, transparent),
+    color-mix(in srgb, var(--bg) 96%, transparent)
+  );
 }
 .review-card--wide {
   grid-column: 1/-1;
@@ -367,12 +371,12 @@ button:disabled {
   height: min-content;
   padding: 5px 9px;
   border-radius: 999px;
-  background: rgba(241, 199, 91, 0.1);
+  background: color-mix(in srgb, var(--yellow) 10%, transparent);
   color: var(--yellow);
   font-size: 11px;
 }
 .status--ready {
-  background: rgba(84, 212, 154, 0.1);
+  background: color-mix(in srgb, var(--green) 10%, transparent);
   color: var(--green);
 }
 .facts {
@@ -385,7 +389,7 @@ button:disabled {
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 9px;
-  background: #0d1219;
+  background: var(--panel);
 }
 .facts dt {
   color: var(--soft);
@@ -399,11 +403,11 @@ button:disabled {
   margin: 10px 0;
   padding: 10px 12px;
   border-radius: 8px;
-  background: rgba(241, 199, 91, 0.08);
+  background: color-mix(in srgb, var(--yellow) 8%, transparent);
   color: var(--yellow);
 }
 .message--error {
-  background: rgba(255, 115, 115, 0.08);
+  background: color-mix(in srgb, var(--red) 8%, transparent);
   color: var(--red);
 }
 .review-actions {
@@ -429,7 +433,7 @@ button:disabled {
   justify-content: space-between;
   gap: 12px;
   border-radius: 8px;
-  background: #0d1219;
+  background: var(--panel);
 }
 .detected-list li,
 .command-list li {
@@ -476,7 +480,7 @@ button:disabled {
 }
 .evidence-row--header {
   color: var(--soft);
-  background: #0d1219;
+  background: var(--panel);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;

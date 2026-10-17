@@ -180,7 +180,7 @@ const polylines = computed(() => {
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: linear-gradient(145deg, var(--panel), #0e131a);
+  background: linear-gradient(145deg, var(--panel), var(--bg));
 }
 .panel-head {
   display: flex;
@@ -229,7 +229,11 @@ const polylines = computed(() => {
   height: 190px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: linear-gradient(180deg, rgba(120, 166, 255, 0.05), transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 5%, transparent),
+    transparent
+  );
 }
 .chart path {
   stroke: var(--border);

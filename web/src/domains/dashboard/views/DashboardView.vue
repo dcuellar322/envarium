@@ -223,8 +223,8 @@ const {
 }
 .button--primary {
   border: 0;
-  background: linear-gradient(135deg, #79a8ff, #8b8aff);
-  color: #07111d;
+  background: var(--primary-gradient);
+  color: var(--on-accent);
   font-weight: 750;
 }
 .summary-grid {
@@ -239,7 +239,11 @@ const {
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(20, 27, 37, 0.97), rgba(15, 20, 28, 0.97));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--panel-2) 97%, transparent),
+    color-mix(in srgb, var(--panel) 97%, transparent)
+  );
 }
 .summary-card::after {
   content: '';
@@ -249,7 +253,7 @@ const {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background: rgba(120, 166, 255, 0.09);
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
 }
 .summary-card span,
 .summary-card small {
@@ -275,14 +279,14 @@ const {
 .error-banner {
   margin-bottom: 14px;
   padding: 10px 12px;
-  border: 1px solid rgba(241, 199, 91, 0.3);
+  border: 1px solid color-mix(in srgb, var(--yellow) 30%, transparent);
   border-radius: 9px;
-  background: rgba(241, 199, 91, 0.08);
+  background: color-mix(in srgb, var(--yellow) 8%, transparent);
   color: var(--yellow);
 }
 .error-banner {
-  border-color: rgba(255, 115, 115, 0.3);
-  background: rgba(255, 115, 115, 0.08);
+  border-color: color-mix(in srgb, var(--red) 30%, transparent);
+  background: color-mix(in srgb, var(--red) 8%, transparent);
   color: var(--red);
 }
 .toolbar {
@@ -332,7 +336,7 @@ const {
   height: 12px;
   margin-bottom: 24px;
   border-radius: 6px;
-  background: #202a38;
+  background: var(--panel-3);
 }
 .project-skeleton span:nth-child(2) {
   width: 100%;

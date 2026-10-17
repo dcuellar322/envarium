@@ -1,8 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
-  <title id="title">Envarium</title>
-  <rect width="512" height="512" rx="112" fill="#101725"/>
-  <path d="M156 104v304" fill="none" stroke="#55a8ff" stroke-linecap="round" stroke-width="52"/>
-  <path d="M156 256h78c70 0 80-98 151-98h15" fill="none" stroke="#78dba9" stroke-linecap="round" stroke-width="44"/>
-  <path d="M156 256h78c70 0 80 98 151 98h15" fill="none" stroke="#55a8ff" stroke-linecap="round" stroke-width="44"/>
-  <circle cx="156" cy="256" r="25" fill="#f6f9ff"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title"><title id="title">Envarium app icon</title><defs><linearGradient id="envarium-gradient" x1="0" y1="0" x2="96" y2="96" gradientUnits="userSpaceOnUse"><stop stop-color="#78a6ff"/><stop offset="1" stop-color="#9e7bff"/></linearGradient></defs><rect x="16" y="16" width="480" height="480" rx="112" fill="#11161e"/><rect x="16.5" y="16.5" width="479" height="479" rx="111.5" fill="none" stroke="#253044"/><g transform="translate(96 96) scale(3.333333)"><path fill="url(#envarium-gradient)" fill-rule="evenodd" d="M29 12H73a9 9 0 0 1 0 18H36a6 6 0 0 0-6 6v3h43a9 9 0 0 1 0 18H30v3a6 6 0 0 0 6 6h37a9 9 0 0 1 0 18H29c-10 0-17-7-17-17V29c0-10 7-17 17-17Z M21 44a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1Z"/></g></svg>

@@ -3,7 +3,7 @@ title: 'Phase 20: Envarium identity and operational experience'
 description: Implementation evidence for the Envarium rebrand and project-first runtime operations slice.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-10-15
+lastVerified: 2026-10-17
 ---
 
 ## Implemented
@@ -185,3 +185,89 @@ product decision rather than silent scope expansion.
   reports no vulnerabilities, the site rebuild/validation passes, and Rust format,
   Clippy, and all 11 desktop tests pass. One moderate JavaScript advisory and seven
   allowed upstream Rust maintenance/unsoundness warnings remain non-blocking.
+
+## Integrated branding slice — October 17, 2026
+
+### Scope and acceptance
+
+The user approved the October 15 brand kit for full integration. This slice
+completes the Phase 20 identity deliverable across the app, desktop shell, and
+public website, retaining the hierarchy and states in the canonical mockup.
+
+- [x] Application/sidebar, narrow icon rail, marketing header/footer, docs header,
+      startup screen, and social card use the approved E and custom wordmark.
+- [x] App, website, and startup CSS derive their colors from the kit's
+      `palette.json`. Blue/violet brand gradients remain fixed; functional light
+      and high-contrast colors retain readable contrast. Terminal colors follow
+      the current app theme, including changes while attached.
+- [x] The shared interface sprite drives domain/navigation/action icons in the
+      application and feature/brand icons on the website.
+- [x] Favicons, touch/install icons, Tauri platform exports, and a macOS template
+      tray icon are generated or copied from approved kit sources.
+- [x] The `/brand/` page offers light/dark/monochrome logos, icons, exact palette
+      values, individual downloads, and the complete updated ZIP.
+- [x] Published product screenshots show the integrated app using sanitized real
+      UI fixtures. macOS and Linux visual baselines were captured and reviewed.
+- [x] Asset/palette drift is rejected by `brand:check`, the frontend/site CI jobs,
+      and the relevant Make quality targets.
+
+### Implementation and architecture
+
+- `scripts/sync-brand.mjs` owns consumer CSS, sprite, copied assets, native Tauri
+  icon exports, the tray RGBA template, and social PNG rendering. ICNS entries
+  are sorted because the Tauri encoder otherwise varies their ordering.
+- `BrandIcon.vue`, `BrandIcon.astro`, `BrandLogo.astro`, and `DocsSiteTitle.astro`
+  keep presentation-specific adapters small. Core/domain services are unchanged.
+- `site/scripts/sync-product-screenshots.ts` publishes reviewed fixture captures
+  to stable, platform-neutral paths under `site/src/assets/product/`.
+- The interactive reference, root README, brand guide, public-site inventory,
+  rebrand checklist, and machine-readable site documentation reflect the new
+  identity. No accepted architecture decision changed; no new ADR was needed.
+
+### Verification evidence
+
+Installed workspace tool entry points were used directly when the local pnpm
+version manager could not fetch/verify its pinned release from the registry;
+package-manager versions, dependency versions, and lockfiles were not changed.
+
+- Vue/Node/test TypeScript checking, application ESLint, and Prettier passed.
+- Astro checking and site ESLint passed with zero diagnostics.
+- App Vitest: 29 files / 68 tests passed with the configured coverage gate.
+- Site Vitest: 3 files / 19 tests passed with the configured coverage gate.
+- App browser journeys: all 5 passed, including real native-process and Docker
+  Compose lifecycle workflows and keyboard/settings coverage.
+- App visual suite: all 16 passed on macOS; all 16 captured successfully with
+  actual Linux Chromium from the cached official Playwright 1.62.1 container.
+  Focused tests assert exact palette values, brand assets, narrow-rail behavior,
+  and high-contrast white-logo visibility.
+- Site browser matrix: 56 passed / 16 intentional skips across Chromium,
+  Firefox, WebKit, and mobile Chromium. Branding tests cover both themes, docs
+  and marketing consistency, downloads, install icons, and narrow overflow.
+  Axe checks include the new brand page with no serious/critical violations.
+- Site visual suite: all 6 passed on macOS and all 6 captured successfully with
+  real Linux Chromium, including dark and light brand-page captures. Remote
+  full-page capture used a longer timeout to accommodate transport overhead.
+- Production Vue and Astro builds passed. Site content/build validation passed:
+  117 documentation sources, 153 HTML pages, bounded JavaScript, valid metadata.
+- `brand:check` passed for 127 consumer assets. Published SVG XML, native PNG,
+  ICO/ICNS decoding, 32 px RGBA tray alpha/size, and 1200×630 social dimensions
+  passed structural verification. The ZIP's entries and integrity were checked.
+- Rust formatting, Clippy with warnings denied, and all 17 desktop tests passed.
+  The updated Go sidecar and unsigned debug `Envarium.app` bundle built locally.
+- Architecture and repository checks passed; the empty-database migration test
+  passed. API clients, JSON Schema, SQL bindings, and generated API contracts
+  have no diff. `git diff --check` passed.
+
+### Limits and manual checks
+
+This is a presentation/asset integration. The full Go/race/vulnerability suites
+were not rerun because no Go code or dependencies changed; this entry does not
+claim a new complete `make quality` run. Native Windows/Linux installed icon
+appearance, macOS Dock/tray cache behavior, production signing/notarization, and
+live website deployment were not exercised. The debug build is not a signed
+release and has not replaced the user's installed app.
+
+To smoke-check a release: install the packaged build, verify Dock/taskbar/tray
+appearance in the supported OS themes, open the startup and disconnected states,
+switch the app to high contrast, and check the `/brand/` downloads and social
+preview after deploying the website.

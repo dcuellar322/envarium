@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ArrowRight, Play, ScrollText, Square, Terminal } from '@lucide/vue'
+import BrandIcon from '../../../app/components/BrandIcon.vue'
+import { ArrowRight, Play, Square } from '@lucide/vue'
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 
@@ -171,7 +172,7 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
           query: { tab: 'logs' },
         }"
         @click="emit('open', snapshot.project.id)"
-        ><ScrollText :size="15" aria-hidden="true" />Logs</RouterLink
+        ><BrandIcon name="logs" :size="15" aria-hidden="true" />Logs</RouterLink
       >
       <RouterLink
         class="button"
@@ -182,7 +183,7 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
         }"
         @click="emit('open', snapshot.project.id)"
       >
-        <Terminal :size="15" aria-hidden="true" />Terminal
+        <BrandIcon name="terminal" :size="15" aria-hidden="true" />Terminal
       </RouterLink>
       <RouterLink
         class="button open-detail"
@@ -198,7 +199,11 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
 .project-card {
   contain: layout paint;
   border: 1px solid var(--border);
-  background: linear-gradient(145deg, rgba(19, 25, 34, 0.98), rgba(14, 19, 27, 0.98));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--panel) 98%, transparent),
+    color-mix(in srgb, var(--bg) 98%, transparent)
+  );
   border-radius: 15px;
   padding: 17px;
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.025);
@@ -206,7 +211,7 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
 }
 .project-card:hover {
   transform: translateY(-2px);
-  border-color: #35445b;
+  border-color: var(--accent);
   box-shadow: 0 22px 70px rgba(0, 0, 0, 0.32);
 }
 .project-top,
@@ -257,9 +262,9 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
   align-items: center;
   gap: 6px;
   padding: 4px 8px;
-  border: 1px solid #344052;
+  border: 1px solid var(--border);
   border-radius: 99px;
-  color: #aab5c5;
+  color: var(--muted);
   background: rgba(255, 255, 255, 0.025);
   font-size: 10px;
   white-space: nowrap;
@@ -272,14 +277,14 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
   background: currentColor;
 }
 .status--running {
-  color: #87edbd;
-  border-color: rgba(84, 212, 154, 0.28);
-  background: rgba(84, 212, 154, 0.08);
+  color: var(--green);
+  border-color: color-mix(in srgb, var(--green) 28%, transparent);
+  background: color-mix(in srgb, var(--green) 8%, transparent);
 }
 .status--degraded {
-  color: #f5d278;
-  border-color: rgba(241, 199, 91, 0.3);
-  background: rgba(241, 199, 91, 0.08);
+  color: var(--yellow);
+  border-color: color-mix(in srgb, var(--yellow) 30%, transparent);
+  background: color-mix(in srgb, var(--yellow) 8%, transparent);
 }
 .project-meta {
   display: grid;
@@ -307,7 +312,7 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #cfd9e7;
+  color: var(--text);
   font-size: 11px;
   font-weight: 600;
 }
@@ -330,32 +335,32 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
   padding: 3px 6px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: #141b25;
+  background: var(--panel-2);
 }
 .service-chip--blue {
-  color: #9fc3ff;
-  border-color: rgba(120, 166, 255, 0.28);
-  background: rgba(120, 166, 255, 0.1);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 28%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 .service-chip--purple {
-  color: #c4adff;
-  border-color: rgba(158, 123, 255, 0.3);
-  background: rgba(158, 123, 255, 0.1);
+  color: var(--accent-2);
+  border-color: color-mix(in srgb, var(--accent-2) 30%, transparent);
+  background: color-mix(in srgb, var(--accent-2) 10%, transparent);
 }
 .service-chip--green {
-  color: #87edbd;
-  border-color: rgba(84, 212, 154, 0.28);
-  background: rgba(84, 212, 154, 0.09);
+  color: var(--green);
+  border-color: color-mix(in srgb, var(--green) 28%, transparent);
+  background: color-mix(in srgb, var(--green) 9%, transparent);
 }
 .service-chip--orange {
-  color: #f4c77f;
-  border-color: rgba(241, 170, 91, 0.3);
-  background: rgba(241, 170, 91, 0.09);
+  color: var(--yellow);
+  border-color: color-mix(in srgb, var(--yellow) 30%, transparent);
+  background: color-mix(in srgb, var(--yellow) 9%, transparent);
 }
 .service-chip--cyan {
-  color: #8ce6f0;
-  border-color: rgba(99, 215, 231, 0.28);
-  background: rgba(99, 215, 231, 0.09);
+  color: var(--cyan);
+  border-color: color-mix(in srgb, var(--cyan) 28%, transparent);
+  background: color-mix(in srgb, var(--cyan) 9%, transparent);
 }
 .partial {
   color: var(--yellow);
@@ -384,12 +389,12 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
 }
 .button--primary {
   border: 0;
-  background: linear-gradient(135deg, #79a8ff, #8b8aff);
-  color: #07111d;
+  background: var(--primary-gradient);
+  color: var(--on-accent);
   font-weight: 750;
 }
 .button--danger {
-  color: #ff9c9c;
+  color: var(--red);
 }
 .open-detail {
   margin-left: auto;

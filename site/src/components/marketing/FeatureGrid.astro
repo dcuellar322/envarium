@@ -1,4 +1,5 @@
 ---
+import BrandIcon from '@/components/shared/BrandIcon.astro'
 import { features } from '@/content/marketing/features'
 
 const homepageFeatures = features.slice(0, 6)
@@ -12,7 +13,7 @@ const homepageFeatures = features.slice(0, 6)
   <div class="feature-grid">
     {homepageFeatures.map((feature) => (
       <a class="feature-card panel" href={`/features/${feature.slug}/`}>
-        <span class="feature-icon" aria-hidden="true">{feature.icon}</span>
+        <span class="feature-icon" aria-hidden="true"><BrandIcon name={feature.icon} /></span>
         <h3>{feature.title}</h3>
         <p>{feature.summary}</p>
         <span class="feature-link">Explore capability <b aria-hidden="true">→</b></span>

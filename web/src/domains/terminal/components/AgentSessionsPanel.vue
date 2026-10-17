@@ -127,7 +127,11 @@ const terminate = useMutation({
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: linear-gradient(145deg, rgba(19, 25, 34, 0.97), rgba(13, 18, 25, 0.97));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--panel) 97%, transparent),
+    color-mix(in srgb, var(--bg) 97%, transparent)
+  );
 }
 header,
 form,
@@ -158,9 +162,9 @@ header > span {
 .agent-disclosure {
   margin: 14px 0;
   padding: 12px;
-  border: 1px solid rgba(120, 166, 255, 0.2);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
   border-radius: 9px;
-  background: rgba(120, 166, 255, 0.06);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
 }
 .agent-disclosure p {
   margin: 5px 0 0;
@@ -192,9 +196,9 @@ form button {
   align-self: end;
 }
 form button[type='submit'] {
-  border-color: rgba(120, 166, 255, 0.5);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
   background: var(--accent);
-  color: #07111d;
+  color: var(--on-accent);
   font-weight: 800;
 }
 .agent-list {
@@ -207,7 +211,7 @@ form button[type='submit'] {
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 9px;
-  background: #0c1118;
+  background: var(--panel);
 }
 .agent-list article > div {
   display: grid;
@@ -222,13 +226,13 @@ form button[type='submit'] {
 .status {
   padding: 4px 7px;
   border-radius: 99px;
-  background: rgba(148, 163, 184, 0.1);
+  background: color-mix(in srgb, var(--muted) 10%, transparent);
   color: var(--muted);
   font-size: 9px;
   text-transform: uppercase;
 }
 .status--active {
-  background: rgba(84, 212, 154, 0.1);
+  background: color-mix(in srgb, var(--green) 10%, transparent);
   color: var(--green);
 }
 dl {

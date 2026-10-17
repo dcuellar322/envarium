@@ -266,8 +266,8 @@ const {
   cursor: pointer;
 }
 .plugin-list button.active {
-  border-color: rgba(120, 166, 255, 0.5);
-  background: rgba(120, 166, 255, 0.1);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   box-shadow: inset 2px 0 var(--accent);
 }
 .plugin-list span {
@@ -391,7 +391,7 @@ dd {
 .notice {
   padding: 11px;
   border-left: 2px solid var(--yellow);
-  background: rgba(241, 199, 91, 0.05);
+  background: color-mix(in srgb, var(--yellow) 5%, transparent);
   line-height: 1.5;
 }
 .actions {
@@ -436,9 +436,9 @@ dd {
 }
 .inline-error {
   padding: 10px;
-  border: 1px solid rgba(255, 115, 115, 0.3);
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
   border-radius: 8px;
-  background: rgba(255, 115, 115, 0.06);
+  background: color-mix(in srgb, var(--red) 6%, transparent);
 }
 .empty {
   display: grid;

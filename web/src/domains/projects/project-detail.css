@@ -82,19 +82,19 @@
   }
   .status--ready {
     color: var(--green);
-    border-color: rgba(84, 212, 154, 0.28);
-    background: rgba(84, 212, 154, 0.07);
+    border-color: color-mix(in srgb, var(--green) 28%, transparent);
+    background: color-mix(in srgb, var(--green) 7%, transparent);
   }
   .status--warning {
     color: var(--yellow);
-    border-color: rgba(241, 199, 91, 0.3);
-    background: rgba(241, 199, 91, 0.07);
+    border-color: color-mix(in srgb, var(--yellow) 30%, transparent);
+    background: color-mix(in srgb, var(--yellow) 7%, transparent);
   }
   .observation-state {
     padding: 3px 7px;
-    border: 1px solid rgba(241, 199, 91, 0.22);
+    border: 1px solid color-mix(in srgb, var(--yellow) 22%, transparent);
     border-radius: 99px;
-    background: rgba(241, 199, 91, 0.06);
+    background: color-mix(in srgb, var(--yellow) 6%, transparent);
     color: var(--yellow);
     font-size: 9px;
     white-space: nowrap;
@@ -118,9 +118,9 @@
     text-decoration: none;
   }
   .hero-actions .primary {
-    border-color: rgba(120, 166, 255, 0.5);
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
     background: var(--accent);
-    color: #07111d;
+    color: var(--on-accent);
     font-weight: 800;
   }
   .lifecycle-menu {
@@ -157,7 +157,7 @@
     gap: 18px;
     margin: -8px 0 20px;
     padding: 14px 16px;
-    border: 1px solid rgba(120, 166, 255, 0.35);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
     border-radius: 10px;
     background: var(--panel-2);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
@@ -199,21 +199,21 @@
     color: var(--text);
   }
   .start-options__actions .primary {
-    border-color: rgba(120, 166, 255, 0.5);
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
     background: var(--accent);
-    color: #07111d;
+    color: var(--on-accent);
     font-weight: 800;
   }
   .message {
     padding: 10px 12px;
-    border: 1px solid rgba(241, 199, 91, 0.25);
+    border: 1px solid color-mix(in srgb, var(--yellow) 25%, transparent);
     border-radius: 9px;
-    background: rgba(241, 199, 91, 0.07);
+    background: color-mix(in srgb, var(--yellow) 7%, transparent);
     color: var(--yellow);
   }
   .message--error {
-    border-color: rgba(255, 115, 115, 0.28);
-    background: rgba(255, 115, 115, 0.07);
+    border-color: color-mix(in srgb, var(--red) 28%, transparent);
+    background: color-mix(in srgb, var(--red) 7%, transparent);
     color: var(--red);
   }
   .tabs {
@@ -252,7 +252,11 @@
     padding: 16px;
     border: 1px solid var(--border);
     border-radius: 13px;
-    background: linear-gradient(145deg, rgba(19, 25, 34, 0.97), rgba(13, 18, 25, 0.97));
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--panel) 97%, transparent),
+      color-mix(in srgb, var(--bg) 97%, transparent)
+    );
   }
   .panel-head {
     justify-content: space-between;
@@ -295,7 +299,7 @@
     border-top: 0;
   }
   .service-row--head {
-    background: #0b1017;
+    background: var(--panel);
     color: var(--soft);
     font-size: 9px;
     text-transform: uppercase;
@@ -348,7 +352,7 @@
     min-width: 0;
     padding: 7px;
     border-radius: 6px;
-    background: #0b1017;
+    background: var(--panel);
   }
   .service-inspector dt {
     color: var(--soft);
@@ -404,7 +408,7 @@
     overflow: auto;
     border: 1px solid var(--border);
     border-radius: 8px;
-    background: #080c11;
+    background: var(--bg);
     font:
       10px/1.55 ui-monospace,
       SFMono-Regular,
@@ -427,7 +431,7 @@
   }
   .log-lines code {
     overflow-wrap: anywhere;
-    color: #b9c7da;
+    color: var(--muted);
   }
   .log-lines code.stderr {
     color: var(--yellow);
@@ -504,9 +508,9 @@
   .log-notice {
     margin: 0 0 10px;
     padding: 8px 10px;
-    border: 1px solid rgba(241, 199, 91, 0.24);
+    border: 1px solid color-mix(in srgb, var(--yellow) 24%, transparent);
     border-radius: 7px;
-    background: rgba(241, 199, 91, 0.06);
+    background: color-mix(in srgb, var(--yellow) 6%, transparent);
     color: var(--yellow);
     font-size: 10px;
   }
@@ -521,7 +525,7 @@
     padding: 0;
     border: 0;
     background: transparent;
-    color: #b9c7da;
+    color: var(--muted);
     font: inherit;
     white-space: pre-wrap;
   }
@@ -577,7 +581,7 @@
     display: grid;
     place-items: center;
     padding: 24px;
-    background: rgba(3, 6, 10, 0.78);
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
     backdrop-filter: blur(5px);
   }
   .runtime-plan-dialog {
@@ -625,30 +629,30 @@
     color: var(--text);
   }
   .runtime-plan-dialog .primary {
-    border-color: rgba(120, 166, 255, 0.5);
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
     background: var(--accent);
-    color: #07111d;
+    color: var(--on-accent);
     font-weight: 800;
   }
   .runtime-plan-dialog .primary.danger {
-    border-color: rgba(255, 115, 115, 0.55);
+    border-color: color-mix(in srgb, var(--red) 55%, transparent);
     background: var(--red);
   }
   .plan-risk {
     gap: 8px;
     margin: 15px 0;
     padding: 10px;
-    border: 1px solid rgba(120, 166, 255, 0.25);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
     border-radius: 8px;
     color: var(--accent);
     text-transform: capitalize;
   }
   .plan-risk--caution {
-    border-color: rgba(241, 199, 91, 0.25);
+    border-color: color-mix(in srgb, var(--yellow) 25%, transparent);
     color: var(--yellow);
   }
   .plan-risk--destructive {
-    border-color: rgba(255, 115, 115, 0.3);
+    border-color: color-mix(in srgb, var(--red) 30%, transparent);
     color: var(--red);
   }
   .plan-facts {
@@ -660,7 +664,7 @@
   .plan-command {
     padding: 9px;
     border-radius: 7px;
-    background: #0b1017;
+    background: var(--panel);
   }
   .plan-facts dt {
     color: var(--soft);
@@ -717,7 +721,7 @@
     grid-column: 1/-1;
     height: 5px;
     border-radius: 3px;
-    background: #202b39;
+    background: var(--panel-3);
   }
   .resource-card dl i {
     display: block;
@@ -743,7 +747,7 @@
     gap: 12px;
     padding: 8px;
     border-radius: 7px;
-    background: #0c1118;
+    background: var(--panel);
   }
   .compact-facts dt,
   .fact-grid dt {
@@ -853,13 +857,13 @@
   .environment-state {
     padding: 3px 7px;
     border-radius: 99px;
-    background: rgba(148, 163, 184, 0.1);
+    background: color-mix(in srgb, var(--muted) 10%, transparent);
     color: var(--muted);
     font-size: 9px;
     text-transform: uppercase;
   }
   .environment-state--active {
-    background: rgba(77, 208, 137, 0.12);
+    background: color-mix(in srgb, var(--green) 12%, transparent);
     color: var(--green);
   }
   .future-panel {
@@ -879,7 +883,7 @@
   .commit {
     padding: 12px;
     border-radius: 8px;
-    background: #0c1118;
+    background: var(--panel);
   }
   .commit span {
     color: var(--muted);
@@ -891,8 +895,8 @@
     padding: 16px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    background: #080c11;
-    color: #c8d4e5;
+    background: var(--bg);
+    color: var(--text);
     font-size: 11px;
   }
   .loading {

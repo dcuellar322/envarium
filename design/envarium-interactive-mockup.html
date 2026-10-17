@@ -13,7 +13,7 @@
       --border: #253044;
       --text: #edf3fb;
       --muted: #91a0b5;
-      --soft: #65748a;
+      --soft: #8796aa;
       --accent: #78a6ff;
       --accent-2: #9e7bff;
       --green: #54d49a;
@@ -61,24 +61,12 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 0;
       padding: 0 9px 22px;
     }
 
-    .brand-mark {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      box-shadow: 0 10px 30px rgba(120, 166, 255, .22);
-      color: #07111f;
-      font-weight: 900;
-      font-size: 17px;
-    }
-
-    .brand-name { font-weight: 760; letter-spacing: -.02em; }
+    .brand-mark { display: none; width: 38px; height: 38px; }
+    .brand-logo { display: block; width: 180px; height: auto; }
     .brand-sub { color: var(--muted); font-size: 11px; margin-top: 2px; }
 
     .nav-group-label {
@@ -683,6 +671,7 @@
       .sidebar { padding: 18px 10px; }
       .brand-copy, .nav-item span:not(.nav-icon):not(.count), .nav-group-label, .agent-card { display: none; }
       .brand { justify-content: center; padding-inline: 0; }
+      .brand-mark { display: block; }
       .nav-item { justify-content: center; }
       .count { display: none; }
       .content { padding: 18px; }
@@ -698,9 +687,9 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark">S</div>
+        <img class="brand-mark" src="brand/envarium-v1/marks/envarium-gradient.svg" alt="Envarium" width="38" height="38" />
         <div class="brand-copy">
-          <div class="brand-name">Envarium</div>
+          <img class="brand-logo" src="brand/envarium-v1/logos/envarium-on-dark.svg" alt="Envarium" width="610" height="144" />
           <div class="brand-sub">Local development control</div>
         </div>
       </div>

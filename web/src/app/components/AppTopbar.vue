@@ -82,7 +82,7 @@ const activeCount = computed(
   gap: 14px;
   padding: 0 28px;
   border-bottom: 1px solid var(--border);
-  background: rgba(10, 13, 18, 0.74);
+  background: color-mix(in srgb, var(--bg) 74%, transparent);
   backdrop-filter: blur(18px);
 }
 .command-search {
@@ -101,9 +101,9 @@ const activeCount = computed(
 .command-search kbd {
   margin-left: auto;
   padding: 2px 6px;
-  border: 1px solid #344157;
+  border: 1px solid var(--border);
   border-radius: 5px;
-  background: #19202b;
+  background: var(--panel-2);
   color: var(--soft);
   font-size: 10px;
 }
@@ -146,7 +146,7 @@ const activeCount = computed(
   padding: 0 4px;
   border-radius: 9px;
   background: var(--accent);
-  color: #07111d;
+  color: var(--on-accent);
   font-size: 10px;
   font-weight: 800;
 }

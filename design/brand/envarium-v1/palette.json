@@ -1,0 +1,17 @@
+{
+  "canvas": "#0a0d12",
+  "panel": "#11161e",
+  "panel-raised": "#151b24",
+  "panel-soft": "#1a2230",
+  "border": "#253044",
+  "text": "#edf3fb",
+  "muted": "#91a0b5",
+  "soft": "#65748a",
+  "soft-readable": "#8796aa",
+  "blue": "#78a6ff",
+  "violet": "#9e7bff",
+  "green": "#54d49a",
+  "yellow": "#f1c75b",
+  "red": "#ff7373",
+  "cyan": "#63d7e7"
+}

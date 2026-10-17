@@ -32,8 +32,8 @@
   overflow-x: auto;
   border: 1px solid var(--sy-border-subtle);
   border-radius: var(--sy-radius-md);
-  background: #070a0f;
-  color: #dce8f8;
+  background: var(--brand-canvas);
+  color: var(--brand-text);
   padding: 1rem;
 }
 

@@ -161,7 +161,7 @@ const {
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: #0a0e14;
+  background: var(--bg);
 }
 .terminal-toolbar,
 .launcher,
@@ -233,9 +233,9 @@ const {
 }
 .launcher button:first-of-type {
   align-self: end;
-  border-color: rgba(120, 166, 255, 0.5);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
   background: var(--accent);
-  color: #07111d;
+  color: var(--on-accent);
   font-weight: 800;
 }
 .launcher button:last-child {
@@ -260,7 +260,7 @@ const {
   padding: 8px;
   border-right: 1px solid var(--border);
   overflow: auto;
-  background: #0c1118;
+  background: var(--panel);
 }
 .session-layout aside button {
   display: grid;
@@ -288,7 +288,7 @@ const {
   position: relative;
   min-width: 0;
   padding: 10px;
-  background: #080c11;
+  background: var(--bg);
 }
 .terminal-host {
   width: 100%;
@@ -302,7 +302,7 @@ const {
   justify-items: center;
   gap: 8px;
   padding: 24px;
-  background: #080c11;
+  background: var(--bg);
   color: var(--muted);
   text-align: center;
 }

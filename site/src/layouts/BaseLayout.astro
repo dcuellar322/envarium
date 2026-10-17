@@ -24,7 +24,7 @@ interface Props {
 const {
   title,
   description = SITE_DESCRIPTION,
-  image = '/social/default.svg',
+  image = '/social/default.png',
   noindex = false,
   structuredData,
 } = Astro.props
@@ -52,6 +52,7 @@ const defaultStructuredData = [
     softwareVersion: '1.0',
     license: 'https://www.apache.org/licenses/LICENSE-2.0',
     codeRepository: REPOSITORY_URL,
+    image: canonicalUrl('/envarium-512.png').href,
   },
   {
     '@context': 'https://schema.org',
@@ -74,6 +75,8 @@ const defaultStructuredData = [
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/envarium-180.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="alternate" type="application/rss+xml" title="Envarium releases" href="/changelog/rss.xml" />
     <meta name="theme-color" content="#0a0d12" />
@@ -84,6 +87,7 @@ const defaultStructuredData = [
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={socialImage} />
+    <meta property="og:image:alt" content="Envarium — one place for every environment." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />

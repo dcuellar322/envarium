@@ -42,6 +42,7 @@ export function useTerminalPanel(props: TerminalPanelProps) {
   let fit: FitAddon | undefined
   let socket: WebSocket | undefined
   let observer: InstanceType<typeof window.ResizeObserver> | undefined
+  let themeObserver: MutationObserver | undefined
   let resizeTimer: number | undefined
   const sessions = useQuery({
     queryKey: computed(() => ['terminal-sessions', props.projectId]),
@@ -83,12 +84,7 @@ export function useTerminalPanel(props: TerminalPanelProps) {
       fontSize: 13,
       scrollback: 2_000,
       screenReaderMode: true,
-      theme: {
-        background: '#080c11',
-        foreground: '#dce7f5',
-        cursor: '#78a6ff',
-        selectionBackground: '#29446f',
-      },
+      theme: terminalTheme(),
       linkHandler: { activate: safeOpen },
     })
     terminal.loadAddon(fit)
@@ -100,6 +96,31 @@ export function useTerminalPanel(props: TerminalPanelProps) {
     })
     observer = new window.ResizeObserver(() => scheduleResize())
     observer.observe(terminalHost.value)
+    themeObserver = new MutationObserver(() => {
+      if (terminal) terminal.options.theme = terminalTheme()
+    })
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    })
+  }
+  function terminalTheme() {
+    const style = window.getComputedStyle(document.documentElement)
+    const color = (name: string) => style.getPropertyValue(name).trim() || undefined
+    return {
+      background: color('--bg'),
+      foreground: color('--text'),
+      cursor: color('--accent'),
+      selectionBackground: color('--panel-3'),
+      black: color('--panel'),
+      red: color('--red'),
+      green: color('--green'),
+      yellow: color('--yellow'),
+      blue: color('--accent'),
+      magenta: color('--accent-2'),
+      cyan: color('--cyan'),
+      white: color('--text'),
+    }
   }
   function scheduleResize() {
     window.clearTimeout(resizeTimer)
@@ -195,6 +216,7 @@ export function useTerminalPanel(props: TerminalPanelProps) {
   onBeforeUnmount(() => {
     disconnect()
     observer?.disconnect()
+    themeObserver?.disconnect()
     terminal?.dispose()
     window.clearTimeout(resizeTimer)
   })

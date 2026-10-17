@@ -135,7 +135,7 @@ function selectProject(projectId: string) {
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: linear-gradient(145deg, var(--panel), #0e131a);
+  background: linear-gradient(145deg, var(--panel), var(--bg));
 }
 .panel-head,
 .preview header {
@@ -158,7 +158,7 @@ function selectProject(projectId: string) {
 }
 .boundary {
   padding: 5px 8px;
-  border: 1px solid rgba(241, 199, 91, 0.28);
+  border: 1px solid color-mix(in srgb, var(--yellow) 28%, transparent);
   border-radius: 999px;
   color: var(--yellow);
   font-size: 9px;
@@ -227,12 +227,12 @@ function selectProject(projectId: string) {
   text-transform: capitalize;
 }
 .badge.exclusive {
-  background: rgba(92, 207, 159, 0.1);
+  background: color-mix(in srgb, var(--green) 10%, transparent);
   color: var(--green);
 }
 .badge.shared,
 .badge.estimated {
-  background: rgba(241, 199, 91, 0.1);
+  background: color-mix(in srgb, var(--yellow) 10%, transparent);
   color: var(--yellow);
 }
 .badge.unknown {
@@ -242,9 +242,9 @@ function selectProject(projectId: string) {
 .preview {
   margin-top: 14px;
   padding: 14px;
-  border: 1px solid rgba(241, 199, 91, 0.3);
+  border: 1px solid color-mix(in srgb, var(--yellow) 30%, transparent);
   border-radius: 9px;
-  background: rgba(241, 199, 91, 0.04);
+  background: color-mix(in srgb, var(--yellow) 4%, transparent);
 }
 .preview p {
   color: var(--muted);
@@ -270,12 +270,12 @@ function selectProject(projectId: string) {
   text-align: center;
 }
 .warning {
-  border-color: rgba(241, 199, 91, 0.3);
+  border-color: color-mix(in srgb, var(--yellow) 30%, transparent);
   color: var(--yellow);
 }
 .preview-error {
   padding: 9px;
-  border: 1px solid rgba(255, 115, 115, 0.3);
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
   border-radius: 7px;
   color: var(--red);
 }

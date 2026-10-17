@@ -304,9 +304,9 @@ button {
   cursor: pointer;
 }
 .primary {
-  border-color: rgba(120, 166, 255, 0.55);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: #07111f;
+  color: var(--on-accent);
   font-weight: 800;
 }
 button:disabled {
@@ -333,7 +333,7 @@ button:disabled {
 .error {
   border: 1px solid rgba(255, 117, 117, 0.35);
   background: rgba(255, 117, 117, 0.08);
-  color: #ff9b9b;
+  color: var(--red);
 }
 .empty {
   display: grid;
@@ -407,10 +407,10 @@ button:disabled {
   background: rgba(255, 255, 255, 0.015);
 }
 .finding--error {
-  border-left-color: #ff7575;
+  border-left-color: var(--red);
 }
 .finding--warning {
-  border-left-color: #ffca6a;
+  border-left-color: var(--yellow);
 }
 .finding p,
 .notification p {
@@ -488,7 +488,7 @@ details span {
 }
 .danger {
   border-color: rgba(255, 117, 117, 0.35);
-  color: #ff9b9b;
+  color: var(--red);
 }
 @media (max-width: 1050px) {
   .page-heading {

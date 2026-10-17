@@ -47,12 +47,13 @@ for (const path of siteSources) {
 }
 
 const requiredScreenshots = [
-  'web/tests/visual/dashboard.spec.ts-snapshots/dashboard-alpha-linux.png',
-  'web/tests/visual/project.spec.ts-snapshots/project-alpha-linux.png',
-  'web/tests/visual/ports.spec.ts-snapshots/port-registry-linux.png',
-  'web/tests/visual/workspaces.spec.ts-snapshots/workspace-progress-linux.png',
-  'web/tests/visual/project.spec.ts-snapshots/project-terminal-linux.png',
-  'web/tests/visual/diagnostics.spec.ts-snapshots/diagnostic-automation-review-linux.png',
+  'site/src/assets/product/dashboard.png',
+  'site/src/assets/product/project.png',
+  'site/src/assets/product/ports.png',
+  'site/src/assets/product/workspaces.png',
+  'site/src/assets/product/terminal.png',
+  'site/src/assets/product/diagnostics.png',
+  'site/src/assets/product/plugins.png',
 ]
 for (const screenshot of requiredScreenshots) {
   if (!(await exists(resolve(repositoryRoot, screenshot)))) problems.push(`missing sanitized screenshot fixture ${screenshot}`)

@@ -132,7 +132,7 @@ const error = computed(
   padding: 18px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: linear-gradient(145deg, var(--panel), #0d1219);
+  background: linear-gradient(145deg, var(--panel), var(--panel));
 }
 .panel-head {
   display: flex;
@@ -162,7 +162,7 @@ const error = computed(
 }
 .panel-head .ready {
   color: var(--green);
-  border-color: rgba(84, 212, 154, 0.28);
+  border-color: color-mix(in srgb, var(--green) 28%, transparent);
 }
 .summary,
 .payload small,
@@ -175,7 +175,7 @@ const error = computed(
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 9px;
-  background: #0b1017;
+  background: var(--panel);
 }
 .payload dl {
   display: grid;
@@ -237,7 +237,7 @@ const error = computed(
 }
 .inline-error {
   padding: 10px;
-  border: 1px solid rgba(255, 115, 115, 0.3);
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
   border-radius: 8px;
   color: var(--red);
 }

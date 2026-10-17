@@ -68,7 +68,7 @@ site-test-visual:
 site-validate:
 	$(PNPM) --dir site validate
 
-site-quality: site-generate site-check site-lint site-test site-build site-validate
+site-quality: brand-check site-generate site-check site-lint site-test site-build site-validate
 
 desktop-prepare:
 	RUSTC="$$(rustup which rustc)" $(PNPM) desktop:prepare
@@ -157,4 +157,8 @@ platform-check:
 vuln:
 	GOCACHE=$(GOCACHE) $(GOVULNCHECK) ./...
 
-quality: generate-check site-generate-check repository-check lint typecheck test test-race test-plugin-sdk migrate-check platform-check vuln test-e2e test-visual build test-mcp-inspector desktop-quality desktop-build
+.PHONY: brand-check
+brand-check:
+	node scripts/sync-brand.mjs --check
+
+quality: brand-check generate-check site-generate-check repository-check lint typecheck test test-race test-plugin-sdk migrate-check platform-check vuln test-e2e test-visual build test-mcp-inspector desktop-quality desktop-build

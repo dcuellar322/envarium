@@ -1,0 +1,24 @@
+---
+interface Props { compact?: boolean }
+const { compact = false } = Astro.props
+---
+
+<span class:list={['brand-logo', { 'brand-logo--compact': compact }]} aria-hidden="true">
+  {compact ? <img src="/brand/marks/envarium-gradient.svg" alt="" width="40" height="40" /> : <>
+    <img class="on-dark" src="/brand/logos/envarium-on-dark.svg" alt="" width="610" height="144" />
+    <img class="on-light" src="/brand/logos/envarium-on-light.svg" alt="" width="610" height="144" />
+  </>}
+</span>
+
+<style>
+  .brand-logo { display: inline-flex; width: 10.5rem; flex: 0 0 auto; align-items: center; }
+  .brand-logo img { display: block; width: 100%; height: auto; }
+  .brand-logo--compact { width: 2.5rem; }
+  .on-light { display: none !important; }
+  :global([data-theme='light']) .on-dark { display: none; }
+  :global([data-theme='light']) .on-light { display: block !important; }
+  @media (prefers-color-scheme: light) {
+    :global(:root:not([data-theme='dark'])) .on-dark { display: none; }
+    :global(:root:not([data-theme='dark'])) .on-light { display: block !important; }
+  }
+</style>

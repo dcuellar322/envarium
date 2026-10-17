@@ -1,5 +1,10 @@
 # Envarium
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="design/brand/envarium-v1/logos/envarium-on-dark.svg">
+  <img alt="Envarium" src="design/brand/envarium-v1/logos/envarium-on-light.svg" width="300" height="71">
+</picture>
+
 Envarium is a local, project-oriented development command center. A single Go
 control plane owns project state and local capabilities; the CLI, browser UI,
 Tauri desktop shell, and MCP server are adapters over the same application
@@ -21,6 +26,12 @@ activated, the root Markdown remains authoritative. Run `make site-quality`
 for generated references, type checking, lint, unit tests, the static build,
 and content/metadata validation. Browser and visual checks are available as
 `make site-test-e2e` and `make site-test-visual`.
+
+The [brand kit](design/brand/envarium-v1/README.md) owns the logo, interface
+icons, and color palette. Run `pnpm brand:sync` after changing approved artwork;
+`pnpm brand:check` verifies the application, website, startup screen, and native
+icon exports match their sources. The website's `/brand/` page offers individual
+assets and the full kit.
 
 ## Architecture at a glance
 

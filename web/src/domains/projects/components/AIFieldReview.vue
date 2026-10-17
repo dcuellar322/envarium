@@ -91,7 +91,11 @@ defineEmits<{ cancel: [] }>()
   padding: 22px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(21, 27, 36, 0.96), rgba(14, 19, 26, 0.96));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--panel-2) 96%, transparent),
+    color-mix(in srgb, var(--bg) 96%, transparent)
+  );
 }
 .review__heading {
   display: flex;
@@ -119,31 +123,31 @@ defineEmits<{ cancel: [] }>()
   padding: 5px 9px;
   border-radius: 999px;
   color: var(--yellow);
-  background: rgba(241, 199, 91, 0.1);
+  background: color-mix(in srgb, var(--yellow) 10%, transparent);
   text-transform: capitalize;
 }
 .state--succeeded {
   color: var(--green);
-  background: rgba(84, 212, 154, 0.1);
+  background: color-mix(in srgb, var(--green) 10%, transparent);
 }
 .state--failed,
 .state--cancelled {
   color: var(--red);
-  background: rgba(255, 115, 115, 0.08);
+  background: color-mix(in srgb, var(--red) 8%, transparent);
 }
 .message {
   padding: 10px 12px;
   border-radius: 8px;
-  background: rgba(241, 199, 91, 0.08);
+  background: color-mix(in srgb, var(--yellow) 8%, transparent);
   color: var(--yellow);
 }
 .message--error {
-  background: rgba(255, 115, 115, 0.08);
+  background: color-mix(in srgb, var(--red) 8%, transparent);
   color: var(--red);
 }
 .button--danger {
   padding: 9px 13px;
-  border: 1px solid rgba(255, 115, 115, 0.4);
+  border: 1px solid color-mix(in srgb, var(--red) 40%, transparent);
   border-radius: 8px;
   color: var(--red);
   background: transparent;
@@ -155,11 +159,11 @@ defineEmits<{ cancel: [] }>()
   gap: 10px;
   margin: 12px 0;
   padding: 12px;
-  border: 1px solid rgba(241, 199, 91, 0.3);
+  border: 1px solid color-mix(in srgb, var(--yellow) 30%, transparent);
   border-radius: 9px;
 }
 .dry-run--ready {
-  border-color: rgba(84, 212, 154, 0.35);
+  border-color: color-mix(in srgb, var(--green) 35%, transparent);
 }
 .dry-run span {
   color: var(--muted);
@@ -176,7 +180,7 @@ defineEmits<{ cancel: [] }>()
   padding: 11px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0d1219;
+  background: var(--panel);
 }
 .field-row p,
 .field-row small {
@@ -189,12 +193,12 @@ defineEmits<{ cancel: [] }>()
   padding: 2px 7px;
   border-radius: 999px;
   color: var(--cyan);
-  background: rgba(83, 174, 255, 0.1);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   font-size: 10px;
 }
 .source--rejected {
   color: var(--red);
-  background: rgba(255, 115, 115, 0.08);
+  background: color-mix(in srgb, var(--red) 8%, transparent);
 }
 .conflict {
   display: grid;
@@ -202,7 +206,7 @@ defineEmits<{ cancel: [] }>()
   gap: 7px;
   padding: 10px;
   border-left: 3px solid var(--yellow);
-  background: #0d1219;
+  background: var(--panel);
 }
 .conflict span {
   grid-column: 1/-1;

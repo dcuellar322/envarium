@@ -172,7 +172,7 @@ button {
   border: 0;
   border-radius: 9px;
   background: var(--accent);
-  color: #07111f;
+  color: var(--on-accent);
   font-weight: 800;
 }
 .summary-grid {
@@ -210,12 +210,12 @@ button {
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: rgba(84, 212, 154, 0.07);
+  background: color-mix(in srgb, var(--green) 7%, transparent);
   color: var(--green);
 }
 .warning {
   margin: 8px 0;
-  background: rgba(241, 199, 91, 0.07);
+  background: color-mix(in srgb, var(--yellow) 7%, transparent);
   color: var(--yellow);
 }
 .state-panel--error {
@@ -240,7 +240,7 @@ button {
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 9px;
-  background: #0c1118;
+  background: var(--panel);
 }
 .port-block strong {
   display: block;
@@ -250,8 +250,8 @@ button {
   color: var(--muted);
 }
 .port-block.conflict {
-  border-color: rgba(255, 115, 115, 0.5);
-  background: rgba(255, 115, 115, 0.06);
+  border-color: color-mix(in srgb, var(--red) 50%, transparent);
+  background: color-mix(in srgb, var(--red) 6%, transparent);
 }
 .port-block--free {
   border-style: dashed;
@@ -274,7 +274,7 @@ button {
   border-top: 0;
 }
 .port-row--header {
-  background: #0c1118;
+  background: var(--panel);
   color: var(--soft);
   font-size: 10px;
   text-transform: uppercase;

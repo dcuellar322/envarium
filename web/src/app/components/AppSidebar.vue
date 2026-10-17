@@ -1,24 +1,12 @@
 <script setup lang="ts">
-import {
-  ArrowLeftRight,
-  Bot,
-  Boxes,
-  FolderKanban,
-  FolderSearch,
-  Gauge,
-  LayoutDashboard,
-  MonitorCog,
-  Plug,
-  ScrollText,
-  Settings,
-  Users,
-} from '@lucide/vue'
+import { FolderSearch, LayoutDashboard, MonitorCog, Plug, Users } from '@lucide/vue'
 import { useQuery } from '@tanstack/vue-query'
 import { RouterLink } from 'vue-router'
 
 import { loadProjects } from '../../domains/projects/api'
 import { useHostObservation } from '../../domains/system/composables/useHostObservation'
 import { useSystemInfo } from '../../domains/system/composables/useSystemInfo'
+import BrandIcon from './BrandIcon.vue'
 
 defineProps<{ connection: 'connecting' | 'connected' | 'disconnected' }>()
 const projects = useQuery({
@@ -31,28 +19,41 @@ const system = useSystemInfo()
 
 const navigation = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/projects', label: 'Projects', icon: FolderKanban, count: 'projects' },
-  { to: '/ports', label: 'Ports', icon: ArrowLeftRight },
-  { to: '/resources', label: 'Resources', icon: Gauge },
-  { to: '/logs', label: 'Logs', icon: ScrollText },
+  { to: '/projects', label: 'Projects', brandIcon: 'projects', count: 'projects' },
+  { to: '/ports', label: 'Ports', brandIcon: 'ports' },
+  { to: '/resources', label: 'Resources', brandIcon: 'resources' },
+  { to: '/logs', label: 'Logs', brandIcon: 'logs' },
   { to: '/discovery', label: 'Discovery', icon: FolderSearch },
-]
+] as const
 const tools = [
-  { to: '/workspaces', label: 'Workspaces', icon: Boxes },
+  { to: '/workspaces', label: 'Workspaces', brandIcon: 'workspaces' },
   { to: '/fleet', label: 'Machines', icon: MonitorCog },
   { to: '/team', label: 'Team', icon: Users },
-  { to: '/agents', label: 'Agents', icon: Bot },
+  { to: '/agents', label: 'Agents', brandIcon: 'agents' },
   { to: '/plugins', label: 'Plugins', icon: Plug },
-  { to: '/settings', label: 'Settings', icon: Settings },
-]
+  { to: '/settings', label: 'Settings', brandIcon: 'settings' },
+] as const
 </script>
 
 <template>
   <aside class="sidebar" aria-label="Primary navigation">
     <RouterLink class="brand" to="/" aria-label="Envarium dashboard">
-      <img class="brand-mark" src="/envarium-icon.svg" alt="" />
+      <img class="brand-mark" src="/brand/mark.svg" alt="" width="40" height="40" />
+      <img
+        class="brand-mark brand-mark--contrast"
+        src="/brand/mark-contrast.svg"
+        alt=""
+        width="40"
+        height="40"
+      />
       <span class="brand-copy"
-        ><strong>Envarium</strong><small>Local development control</small></span
+        ><img class="brand-wordmark" src="/brand/logo.svg" alt="" width="610" height="144" /><img
+          class="brand-contrast"
+          src="/brand/logo-contrast.svg"
+          alt=""
+          width="610"
+          height="144"
+        /><small>Local development control</small></span
       >
     </RouterLink>
     <p class="nav-label">Command center</p>
@@ -64,9 +65,17 @@ const tools = [
         :to="item.to"
         :aria-label="item.label"
       >
-        <component :is="item.icon" class="nav-icon" :size="18" aria-hidden="true" />
+        <BrandIcon v-if="'brandIcon' in item" :name="item.brandIcon" class="nav-icon" />
+        <component
+          :is="item.icon"
+          v-else
+          class="nav-icon"
+          :size="18"
+          :stroke-width="1.8"
+          aria-hidden="true"
+        />
         <span class="nav-copy">{{ item.label }}</span>
-        <span v-if="item.count === 'projects'" class="count">{{
+        <span v-if="'count' in item && item.count === 'projects'" class="count">{{
           projects.data.value?.length ?? '—'
         }}</span>
       </RouterLink>
@@ -80,7 +89,15 @@ const tools = [
         :to="item.to"
         :aria-label="item.label"
       >
-        <component :is="item.icon" class="nav-icon" :size="18" aria-hidden="true" />
+        <BrandIcon v-if="'brandIcon' in item" :name="item.brandIcon" class="nav-icon" />
+        <component
+          :is="item.icon"
+          v-else
+          class="nav-icon"
+          :size="18"
+          :stroke-width="1.8"
+          aria-hidden="true"
+        />
         <span class="nav-copy">{{ item.label }}</span>
       </RouterLink>
     </nav>
@@ -117,30 +134,42 @@ const tools = [
   height: 100vh;
   padding: 22px 16px;
   border-right: 1px solid var(--border);
-  background: rgba(13, 17, 24, 0.86);
+  background: color-mix(in srgb, var(--panel) 86%, transparent);
   backdrop-filter: blur(18px);
   z-index: 30;
 }
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0;
   padding: 0 9px 22px;
   color: var(--text);
   text-decoration: none;
 }
 .brand-mark {
+  display: none;
   width: 38px;
   height: 38px;
-  border-radius: 11px;
-  box-shadow: 0 10px 30px rgba(120, 166, 255, 0.22);
 }
 .brand-copy {
   display: grid;
   gap: 2px;
 }
-.brand-copy strong {
-  letter-spacing: -0.02em;
+.brand-wordmark,
+.brand-contrast {
+  display: block;
+  width: 180px;
+  height: auto;
+  margin-left: -5px;
+}
+.brand-contrast {
+  display: none;
+}
+:global(html[data-theme='high-contrast'] .sidebar .brand-wordmark) {
+  display: none;
+}
+:global(html[data-theme='high-contrast'] .sidebar .brand-contrast) {
+  display: block;
 }
 .brand-copy small {
   color: var(--muted);
@@ -176,7 +205,11 @@ const tools = [
 }
 .nav-item.router-link-exact-active {
   color: var(--text);
-  background: linear-gradient(90deg, rgba(120, 166, 255, 0.18), rgba(120, 166, 255, 0.055));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 18%, transparent),
+    color-mix(in srgb, var(--accent) 5.5%, transparent)
+  );
   box-shadow: inset 2px 0 var(--accent);
 }
 .nav-icon {
@@ -228,7 +261,7 @@ const tools = [
 }
 .connection-dot--connected {
   background: var(--green);
-  box-shadow: 0 0 12px rgba(84, 212, 154, 0.6);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--green) 60%, transparent);
 }
 .connection-dot--disconnected {
   background: var(--red);
@@ -241,6 +274,18 @@ const tools = [
   .brand {
     justify-content: center;
     padding-inline: 0;
+  }
+  .brand-mark {
+    display: block;
+  }
+  .brand-mark--contrast {
+    display: none;
+  }
+  :global(html[data-theme='high-contrast'] .sidebar .brand-mark:not(.brand-mark--contrast)) {
+    display: none;
+  }
+  :global(html[data-theme='high-contrast'] .sidebar .brand-mark--contrast) {
+    display: block;
   }
   .brand-copy,
   .nav-copy,

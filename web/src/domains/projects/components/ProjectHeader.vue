@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BrandIcon from '../../../app/components/BrandIcon.vue'
 import {
   ArrowLeft,
   Ban,
@@ -10,7 +11,6 @@ import {
   RefreshCw,
   Rocket,
   Square,
-  Terminal,
   Trash2,
 } from '@lucide/vue'
 import { ref, watch } from 'vue'
@@ -116,7 +116,7 @@ function profileLabel(profile: string) {
         <ExternalLink :size="16" aria-hidden="true" />Open app
       </button>
       <button type="button" @click="$emit('terminal')">
-        <Terminal :size="16" aria-hidden="true" />Terminal
+        <BrandIcon name="terminal" :size="16" aria-hidden="true" />Terminal
       </button>
       <button
         v-if="active"

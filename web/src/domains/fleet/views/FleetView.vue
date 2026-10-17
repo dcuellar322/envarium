@@ -221,9 +221,9 @@ const mutationError = computed(
   gap: 8px;
   margin-bottom: 16px;
   padding: 12px 14px;
-  border: 1px solid rgba(84, 212, 154, 0.25);
+  border: 1px solid color-mix(in srgb, var(--green) 25%, transparent);
   border-radius: 11px;
-  background: rgba(84, 212, 154, 0.05);
+  background: color-mix(in srgb, var(--green) 5%, transparent);
 }
 .layout {
   display: grid;
@@ -249,8 +249,8 @@ const mutationError = computed(
   text-align: left;
 }
 .machine-list button.active {
-  border-color: rgba(120, 166, 255, 0.5);
-  background: rgba(120, 166, 255, 0.1);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   box-shadow: inset 2px 0 var(--accent);
 }
 .machine-list span {
@@ -268,7 +268,7 @@ const mutationError = computed(
 }
 .dot--online {
   background: var(--green);
-  box-shadow: 0 0 10px rgba(84, 212, 154, 0.5);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--green) 50%, transparent);
 }
 .dot--degraded,
 .dot--pending {

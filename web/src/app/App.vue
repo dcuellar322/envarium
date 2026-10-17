@@ -119,7 +119,7 @@ onBeforeUnmount(() => {
   padding: 9px 13px;
   border-radius: 8px;
   background: var(--accent);
-  color: #07111d;
+  color: var(--on-accent);
   font-weight: 800;
 }
 .skip-link:focus {

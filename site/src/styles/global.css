@@ -96,8 +96,8 @@ select {
 
 .button.primary {
   border-color: transparent;
-  background: linear-gradient(120deg, var(--sy-accent-primary), var(--sy-accent-secondary));
-  color: #07101f;
+  background: var(--brand-gradient);
+  color: var(--brand-canvas);
 }
 
 .button.quiet {

@@ -247,7 +247,7 @@ button,
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: linear-gradient(145deg, var(--panel), #0e131a);
+  background: linear-gradient(145deg, var(--panel), var(--bg));
 }
 .summary-grid span,
 .summary-grid small {
@@ -262,14 +262,14 @@ button,
 }
 .banner {
   padding: 10px 12px;
-  border: 1px solid rgba(120, 166, 255, 0.25);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
   border-radius: 8px;
-  background: rgba(120, 166, 255, 0.06);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
   color: var(--accent);
 }
 .banner.warning {
-  border-color: rgba(241, 199, 91, 0.25);
-  background: rgba(241, 199, 91, 0.06);
+  border-color: color-mix(in srgb, var(--yellow) 25%, transparent);
+  background: color-mix(in srgb, var(--yellow) 6%, transparent);
   color: var(--yellow);
 }
 .budget-warnings {
@@ -277,7 +277,7 @@ button,
   grid-template-columns: 220px 1fr;
   gap: 20px;
   margin-bottom: 16px;
-  border-color: rgba(241, 199, 91, 0.25);
+  border-color: color-mix(in srgb, var(--yellow) 25%, transparent);
 }
 .budget-warnings h2 {
   margin: 4px 0;
@@ -294,7 +294,7 @@ button,
   gap: 3px;
   padding: 9px;
   border-radius: 7px;
-  background: rgba(241, 199, 91, 0.05);
+  background: color-mix(in srgb, var(--yellow) 5%, transparent);
 }
 .budget-warnings li strong {
   color: var(--yellow);

@@ -245,8 +245,8 @@ const {
   cursor: pointer;
 }
 .workspace-list button.active {
-  border-color: rgba(120, 166, 255, 0.5);
-  background: rgba(120, 166, 255, 0.1);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   box-shadow: inset 2px 0 var(--accent);
 }
 .workspace-list span {
@@ -266,7 +266,7 @@ const {
 }
 .run-state--running {
   background: var(--yellow);
-  box-shadow: 0 0 10px rgba(241, 199, 91, 0.5);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--yellow) 50%, transparent);
 }
 .run-state--succeeded {
   background: var(--green);
@@ -288,7 +288,11 @@ const {
   padding: 18px 20px;
   border: 1px solid var(--border);
   border-radius: 15px;
-  background: linear-gradient(135deg, rgba(120, 166, 255, 0.1), var(--panel) 46%);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 10%, transparent),
+    var(--panel) 46%
+  );
 }
 .workspace-hero h2 {
   margin: 0 0 5px;
@@ -423,10 +427,10 @@ const {
 }
 .inline-error {
   padding: 10px 13px;
-  border: 1px solid rgba(255, 115, 115, 0.3);
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
   border-radius: 9px;
-  background: rgba(255, 115, 115, 0.08);
-  color: #ffaaaa;
+  background: color-mix(in srgb, var(--red) 8%, transparent);
+  color: var(--red);
   font-size: 11px;
 }
 @media (max-width: 1100px) {

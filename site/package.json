@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "screenshots": "node --import tsx scripts/sync-product-screenshots.ts",
     "dev": "astro dev --port 4321",
     "generate": "node --import tsx scripts/generate-all.ts",
     "build": "astro build && node --import tsx scripts/postbuild.ts",

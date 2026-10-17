@@ -1,0 +1,12 @@
+---
+import type { BrandIconName } from '../../../../design/brand/envarium-v1/icons'
+
+interface Props {
+  name: BrandIconName
+  size?: number
+}
+
+const { name, size = 24 } = Astro.props
+---
+
+<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href={`/brand/interface.svg#${name}`} /></svg>

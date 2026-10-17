@@ -1,10 +1,11 @@
 ---
+import BrandIcon from '@/components/shared/BrandIcon.astro'
 import { features } from '@/content/marketing/features'
 import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
 ---
 
 <ContentPageLayout title="A command center built around projects" eyebrow="Product" description="One local control plane gives the desktop, browser, CLI, and coding agents the same reviewed project truth.">
-  <div class="feature-list">{features.map((feature) => <a class="panel" href={`/features/${feature.slug}/`}><span aria-hidden="true">{feature.icon}</span><div><h2>{feature.title}</h2><p>{feature.summary}</p></div><b aria-hidden="true">→</b></a>)}</div>
+  <div class="feature-list">{features.map((feature) => <a class="panel" href={`/features/${feature.slug}/`}><span aria-hidden="true"><BrandIcon name={feature.icon} /></span><div><h2>{feature.title}</h2><p>{feature.summary}</p></div><b aria-hidden="true">→</b></a>)}</div>
 </ContentPageLayout>
 
 <style>

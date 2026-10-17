@@ -297,7 +297,7 @@ dd {
   background: var(--panel-2);
 }
 .projects article.degraded {
-  border-color: rgba(255, 115, 115, 0.35);
+  border-color: color-mix(in srgb, var(--red) 35%, transparent);
 }
 .projects div {
   display: grid;
@@ -336,10 +336,10 @@ dd {
 }
 .error {
   padding: 10px;
-  border: 1px solid rgba(255, 115, 115, 0.3);
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
   border-radius: 8px;
   color: var(--red);
-  background: rgba(255, 115, 115, 0.06);
+  background: color-mix(in srgb, var(--red) 6%, transparent);
 }
 .operation-fields {
   display: grid;

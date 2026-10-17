@@ -255,7 +255,7 @@ const {
   padding: 18px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: linear-gradient(145deg, var(--panel), #0d1219);
+  background: linear-gradient(145deg, var(--panel), var(--panel));
 }
 .orientation {
   grid-column: 1/-1;
@@ -263,8 +263,12 @@ const {
   grid-template-columns: minmax(260px, 0.8fr) minmax(320px, 1.2fr);
   align-items: center;
   gap: 24px;
-  border-color: rgba(120, 166, 255, 0.28);
-  background: linear-gradient(135deg, rgba(120, 166, 255, 0.1), rgba(158, 123, 255, 0.05));
+  border-color: color-mix(in srgb, var(--accent) 28%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 10%, transparent),
+    color-mix(in srgb, var(--accent-2) 5%, transparent)
+  );
 }
 .orientation--empty {
   border-style: dashed;
@@ -334,7 +338,7 @@ input:not([type='checkbox']) {
   padding: 9px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0b1017;
+  background: var(--panel);
   color: var(--text);
 }
 .confirm {
@@ -357,7 +361,7 @@ button:disabled {
 }
 .error {
   padding: 10px;
-  border: 1px solid rgba(255, 115, 115, 0.3);
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
   border-radius: 8px;
   color: var(--red);
 }

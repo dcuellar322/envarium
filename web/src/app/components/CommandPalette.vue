@@ -217,15 +217,15 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   align-items: flex-start;
   justify-content: center;
   padding-top: 12vh;
-  background: rgba(3, 6, 10, 0.72);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
   backdrop-filter: blur(9px);
 }
 .palette {
   width: min(660px, calc(100vw - 30px));
   overflow: hidden;
-  border: 1px solid #344258;
+  border: 1px solid var(--border);
   border-radius: 14px;
-  background: #111720;
+  background: var(--panel);
   box-shadow: 0 35px 100px rgba(0, 0, 0, 0.55);
 }
 .palette-input {
@@ -246,9 +246,9 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 }
 .palette-input kbd {
   padding: 2px 6px;
-  border: 1px solid #344157;
+  border: 1px solid var(--border);
   border-radius: 5px;
-  background: #19202b;
+  background: var(--panel-2);
   color: var(--soft);
   font-size: 10px;
 }
@@ -270,7 +270,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   text-align: left;
 }
 .palette-list button.selected {
-  background: rgba(120, 166, 255, 0.1);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   color: var(--text);
 }
 .palette-list code {
@@ -286,7 +286,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 }
 .palette-error {
   color: var(--red);
-  background: rgba(255, 115, 115, 0.06);
+  background: color-mix(in srgb, var(--red) 6%, transparent);
 }
 .sr-only {
   position: absolute;

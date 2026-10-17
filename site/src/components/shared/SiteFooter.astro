@@ -1,5 +1,6 @@
 ---
 import { REPOSITORY_URL } from '@/config/site'
+import BrandLogo from './BrandLogo.astro'
 
 const year = new Date().getUTCFullYear()
 ---
@@ -7,9 +8,8 @@ const year = new Date().getUTCFullYear()
 <footer class="site-footer">
   <div class="footer-grid container">
     <div class="footer-brand">
-      <span class="brand-mark" aria-hidden="true">S</span>
       <div>
-        <strong>Envarium</strong>
+        <a href="/" aria-label="Envarium home"><BrandLogo /></a>
         <p>Your local development command center.</p>
         <small>An open-source project by David Cuellar.</small>
       </div>
@@ -59,18 +59,6 @@ const year = new Date().getUTCFullYear()
   .footer-brand {
     display: flex;
     gap: 0.8rem;
-  }
-
-  .brand-mark {
-    display: grid;
-    flex: 0 0 auto;
-    width: 2.3rem;
-    height: 2.3rem;
-    place-items: center;
-    border-radius: 0.7rem;
-    background: linear-gradient(135deg, var(--sy-accent-primary), var(--sy-accent-secondary));
-    color: #08101e;
-    font-weight: 900;
   }
 
   .footer-brand p {

@@ -84,6 +84,7 @@ jobs:
           node-version-file: ${{ env.NODE_VERSION_FILE }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm brand:check
       - run: pnpm --dir web generate
       - run: git diff --exit-code -- web/src/api/generated
       - run: make fmt-web-check

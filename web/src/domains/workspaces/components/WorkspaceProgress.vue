@@ -90,9 +90,9 @@ h2 {
 .execution-error {
   margin: 0;
   padding: 11px 19px;
-  border-bottom: 1px solid rgba(255, 115, 115, 0.22);
-  background: rgba(255, 115, 115, 0.08);
-  color: #ffaaaa;
+  border-bottom: 1px solid color-mix(in srgb, var(--red) 22%, transparent);
+  background: color-mix(in srgb, var(--red) 8%, transparent);
+  color: var(--red);
   font-size: 11px;
   line-height: 1.45;
 }

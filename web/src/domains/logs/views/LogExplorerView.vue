@@ -273,9 +273,9 @@ button,
 .warning,
 .limit-note {
   padding: 9px 11px;
-  border: 1px solid rgba(241, 199, 91, 0.24);
+  border: 1px solid color-mix(in srgb, var(--yellow) 24%, transparent);
   border-radius: 8px;
-  background: rgba(241, 199, 91, 0.06);
+  background: color-mix(in srgb, var(--yellow) 6%, transparent);
   color: var(--yellow);
 }
 .log-console {
@@ -283,7 +283,7 @@ button,
   overflow: auto;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: #070a0e;
+  background: var(--bg);
   font:
     10px/1.5 ui-monospace,
     SFMono-Regular,
@@ -329,10 +329,10 @@ button,
 }
 .log-row code {
   overflow-wrap: anywhere;
-  color: #b9c6d8;
+  color: var(--muted);
 }
 .log-row code.stderr {
-  color: #dfc17a;
+  color: var(--yellow);
 }
 .state-panel {
   padding: 42px;

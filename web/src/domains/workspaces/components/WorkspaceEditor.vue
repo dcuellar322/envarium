@@ -247,7 +247,7 @@ fieldset > p {
   margin-left: 7px;
   padding: 2px 5px;
   border-radius: 99px;
-  background: rgba(120, 166, 255, 0.12);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: var(--accent);
   font-size: 8px;
   font-style: normal;

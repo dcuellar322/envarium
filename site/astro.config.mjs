@@ -20,9 +20,13 @@ export default defineConfig({
       ],
       components: {
         Footer: './src/components/docs/DocsFooter.astro',
+        SiteTitle: './src/components/docs/DocsSiteTitle.astro',
       },
       head: [
         { tag: 'meta', attrs: { name: 'theme-color', content: '#0a0d12' } },
+        { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/envarium-180.png' } },
+        { tag: 'link', attrs: { rel: 'manifest', href: '/site.webmanifest' } },
+        { tag: 'meta', attrs: { property: 'og:image', content: new URL('/social/default.png', siteUrl).href } },
         { tag: 'meta', attrs: { property: 'og:site_name', content: PRODUCT_NAME } },
         ...(isPreview
           ? [{ tag: 'meta', attrs: { name: 'robots', content: 'noindex, nofollow' } }]

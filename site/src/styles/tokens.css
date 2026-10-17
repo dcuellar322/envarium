@@ -1,19 +1,21 @@
+@import './brand.css';
+
 :root {
   color-scheme: dark;
-  --sy-bg-canvas: #0a0d12;
-  --sy-bg-surface: #11161e;
-  --sy-bg-elevated: #151b24;
-  --sy-bg-soft: #1a2230;
-  --sy-border-subtle: #253044;
-  --sy-text-primary: #edf3fb;
-  --sy-text-muted: #91a0b5;
-  --sy-text-soft: #65748a;
-  --sy-accent-primary: #78a6ff;
-  --sy-accent-secondary: #9e7bff;
-  --sy-status-success: #54d49a;
-  --sy-status-warning: #f1c75b;
-  --sy-status-danger: #ff7373;
-  --sy-status-info: #63d7e7;
+  --sy-bg-canvas: var(--brand-canvas);
+  --sy-bg-surface: var(--brand-panel);
+  --sy-bg-elevated: var(--brand-panel-raised);
+  --sy-bg-soft: var(--brand-panel-soft);
+  --sy-border-subtle: var(--brand-border);
+  --sy-text-primary: var(--brand-text);
+  --sy-text-muted: var(--brand-muted);
+  --sy-text-soft: var(--brand-soft-readable);
+  --sy-accent-primary: var(--brand-blue);
+  --sy-accent-secondary: var(--brand-violet);
+  --sy-status-success: var(--brand-green);
+  --sy-status-warning: var(--brand-yellow);
+  --sy-status-danger: var(--brand-red);
+  --sy-status-info: var(--brand-cyan);
   --sy-shadow: 0 24px 70px rgb(0 0 0 / 32%);
   --sy-radius-sm: 0.65rem;
   --sy-radius-md: 0.95rem;

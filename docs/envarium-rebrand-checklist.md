@@ -3,7 +3,7 @@ title: Envarium rebrand checklist
 description: Repository-complete and external follow-up work for adopting the Envarium name.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-10-15
+lastVerified: 2026-10-17
 ---
 
 The repository-side rename is complete. The remaining unchecked items require
@@ -24,9 +24,9 @@ access to systems outside this checkout or an explicit product/brand decision.
 - [x] Rename the implementation plan, design reference, agent guidance,
       documentation, public-site copy, metadata, package drafts, release artifact
       names, issue templates, and CI/release workflows.
-- [x] Rename committed icon filenames and textual vector metadata. Existing
-      shapes/colors remain the current visual identity pending any separate brand
-      design work.
+- [x] Integrate the approved Envarium E logo, custom wordmark, palette, and
+      interface icons across the application, website, docs, startup screen,
+      favicons, social card, and native Tauri icon exports.
 - [x] Regenerate OpenAPI clients, manifest schema, CLI/MCP documentation, and
       SQL bindings from the renamed sources.
 
@@ -117,8 +117,7 @@ access to systems outside this checkout or an explicit product/brand decision.
 
 ## Brand and legal review
 
-- [ ] Commission or approve a distinct logo/icon system if the current artwork is
-      not the intended Envarium identity; regenerate all Tauri, favicon, social-card,
+- [x] Approve and implement the Envarium logo/icon system; regenerate Tauri, favicon, social-card,
       documentation, and installer sizes from one source asset.
 - [ ] Review notices, copyright ownership, privacy/security contact addresses,
       support channels, license headers, contributor agreements, and trademark usage.

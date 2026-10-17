@@ -131,7 +131,7 @@ const emit = defineEmits<{ select: [projectId: string, serviceId: string] }>()
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: linear-gradient(145deg, var(--panel), #0e131a);
+  background: linear-gradient(145deg, var(--panel), var(--bg));
 }
 .panel-head {
   display: flex;
@@ -176,7 +176,7 @@ td {
 }
 thead th {
   border-top: 0;
-  background: #0b1017;
+  background: var(--panel);
   color: var(--soft);
   font-size: 9px;
   text-transform: uppercase;
@@ -206,23 +206,23 @@ th small {
 }
 tr:not(:first-child):hover,
 tr.selected {
-  background: rgba(120, 166, 255, 0.08);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 .status {
   display: inline-flex;
   padding: 3px 7px;
   border-radius: 999px;
-  background: rgba(92, 207, 159, 0.1);
+  background: color-mix(in srgb, var(--green) 10%, transparent);
   color: var(--green);
   font-size: 9px;
   white-space: nowrap;
 }
 .status.warn {
-  background: rgba(241, 199, 91, 0.12);
+  background: color-mix(in srgb, var(--yellow) 12%, transparent);
   color: var(--yellow);
 }
 .status.partial {
-  background: rgba(120, 166, 255, 0.1);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   color: var(--accent);
 }
 .sr-only {

@@ -1,5 +1,6 @@
 ---
 import { REPOSITORY_URL } from '@/config/site'
+import BrandLogo from './BrandLogo.astro'
 
 const pathname = Astro.url.pathname
 const navigation = [
@@ -16,11 +17,7 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
 <header class="site-header">
   <div class="header-inner">
     <a class="brand" href="/" aria-label="Envarium home">
-      <span class="brand-mark" aria-hidden="true">S</span>
-      <span class="brand-copy">
-        <strong>Envarium</strong>
-        <small>Local development command center</small>
-      </span>
+      <BrandLogo />
     </a>
 
     <nav class="desktop-nav" aria-label="Primary navigation">
@@ -70,33 +67,6 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
     align-items: center;
     gap: 0.7rem;
     text-decoration: none;
-  }
-
-  .brand-mark {
-    display: grid;
-    width: 2.25rem;
-    height: 2.25rem;
-    place-items: center;
-    border-radius: 0.7rem;
-    background: linear-gradient(135deg, var(--sy-accent-primary), var(--sy-accent-secondary));
-    color: #08101e;
-    font-weight: 900;
-  }
-
-  .brand-copy {
-    display: grid;
-    line-height: 1.1;
-  }
-
-  .brand-copy strong {
-    font-size: 0.95rem;
-  }
-
-  .brand-copy small {
-    max-width: 9.5rem;
-    margin-top: 0.15rem;
-    color: var(--sy-text-muted);
-    font-size: 0.64rem;
   }
 
   .desktop-nav {
@@ -204,7 +174,6 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
   }
 
   @media (max-width: 580px) {
-    .brand-copy small,
     .theme-toggle,
     .search-link {
       display: none;

@@ -20,11 +20,18 @@ pub fn install<R: Runtime>(
     let menu = build_menu(app, snapshot)?;
     TrayIconBuilder::with_id(TRAY_ID)
         .menu(&menu)
-        .icon(
+        .icon(if cfg!(target_os = "macos") {
+            tauri::image::Image::new_owned(
+                include_bytes!("../icons/tray-icon.rgba").to_vec(),
+                32,
+                32,
+            )
+        } else {
             app.default_window_icon()
                 .cloned()
-                .ok_or_else(|| tauri::Error::AssetNotFound("default window icon".into()))?,
-        )
+                .ok_or_else(|| tauri::Error::AssetNotFound("default window icon".into()))?
+        })
+        .icon_as_template(cfg!(target_os = "macos"))
         .tooltip("Envarium — connecting")
         .on_menu_event(handle_menu)
         .on_tray_icon_event(|tray, event| {

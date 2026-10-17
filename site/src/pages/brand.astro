@@ -1,23 +1,101 @@
 ---
+import { brandIconNames } from '../../../design/brand/envarium-v1/icons'
+import palette from '../../../design/brand/envarium-v1/palette.json'
+import BrandIcon from '@/components/shared/BrandIcon.astro'
 import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
-import { PRODUCT_NAME, REPOSITORY_URL } from '@/config/site'
+import { PRODUCT_NAME } from '@/config/site'
+
+const logos = [
+  { file: 'on-dark', label: 'On dark', background: palette.canvas },
+  { file: 'on-light', label: 'On light', background: palette.text },
+  { file: 'white', label: 'Solid white', background: palette.panel },
+  { file: 'black', label: 'Solid black', background: '#ffffff' },
+]
+const colors = [
+  { name: 'Signal blue', value: palette.blue },
+  { name: 'Violet', value: palette.violet },
+  { name: 'Canvas', value: palette.canvas },
+  { name: 'Panel', value: palette.panel },
+  { name: 'Cloud', value: palette.text },
+]
 ---
 
-<ContentPageLayout title="Brand" eyebrow="Identity and attribution" description={`Use the ${PRODUCT_NAME} name and visual identity clearly, accurately, and without implying endorsement or official distribution.`}>
-  <section class="identity panel"><div class="mark" aria-hidden="true">S</div><div><p class="eyebrow">Canonical product name</p><h2>Envarium — Local Development Command Center</h2><p>Use the full differentiated name on first reference. “Envarium” is acceptable afterward when context is unambiguous.</p></div></section>
-  <div class="guidance"><section><h2>Do</h2><ul><li>Link to the canonical website or source repository.</li><li>State clearly when a package, integration, or article is community-maintained.</li><li>Preserve the Apache-2.0 license and required notices.</li><li>Use screenshots only when they contain no private paths or data.</li></ul></section><section><h2>Do not</h2><ul><li>Imply endorsement, partnership, or official distribution.</li><li>Use the mark for an incompatible fork or unrelated command center.</li><li>Present guessed download URLs or unsigned artifacts as official.</li><li>Alter the name to create a confusingly similar service.</li></ul></section></div>
-  <aside class="source panel"><div><strong>Asset source of truth</strong><span>The repository contains the current favicon, social card, tokens, and approved product screenshots.</span></div><a class="button" href={`${REPOSITORY_URL}/tree/master/site/public`}>Browse public assets</a></aside>
+<ContentPageLayout title="The Envarium identity" eyebrow="Brand and attribution" description={`The official logo, icons, and palette for ${PRODUCT_NAME}. Download the complete kit or individual assets for your project, article, or integration.`}>
+  <section class="identity panel" aria-labelledby="identity-title">
+    <img class="mark" src="/brand/marks/envarium-gradient.svg" alt="" width="112" height="112" />
+    <div><p class="eyebrow">One place for every environment.</p><h2 id="identity-title">A shared language for local development.</h2><p>Three environment rails meet in a rounded E. A small cursor cutout connects the mark to the terminal. Use the Envarium name and identity clearly, without implying endorsement or official distribution.</p></div>
+  </section>
+  <div class="downloads">
+    <a class="button primary" href="/brand/envarium-brand-kit.zip" download>Download the complete brand kit <span aria-hidden="true">↓</span></a>
+    <span>SVG · PNG · ICO · ICNS · 12 interface icons</span>
+  </div>
+
+  <section class="brand-section" aria-labelledby="logos-title">
+    <h2 id="logos-title">Logo</h2>
+    <p>Use the full logo at 160 px or wider. Leave at least one rail thickness of space around the visible mark.</p>
+    <div class="logo-grid">{logos.map((logo) => <article class="panel logo-card">
+      <div class="logo-preview" style={`background:${logo.background}`}><img src={`/brand/logos/envarium-${logo.file}.svg`} alt={`Envarium logo — ${logo.label.toLowerCase()}`} width="610" height="144" loading="lazy" /></div>
+      <div class="asset-links"><strong>{logo.label}</strong><a href={`/brand/logos/envarium-${logo.file}.svg`} download aria-label={`Download ${logo.label.toLowerCase()} logo SVG`}>SVG ↓</a><a href={`/brand/logos/envarium-${logo.file}.png`} download aria-label={`Download ${logo.label.toLowerCase()} logo PNG`}>PNG ↓</a></div>
+    </article>)}</div>
+  </section>
+
+  <section class="brand-section" aria-labelledby="icons-title">
+    <h2 id="icons-title">App, web, and tray</h2>
+    <div class="icon-downloads">
+      <article class="panel icon-card"><img src="/brand/app/envarium-app.svg" alt="Envarium app icon" width="112" height="112" loading="lazy" /><h3>App icon</h3><p>The E on a dark, rounded tile.</p><div><a href="/brand/app/envarium-app-1024.png" download>1024 px PNG</a><a href="/brand/app/envarium.ico" download>Windows ICO</a><a href="/brand/app/envarium.icns" download>macOS ICNS</a></div></article>
+      <article class="panel icon-card"><img src="/brand/marks/envarium-gradient.svg" alt="Envarium standalone mark" width="112" height="112" loading="lazy" /><h3>Standalone mark</h3><p>Use when the name is already clear.</p><div><a href="/brand/marks/envarium-gradient.svg" download>Gradient SVG</a><a href="/brand/marks/envarium-white.svg" download>White SVG</a><a href="/brand/marks/envarium-black.svg" download>Black SVG</a></div></article>
+      <article class="panel icon-card"><div class="small-icons" aria-hidden="true"><img src="/brand/web/envarium-16.png" alt="" width="16" height="16" /><img src="/brand/web/envarium-32.png" alt="" width="32" height="32" /><img src="/brand/tray/envarium-light-32.png" alt="" width="32" height="32" /></div><h3>Small sizes</h3><p>A simplified mark keeps small sizes clear.</p><div><a href="/brand/web/favicon.svg" download>Favicon SVG</a><a href="/brand/web/favicon.ico" download>Favicon ICO</a><a href="/brand/tray/envarium-dark-32.png" download>Tray template</a></div></article>
+    </div>
+  </section>
+
+  <section class="brand-section" aria-labelledby="palette-title">
+    <h2 id="palette-title">Core palette</h2>
+    <p>Keep the logo gradient blue to violet in every theme. Interface text uses accessible shades of these colors on light and high-contrast surfaces.</p>
+    <div class="swatches">{colors.map((color) => <div class="panel swatch"><span style={`background:${color.value}`} aria-hidden="true"></span><strong>{color.name}</strong><code>{color.value}</code></div>)}</div>
+  </section>
+
+  <section class="brand-section" aria-labelledby="interface-title">
+    <h2 id="interface-title">Interface icons</h2>
+    <p>A 24 px grid, 1.8 px strokes, and rounded caps. Icons inherit the interface color and accompany a visible label or an accessible button name.</p>
+    <div class="interface-grid">{brandIconNames.map((name) => <a class="panel" href={`/brand/interface/${name}.svg`} download aria-label={`Download ${name} icon SVG`}><BrandIcon name={name} /><span>{name}</span><span aria-hidden="true">↓</span></a>)}</div>
+  </section>
+
+  <div class="guidance brand-section"><section><h2>Do</h2><ul><li>Use “Envarium — Local Development Command Center” on first reference.</li><li>Preserve the mark's proportions and blue-to-violet gradient.</li><li>Link to the canonical website or source repository.</li><li>State clearly when a package, integration, or article is community-maintained.</li><li>Preserve the Apache-2.0 license and required notices.</li><li>Use screenshots only when they contain no private paths or data.</li></ul></section><section><h2>Do not</h2><ul><li>Imply endorsement, partnership, or official distribution.</li><li>Stretch, rotate, recolor, or add effects to the mark.</li><li>Use the mark for an incompatible fork or unrelated command center.</li><li>Present guessed download URLs or unsigned artifacts as official.</li><li>Alter the name to create a confusingly similar service.</li></ul></section></div>
 </ContentPageLayout>
 
 <style>
   .identity { display: flex; align-items: center; gap: 1.5rem; padding: 2rem; }
-  .mark { display: grid; flex: 0 0 auto; width: 7rem; height: 7rem; place-items: center; border-radius: 1.5rem; background: linear-gradient(135deg, var(--sy-accent-primary), var(--sy-accent-secondary)); color: #08101e; font-size: 3.5rem; font-weight: 900; }
+  .mark { flex: 0 0 auto; width: 7rem; height: 7rem; }
   .identity h2 { margin: 0.35rem 0; }
-  .identity p:not(.eyebrow), .source span { color: var(--sy-text-muted); }
-  .guidance { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
-  .guidance section { padding: 1rem; }
+  .identity p:not(.eyebrow), .brand-section > p, .icon-card p, .downloads > span { color: var(--sy-text-muted); }
+  .downloads { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-top: 1.5rem; }
+  .downloads > span { font-size: 0.85rem; }
+  .brand-section { margin-top: 3.5rem; }
+  .logo-grid, .guidance { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .logo-card { overflow: hidden; }
+  .logo-preview { display: grid; min-height: 10rem; place-items: center; padding: 1.5rem; }
+  .logo-preview img { width: min(100%, 24rem); height: auto; }
+  .asset-links { display: flex; align-items: center; gap: 1rem; padding: 1rem; }
+  .asset-links strong { margin-right: auto; }
+  .asset-links a, .icon-card a { color: var(--sy-accent-primary); font-size: 0.85rem; }
+  .icon-downloads { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .icon-card { padding: 1.5rem; }
+  .icon-card > img { width: 7rem; height: 7rem; }
+  .icon-card h3 { margin: 1rem 0 0; }
+  .icon-card p { font-size: 0.85rem; }
+  .icon-card > div:last-child { display: grid; gap: 0.5rem; }
+  .small-icons { display: flex; height: 7rem; align-items: center; gap: 1rem; border-radius: 1rem; background: var(--brand-canvas); padding: 1rem; }
+  .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+  .swatch { display: grid; overflow: hidden; padding-bottom: 0.8rem; }
+  .swatch > span { height: 5rem; border-bottom: 1px solid var(--sy-border-subtle); }
+  .swatch strong, .swatch code { padding: 0.3rem 0.8rem 0; }
+  .swatch code { color: var(--sy-text-muted); font-size: 0.8rem; }
+  .interface-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+  .interface-grid a { display: flex; align-items: center; gap: 0.65rem; padding: 1rem; text-decoration: none; }
+  .interface-grid :global(svg) { flex: 0 0 auto; color: var(--sy-accent-primary); }
+  .interface-grid a > span:last-child { margin-left: auto; color: var(--sy-accent-primary); }
+  .interface-grid a > span { text-transform: capitalize; font-size: 0.85rem; }
   .guidance li { margin-block: 0.65rem; color: var(--sy-text-muted); }
-  .source { display: flex; align-items: center; gap: 1rem; margin-top: 2rem; padding: 1.2rem; }
-  .source div { display: grid; margin-right: auto; }
-  @media (max-width: 680px) { .identity { align-items: flex-start; flex-direction: column; } .guidance { grid-template-columns: 1fr; } .source { align-items: stretch; flex-direction: column; } }
+  @media (max-width: 760px) { .icon-downloads { grid-template-columns: 1fr; } .interface-grid, .swatches { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 580px) { .identity { align-items: flex-start; flex-direction: column; padding: 1.25rem; } .logo-grid, .guidance { grid-template-columns: 1fr; } }
 </style>

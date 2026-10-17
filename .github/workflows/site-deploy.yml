@@ -2,7 +2,7 @@ name: Public site deploy
 
 on:
   pull_request:
-    paths: ['site/**', 'docs/**', 'web/tests/visual/**']
+    paths: ['site/**', 'docs/**', 'design/brand/**', 'scripts/sync-brand.mjs', 'web/tests/visual/**']
   push:
     branches: [master]
   release:
