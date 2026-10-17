@@ -219,3 +219,9 @@ and all seventeen native tests pass. The Windows sidecar job now also runs
 Windows-only archive dependency is compiled in hosted CI. Native app packaging
 and the release-only updater path are additionally checked locally; compile-only
 updater fixture values are not signed or installed release configuration.
+
+The first hosted Windows-native check catches a previously uncompiled startup
+path: an unconditional call to the macOS-only autostart builder method. Use the
+plugin's cross-platform initializer instead, retaining explicit LaunchAgent
+selection on macOS and the platform implementation elsewhere. The Windows
+native compile gate remains enabled as regression coverage.
