@@ -192,8 +192,14 @@ func TestNativeProcessCancellationRollsBackStartedDependencies(t *testing.T) {
 		t.Fatalf("Execute() error = %v, context = %v", err, operationCtx.Err())
 	}
 	runs, _ := store.ListProjectRuns(context.Background(), project.ProjectID)
-	if len(runs) != 1 || runs[0].EndedAt == nil || runs[0].TerminationReason != "start_cancelled" {
+	if len(runs) != 1 || runs[0].ServiceID != "first" || runs[0].EndedAt == nil || len(runs[0].Processes) == 0 {
 		t.Fatalf("cancelled runs = %#v", runs)
+	}
+	// Cancellation can precede the helper's console initialization on Windows.
+	// Both graceful termination and verified escalation satisfy rollback; the
+	// service identity and dead-PID checks still prove cleanup and start ordering.
+	if reason := runs[0].TerminationReason; reason != "start_cancelled" && reason != "start_cancelled_forced" {
+		t.Fatalf("cancellation termination reason = %q", reason)
 	}
 	for _, identity := range runs[0].Processes {
 		if _, snapshotErr := (gopsutilInspector{}).Snapshot(context.Background(), identity.PID); snapshotErr == nil {

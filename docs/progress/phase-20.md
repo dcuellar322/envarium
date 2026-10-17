@@ -378,6 +378,14 @@ Before browser tests, the job aligns its ephemeral home directory's ownership
 with the container process so Firefox can launch; no browser or assertion is
 disabled to bypass that requirement.
 
+The final Windows adapter run also exposed an unrelated cancellation-test
+assumption: safe rollback can finish with `start_cancelled_forced` when the
+helper console is not ready for graceful termination. The test accepts both
+explicit cancellation outcomes while additionally requiring the first service
+identity and a nonempty process list; all captured PIDs must still be gone.
+See [Phase 6](phase-06.md) for that test-only correction. Runtime behavior is
+unchanged.
+
 The cleanup also removed the unused `dev.switchyard.desktop` cache, WebKit
 directory, and binary-cookie file after confirming no process had them open.
 Current Envarium identity and browser data were retained.

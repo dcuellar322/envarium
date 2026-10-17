@@ -146,3 +146,13 @@ envarium logs uv-single-process --service web --tail 50
 envarium metrics uv-single-process --service web
 envarium stop uv-single-process
 ```
+
+## Windows cancellation verification — October 17, 2026
+
+Hosted Windows CI exposed a test-only assumption that rollback always ends
+gracefully. Cancellation may arrive before the helper's console initializes,
+so the existing runtime correctly escalates and records
+`start_cancelled_forced`. The integration test now accepts that explicit
+outcome as well as `start_cancelled`, and strengthens its assertions that only
+the first dependency started, its run ended, process identities were captured,
+and every captured PID is gone. Runtime stop behavior and timeouts are unchanged.
