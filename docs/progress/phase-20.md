@@ -374,6 +374,9 @@ No visual baseline or comparison tolerance was changed to accommodate drift.
 The container installs `make` for the existing generated-documentation gate
 and explicitly trusts only its mounted checkout for Git metadata, so the Go
 reference build retains VCS stamping across subprocess HOME changes.
+Before browser tests, the job aligns its ephemeral home directory's ownership
+with the container process so Firefox can launch; no browser or assertion is
+disabled to bypass that requirement.
 
 The cleanup also removed the unused `dev.switchyard.desktop` cache, WebKit
 directory, and binary-cookie file after confirming no process had them open.

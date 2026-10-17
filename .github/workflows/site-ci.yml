@@ -47,6 +47,10 @@ jobs:
       - run: pnpm site:test
       - run: pnpm site:build
       - run: pnpm site:validate
+      - name: Align ephemeral browser home ownership
+        # Firefox requires HOME to belong to its process user. GitHub mounts
+        # this job-local directory with a different owner in root containers.
+        run: chown "$(id -u):$(id -g)" "$HOME"
       - run: pnpm site:test:e2e
       - run: pnpm site:test:visual
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
