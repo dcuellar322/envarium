@@ -9937,6 +9937,9 @@ reviewed references, including its preinstalled browser binaries and fonts.
 It no longer installs a second browser/dependency set into that environment.
 Keep this image aligned with `site/package.json` when updating Playwright.
 No visual baseline or comparison tolerance was changed to accommodate drift.
+The container installs `make` for the existing generated-documentation gate
+and explicitly trusts only its mounted checkout for Git metadata, so the Go
+reference build retains VCS stamping across subprocess HOME changes.
 
 The cleanup also removed the unused `dev.switchyard.desktop` cache, WebKit
 directory, and binary-cookie file after confirming no process had them open.
