@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useTeamView } from '../composables/useTeamView'
+import TeamBundleReview from '../components/TeamBundleReview.vue'
 
 const {
   publishers,
@@ -15,6 +16,8 @@ const {
   trust,
   install,
   error,
+  queryError,
+  retry,
   loading,
   emptyConfiguration,
   selectBundle,
@@ -32,6 +35,7 @@ const {
       >
     </header>
     <p v-if="error" class="error" role="alert">{{ error.message }}</p>
+    <button v-if="queryError" type="button" @click="retry">Retry configuration</button>
     <div v-if="loading" class="loading-state" aria-live="polite">
       Loading local team trust and policy…
     </div>
@@ -43,7 +47,11 @@ const {
             {{
               emptyConfiguration
                 ? 'No shared team configuration is installed'
-                : 'Shared configuration is active'
+                : queryError
+                  ? 'Configuration status unavailable'
+                  : bundles.data.value?.length
+                    ? 'Shared configuration is active'
+                    : 'Publisher trust is configured'
             }}
           </h2>
         </div>
@@ -53,8 +61,8 @@ const {
           <code>envarium team sync</code>.
         </p>
         <p v-else>
-          Trusted publishers and installed bundles apply only to this machine. Every imported policy
-          remains visible and restrictive by default.
+          Trusted publishers and installed bundles apply only to this machine. Review the installed
+          policy and its sources below.
         </p>
       </article>
       <article class="panel">
@@ -76,20 +84,28 @@ const {
         </ul>
         <p v-else class="empty">No publisher keys are trusted.</p>
         <form @submit.prevent="trust.mutate()">
-          <label>Name<input v-model.trim="publisherName" required maxlength="128" /></label
+          <label
+            >Name<input
+              v-model.trim="publisherName"
+              required
+              maxlength="128"
+              :disabled="trust.isPending.value" /></label
           ><label
             >Base64 Ed25519 public key<input
               v-model.trim="publicKey"
               required
+              :disabled="trust.isPending.value"
               autocomplete="off" /></label
           ><label class="confirm"
-            ><input v-model="publisherReviewed" type="checkbox" /><span
-              >I verified this exact key out of band.</span
-            ></label
+            ><input
+              v-model="publisherReviewed"
+              type="checkbox"
+              :disabled="trust.isPending.value"
+            /><span>I verified this exact key out of band.</span></label
           ><button
             :disabled="!publisherReviewed || !publisherName || !publicKey || trust.isPending.value"
           >
-            Trust exact key
+            {{ trust.isPending.value ? 'Trusting…' : 'Trust exact key' }}
           </button>
         </form>
       </article>
@@ -118,19 +134,19 @@ const {
             >Signed JSON bundle<input
               type="file"
               accept="application/json,.json"
+              :disabled="install.isPending.value"
               @change="selectBundle"
           /></label>
-          <p v-if="selectedBundle" class="review">
-            Review: <strong>{{ selectedBundle.metadata?.id }}</strong> · {{ selectedBundle.kind }} ·
-            {{ selectedBundle.metadata?.publisherId }}
-          </p>
-          <p v-if="fileError" class="error">{{ fileError }}</p>
+          <TeamBundleReview v-if="selectedBundle" :bundle="selectedBundle" />
+          <p v-if="fileError" class="error" role="alert">{{ fileError }}</p>
           <label class="confirm"
-            ><input v-model="bundleReviewed" type="checkbox" /><span
-              >I reviewed the kind, publisher ID, version, and payload.</span
-            ></label
+            ><input
+              v-model="bundleReviewed"
+              type="checkbox"
+              :disabled="!selectedBundle || install.isPending.value"
+            /><span>I reviewed the kind, publisher ID, version, and payload.</span></label
           ><button :disabled="!bundleReviewed || !selectedBundle || install.isPending.value">
-            Verify signature and install
+            {{ install.isPending.value ? 'Verifying…' : 'Verify signature and install' }}
           </button>
         </form>
       </article>

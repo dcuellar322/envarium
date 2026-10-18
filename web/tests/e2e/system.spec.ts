@@ -34,6 +34,13 @@ test('renders the alpha shell, keyboard palette, and live daemon settings', asyn
     page.getByRole('heading', { name: 'Bring a repository into the yard.' }),
   ).toBeVisible()
 
+  await page.getByRole('link', { name: 'Team', exact: true }).click()
+  await expect(
+    page.getByRole('heading', { name: 'No shared team configuration is installed' }),
+  ).toBeVisible()
+  await expect(page.getByText('no team policy', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Verify signature and install' })).toBeDisabled()
+
   await page.getByRole('link', { name: 'Settings' }).click()
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
   await expect(page.getByText('Envarium daemon')).toBeVisible()
@@ -50,4 +57,5 @@ test('renders the alpha shell, keyboard palette, and live daemon settings', asyn
   await logAge.fill(originalLogDays)
   await page.getByRole('button', { name: 'Save settings' }).click()
   await expect(page.getByText(/Restart the daemon to apply/)).toBeHidden()
+  expect(browserErrors).toEqual([])
 })

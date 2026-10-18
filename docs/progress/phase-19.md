@@ -116,3 +116,11 @@ new demand signal, threat model, and ADR.
    mutations require explicit grants/confirmation, Companion remains read-only,
    publisher trust is reviewable, and telemetry displays its exact payload and
    destination before consent.
+## Team page correctness follow-up, 2026-10-17
+
+The operational experience refresh fixes the real empty-policy rendering
+failure and verifies explicit publisher trust and signed bundle installation on
+a disposable daemon. Bundle review now displays the payload and requires a new
+confirmation after input changes. See the
+[execution and verification ledger](experience-refresh-2026-10-17.md) for scope,
+regressions and remaining complete-suite checks.

@@ -49,8 +49,10 @@ func (s *Service) Registry(ctx context.Context) ([]domain.RegistryEntry, error) 
 // EffectivePolicy intersects every installed policy and enterprise bundle.
 func (s *Service) EffectivePolicy(ctx context.Context) (domain.EffectivePolicy, error) {
 	result := domain.EffectivePolicy{
+		SourceBundleIDs:           []string{},
 		AllowedRemoteCapabilities: []string{"inventory.read", "project.operate", "environment.manage"},
 		AllowedRemoteActions:      []string{"start", "stop", "restart", "rebuild"},
+		AllowedRegistryPublishers: []string{},
 		TelemetryAllowed:          true,
 	}
 	for _, kind := range []domain.BundleKind{domain.KindPolicyPack, domain.KindEnterpriseConfig} {
@@ -123,7 +125,7 @@ func intersection(left, right []string) []string {
 
 func mergePublisherPolicy(current, next []string, first bool) []string {
 	if first {
-		return slices.Clone(next)
+		return append([]string{}, next...)
 	}
 	return intersection(current, next)
 }

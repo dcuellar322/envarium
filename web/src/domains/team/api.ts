@@ -24,9 +24,13 @@ export async function loadTeamPublishers(): Promise<Array<TeamPublisher>> {
   return result.data
 }
 
-export async function trustPublisher(name: string, publicKey: string): Promise<TeamPublisher> {
+export async function trustPublisher(
+  name: string,
+  publicKey: string,
+  confirmRisk: boolean,
+): Promise<TeamPublisher> {
   const result = await trustTeamPublisher({
-    body: { name, publicKey, confirmRisk: true },
+    body: { name, publicKey, confirmRisk },
     headers: headers(),
   })
   if (result.error || !result.data) throw new Error('The exact publisher key could not be trusted.')
@@ -39,9 +43,9 @@ export async function loadTeamBundles(): Promise<Array<TeamBundle>> {
   return result.data
 }
 
-export async function installBundle(bundle: TeamBundle): Promise<TeamBundle> {
+export async function installBundle(bundle: TeamBundle, confirmRisk: boolean): Promise<TeamBundle> {
   const result = await installTeamBundle({
-    body: { bundle, confirmRisk: true },
+    body: { bundle, confirmRisk },
     headers: headers(),
   })
   if (result.error || !result.data)
@@ -52,7 +56,13 @@ export async function installBundle(bundle: TeamBundle): Promise<TeamBundle> {
 export async function loadEffectivePolicy(): Promise<EffectiveTeamPolicy> {
   const result = await getEffectiveTeamPolicy()
   if (result.error || !result.data) throw new Error('Effective team policy is unavailable.')
-  return result.data
+  return {
+    ...result.data,
+    sourceBundleIds: result.data.sourceBundleIds ?? [],
+    allowedRemoteCapabilities: result.data.allowedRemoteCapabilities ?? [],
+    allowedRemoteActions: result.data.allowedRemoteActions ?? [],
+    allowedRegistryPublishers: result.data.allowedRegistryPublishers ?? [],
+  }
 }
 
 export async function loadCuratedPlugins(): Promise<Array<CuratedPlugin>> {

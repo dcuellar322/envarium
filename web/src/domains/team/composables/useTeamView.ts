@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import type { TeamBundle, TeamPublisher } from '../../../api/generated/types.gen'
+import { parseBundleFile } from '../bundleFile'
 import {
   installBundle,
   loadCuratedPlugins,
@@ -23,8 +24,13 @@ export function useTeamView() {
   const selectedBundle = ref<TeamBundle>()
   const bundleReviewed = ref(false)
   const fileError = ref('')
+  let fileSelection = 0
+  watch([publisherName, publicKey], () => (publisherReviewed.value = false), { flush: 'sync' })
   const trust = useMutation({
-    mutationFn: () => trustPublisher(publisherName.value, publicKey.value),
+    mutationFn: () => {
+      if (!publisherReviewed.value) throw new Error('Review the exact publisher key first.')
+      return trustPublisher(publisherName.value, publicKey.value, publisherReviewed.value)
+    },
     onSuccess: (value) => {
       queryClient.setQueryData<Array<TeamPublisher>>(['team-publishers'], (current = []) => [
         ...current.filter((item) => item.id !== value.id),
@@ -36,7 +42,11 @@ export function useTeamView() {
     },
   })
   const install = useMutation({
-    mutationFn: () => installBundle(selectedBundle.value as TeamBundle),
+    mutationFn: () => {
+      if (!bundleReviewed.value || !selectedBundle.value)
+        throw new Error('Review the selected bundle and payload first.')
+      return installBundle(selectedBundle.value, bundleReviewed.value)
+    },
     onSuccess: async () => {
       selectedBundle.value = undefined
       bundleReviewed.value = false
@@ -52,12 +62,20 @@ export function useTeamView() {
       trust.error.value ||
       install.error.value,
   )
+  const queryError = computed(
+    () =>
+      publishers.isError.value ||
+      bundles.isError.value ||
+      policy.isError.value ||
+      registry.isError.value,
+  )
   const loading = computed(() =>
     [publishers, bundles, policy, registry].some((query) => query.isPending.value),
   )
   const emptyConfiguration = computed(
     () =>
       !loading.value &&
+      !queryError.value &&
       (publishers.data.value?.length ?? 0) === 0 &&
       (bundles.data.value?.length ?? 0) === 0 &&
       (policy.data.value?.sourceBundleIds.length ?? 0) === 0 &&
@@ -65,8 +83,11 @@ export function useTeamView() {
   )
 
   async function selectBundle(event: unknown) {
+    const selection = ++fileSelection
     fileError.value = ''
     selectedBundle.value = undefined
+    bundleReviewed.value = false
+    install.reset()
     const file = (
       event as {
         target?: { files?: ArrayLike<{ size: number; text(): Promise<string> }> }
@@ -78,9 +99,14 @@ export function useTeamView() {
       return
     }
     try {
-      selectedBundle.value = JSON.parse(await file.text()) as TeamBundle
-    } catch {
-      fileError.value = 'The selected file is not a JSON bundle.'
+      const bundle = parseBundleFile(await file.text())
+      if (selection === fileSelection) selectedBundle.value = bundle
+    } catch (error) {
+      if (selection === fileSelection)
+        fileError.value =
+          error instanceof SyntaxError
+            ? 'The selected file is not valid JSON.'
+            : (error as Error).message
     }
   }
   return {
@@ -97,6 +123,9 @@ export function useTeamView() {
     trust,
     install,
     error,
+    queryError,
+    retry: () =>
+      Promise.all([publishers.refetch(), bundles.refetch(), policy.refetch(), registry.refetch()]),
     loading,
     emptyConfiguration,
     selectBundle,
