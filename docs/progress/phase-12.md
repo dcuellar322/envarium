@@ -1562,3 +1562,15 @@ build/test logs and the original database backup remain in the private ignored
 `retention-final-memory-trend.json`. The temporary awake assertion was removed.
 After measurement the verified native app was reopened and left running hidden;
 the daemon and project containers remain running.
+
+## October 2026 monitoring cost investigation
+
+ADR-0024 now records per-observation sibling file reads, kernel-pinned directory
+traversal on Darwin/Linux, batched environment/run reads, a shared fresh scheduler
+input feed, and combined status/metric resolution. Direct lifecycle/trust checks
+remain fresh. No resource sample or health interval was lengthened to obtain the
+CPU reduction. FIFO/symlink/confinement, failure, cancellation, copied snapshots,
+subscriber bounds and shutdown/restart paths have regression coverage.
+
+Installed sustained acceptance and raw-series continuity are recorded in
+`experience-refresh-2026-10-17.md`; short profiles alone do not satisfy acceptance.

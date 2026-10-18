@@ -180,3 +180,16 @@ func (s *metricSinkFake) WriteMetric(_ context.Context, sample domain.MetricSamp
 	s.samples = append(s.samples, sample)
 	return nil
 }
+
+func (f inspectorFake) Bindings(ctx context.Context, ports []domain.PublishedPort, owners []domain.ProcessIdentity) ([]domain.PublishedPort, error) {
+	result := []domain.PublishedPort{}
+	for _, port := range ports {
+		for _, listener := range f.listeners[port.HostPort] {
+			if listenerOwned(listener, owners) {
+				result = append(result, port)
+				break
+			}
+		}
+	}
+	return result, ctx.Err()
+}

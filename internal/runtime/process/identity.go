@@ -33,6 +33,7 @@ type processInspector interface {
 	Snapshot(context.Context, int32) (domain.ProcessIdentity, error)
 	GroupMembers(context.Context, int32) ([]domain.ProcessIdentity, error)
 	Listeners(context.Context, int) ([]domain.ProcessIdentity, error)
+	Bindings(context.Context, []domain.PublishedPort, []domain.ProcessIdentity) ([]domain.PublishedPort, error)
 	MatchesCommand(context.Context, int32, string) bool
 	Usage(context.Context, int32) (processUsage, error)
 }
@@ -107,11 +108,7 @@ func (inspector gopsutilInspector) GroupMembers(ctx context.Context, group int32
 }
 
 func (inspector gopsutilInspector) Listeners(ctx context.Context, port int) ([]domain.ProcessIdentity, error) {
-	read := inspector.connections
-	if read == nil {
-		read = func(ctx context.Context) ([]gnet.ConnectionStat, error) { return sockets.Connections(ctx, "tcp") }
-	}
-	connections, err := read(ctx)
+	connections, err := inspector.readConnections(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -249,4 +246,11 @@ func primaryIdentity(values []domain.ProcessIdentity) (domain.ProcessIdentity, e
 		}
 	}
 	return result, nil
+}
+
+func (inspector gopsutilInspector) readConnections(ctx context.Context) ([]gnet.ConnectionStat, error) {
+	if inspector.connections != nil {
+		return inspector.connections(ctx)
+	}
+	return sockets.Connections(ctx, "tcp")
 }

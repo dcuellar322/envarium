@@ -155,3 +155,30 @@ browser, visual, production web, and production binary build checks.
 - Updated unit, E2E, and 14 deterministic visual checks cover logs, endpoints,
   terminal navigation, Team states, responsive dashboard controls, and the
   revised application chrome.
+
+## October 2026 operational UI audit
+
+The operational experience refresh adds application/service/endpoint port
+connections and explicit Git file groups, branch previews and worktree inventory.
+It also repairs empty Team state, unavailable storage wording, workspace button
+styles, Discovery consent alignment, Agents layout and project-card phone widths.
+Native dialogs contain keyboard focus and restore it when closed.
+
+Real API/browser checks exercise discovery/trust, native and Compose lifecycle,
+workspace start/stop, integrated terminal streams, Settings revision saves,
+command-palette navigation, and the empty Team page. An owned Git repository
+verified partial staging, local branch/worktree inventory, confirmed branch
+checkout, a separately reviewed start and the new branch's HTTP response.
+A signed policy was verified and installed only into disposable audit data.
+
+All 13 top-level routes were checked at 1440 and 390 pixels: Dashboard, Projects,
+Ports, Resources, Logs, Discovery, Workspaces, Machines, Companion, Team, Agents,
+Plugins and Settings. Final results show no horizontal document overflow, serious
+or critical WCAG A/AA axe findings, or browser exceptions. The complete visual
+suite now includes a phone-width long-name/path regression.
+
+These checks supplement domain integration and component coverage for error,
+permission, cancellation, stale review and disconnected states. They do not claim
+a live external paired machine, paid AI provider, signed release updater, or
+user-data deletion was exercised. Those adapters retain their own integration
+coverage and explicit review/credential requirements.

@@ -4,6 +4,7 @@ import (
 	"context"
 	catalog "envarium.dev/envarium/internal/catalog/domain"
 	runtime "envarium.dev/envarium/internal/runtime/domain"
+	"errors"
 	"testing"
 )
 
@@ -35,5 +36,18 @@ func TestRuntimeBindingsExcludeStoppedDeclarations(t *testing.T) {
 		if fact.ServiceID != "running" && fact.ServiceID != "paused" && fact.ServiceID != "restarting" {
 			t.Fatalf("inactive service presented as bound: %#v", fact)
 		}
+	}
+}
+
+type precisePortRuntime struct{ portRuntime }
+
+func (precisePortRuntime) InspectBindings(context.Context, string) (runtime.Observation, error) {
+	return runtime.Observation{}, errors.New("socket permission denied")
+}
+func TestRuntimeBindingsUsesPreciseSocketBoundaryAndReportsFailure(t *testing.T) {
+	t.Parallel()
+	facts, err := NewRuntimeBindings(portCatalog{}, precisePortRuntime{}).Facts(context.Background())
+	if err == nil || len(facts) != 0 {
+		t.Fatalf("declared runtime ports substituted for unavailable sockets: %v %v", facts, err)
 	}
 }

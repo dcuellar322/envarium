@@ -89,3 +89,28 @@ func TestCombinedMonitoringInactiveFailureAndCancellation(t *testing.T) {
 		t.Fatal("canceled observation ran")
 	}
 }
+
+type combinedMonitoringDriver struct {
+	monitoringDriver
+	cycles int
+}
+
+func (d *combinedMonitoringDriver) ObserveMetrics(_ context.Context, project domain.ProjectRuntime) (domain.Observation, []domain.MetricSample, error) {
+	d.cycles++
+	d.received = project
+	return domain.Observation{ProjectID: project.ProjectID, State: domain.StateRunning}, []domain.MetricSample{{ProjectID: project.ProjectID, CPUAvailable: true}}, nil
+}
+func TestOptimizedMetricCycleStillRequiresFreshProjectTrust(t *testing.T) {
+	t.Parallel()
+	source := &monitoringSource{project: domain.ProjectRuntime{ProjectID: "p", Kind: domain.KindProcess, ManifestHash: "current"}}
+	driver := &combinedMonitoringDriver{}
+	service := NewService(source, driver)
+	if _, samples, err := service.ObserveMetrics(context.Background(), "p"); err != nil || len(samples) != 1 || driver.cycles != 1 || driver.received.ManifestHash != "current" {
+		t.Fatal("combined cycle not used", samples, err)
+	}
+	denied := errors.New("trust revoked")
+	source.err = denied
+	if _, _, err := service.ObserveMetrics(context.Background(), "p"); !errors.Is(err, denied) || driver.cycles != 1 {
+		t.Fatal("combined cycle bypassed trust", err)
+	}
+}

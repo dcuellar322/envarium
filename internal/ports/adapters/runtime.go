@@ -43,7 +43,7 @@ func (s *RuntimeBindings) Facts(ctx context.Context) ([]domain.Fact, error) {
 		if project.TrustState != catalogDomain.TrustTrusted {
 			continue
 		}
-		observation, observeErr := s.runtime.Inspect(ctx, project.ID)
+		observation, observeErr := s.observeBindings(ctx, project.ID)
 		if observeErr != nil {
 			observationErrors = append(observationErrors, observeErr)
 			continue
@@ -71,12 +71,18 @@ func (s *RuntimeBindings) Facts(ctx context.Context) ([]domain.Fact, error) {
 			}
 		}
 	}
-	if len(facts) == 0 && len(observationErrors) > 0 {
-		return nil, errors.Join(observationErrors...)
-	}
-	return facts, nil
+	return facts, errors.Join(observationErrors...)
 }
 
 func runtimeFactID(projectID, serviceID, host string, port runtimeDomain.PublishedPort) string {
 	return stableID("runtime", projectID, serviceID, host, port.Protocol, port.HostPort)
+}
+
+func (s *RuntimeBindings) observeBindings(ctx context.Context, id string) (runtimeDomain.Observation, error) {
+	if observer, ok := s.runtime.(interface {
+		InspectBindings(context.Context, string) (runtimeDomain.Observation, error)
+	}); ok {
+		return observer.InspectBindings(ctx, id)
+	}
+	return s.runtime.Inspect(ctx, id)
 }

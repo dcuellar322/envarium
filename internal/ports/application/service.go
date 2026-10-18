@@ -97,9 +97,8 @@ func (s *Service) refreshRegistry(ctx context.Context) (domain.Registry, error) 
 	runtimeBindings, bindingErr := s.bindings.Facts(ctx)
 	if bindingErr != nil {
 		warnings = append(warnings, "runtime bindings unavailable: "+bindingErr.Error())
-	} else {
-		facts = append(facts, runtimeBindings...)
 	}
+	facts = append(facts, runtimeBindings...)
 	listeners, listenerErr := s.listeners.Facts(ctx)
 	if listenerErr != nil {
 		warnings = append(warnings, "OS listeners unavailable: "+listenerErr.Error())

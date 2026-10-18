@@ -23,6 +23,11 @@ func (s *Service) ObserveMetrics(ctx context.Context, id string) (domain.Observa
 	if err != nil {
 		return domain.Observation{}, nil, err
 	}
+	if observer, ok := driver.(interface {
+		ObserveMetrics(context.Context, domain.ProjectRuntime) (domain.Observation, []domain.MetricSample, error)
+	}); ok {
+		return observer.ObserveMetrics(ctx, project)
+	}
 	observation, err := s.observations.load(ctx, id, func() (domain.Observation, error) { return driver.Inspect(ctx, project) })
 	if err != nil || !observation.State.IsActive() {
 		return observation, []domain.MetricSample{}, err
@@ -30,4 +35,19 @@ func (s *Service) ObserveMetrics(ctx context.Context, id string) (domain.Observa
 	sink := &metricCollector{samples: []domain.MetricSample{}}
 	err = driver.StreamMetrics(ctx, domain.MetricRequest{Project: project}, sink)
 	return observation, sink.samples, err
+}
+
+// InspectBindings uses precise driver socket attribution only on demand. Ordinary
+// health/metrics retain their independent process and resource observations.
+func (s *Service) InspectBindings(ctx context.Context, id string) (domain.Observation, error) {
+	project, driver, err := s.resolve(ctx, id)
+	if err != nil {
+		return domain.Observation{}, err
+	}
+	if observer, ok := driver.(interface {
+		InspectBindings(context.Context, domain.ProjectRuntime) (domain.Observation, error)
+	}); ok {
+		return observer.InspectBindings(ctx, project)
+	}
+	return s.observations.load(ctx, id, func() (domain.Observation, error) { return driver.Inspect(ctx, project) })
 }

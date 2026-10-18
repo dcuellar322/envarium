@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -131,5 +132,19 @@ func TestSuggestionIncludesReservationsBindingsAndExclusions(t *testing.T) {
 	}
 	if suggestion.Port != 15003 {
 		t.Fatalf("port = %d", suggestion.Port)
+	}
+}
+
+type partialBindingSource struct{}
+
+func (partialBindingSource) Facts(context.Context) ([]domain.Fact, error) {
+	return []domain.Fact{{ID: "observed", Kind: domain.KindBinding, ProjectID: "p", Port: 3000, Protocol: "tcp", Host: "127.0.0.1"}}, errors.New("another project socket observation denied")
+}
+func TestRegistryPreservesVerifiedBindingsWithPartialSourceWarnings(t *testing.T) {
+	t.Parallel()
+	service := NewService(sourceStub{}, partialBindingSource{}, sourceStub{}, reservationStub{})
+	registry, err := service.Registry(context.Background())
+	if err != nil || len(registry.Facts) != 1 || registry.Facts[0].ID != "observed" || len(registry.Warnings) != 1 {
+		t.Fatalf("partial evidence lost or hidden: %#v %v", registry, err)
 	}
 }

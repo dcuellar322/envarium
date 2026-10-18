@@ -143,3 +143,24 @@ daemon observation must continue.
   bounded card/path widths, followed by a full route rerun.
 - The native app rebuilt successfully. Final installation, sustained resource
   measurements, Linux visual baselines and exact-commit hosted CI remain pending.
+
+### Sustained installed follow-up
+
+The installed `26f45a4` build's 900-second closed-app run averaged under 1%, but
+its five-minute windows were **0.987%, 0.955%, 1.041%**. The sustained criterion
+therefore fails; continue profiling rather than accepting the aggregate. A
+further isolated CPU profile includes a full housekeeping cycle.
+
+A final accuracy review also found native runtime declarations could appear
+bound before sockets existed. Correct this in a separate on-demand port
+observation, with current process ownership and actual socket addresses; keep
+ordinary health/metrics independent of optional socket permissions.
+
+The next profile (`profile-d`) sampled 2.54 CPU seconds over 330 seconds (0.77%);
+its largest remaining costs are Docker HTTP and SQLite reads. Profiling rates
+are not the installed acceptance result. Compose metrics previously duplicated
+container list/inspection work between status and statistics. A new call-scoped
+cycle shares one inventory and post-statistics inspections, without retaining
+old restart values, changing intervals or weakening lifecycle reconciliation.
+Focused race tests verify reuse, fresh restart counts, inactive containers,
+partial failures, cancellation and current trust at the optimized boundary.

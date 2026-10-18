@@ -1148,6 +1148,21 @@ adapter. Reuse only that call's typed inputs; preserve direct trust/file checks,
 active/inactive classification, existing status coalescing, driver failures and
 metric sampling. Alternate adapters retain their existing independent reads.
 
+Native port attribution is also an explicit inventory concern: a process being
+alive does not prove every configured socket exists. The native driver exposes
+an on-demand binding read that intersects current TCP listeners with freshly
+verified run/process-group owners and retains actual IPv4/IPv6 addresses. The
+port registry uses that application boundary. Its failures do not alter ordinary
+runtime, health or metric observations, and no background socket poll is added.
+
+The Compose metric cycle can share a single current container inventory and each
+successful post-statistics inspection with status assembly. Its evidence map is
+owned by that call and discarded immediately afterward. It is never an aged
+restart-count cache: every new sample cycle reads new Engine statistics and
+inspections, stopped containers do no statistics work, partial failures remain
+explicit, and the pre-inventory ownership token still guards reconciliation.
+Direct lifecycle inspection and planning retain their existing fresh paths.
+
 ---
 
 # ADR-0025: Origin proof and immutable reviewed inputs
@@ -5695,6 +5710,57 @@ daemon observation must continue.
   outstanding runtime reviews when the branch changes without a manifest change;
   complete that safety work before declaring the Git slice verified.
 
+### Functional and quality verification
+
+- The complete Go race suite passes with bounded package concurrency (`-p 2`);
+  an earlier simultaneous heavy-check run timed out in fixture migration setup.
+  Go vet/lint, architecture, repository checks, empty-database migrations,
+  Linux/Windows adapter compilation and govulncheck pass (zero called vulnerable
+  symbols). Frontend coverage passes: 33 files, 84 tests.
+- Public site generation, type checks, lint, 21 unit tests, build and validation
+  pass; 158 HTML pages validated. Hosted full site/browser CI is still pending.
+- A disposable real Git repository displayed README in both staged and unstaged
+  groups and an untracked file, and listed its separate worktree. A confirmed
+  branch switch completed as a durable operation, opened a fresh start preview,
+  and started the feature branch's distinct HTTP response. The fixture was then
+  stopped and removed from the disposable catalog. User branches were untouched.
+- Detailed Git inventory has no background poll. Checkout hooks, configured
+  filters, dirty/conflicted/in-progress states, stale refs and active runtimes
+  fail safely. Native worktree starts are explicitly unavailable pending
+  environment-aware run ownership and port remapping; Compose remains supported.
+- Full browser, visual, narrow-screen and installed performance acceptance are
+  still pending. Candidate-C's short result is not final acceptance.
+
+- All five real API/browser lifecycle flows pass, including Compose, native
+  process, workspace coordination, terminal streaming, Settings and empty Team.
+  The 16 existing macOS visual cases pass with reviewed updates to Ports and
+  Agents; a new 390-pixel long-project-name case passes. The phone route audit
+  exposed intrinsic project-card width overflow; corrected header wrapping and
+  bounded card/path widths, followed by a full route rerun.
+- The native app rebuilt successfully. Final installation, sustained resource
+  measurements, Linux visual baselines and exact-commit hosted CI remain pending.
+
+### Sustained installed follow-up
+
+The installed `26f45a4` build's 900-second closed-app run averaged under 1%, but
+its five-minute windows were **0.987%, 0.955%, 1.041%**. The sustained criterion
+therefore fails; continue profiling rather than accepting the aggregate. A
+further isolated CPU profile includes a full housekeeping cycle.
+
+A final accuracy review also found native runtime declarations could appear
+bound before sockets existed. Correct this in a separate on-demand port
+observation, with current process ownership and actual socket addresses; keep
+ordinary health/metrics independent of optional socket permissions.
+
+The next profile (`profile-d`) sampled 2.54 CPU seconds over 330 seconds (0.77%);
+its largest remaining costs are Docker HTTP and SQLite reads. Profiling rates
+are not the installed acceptance result. Compose metrics previously duplicated
+container list/inspection work between status and statistics. A new call-scoped
+cycle shares one inventory and post-statistics inspections, without retaining
+old restart values, changing intervals or weakening lifecycle reconciliation.
+Focused race tests verify reuse, fresh restart counts, inactive containers,
+partial failures, cancellation and current trust at the optimized boundary.
+
 ---
 
 # Local catalog usability
@@ -7068,6 +7134,17 @@ environment values.
   `make repository-check`, and `make build` passed. Generated outputs were
   byte-identical across consecutive generation runs.
 
+## October 2026 source-control refresh
+
+Detailed Git inventory is an on-demand endpoint, separate from inexpensive
+background status. NUL-delimited file/worktree parsing preserves literal paths,
+renames, partial staging and conflicts; file/branch/output limits are explicit.
+Local branches and actual/unregistered worktrees are visible in Project Git.
+ADR-0026 defines confirmed existing-local-branch switching of a clean, trusted,
+stopped checkout through durable operations and shared runtime serialization.
+The subsequent runtime uses a fresh confirmation; old checkout reviews expire.
+No fetch, force, automatic stash, hook or configured checkout filter is used.
+
 ---
 
 # Phase 9: Dashboard alpha
@@ -7225,6 +7302,33 @@ browser, visual, production web, and production binary build checks.
 - Updated unit, E2E, and 14 deterministic visual checks cover logs, endpoints,
   terminal navigation, Team states, responsive dashboard controls, and the
   revised application chrome.
+
+## October 2026 operational UI audit
+
+The operational experience refresh adds application/service/endpoint port
+connections and explicit Git file groups, branch previews and worktree inventory.
+It also repairs empty Team state, unavailable storage wording, workspace button
+styles, Discovery consent alignment, Agents layout and project-card phone widths.
+Native dialogs contain keyboard focus and restore it when closed.
+
+Real API/browser checks exercise discovery/trust, native and Compose lifecycle,
+workspace start/stop, integrated terminal streams, Settings revision saves,
+command-palette navigation, and the empty Team page. An owned Git repository
+verified partial staging, local branch/worktree inventory, confirmed branch
+checkout, a separately reviewed start and the new branch's HTTP response.
+A signed policy was verified and installed only into disposable audit data.
+
+All 13 top-level routes were checked at 1440 and 390 pixels: Dashboard, Projects,
+Ports, Resources, Logs, Discovery, Workspaces, Machines, Companion, Team, Agents,
+Plugins and Settings. Final results show no horizontal document overflow, serious
+or critical WCAG A/AA axe findings, or browser exceptions. The complete visual
+suite now includes a phone-width long-name/path regression.
+
+These checks supplement domain integration and component coverage for error,
+permission, cancellation, stale review and disconnected states. They do not claim
+a live external paired machine, paid AI provider, signed release updater, or
+user-data deletion was exercised. Those adapters retain their own integration
+coverage and explicit review/credential requirements.
 
 ---
 
@@ -9048,6 +9152,18 @@ build/test logs and the original database backup remain in the private ignored
 After measurement the verified native app was reopened and left running hidden;
 the daemon and project containers remain running.
 
+## October 2026 monitoring cost investigation
+
+ADR-0024 now records per-observation sibling file reads, kernel-pinned directory
+traversal on Darwin/Linux, batched environment/run reads, a shared fresh scheduler
+input feed, and combined status/metric resolution. Direct lifecycle/trust checks
+remain fresh. No resource sample or health interval was lengthened to obtain the
+CPU reduction. FIFO/symlink/confinement, failure, cancellation, copied snapshots,
+subscriber bounds and shutdown/restart paths have regression coverage.
+
+Installed sustained acceptance and raw-series continuity are recorded in
+`experience-refresh-2026-10-17.md`; short profiles alone do not satisfy acceptance.
+
 ---
 
 # Phase 13: Workspaces, dependencies, worktrees, and local routing
@@ -9175,6 +9291,21 @@ survived restart.
   non-HTTP bound services remain visible but are not proxyable.
 - Worktrees are observed and registered but never created, removed, or checked
   out by Envarium. Repository mutation remains outside this phase.
+
+## October 2026 checkout workflow refresh
+
+ADR-0026 adds on-demand changed-file, branch and Git worktree inventory and an
+explicitly reviewed local branch switch. A stopped, clean, trusted main checkout
+can switch to an existing local branch; runtime execution then requires a fresh
+start preview. Root-scoped serialization and checkout revisions reject earlier
+runtime confirmations, including branch changes with identical manifests.
+
+Isolated worktree starts currently support Compose only. Native worktree runs
+need environment-aware durable run ownership and explicit port remapping; the
+existing native run table is owned by catalog project IDs. The UI and shared
+runtime planner now reject those starts explicitly, while preserving stop/kill
+cleanup. Native users can switch branches in the main checkout and review its
+normal lifecycle controls. Registration alone does not imply native isolation.
 
 ---
 

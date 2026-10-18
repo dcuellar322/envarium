@@ -13,6 +13,20 @@ import (
 )
 
 func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, config normalizedConfig) (domain.Observation, error) {
+	engine, ping, err := d.engine.Connect(ctx, config.Connection)
+	if err != nil {
+		return disconnectedObservation(project, config, err), nil
+	}
+	defer func() { _ = engine.Close() }()
+
+	observation, items, ownership, err := d.inspectionInputs(ctx, project, config, engine, ping)
+	if err != nil {
+		return disconnectedObservation(project, config, err), nil
+	}
+	return d.observeContainers(ctx, engine, project, config, observation, items, ownership)
+}
+
+func (d *Driver) inspectionInputs(ctx context.Context, project domain.ProjectRuntime, config normalizedConfig, engine engineClient, ping client.PingResult) (domain.Observation, []container.Summary, ownershipToken, error) {
 	observation := domain.Observation{
 		ProjectID: project.ProjectID, Driver: domain.KindCompose, ProjectIdentity: config.ProjectName,
 		Origin: domain.OriginExternal, ObservedAt: time.Now().UTC(),
@@ -21,14 +35,9 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 	if project.Compose != nil {
 		observation.AvailableProfiles = append([]string(nil), project.Compose.Profiles...)
 	}
-	engine, ping, err := d.engine.Connect(ctx, config.Connection)
-	if err != nil {
-		return disconnectedObservation(project, config, err), nil
-	}
-	defer func() { _ = engine.Close() }()
 	version, err := engine.ServerVersion(ctx, client.ServerVersionOptions{})
 	if err != nil {
-		return disconnectedObservation(project, config, err), nil
+		return domain.Observation{}, nil, ownershipToken{}, err
 	}
 	observation.Engine.Connected = true
 	observation.Engine.APIVersion = ping.APIVersion
@@ -36,9 +45,13 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime, con
 	ownership := d.managed.OwnershipToken(config.ProjectName)
 	containers, err := engine.ContainerList(ctx, client.ContainerListOptions{All: true, Filters: projectFilters(config.ProjectName)})
 	if err != nil {
-		return disconnectedObservation(project, config, err), nil
+		return domain.Observation{}, nil, ownershipToken{}, err
 	}
 	items := composeContainers(containers.Items, config.ProjectName, config.Services)
+	return observation, items, ownership, nil
+}
+
+func (d *Driver) observeContainers(ctx context.Context, engine engineClient, project domain.ProjectRuntime, config normalizedConfig, observation domain.Observation, items []container.Summary, ownership ownershipToken) (domain.Observation, error) {
 	ids := make([]string, 0, len(items))
 	allOwned := len(items) > 0
 	for _, item := range items {

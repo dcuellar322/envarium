@@ -25,6 +25,10 @@ func (d *Driver) streamMetrics(ctx context.Context, request domain.MetricRequest
 		return fmt.Errorf("list Compose containers for metrics: %w", err)
 	}
 	items := composeContainers(containers.Items, config.ProjectName, config.Services)
+	return streamMetricItems(ctx, request, engine, items, sink)
+}
+
+func streamMetricItems(ctx context.Context, request domain.MetricRequest, engine engineClient, items []container.Summary, sink domain.MetricSink) error {
 	// Eight workers bound Engine load while preventing sequential two-sample
 	// statistics reads from exhausting the entire project's sampling deadline.
 	type result struct {

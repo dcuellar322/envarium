@@ -84,6 +84,14 @@ test('manages a native process project through durable browser operations', asyn
     timeout: 15_000,
   })
 
+  const nativeProjectURL = page.url()
+  await page.getByRole('link', { name: 'Ports', exact: true }).click()
+  await expect(
+    page
+      .getByRole('list', { name: 'Applications, services, and host ports' })
+      .getByText('19862', { exact: true }),
+  ).toBeVisible({ timeout: 15_000 })
+  await page.goto(nativeProjectURL)
   await page.getByRole('button', { name: 'Stop', exact: true }).click()
   await expect(page.getByRole('dialog', { name: /stop 1 native process service/ })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm stop' }).click()

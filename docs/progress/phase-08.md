@@ -169,3 +169,14 @@ environment values.
   `make platform-check`, `make test-e2e`, `make test-visual`,
   `make repository-check`, and `make build` passed. Generated outputs were
   byte-identical across consecutive generation runs.
+
+## October 2026 source-control refresh
+
+Detailed Git inventory is an on-demand endpoint, separate from inexpensive
+background status. NUL-delimited file/worktree parsing preserves literal paths,
+renames, partial staging and conflicts; file/branch/output limits are explicit.
+Local branches and actual/unregistered worktrees are visible in Project Git.
+ADR-0026 defines confirmed existing-local-branch switching of a clean, trusted,
+stopped checkout through durable operations and shared runtime serialization.
+The subsequent runtime uses a fresh confirmation; old checkout reviews expire.
+No fetch, force, automatic stash, hook or configured checkout filter is used.

@@ -214,3 +214,18 @@ current observation, or observation plus statistics, to the owning monitoring
 adapter. Reuse only that call's typed inputs; preserve direct trust/file checks,
 active/inactive classification, existing status coalescing, driver failures and
 metric sampling. Alternate adapters retain their existing independent reads.
+
+Native port attribution is also an explicit inventory concern: a process being
+alive does not prove every configured socket exists. The native driver exposes
+an on-demand binding read that intersects current TCP listeners with freshly
+verified run/process-group owners and retains actual IPv4/IPv6 addresses. The
+port registry uses that application boundary. Its failures do not alter ordinary
+runtime, health or metric observations, and no background socket poll is added.
+
+The Compose metric cycle can share a single current container inventory and each
+successful post-statistics inspection with status assembly. Its evidence map is
+owned by that call and discarded immediately afterward. It is never an aged
+restart-count cache: every new sample cycle reads new Engine statistics and
+inspections, stopped containers do no statistics work, partial failures remain
+explicit, and the pre-inventory ownership token still guards reconciliation.
+Direct lifecycle inspection and planning retain their existing fresh paths.

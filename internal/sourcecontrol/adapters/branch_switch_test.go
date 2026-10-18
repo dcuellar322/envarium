@@ -12,7 +12,10 @@ func TestGitBranchSwitchPreservesIgnoredFilesAndDoesNotRunHooks(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("shell hook fixture is Unix-only")
 	}
-	t.Parallel()
+	// Runner images commonly configure Git LFS globally. Isolate this fixture
+	// without weakening the production check of inherited checkout filters.
+	t.Setenv("GIT_CONFIG_NOSYSTEM", "1")
+	t.Setenv("GIT_CONFIG_GLOBAL", os.DevNull)
 	root := t.TempDir()
 	runGit(t, root, "init", "-b", "main")
 	runGit(t, root, "config", "user.name", "Test")
@@ -63,5 +66,19 @@ func TestGitBranchSwitchPreservesIgnoredFilesAndDoesNotRunHooks(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, "filter-was-run")); !os.IsNotExist(err) {
 		t.Fatal("configured filter executed")
+	}
+	runGit(t, root, "config", "--unset", "filter.custom.smudge")
+	global := filepath.Join(t.TempDir(), "gitconfig")
+	if err := os.WriteFile(global, []byte(`[filter "inherited"]
+    process = touch inherited-filter-was-run
+`), 0600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("GIT_CONFIG_GLOBAL", global)
+	if err := git.CheckSwitchSafety(context.Background(), root); err == nil {
+		t.Fatal("inherited global filter accepted")
+	}
+	if _, err := os.Stat(filepath.Join(root, "inherited-filter-was-run")); !os.IsNotExist(err) {
+		t.Fatal("inherited filter executed")
 	}
 }

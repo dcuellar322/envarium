@@ -9,17 +9,29 @@ import (
 )
 
 func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime) (domain.Observation, error) {
+	return d.inspectProjectPorts(ctx, project, false)
+}
+
+// InspectBindings reads precise native socket attribution only for an explicit
+// port inventory. Background health and metrics do not depend on socket access.
+func (d *Driver) InspectBindings(ctx context.Context, project domain.ProjectRuntime) (domain.Observation, error) {
+	return d.inspectProjectPorts(ctx, project, true)
+}
+func (d *Driver) inspectProjectPorts(ctx context.Context, project domain.ProjectRuntime, ports bool) (domain.Observation, error) {
 	if project.Process == nil {
-		return d.inspectRuns(ctx, project, nil)
+		return d.inspectRunsPorts(ctx, project, nil, ports)
 	}
 	runs, err := d.store.ListProjectRuns(ctx, project.ProjectID)
 	if err != nil {
 		return domain.Observation{}, err
 	}
-	return d.inspectRuns(ctx, project, runs)
+	return d.inspectRunsPorts(ctx, project, runs, ports)
 }
 
 func (d *Driver) inspectRuns(ctx context.Context, project domain.ProjectRuntime, runs []domain.RunRecord) (domain.Observation, error) {
+	return d.inspectRunsPorts(ctx, project, runs, false)
+}
+func (d *Driver) inspectRunsPorts(ctx context.Context, project domain.ProjectRuntime, runs []domain.RunRecord, observePorts bool) (domain.Observation, error) {
 	observation := domain.Observation{
 		ProjectID: project.ProjectID, Driver: domain.KindProcess, ProjectIdentity: project.ProjectSlug,
 		Origin: domain.OriginExternal, ObservedAt: d.now().UTC(), Services: []domain.ServiceObservation{},
@@ -59,6 +71,10 @@ func (d *Driver) inspectRuns(ctx context.Context, project domain.ProjectRuntime,
 				serviceObservation.State = "running"
 				serviceObservation.Process = processMetadata(run, identity)
 				managedRunning++
+				serviceObservation.Ports, err = d.observedPorts(ctx, observePorts, serviceObservation.Ports, verified)
+				if err != nil {
+					return domain.Observation{}, err
+				}
 				d.recordRecoveredMembers(ctx, run, verified)
 			case observation.ObservedAt.Sub(run.StartedAt) < identityHandoffGrace:
 				serviceObservation.State = "starting"
@@ -80,6 +96,14 @@ func (d *Driver) inspectRuns(ctx context.Context, project domain.ProjectRuntime,
 				WorkingDirectory: identity.WorkingDirectory, StartedAt: timePointer(identity.StartedAt), Fingerprint: identity.Fingerprint,
 			}
 			externalRunning++
+			// External listeners are not adopted: a shared terminal process group
+			// does not establish application ownership of sibling processes.
+			socketOwner := identity
+			socketOwner.ProcessGroup = 0
+			serviceObservation.Ports, err = d.observedPorts(ctx, observePorts, serviceObservation.Ports, []domain.ProcessIdentity{socketOwner})
+			if err != nil {
+				return domain.Observation{}, err
+			}
 		} else if run, ok := latest[service.service.ID]; ok && run.EndedAt != nil {
 			serviceObservation.Process = historicalProcessMetadata(run)
 			if run.ExitCode != nil && *run.ExitCode != 0 {
