@@ -11,15 +11,17 @@ import (
 )
 
 type managedRun struct {
-	mu        sync.Mutex
-	run       domain.RunRecord
-	project   domain.ProjectRuntime
-	service   servicePlan
-	command   *exec.Cmd
-	group     int32
-	ownership processOwnership
-	stopping  bool
-	logs      *logBuffer
+	mu            sync.Mutex
+	run           domain.RunRecord
+	project       domain.ProjectRuntime
+	service       servicePlan
+	command       *exec.Cmd
+	group         int32
+	ownership     processOwnership
+	restartCancel context.CancelFunc
+	restartDone   chan struct{}
+	stopping      bool
+	logs          *logBuffer
 }
 
 func (d *Driver) startAll(ctx context.Context, plan executionPlan, sink domain.ProgressSink) error {
@@ -37,7 +39,7 @@ func (d *Driver) startAll(ctx context.Context, plan executionPlan, sink domain.P
 		if created {
 			started = append(started, managed)
 		}
-		message := "already running with verified Envarium ownership"
+		message := "already owned by Envarium; running or awaiting supervised restart"
 		if created {
 			managed.mu.Lock()
 			pid := managed.run.Processes[0].PID
@@ -56,6 +58,9 @@ func (d *Driver) rollbackStarts(runs []*managedRun) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	for index := len(runs) - 1; index >= 0; index-- {
-		_ = d.stopRun(ctx, runs[index].run, time.Second, "start_cancelled")
+		runs[index].mu.Lock()
+		run := runs[index].run
+		runs[index].mu.Unlock()
+		_ = d.stopRun(ctx, run, time.Second, "start_cancelled")
 	}
 }

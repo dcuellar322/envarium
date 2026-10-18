@@ -153,3 +153,20 @@ func TestNativeEnvironmentCanPlanThroughSharedLifecycleGate(t *testing.T) {
 		t.Fatal("existing environment cannot be stopped", err)
 	}
 }
+
+func TestCheckoutGateAllowsExitedFailureButRejectsPendingOrUnknownRuntime(t *testing.T) {
+	projects := map[string]domain.ProjectRuntime{"p": {ProjectID: "p", Root: "/repo", Kind: domain.KindCompose}}
+	for _, state := range []domain.ProjectState{domain.StateFailed, domain.StateStarting, domain.StateUnknown} {
+		driver := &checkoutDriver{states: map[string]domain.ProjectState{"p": state}}
+		service := NewService(projectSourceStub{projects: projects}, driver)
+		changed := false
+		err := service.WithStoppedProject(context.Background(), "p", func() error { changed = true; return nil })
+		if state == domain.StateFailed {
+			if err != nil || !changed {
+				t.Fatal("exited failure blocked checkout", err)
+			}
+		} else if !errors.Is(err, ErrCheckoutActive) || changed {
+			t.Fatal("non-quiescent checkout allowed", state, err)
+		}
+	}
+}

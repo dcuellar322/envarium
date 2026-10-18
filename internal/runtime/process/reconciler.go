@@ -40,40 +40,66 @@ func (d *Driver) monitor(managed *managedRun, command *exec.Cmd, environment []s
 }
 
 func (d *Driver) restartAfterCrash(managed *managedRun, environment []string, priorExit int) {
-	backoff := time.Duration(managed.service.definition.Restart.BackoffSeconds) * time.Second
-	select {
-	case <-d.ctx.Done():
-		d.finishManaged(managed, &priorExit, "crashed")
+	managed.mu.Lock()
+	if managed.stopping || managed.run.EndedAt != nil {
+		managed.mu.Unlock()
 		return
-	case <-time.After(backoff):
+	}
+	//nolint:gosec // G118: the supervised restart owns cancel until completion; stop cancels and joins it.
+	restartCtx, cancel := context.WithCancel(d.ctx)
+	done := make(chan struct{})
+	managed.restartCancel, managed.restartDone = cancel, done
+	managed.mu.Unlock()
+	defer func() {
+		cancel()
+		managed.mu.Lock()
+		if managed.restartDone == done {
+			managed.restartCancel = nil
+			managed.restartDone = nil
+		}
+		managed.mu.Unlock()
+		close(done)
+	}()
+	backoff := time.NewTimer(time.Duration(managed.service.definition.Restart.BackoffSeconds) * time.Second)
+	defer backoff.Stop()
+	select {
+	case <-restartCtx.Done():
+		d.finishRestartFailure(managed, priorExit, "crashed")
+		return
+	case <-backoff.C:
 	}
 	managed.mu.Lock()
-	if managed.stopping {
+	if managed.stopping || restartCtx.Err() != nil {
 		managed.mu.Unlock()
 		return
 	}
 	managed.run.RestartCount++
 	restartCount := managed.run.RestartCount
 	managed.mu.Unlock()
-	if err := d.store.SetRestartCount(context.Background(), managed.run.ID, restartCount); err != nil {
-		d.finishManaged(managed, &priorExit, "restart_persistence_failed")
+	if err := d.store.SetRestartCount(restartCtx, managed.run.ID, restartCount); err != nil {
+		d.finishRestartFailure(managed, priorExit, "restart_persistence_failed")
 		return
 	}
 	managed.mu.Lock()
 	priorOwnership := managed.ownership
 	managed.mu.Unlock()
 	closeOwnership(priorOwnership)
-	command, identity, ownership, err := d.launch(d.ctx, managed, environment)
+	command, identity, ownership, err := d.launch(restartCtx, managed, environment)
 	if err != nil {
-		d.finishManaged(managed, &priorExit, "restart_failed")
+		d.finishRestartFailure(managed, priorExit, "restart_failed")
 		return
 	}
-	if err := d.store.RecordProcess(context.Background(), identity); err != nil {
+	if err := d.store.RecordProcess(restartCtx, identity); err != nil {
 		abortOwnedProcess(command, ownership, identity.ProcessGroup)
-		d.finishManaged(managed, &priorExit, "restart_persistence_failed")
+		d.finishRestartFailure(managed, priorExit, "restart_persistence_failed")
 		return
 	}
 	managed.mu.Lock()
+	if managed.stopping || restartCtx.Err() != nil {
+		managed.mu.Unlock()
+		abortOwnedProcess(command, ownership, identity.ProcessGroup)
+		return
+	}
 	managed.command = command
 	managed.group = identity.ProcessGroup
 	managed.ownership = ownership

@@ -42,7 +42,10 @@ approval of old-branch commands never authorizes newly checked-out commands.
 Switching services between existing worktrees stops only the selected source and
 reviews a fresh target restart. Other worktrees remain independent. Cancellation
 or failure stops the workflow and is visible; do not silently roll back checkout
-changes or retry commands from another branch.
+changes or retry commands from another branch. Pending crash restart backoff
+counts as active ownership; stop/kill cancel and join the supervised restart
+before checkout mutation. A fully exited failed runtime is quiescent, while
+starting, restarting and unknown states remain blocked.
 
 Native friendly HTTP routes require a currently observed, ownership-verified TCP
 binding at an exact leased port. Declarations and a live PID alone cannot publish

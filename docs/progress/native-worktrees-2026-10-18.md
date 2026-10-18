@@ -16,7 +16,10 @@ explicit `${ports.ID}` references consume that checkout's exact leases. Native
 lease changes use the same root lock as lifecycle execution and inspect fresh
 owned process evidence before writing. Metadata reconciliation preserves newer routes and leases.
 Retired owned services remain observable
-and are included in whole-scope stop/restart/kill cleanup.
+and are included in whole-scope stop/restart/kill cleanup. Pending crash restarts
+remain active ownership; stop/kill cancel and join them before reporting a
+quiescent checkout. An exited failure with no active service can still switch
+branches without falsifying the recorded failure.
 
 The Git selector inspects each registered checkout. Branch switching guides
 separate stop, checkout, and fresh-start reviews. Moving services between

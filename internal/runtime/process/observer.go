@@ -77,6 +77,10 @@ func (d *Driver) inspectRunsPorts(ctx context.Context, project domain.ProjectRun
 					return domain.Observation{}, err
 				}
 				d.recordRecoveredMembers(ctx, run, verified)
+			case d.supervisingRun(run):
+				serviceObservation.State = "starting"
+				serviceObservation.Process = historicalProcessMetadata(run)
+				starting++
 			case observation.ObservedAt.Sub(run.StartedAt) < identityHandoffGrace:
 				serviceObservation.State = "starting"
 				serviceObservation.Process = historicalProcessMetadata(run)

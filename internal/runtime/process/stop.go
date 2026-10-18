@@ -44,20 +44,19 @@ func (d *Driver) stopAll(ctx context.Context, plan executionPlan, sink domain.Pr
 }
 
 func (d *Driver) stopRun(ctx context.Context, run domain.RunRecord, timeout time.Duration, reason string) error {
+	managed, err := d.prepareManagedStop(ctx, run)
+	if err != nil {
+		return err
+	}
 	verified, err := d.verifiedMembersWithGrace(ctx, run, identityHandoffGrace)
 	if err != nil {
 		return err
 	}
 	if len(verified) == 0 {
+		if managed != nil {
+			return d.finishStoppedRun(ctx, run, managed, reason)
+		}
 		return d.store.FinishRun(ctx, run.ID, d.now().UTC(), nil, "identity_lost")
-	}
-	d.mu.RLock()
-	managed := d.managed[serviceKey(run.ProjectID, run.ServiceID)]
-	d.mu.RUnlock()
-	if managed != nil {
-		managed.mu.Lock()
-		managed.stopping = true
-		managed.mu.Unlock()
 	}
 	groups := uniqueGroups(verified)
 	for _, group := range groups {

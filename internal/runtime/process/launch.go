@@ -28,7 +28,7 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 		if verifyErr != nil {
 			return nil, false, verifyErr
 		}
-		if len(verified) > 0 {
+		if len(verified) > 0 || d.supervisingRun(run) {
 			return d.managedFor(run), false, nil
 		}
 		if err := d.store.FinishRun(ctx, run.ID, d.now().UTC(), nil, "identity_lost"); err != nil {
@@ -97,6 +97,9 @@ func (d *Driver) launch(
 	managed *managedRun,
 	environment []string,
 ) (*exec.Cmd, domain.ProcessIdentity, processOwnership, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, domain.ProcessIdentity{}, nil, err
+	}
 	preview := previewCommand(managed.project.Root, managed.service.definition)
 	command := exec.Command(preview.Executable, preview.Arguments...)
 	command.Dir = preview.WorkingDirectory

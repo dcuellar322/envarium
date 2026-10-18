@@ -92,7 +92,7 @@ func (s *Service) WithStoppedProject(ctx context.Context, id string, action func
 		if err != nil {
 			return fmt.Errorf("verify stopped checkout: %w", err)
 		}
-		if observation.State != domain.StateStopped {
+		if observation.State != domain.StateStopped && observation.State != domain.StateFailed {
 			return ErrCheckoutActive
 		}
 	}
