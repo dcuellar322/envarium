@@ -10198,6 +10198,12 @@ and repository-file safety checks are unchanged. A missing-source traversal
 experiment did not show a useful improvement and was removed. Final installed
 CPU/memory measurements and workflow links accompany the retained fix report.
 
+Normal log appends also avoid a redundant read transaction: the existing unique
+digest insert remains the atomic replay guard. A preflight lookup is retained
+before segment allocation/rotation, and lookup failures now fail closed.
+Regression tests cover replay without extra files or publications and canceled
+appends without changes to durable entries, for both full and reusable segments.
+
 ## Remaining external acceptance
 
 Signed OS installation/notarization, production updater signing and retained-data

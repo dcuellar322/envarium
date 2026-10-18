@@ -3,8 +3,10 @@ package sqlite
 import (
 	"context"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -133,29 +135,9 @@ func (s *LogStore) WriteLog(ctx context.Context, entry runtime.LogEntry) error {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	var existing int64
-	err = s.database.queryRowContext(ctx, `SELECT sequence FROM log_entries WHERE digest = ?`, digest).Scan(&existing)
-	if err == nil {
-		return nil
-	}
-	key := logSegmentKey(entry)
-	segment := s.active[key]
-	if segment != nil && segment.lines > 0 && segment.size+int64(encodedSize+1) > s.config.SegmentBytes {
-		if err := s.closeSegment(ctx, segment); err != nil {
-			return err
-		}
-		delete(s.active, key)
-		segment = nil
-	}
-	if segment == nil {
-		if err := s.makeSegmentRoom(ctx); err != nil {
-			return err
-		}
-		segment, err = s.createSegment(ctx, entry)
-		if err != nil {
-			return err
-		}
-		s.active[key] = segment
+	segment, err := s.segmentForAppend(ctx, entry, digest, encodedSize)
+	if err != nil || segment == nil {
+		return err
 	}
 	lineNumber := segment.lines + 1
 	tx, err := s.database.connection.BeginTx(ctx, nil)
@@ -215,6 +197,45 @@ func (s *LogStore) WriteLog(ctx context.Context, entry runtime.LogEntry) error {
 		return s.applyRetentionLocked(ctx)
 	}
 	return nil
+}
+
+// segmentForAppend returns nil for a replay that needs no segment allocation.
+// The caller holds s.mu throughout selection and the subsequent append.
+func (s *LogStore) segmentForAppend(ctx context.Context, entry runtime.LogEntry, digest string, encodedSize int) (*activeLogSegment, error) {
+	key := logSegmentKey(entry)
+	segment := s.active[key]
+	rotate := segment != nil && segment.lines > 0 && segment.size+int64(encodedSize+1) > s.config.SegmentBytes
+	// Normal appends already deduplicate atomically in the INSERT. A separate
+	// lookup is needed only before allocating or rotating a segment for a replay.
+	if segment == nil || rotate {
+		var existing int64
+		err := s.database.queryRowContext(ctx, `SELECT sequence FROM log_entries WHERE digest = ?`, digest).Scan(&existing)
+		if err == nil {
+			return nil, nil
+		}
+		if !errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("check log replay: %w", err)
+		}
+	}
+	if rotate {
+		if err := s.closeSegment(ctx, segment); err != nil {
+			return nil, err
+		}
+		delete(s.active, key)
+		segment = nil
+	}
+	if segment == nil {
+		if err := s.makeSegmentRoom(ctx); err != nil {
+			return nil, err
+		}
+		var err error
+		segment, err = s.createSegment(ctx, entry)
+		if err != nil {
+			return nil, err
+		}
+		s.active[key] = segment
+	}
+	return segment, nil
 }
 
 func (s *LogStore) createSegment(ctx context.Context, entry runtime.LogEntry) (*activeLogSegment, error) {
