@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"sync"
 	"time"
@@ -88,6 +89,10 @@ func sampleContainer(ctx context.Context, engine engineClient, project domain.Pr
 	if err := json.NewDecoder(result.Body).Decode(&stats); err != nil {
 		return fmt.Errorf("decode Compose container metrics: %w", err)
 	}
+	// This is a finite response. Consume its terminating chunk so the shared
+	// HTTP transport can reuse the connection for inspect and the next sample.
+	// Bound unexpected trailing data; the sampling context also bounds waits.
+	_, _ = io.CopyN(io.Discard, result.Body, 512)
 	timestamp := stats.Read.UTC()
 	if timestamp.IsZero() {
 		timestamp = time.Now().UTC()

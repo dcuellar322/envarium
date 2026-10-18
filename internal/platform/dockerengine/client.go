@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/moby/moby/client"
 )
@@ -67,12 +69,12 @@ func (c Connection) CLIPrefix() []string {
 // NewClient preserves the context's verified TLS configuration.
 func (c Connection) NewClient() (*client.Client, error) {
 	if c.FromEnv {
-		return client.New(client.FromEnv, client.WithUserAgent("envarium"))
+		return client.New(client.WithHTTPClient(observerHTTPClient()), client.WithHost(client.DefaultDockerHost), client.FromEnv, client.WithUserAgent("envarium"))
 	}
 	if strings.HasPrefix(c.Host, "ssh://") {
 		return nil, fmt.Errorf("docker SSH context %q is not supported by the Engine SDK observer", c.ContextName)
 	}
-	options := []client.Opt{client.WithHost(c.Host), client.WithUserAgent("envarium")}
+	options := []client.Opt{client.WithHTTPClient(observerHTTPClient()), client.WithHost(c.Host), client.WithUserAgent("envarium")}
 	if strings.HasPrefix(c.Host, "tcp://") {
 		if c.SkipTLSVerify {
 			return nil, fmt.Errorf("docker context %q disables TLS verification and is refused by Envarium", c.ContextName)
@@ -95,4 +97,18 @@ func contextTLSFiles(root string) (string, string, string) {
 		}
 	}
 	return files[0], files[1], files[2]
+}
+
+// Preserve concurrent observation connections between polls. The SDK default
+// keeps only two idle connections per host, causing churn across many services.
+// Host dialing and verified TLS are still applied by the SDK options afterward.
+func observerHTTPClient() *http.Client {
+	// Docker uses HTTP/1. Cloning a transport with automatic HTTP/2 setup can
+	// populate TLS config and make the SDK misclassify Unix sockets as HTTPS.
+	protocols := new(http.Protocols)
+	protocols.SetHTTP1(true)
+	return &http.Client{Transport: &http.Transport{
+		MaxIdleConns: 32, MaxIdleConnsPerHost: 32, IdleConnTimeout: 30 * time.Second,
+		ReadBufferSize: 16 << 10, Protocols: protocols,
+	}, CheckRedirect: client.CheckRedirect}
 }
