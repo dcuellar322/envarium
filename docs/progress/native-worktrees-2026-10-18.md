@@ -45,7 +45,7 @@ fails transactionally. No additional closed-app Git or socket poll was added.
   the other's run stays intact,
   and reviews moving services to the other checkout. Fixture services are stopped
   before its repositories are removed.
-- Site quality passes: 124 documentation sources, 160 built pages, no content or
+- Site quality passes: 125 documentation sources, 161 built pages, no content or
   build errors. Site browser checks pass 60 cases with 16 configured skips; all
   six site visual cases pass.
 - Govulncheck reports no called vulnerabilities. Existing uncalled module and
@@ -53,7 +53,62 @@ fails transactionally. No additional closed-app Git or socket poll was added.
 
 ## Installed and hosted acceptance
 
-Build/install, sustained resource measurements with the user's projects, and
-exact-master hosted workflow results will be appended after completion. Before
-upgrade, the user's 11 catalog projects and 16 running containers were recorded;
-installation must preserve their identities, start times and restart counts.
+The optimized local macOS app, installed CLI and development bundle helper use
+runtime commit `09e0c03fc375` (version 1.0.0). The app and helpers pass deep code
+signature verification. The daemon stopped gracefully, an offline schema 18
+backup passed integrity verification, and the new daemon became ready on schema
+19. The installed native dashboard was visually checked with the real catalog.
+The user's 11 projects and 16 running containers retained their identities,
+start times and restart counts.
+
+CPU below is a percentage of one logical core, summed across the daemon, native
+app and native helpers, including reaped helper CPU. Memory values are medians of
+process totals; RSS and macOS physical footprint use different accounting. Docker
+VM and project workload usage are recorded separately from Envarium overhead.
+
+| App state | Duration | CPU | RSS | Physical footprint |
+| --- | --- | --- | --- | --- |
+| Closed | 15 minutes | 0.84% | 59.2 MiB | 41.1 MiB |
+| Visible native dashboard | 5 minutes | 4.84% | 284.9 MiB | 343.5 MiB |
+| Hidden, still running | 5 minutes | 1.26% | 287.1 MiB | 168.4 MiB |
+| Closed after native use | 5 minutes | 0.81% | 51.0 MiB | 42.3 MiB |
+
+The three separate closed-app five-minute windows were 0.804%, 0.822% and
+0.881%, satisfying the under-1% target. Native helper cohorts and app visibility
+were checked throughout each sample. No product monitoring interval was reduced.
+
+All 16 service series had CPU and memory available and zero partial samples.
+Each service had at least 90 points during the closed sample and 30 during every
+five-minute sample. Worst raw-sample gaps were 11.04 seconds closed, 10.15 visible,
+10.06 hidden, and 10.05 after quitting, against the configured ten-second cadence.
+The accuracy evidence was captured before raw retention could remove it.
+
+Private raw measurements and verification records live under the ignored
+`.cache/resource-live-20261016/native-worktree-*.json` and
+`.cache/experience-20261017/native-worktree-verification-*.json` paths. The
+installation record includes the offline backup and rollback paths.
+
+### Hosted acceptance and runner isolation
+
+The first hosted browser failure was the expected production refusal of inherited
+Git LFS checkout filters configured on runner images. The test daemon and its
+owned Git fixtures now isolate system/global Git configuration; the production
+filter refusal remains intact. Fixture project IDs are unique per attempt so a
+retry cannot collide with an earlier accepted catalog entry. Two consecutive
+native-worktree browser runs passed with a temporary runner-style Git LFS config.
+
+All workflows for fixture/evidence baseline `e0d3109` passed:
+[main CI](https://github.com/dcuellar322/envarium/actions/runs/39134552841),
+[full site CI](https://github.com/dcuellar322/envarium/actions/runs/39134552700),
+[security](https://github.com/dcuellar322/envarium/actions/runs/39134552791), and
+[site deployment](https://github.com/dcuellar322/envarium/actions/runs/39134552751).
+Main CI passed every job, including Linux/Windows/macOS adapters, native packaging,
+Go/race/lint/generated/migration checks, frontend checks, real browser/visual
+flows, and embedded release/MCP packaging. Site CI validated 125 documentation
+sources and 161 HTML pages, passed 60 browser cases with 16 configured skips, and
+passed all six visual cases.
+
+Production source paths (`cmd`, `internal`, `api`, `sdk`, `web/src`, `desktop`)
+remain identical to installed runtime commit `09e0c03fc375`; subsequent changes
+contain test-fixture isolation and verification evidence. The final evidence-only
+master commit also receives hosted verification before handoff.

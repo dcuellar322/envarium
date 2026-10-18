@@ -161,5 +161,5 @@ distinct ports and logs/metrics, switches one to a branch-specific HTTP response
 checks the other run is untouched, and moves services through reviewed stop and
 restart steps. The fixture is stopped and removed afterward.
 
-See [native worktree instructions](../how-to/native-worktrees.md). Final installed
-build, resource measurements, and hosted CI are recorded in the follow-up evidence.
+See [native worktree instructions](../how-to/native-worktrees.md). Installed build, sustained resource measurements, monitoring accuracy, and hosted
+CI are recorded in [the follow-up evidence](native-worktrees-2026-10-18.md).
