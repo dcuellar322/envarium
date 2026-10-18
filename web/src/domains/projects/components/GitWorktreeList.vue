@@ -9,9 +9,10 @@ const props = defineProps<{
   worktrees: GitWorktree[]
   environments: ProjectEnvironment[]
   pending: boolean
+  selected?: string
   driver?: string
 }>()
-defineEmits<{ action: [id: string, action: RuntimeAction] }>()
+defineEmits<{ action: [id: string, action: RuntimeAction]; move: [id: string] }>()
 const pathKey = (path: string) => path.replaceAll('\\', '/').replace(/\/$/, '')
 const checkouts = computed(() => {
   const entries = props.worktrees.map((tree) => ({
@@ -37,7 +38,7 @@ const checkouts = computed(() => {
   return entries
 })
 function canStart() {
-  return props.driver === 'compose'
+  return props.driver === 'compose' || props.driver === 'process'
 }
 </script>
 
@@ -68,14 +69,16 @@ function canStart() {
         <p v-if="entry.environment.unavailableReason" class="unavailable" role="status">
           {{ entry.environment.unavailableReason }}
         </p>
-        <p v-if="!entry.environment.primary && !canStart()" class="unavailable">
-          {{
-            driver === 'process'
-              ? 'Isolated worktree starts currently support Compose. For native processes, switch branches in the main checkout and use its project controls.'
-              : 'Runtime information is unavailable. Refresh the project before starting this worktree.'
-          }}
-        </p>
         <div v-if="entry.environment.availability === 'available'" class="worktree-actions">
+          <button
+            v-if="!entry.environment.primary && selected !== entry.environment.id"
+            type="button"
+            class="btn"
+            :disabled="pending || !entry.observed || !canStart()"
+            @click="$emit('move', entry.environment.id)"
+          >
+            Switch services here…
+          </button>
           <button
             v-if="!entry.environment.primary"
             type="button"

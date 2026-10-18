@@ -67,6 +67,25 @@ func TestEnvironmentSnapshotKeepsLeaseOwnershipOrderAndFreshness(t *testing.T) {
 	if err != nil || items[2].Allocation.PortLeases[0].HostPort != 15003 {
 		t.Fatal("batch retained a previous allocation")
 	}
+	active, err := repository.Get(ctx, inputs[1].ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	active.State = domain.StateActive
+	active.Target = "http://127.0.0.1:15003"
+	if err := repository.Update(ctx, active); err != nil {
+		t.Fatal(err)
+	}
+	// An earlier discovery snapshot cannot replace newer runtime state or leases.
+	inputs[1].Allocation.PortLeases[0].HostPort = 15002
+	inputs[1].Head = "abcd"
+	if err := repository.ReplaceProject(ctx, "project", inputs); err != nil {
+		t.Fatal(err)
+	}
+	current, err := repository.Get(ctx, inputs[1].ID)
+	if err != nil || current.Head != "abcd" || current.State != domain.StateActive || current.Target != active.Target || current.Allocation.PortLeases[0].HostPort != 15003 {
+		t.Fatalf("metadata overwrote live runtime: %#v %v", current, err)
+	}
 	canceled, cancel := context.WithCancel(ctx)
 	cancel()
 	if _, err := repository.List(canceled); !errors.Is(err, context.Canceled) {

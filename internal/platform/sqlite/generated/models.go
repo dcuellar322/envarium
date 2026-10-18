@@ -154,17 +154,18 @@ type FleetSnapshot struct {
 }
 
 type HealthSample struct {
-	ID         int64  `json:"id"`
-	ProjectID  string `json:"project_id"`
-	ServiceID  string `json:"service_id"`
-	CheckID    string `json:"check_id"`
-	CheckType  string `json:"check_type"`
-	Status     string `json:"status"`
-	Severity   string `json:"severity"`
-	Required   int64  `json:"required"`
-	LatencyMs  int64  `json:"latency_ms"`
-	Message    string `json:"message"`
-	ObservedAt string `json:"observed_at"`
+	ID             int64  `json:"id"`
+	ProjectID      string `json:"project_id"`
+	ServiceID      string `json:"service_id"`
+	CheckID        string `json:"check_id"`
+	CheckType      string `json:"check_type"`
+	Status         string `json:"status"`
+	Severity       string `json:"severity"`
+	Required       int64  `json:"required"`
+	LatencyMs      int64  `json:"latency_ms"`
+	Message        string `json:"message"`
+	ObservedAt     string `json:"observed_at"`
+	RuntimeScopeID string `json:"runtime_scope_id"`
 }
 
 type LogEntry struct {
@@ -400,6 +401,7 @@ type Run struct {
 	IdentityFingerprint string         `json:"identity_fingerprint"`
 	RestartCount        int64          `json:"restart_count"`
 	OperationID         sql.NullString `json:"operation_id"`
+	RuntimeScopeID      string         `json:"runtime_scope_id"`
 }
 
 type RunProcess struct {

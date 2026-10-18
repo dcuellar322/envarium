@@ -18,16 +18,16 @@ func newStatusCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		project, err := resolveProject(command.Context(), client, args[0])
+		project, err := resolveRuntimeScope(command.Context(), client, args[0])
 		if err != nil {
 			return err
 		}
-		observation, err := client.Runtime(command.Context(), project.Id)
+		observation, err := client.Runtime(command.Context(), project.ID)
 		if err != nil {
 			return err
 		}
 		return writeResult(options, "runtime.status", observation, func(w io.Writer) error {
-			if _, err := fmt.Fprintf(w, "%s: %s (%s)\n", project.Slug, observation.State, observation.Origin); err != nil {
+			if _, err := fmt.Fprintf(w, "%s: %s (%s)\n", project.Name, observation.State, observation.Origin); err != nil {
 				return err
 			}
 			if observation.Engine != nil && !observation.Engine.Connected {
@@ -70,11 +70,11 @@ func newPlanCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		project, err := resolveProject(command.Context(), client, args[1])
+		project, err := resolveRuntimeScope(command.Context(), client, args[1])
 		if err != nil {
 			return err
 		}
-		plan, err := client.PlanRuntimeSelection(command.Context(), project.Id, action, removeVolumes, nil, profiles)
+		plan, err := client.PlanRuntimeSelection(command.Context(), project.ID, action, removeVolumes, nil, profiles)
 		if err != nil {
 			return err
 		}
@@ -96,7 +96,7 @@ func newLifecycleCommand(options *rootOptions, actionName string) *cobra.Command
 		if err != nil {
 			return err
 		}
-		project, err := resolveProject(command.Context(), client, args[0])
+		project, err := resolveRuntimeScope(command.Context(), client, args[0])
 		if err != nil {
 			return err
 		}
@@ -104,12 +104,12 @@ func newLifecycleCommand(options *rootOptions, actionName string) *cobra.Command
 		if err != nil {
 			return err
 		}
-		operation, err := client.CreateRuntimeOperationSelection(command.Context(), project.Id, generated.RuntimeAction(actionName), removeVolumes, nil, profiles, key)
+		operation, err := client.CreateRuntimeOperationSelection(command.Context(), project.ID, generated.RuntimeAction(actionName), removeVolumes, nil, profiles, key)
 		if err != nil {
 			return err
 		}
 		return writeResult(options, "runtime.operation", operation, func(w io.Writer) error {
-			_, err := fmt.Fprintf(w, "%s queued for %s\noperation: %s\nstate: %s\n", actionName, project.Slug, operation.Id, operation.State)
+			_, err := fmt.Fprintf(w, "%s queued for %s\noperation: %s\nstate: %s\n", actionName, project.Name, operation.Id, operation.State)
 			return err
 		})
 	}}
@@ -130,7 +130,7 @@ func newLogsCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		project, err := resolveProject(command.Context(), client, args[0])
+		project, err := resolveRuntimeScope(command.Context(), client, args[0])
 		if err != nil {
 			return err
 		}
@@ -139,7 +139,7 @@ func newLogsCommand(options *rootOptions) *cobra.Command {
 			if !format.Valid() {
 				return usageError("LOG_EXPORT_FORMAT_INVALID", "--export must be plain or ndjson")
 			}
-			contents, err := client.ExportRuntimeLogs(command.Context(), project.Id, service, runID, operationID, format)
+			contents, err := client.ExportRuntimeLogs(command.Context(), project.ID, service, runID, operationID, format)
 			if err != nil {
 				return err
 			}
@@ -148,7 +148,7 @@ func newLogsCommand(options *rootOptions) *cobra.Command {
 				return err
 			})
 		}
-		entries, err := client.RuntimeLogs(command.Context(), project.Id, service, since, runID, operationID, tail)
+		entries, err := client.RuntimeLogs(command.Context(), project.ID, service, since, runID, operationID, tail)
 		if err != nil {
 			return err
 		}
@@ -177,11 +177,11 @@ func newMetricsCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		project, err := resolveProject(command.Context(), client, args[0])
+		project, err := resolveRuntimeScope(command.Context(), client, args[0])
 		if err != nil {
 			return err
 		}
-		samples, err := client.RuntimeMetrics(command.Context(), project.Id, service)
+		samples, err := client.RuntimeMetrics(command.Context(), project.ID, service)
 		if err != nil {
 			return err
 		}

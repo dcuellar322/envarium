@@ -18,10 +18,14 @@ func NewHealthRepository(database *Database) *HealthRepository {
 
 // AppendHealth records one sanitized health result.
 func (r *HealthRepository) AppendHealth(ctx context.Context, result observability.HealthResult) error {
+	owner := result.CatalogProjectID
+	if owner == "" {
+		owner = result.ProjectID
+	}
 	_, err := r.database.execContext(ctx, `INSERT INTO health_samples
-        (project_id, service_id, check_id, check_type, status, severity, required, latency_ms, message, observed_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, result.ProjectID, result.ServiceID, result.CheckID, result.Type,
-		result.Status, result.Severity, result.Required, result.LatencyMS, result.Message, formatTime(result.ObservedAt))
+        (project_id, service_id, check_id, check_type, status, severity, required, latency_ms, message, observed_at, runtime_scope_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, owner, result.ServiceID, result.CheckID, result.Type,
+		result.Status, result.Severity, result.Required, result.LatencyMS, result.Message, formatTime(result.ObservedAt), result.ProjectID)
 	if err != nil {
 		return fmt.Errorf("append health sample: %w", err)
 	}
@@ -32,12 +36,12 @@ func (r *HealthRepository) AppendHealth(ctx context.Context, result observabilit
 func (r *HealthRepository) LatestHealth(ctx context.Context, projectID string) ([]observability.HealthResult, error) {
 	rows, err := r.database.queryContext(ctx, `WITH scopes AS MATERIALIZED (
         SELECT DISTINCT service_id AS service_scope, check_id AS check_scope
-        FROM health_samples WHERE project_id = ?
-      ) SELECT project_id, service_id, check_id, check_type,
+        FROM health_samples WHERE runtime_scope_id = ?
+      ) SELECT runtime_scope_id, service_id, check_id, check_type,
         status, severity, required, latency_ms, message, observed_at
         FROM scopes CROSS JOIN health_samples AS latest
         WHERE latest.id = (
-          SELECT id FROM health_samples WHERE project_id = ?
+          SELECT id FROM health_samples WHERE runtime_scope_id = ?
             AND service_id = service_scope AND check_id = check_scope
           ORDER BY observed_at DESC, id DESC LIMIT 1
         ) ORDER BY service_id, check_id`, projectID, projectID)

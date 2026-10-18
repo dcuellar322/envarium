@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"envarium.dev/envarium/internal/environments/domain"
 	"errors"
 	"slices"
 	"testing"
@@ -88,4 +89,59 @@ func (a *allocatorStub) Suggest(_ context.Context, _, _ int, _ string, _ string,
 	result := a.next
 	a.next++
 	return result, nil
+}
+
+type checkoutDeclarations struct {
+	declarationStub
+	scopes []string
+}
+
+func (s *checkoutDeclarations) DeclarationsForEnvironment(_ context.Context, id string) ([]PortDeclaration, error) {
+	s.scopes = append(s.scopes, id)
+	return []PortDeclaration{{ID: id, Protocol: "tcp", TargetPort: 8080}}, nil
+}
+func TestRegistrationReadsEachSelectedCheckoutDeclarations(t *testing.T) {
+	repository := &repositoryStub{}
+	service := newTestService(repository, []WorktreeObservation{{Path: "/repo/main", Branch: "main"}, {Path: "/repo/feature", Branch: "feature"}})
+	source := &checkoutDeclarations{}
+	coordinator := NewRegistrationCoordinator(service, source, &allocatorStub{next: 21000})
+	result, err := coordinator.RegisterWorktrees(context.Background(), "project-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(source.scopes) != 2 {
+		t.Fatal("did not resolve both checkouts")
+	}
+	for _, environment := range result.Environments {
+		if len(environment.Allocation.PortLeases) != 1 || environment.Allocation.PortLeases[0].PortID != environment.ID {
+			t.Fatal("used another checkout's declarations")
+		}
+	}
+}
+
+type countedRuntimeWrites struct {
+	*repositoryStub
+	updates int
+}
+
+func (r *countedRuntimeWrites) Update(ctx context.Context, environment domain.Environment) error {
+	r.updates++
+	return r.repositoryStub.Update(ctx, environment)
+}
+func TestStableRegistrationDoesNotRewriteRuntimeState(t *testing.T) {
+	repository := &repositoryStub{}
+	service := newTestService(repository, []WorktreeObservation{{Path: "/repo/main", Branch: "main"}})
+	counted := &countedRuntimeWrites{repositoryStub: repository}
+	service.repository = counted
+	coordinator := NewRegistrationCoordinator(service, declarationStub{items: []PortDeclaration{{ID: "api", Protocol: "tcp", TargetPort: 8080}}}, &allocatorStub{next: 21000})
+	if _, err := coordinator.RegisterWorktrees(context.Background(), "project-1"); err != nil {
+		t.Fatal(err)
+	}
+	first := counted.updates
+	if _, err := coordinator.RegisterWorktrees(context.Background(), "project-1"); err != nil {
+		t.Fatal(err)
+	}
+	if first != 1 || counted.updates != first {
+		t.Fatal("unchanged registration wrote runtime state", counted.updates)
+	}
 }

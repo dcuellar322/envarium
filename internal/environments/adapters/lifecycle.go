@@ -41,6 +41,18 @@ func (l *Lifecycle) Started(ctx context.Context, environmentID string) error {
 	if err != nil {
 		return err
 	}
+	if observation.Driver == runtimeDomain.KindProcess {
+		bindings, ok := l.runtime.(interface {
+			InspectBindings(context.Context, string) (runtimeDomain.Observation, error)
+		})
+		if !ok {
+			return fmt.Errorf("native environment routes require verified socket observations")
+		}
+		observation, err = bindings.InspectBindings(ctx, environmentID)
+		if err != nil {
+			return err
+		}
+	}
 	hostPort := firstObservedLease(environment, observation)
 	state, target := domain.StateInactive, ""
 	if hostPort != 0 {

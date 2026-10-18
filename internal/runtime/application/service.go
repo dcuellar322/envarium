@@ -73,9 +73,7 @@ func (s *Service) PlanSelection(ctx context.Context, projectID string, action do
 	if err != nil {
 		return domain.Plan{}, err
 	}
-	if project.EnvironmentID != "" && project.Kind == domain.KindProcess && action != domain.ActionStop && action != domain.ActionKill {
-		return domain.Plan{}, ErrNativeEnvironmentUnsupported
-	}
+
 	revision, err := s.checkouts.revision(project.Root)
 	if err != nil {
 		return domain.Plan{}, err
@@ -149,7 +147,7 @@ func (s *Service) FollowLogs(ctx context.Context, projectID, service, since stri
 	if err != nil {
 		return err
 	}
-	return driver.StreamLogs(ctx, domain.LogRequest{Project: project, Service: service, Since: since, Tail: tail, Follow: true}, sink)
+	return driver.StreamLogs(ctx, domain.LogRequest{Project: project, Service: service, Since: since, Tail: tail, Follow: true}, catalogLogSink{owner: project.CatalogProjectID, sink: sink})
 }
 
 // ListProjectIDs returns trusted projects eligible for runtime observation.
@@ -215,4 +213,14 @@ func (s *metricCollector) WriteMetric(_ context.Context, sample domain.MetricSam
 	defer s.mu.Unlock()
 	s.samples = append(s.samples, sample)
 	return nil
+}
+
+type catalogLogSink struct {
+	owner string
+	sink  domain.LogSink
+}
+
+func (s catalogLogSink) WriteLog(ctx context.Context, entry domain.LogEntry) error {
+	entry.CatalogProjectID = s.owner
+	return s.sink.WriteLog(ctx, entry)
 }

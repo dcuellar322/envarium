@@ -34,6 +34,7 @@ Source: https://github.com/dcuellar322/envarium
 - [ADR-0024: Share observations and isolate resource sampling](https://envarium.davidcuellar.tech/docs/adr/0024-shared-observation-and-sampling-isolation/): Bound presentation-driven work while preserving live monitoring and explicit freshness.
 - [ADR-0025: Origin proof and immutable reviewed inputs](https://envarium.davidcuellar.tech/docs/adr/0025-origin-proof-and-reviewed-inputs/): Close cross-port browser replay and bind external disclosure to reviewed bytes.
 - [ADR-0026: Reviewed checkout transitions](https://envarium.davidcuellar.tech/docs/adr/0026-reviewed-checkout-transitions/): Keep Git branch changes and runtime restarts explicit, serialized and recoverable.
+- [ADR-0027: Native worktree ownership and reviewed transitions](https://envarium.davidcuellar.tech/docs/adr/0027-native-worktree-runtimes/): Isolate native runtime ownership and exact ports across trusted checkouts.
 - [Architecture decision records](https://envarium.davidcuellar.tech/docs/adr/): Accepted technical decisions and the process for superseding them.
 - [Architecture overview](https://envarium.davidcuellar.tech/docs/architecture/): Process topology, bounded contexts, dependency direction, and accepted Envarium decisions.
 - [Agent integration](https://envarium.davidcuellar.tech/docs/architecture/agent-integration/): Provider-neutral MCP, permission, audit, guidance, and agent-session architecture.
@@ -67,6 +68,7 @@ Source: https://github.com/dcuellar322/envarium
 - [Add your first project](https://envarium.davidcuellar.tech/docs/getting-started/): Discover, review, approve, and operate a local repository with Envarium.
 - [Product glossary](https://envarium.davidcuellar.tech/docs/glossary/): Canonical meanings for Envarium project, runtime, operation, port, and trust terms.
 - [How-to guides](https://envarium.davidcuellar.tech/docs/how-to/): Focused instructions for installation, support evidence, plugins, team configuration, and migration work.
+- [Run native services in Git worktrees](https://envarium.davidcuellar.tech/docs/how-to/native-worktrees/): Give each checkout independent native processes and ports, and review safe branch and worktree transitions.
 - [Envarium documentation](https://envarium.davidcuellar.tech/docs/): Install Envarium, bring a project online, connect coding agents, troubleshoot safely, or inspect the complete reference.
 - [Project manifest v1 reference](https://envarium.davidcuellar.tech/docs/manifest-reference/): Schema, precedence, provenance, services, actions, health, ports, and validation rules.
 - [MCP tools, resources, and permission profiles](https://envarium.davidcuellar.tech/docs/mcp/): Bounded Envarium MCP tools, resources, prompts, permissions, and agent workflows.

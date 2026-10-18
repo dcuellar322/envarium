@@ -86,11 +86,12 @@ func RunDaemon(ctx context.Context, config Config) error {
 	journal := sqlite.NewJournal(database)
 	catalogService := catalog.NewService(sqlite.NewCatalogRepository(database), discoveryAdapters.Defaults(), settingsService)
 	gitAdapter := sourcecontrolAdapters.NewGit()
-	gitService := sourcecontrolApplication.NewService(sourcecontrolApplication.NewCatalogSource(catalogService), gitAdapter)
+	registrationGit := sourcecontrolApplication.NewService(sourcecontrolApplication.NewCatalogSource(catalogService), gitAdapter)
 	environmentService := environmentsApplication.NewService(
-		environmentsAdapters.NewCatalogSource(catalogService), environmentsAdapters.NewSourceControlSource(gitService),
+		environmentsAdapters.NewCatalogSource(catalogService), environmentsAdapters.NewSourceControlSource(registrationGit),
 		sqlite.NewEnvironmentRepository(database),
 	)
+	gitService := sourcecontrolApplication.NewService(environmentsAdapters.NewGitRoots(environmentsAdapters.NewCatalogSource(catalogService), environmentService), gitAdapter)
 	runtimeSource := runtimeApplication.NewSchedulerSource(runtimeApplication.NewCatalogSource(catalogService, environmentsAdapters.NewRuntimeSource(environmentService)))
 	composeDriver := compose.NewDriverWithArtifacts(filepath.Join(config.DataDir, "runtime", "compose"))
 	defer closeComposeDriver(config.Logger, composeDriver)
@@ -128,13 +129,13 @@ func RunDaemon(ctx context.Context, config Config) error {
 	portDeclarations := portsApplication.NewCatalogSource(catalogService)
 	portService := portsApplication.NewService(
 		portDeclarations,
-		portsAdapters.NewRuntimeBindings(catalogService, runtimeService),
+		portsAdapters.NewRuntimeBindings(catalogService, runtimeService).WithScopes(environmentsAdapters.NewPortRuntimeScopes(environmentService, environmentsAdapters.NewCatalogSource(catalogService))),
 		portsAdapters.NewOSListeners(),
 		sqlite.NewPortReservationRepository(database),
 		environmentsAdapters.NewPortLeaseSource(environmentService),
 	)
 	environmentRegistration := environmentsApplication.NewRegistrationCoordinator(
-		environmentService, environmentsAdapters.NewPortDeclarations(portDeclarations), environmentsAdapters.NewPortAllocator(portService),
+		environmentService, environmentsAdapters.NewRuntimePortDeclarations(runtimeSource, runtimeService), environmentsAdapters.NewPortAllocator(portService),
 	)
 	routeService := routingApplication.NewService(config.RoutingAddr != "")
 	routeRegistry := routingAdapters.NewRegistry(routeService, routingAdapters.NewEnvironmentSource(environmentService))

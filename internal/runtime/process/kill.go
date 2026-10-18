@@ -19,7 +19,7 @@ func (d *Driver) killAll(ctx context.Context, plan executionPlan, sink domain.Pr
 			active[run.ServiceID] = run
 		}
 	}
-	for _, service := range plan.services {
+	for _, service := range stoppingServices(plan, active) {
 		run, ok := active[service.service.ID]
 		if !ok {
 			if err := sink.Step(ctx, "process.kill."+service.service.ID, "succeeded", "already stopped"); err != nil {

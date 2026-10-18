@@ -1302,6 +1302,66 @@ managed checkout transition, while current manifest inputs are checked afresh.
 
 ---
 
+# ADR-0027: Native worktree ownership and reviewed transitions
+
+Source: https://envarium.davidcuellar.tech/docs/adr/0027-native-worktree-runtimes/
+
+Isolate native runtime ownership and exact ports across trusted checkouts.
+
+- Status: Accepted
+- Date: 2026-10-18
+- Refines: ADR-0007, ADR-0008, ADR-0026
+
+## Decision
+
+Keep the catalog project as the durable foreign-key owner of native runs, while
+persisting a separate runtime scope identity. A base checkout and each registered
+worktree have separate process groups, runs, logs, metrics and lifecycle gates.
+Keep health history scoped and log segment metadata catalog-owned as well.
+Migrate existing runs without changing their scope or fingerprints. Never create
+fake catalog projects to satisfy a run foreign key.
+
+Resolve portable/local manifest inputs from the selected registered checkout,
+using the trusted base project's accepted inference as fallback. Bind previews to
+that checkout's current configuration and exact allocated ports. Cache projections
+per project and root with the existing memory bounds; no additional background
+Git or socket polling is introduced. Worktree discovery updates metadata without
+overwriting newer runtime routing state or exact leases; unchanged allocations
+need no runtime write.
+
+Native commands and environment values may explicitly reference `${ports.ID}`.
+Resolve only known declarations to decimal host-port values; never infer and
+rewrite arbitrary numeric arguments. A native worktree's declared service ports
+must be consumed by that service's effective command/environment, or its start
+preview fails with an actionable error. Keep executable and working-directory
+selection explicit; reject worktree working directories outside the selected
+checkout. Preserve argument arrays and existing shell opt-in.
+
+Use the same local-user-only branch review for registered worktrees. Checkout
+changes remain stopped, clean, ref-bound, hook/filter-free and serialized with
+runtime actions. The interface guides stop, checkout, and fresh start reviews;
+approval of old-branch commands never authorizes newly checked-out commands.
+Switching services between existing worktrees stops only the selected source and
+reviews a fresh target restart. Other worktrees remain independent. Cancellation
+or failure stops the workflow and is visible; do not silently roll back checkout
+changes or retry commands from another branch.
+
+Native friendly HTTP routes require a currently observed, ownership-verified TCP
+binding at an exact leased port. Declarations and a live PID alone cannot publish
+a route. Existing Compose isolation remains unchanged.
+
+## Acceptance evidence required
+
+Exercise two native worktrees simultaneously with SQLite persistence, distinct
+ports, branch-specific responses, scoped restart/stop/logs/metrics and daemon
+reconciliation. Verify stale reviews, trust revocation, unknown/fixed ports,
+occupied ports, cancellation and failed transitions. Test the complete reviewed
+browser workflow on owned repositories; preserve the user's running projects.
+Run migrations, generated-artifact checks, full quality suites, rebuild/install,
+and exact-master hosted CI before handoff. Record evidence in Phase 13.
+
+---
+
 # Architecture decision records
 
 Source: https://envarium.davidcuellar.tech/docs/adr/
@@ -4991,6 +5051,108 @@ For a first project, use the [tutorial index](../tutorials/index.md) instead.
 
 ---
 
+# Run native services in Git worktrees
+
+Source: https://envarium.davidcuellar.tech/docs/how-to/native-worktrees/
+
+Give each checkout independent native processes and ports, and review safe branch and worktree transitions.
+
+Envarium can run native services from multiple existing Git worktrees at the
+same time. Each registered checkout gets independent process ownership, logs,
+health checks, live metrics, and exact host-port leases.
+
+## Prepare a portable command
+
+Use an explicit port reference in your `.envarium/project.yml` command or
+environment. Envarium replaces `${ports.http}` with the selected checkout's
+allocated host port. The main project uses its declared host port.
+
+```yaml
+schemaVersion: envarium.dev/v1
+kind: Project
+metadata: { id: example, name: Example }
+repository: { root: . }
+runtime:
+  driver: process
+  process:
+    processes:
+      - id: web
+        command: [node, server.mjs, "${ports.http}"]
+        workingDirectory: .
+services:
+  - id: web
+    source: { process: web }
+    healthChecks:
+      - id: ready
+        type: http
+        url: "http://127.0.0.1:${ports.http}/"
+        expectedStatus: 200
+        required: true
+ports:
+  - { id: http, service: web, host: 8080, target: 8080, protocol: tcp }
+```
+
+Here `server.mjs` must read its port from the first command argument. If your
+framework reads `PORT`, put `PORT: "${ports.http}"` under the process's
+`environment` instead. Every declared native service port must be consumed by
+that service's effective command or environment. Hard-coded port numbers are
+never rewritten automatically. Working directories must stay inside the selected
+checkout, including after resolving symlinks.
+
+## Register and run
+
+1. Create your Git worktrees using your usual Git tools, then approve the base
+   project in Envarium.
+2. Open the project's **Git** tab and choose **Reconcile worktrees**.
+3. Use the checkout card's **Review start** and confirm its exact commands,
+   directory, allocated ports, and effects.
+4. Start another worktree the same way. Starting, stopping, or restarting one
+   checkout preserves independently running worktrees.
+
+Portable and local manifest files are read from the selected checkout. Reconcile
+after changing port declarations. Stop an active native checkout before changing
+its leases. An occupied lease fails with an error; Envarium does not adopt or
+terminate the unrelated listener. Friendly HTTP routing requires an observed,
+ownership-verified socket at the allocated TCP port.
+
+## Switch safely
+
+Choose **Inspect checkout** to see that checkout's staged, unstaged, untracked
+and conflicted files, branches, and HEAD. **Review switch** guides you through
+stopping the selected root's services, reviewing an existing local branch, and
+reviewing a fresh start plan from the new branch. The main checkout also checks
+its registered primary environment before changing files.
+
+To move running services to another existing checkout, use **Switch services
+here…** on the destination card. Review stopping the selected source, then review
+the destination restart. Other worktrees continue running. Use worktree card
+controls for worktree lifecycle actions.
+
+Each step must succeed before the next review appears. Cancellation or failure
+ends the transition; services may remain stopped. Operations retains the outcome
+for inspection. Dirty or conflicted checkouts, an in-progress Git operation,
+changed refs or manifests, unsafe hooks/filters, and revoked trust fail safely.
+Envarium does not stash, reset, fetch, create, or remove worktrees in this flow.
+
+## CLI runtime controls
+
+Use the exact environment ID from `envarium environment list <project>` with
+shared runtime commands, for example:
+
+```bash
+envarium plan start <environment-id>
+envarium start <environment-id>
+envarium status <environment-id>
+envarium logs <environment-id> --tail 50
+envarium metrics <environment-id>
+envarium stop <environment-id>
+```
+
+The daemon checks current catalog trust and the selected checkout for every
+runtime request. The guided branch/worktree transition is available in the Git UI.
+
+---
+
 # Envarium documentation
 
 Source: https://envarium.davidcuellar.tech/docs/
@@ -5872,9 +6034,8 @@ Hosted `c55b811f167b` checks are green: [main CI](https://github.com/dcuellar322
 Final evidence/documentation updates must regenerate the site and receive their
 own exact-commit hosted verification before handoff.
 
-Remaining boundaries are explicit: isolated native worktree starts require
-environment-specific run ownership and port allocation; Compose worktrees and
-reviewed main-checkout branch switching work. Live external pairing, paid AI,
+The native-worktree limitation recorded above was subsequently addressed by
+ADR-0027 and the Phase 13 native-worktree completion on 2026-10-18. Live external pairing, paid AI,
 signed release installation and user-data deletion were not exercised on the
 user's system. The existing unused-API Linux GLib advisory remains tracked in
 `security-cleanup-2026-10-18.md`; passing audit CI does not mean zero dependency
@@ -5980,6 +6141,62 @@ with both native commands and Docker Compose projects.
 Native packaging and production results are reported with the delivered
 revision. Canonical DNS activation still requires zone authorization; a
 Pages-only deployment token cannot create that record.
+
+---
+
+# Native worktree completion and installed verification
+
+Source: https://envarium.davidcuellar.tech/docs/progress/native-worktrees-2026-10-18/
+
+Evidence for isolated native checkout runtimes and reviewed service transitions.
+
+## Delivered slice
+
+ADR-0027 completes native worktree lifecycle support for existing registered
+checkouts. CLI status, plan, lifecycle, logs and metrics accept exact environment
+IDs while preserving catalog project selection. Runtime scope IDs isolate durable ownership beneath the trusted
+catalog owner. Selected-checkout manifests and local overlays determine commands;
+explicit `${ports.ID}` references consume that checkout's exact leases. Native
+lease changes use the same root lock as lifecycle execution and inspect fresh
+owned process evidence before writing. Metadata reconciliation preserves newer routes and leases.
+Retired owned services remain observable
+and are included in whole-scope stop/restart/kill cleanup.
+
+The Git selector inspects each registered checkout. Branch switching guides
+separate stop, checkout, and fresh-start reviews. Moving services between
+worktrees reviews the source stop and destination restart, then selects the
+destination. Failed/cancelled stages end the sequence; queued operations remain
+visible in Operations. Native worktree bindings appear in the port registry and
+HTTP routes require exact owned socket evidence.
+
+Schema 19 preserves existing run fingerprints and health scopes. New worktree
+runs, archived log queries and health history remain isolated. A lossy downgrade
+fails transactionally. No additional closed-app Git or socket poll was added.
+
+## Local verification
+
+- Go vet, full tests, full race tests, lint, architecture and repository checks pass.
+- Migration tests cover schema 18 upgrades, preserving ownership, a lossless
+  downgrade, and refusal to collapse isolated ownership on downgrade.
+- UI lint/type checks and 88 tests in 35 files pass; 17 macOS visual checks pass.
+- All six real browser flows pass. The native-worktree acceptance also passes
+  separately with explicit port-registry attribution checks. It runs two owned
+  Git worktrees concurrently, verifies separate ports, logs and live metrics,
+  switches one to a distinct branch response while the other's run stays intact,
+  and reviews moving services to the other checkout. Fixture services are stopped
+  before its repositories are removed.
+- Site quality passes: 124 documentation sources, 160 built pages, no content or
+  build errors. Site browser checks pass 60 cases with 16 configured skips; all
+  six site visual cases pass.
+- Govulncheck reports no called vulnerabilities. Existing uncalled module and
+  Linux desktop dependency advisories remain subject to the recorded security policy.
+
+## Installed and hosted acceptance
+
+Build/install, sustained resource measurements with the user's projects, and
+exact-master hosted workflow results will be appended after completion. Before
+upgrade, the user's 11 catalog projects and 16 running containers were recorded;
+installation must preserve their identities, start times and restart counts.
 
 ---
 
@@ -9440,8 +9657,8 @@ survived restart.
   router, as required by the phase scope guard.
 - Routing selects a validated HTTP target from exact active environment facts;
   non-HTTP bound services remain visible but are not proxyable.
-- Worktrees are observed and registered but never created, removed, or checked
-  out by Envarium. Repository mutation remains outside this phase.
+- Worktrees are created and removed with external Git tools. ADR-0026 and
+  ADR-0027 subsequently add explicitly reviewed local branch transitions.
 
 ## October 2026 checkout workflow refresh
 
@@ -9451,12 +9668,35 @@ can switch to an existing local branch; runtime execution then requires a fresh
 start preview. Root-scoped serialization and checkout revisions reject earlier
 runtime confirmations, including branch changes with identical manifests.
 
-Isolated worktree starts currently support Compose only. Native worktree runs
-need environment-aware durable run ownership and explicit port remapping; the
-existing native run table is owned by catalog project IDs. The UI and shared
-runtime planner now reject those starts explicitly, while preserving stop/kill
-cleanup. Native users can switch branches in the main checkout and review its
-normal lifecycle controls. Registration alone does not imply native isolation.
+### Native worktree completion — 2026-10-18
+
+ADR-0027 supersedes the earlier Compose-only limitation. Native worktree starts
+now resolve the selected checkout's manifest and local overlay, expand explicit
+`${ports.ID}` references to exact leases, and persist runtime scope separately
+from the catalog foreign-key owner. Schema 19 preserves existing run fingerprints
+and health history; a downgrade refuses to conflate environment-scoped records.
+Logs retain scoped queries while their segment metadata belongs to the catalog.
+Live port attribution includes trusted environments and HTTP routes require
+actual owned socket evidence. No additional background Git/socket poll was added.
+
+The Git checkout selector and guided transition stop the selected source, review
+the branch change when applicable, and prepare a fresh target start/restart.
+Failure, cancellation, stale configuration, revoked trust, occupied ports,
+unallocated or unused leases, and escaping working directories fail explicitly.
+Whole-runtime cleanup includes retired service declarations, which remain visible
+in observations so they cannot bypass the stopped-checkout gate.
+
+Verification covers simultaneous native scopes, independent restart/stop, daemon
+ownership recovery, scoped SQLite runs/logs/health, live metrics, selected-root
+configuration, local edits, trust revocation, lease stability, port collisions,
+transition cancellation and failure, schema 18 upgrade and lossless/guarded
+downgrade. The real browser workflow runs two owned Git worktrees, confirms their
+distinct ports and logs/metrics, switches one to a branch-specific HTTP response,
+checks the other run is untouched, and moves services through reviewed stop and
+restart steps. The fixture is stopped and removed afterward.
+
+See [native worktree instructions](../how-to/native-worktrees.md). Final installed
+build, resource measurements, and hosted CI are recorded in the follow-up evidence.
 
 ---
 
@@ -11747,6 +11987,11 @@ envarium status <project>
 Envarium captures stdout and stderr separately, sends graceful termination
 to the process group or Job Object, and escalates only after the configured
 timeout. Success ends with no managed child process left behind.
+
+## Parallel checkouts
+
+For independent native runs in Git worktrees and reviewed switch/restart flows,
+see [Run native services in Git worktrees](../how-to/native-worktrees.md).
 
 ---
 

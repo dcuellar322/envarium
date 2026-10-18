@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -48,10 +49,10 @@ func Validate(root string, manifest domain.Manifest) ValidationResult {
 		}
 	}
 	for _, check := range healthChecks(manifest.Services) {
-		if check.Type == "http" && !loopbackURL(check.URL) {
+		if check.Type == "http" && !loopbackURL(healthPortReferences(check.URL, manifest.Ports)) {
 			result.Errors = append(result.Errors, "HTTP health checks must target loopback by default")
 		}
-		if check.Type == "tcp" && !loopbackAddress(check.Address) {
+		if check.Type == "tcp" && !loopbackAddress(healthPortReferences(check.Address, manifest.Ports)) {
 			result.Errors = append(result.Errors, "TCP health checks must target loopback by default")
 		}
 		if check.Type == "command" && len(check.Command) > 0 {
@@ -65,8 +66,12 @@ func Validate(root string, manifest domain.Manifest) ValidationResult {
 }
 
 func loopbackAddress(address string) bool {
-	host, _, err := net.SplitHostPort(address)
+	host, port, err := net.SplitHostPort(address)
 	if err != nil {
+		return false
+	}
+	number, err := strconv.Atoi(port)
+	if err != nil || number < 1 || number > 65535 {
 		return false
 	}
 	host = strings.Trim(host, "[]")
@@ -176,4 +181,14 @@ func healthChecks(services []domain.Service) []domain.HealthCheck {
 		result = append(result, service.HealthChecks...)
 	}
 	return result
+}
+
+// Expand only declared decimal ports before validating the destination host.
+func healthPortReferences(value string, ports []domain.Port) string {
+	for _, port := range ports {
+		if port.Host > 0 && port.Host <= 65535 {
+			value = strings.ReplaceAll(value, "${ports."+port.ID+"}", strconv.Itoa(port.Host))
+		}
+	}
+	return value
 }

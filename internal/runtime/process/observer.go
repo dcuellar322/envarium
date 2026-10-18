@@ -54,6 +54,7 @@ func (d *Driver) inspectRunsPorts(ctx context.Context, project domain.ProjectRun
 	if err != nil {
 		return domain.Observation{}, err
 	}
+	plans = stoppingServices(executionPlan{services: plans, allServices: true}, active)
 	managedRunning, externalRunning, starting, failed, stale := 0, 0, 0, 0, 0
 	for _, service := range plans {
 		serviceObservation := domain.ServiceObservation{

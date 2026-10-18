@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import BranchSwitchDialog from './BranchSwitchDialog.vue'
-import { useGitSwitch } from '../composables/useGitSwitch'
+import { computed, ref } from 'vue'
+import CheckoutControls from './CheckoutControls.vue'
 import GitChangesPanel from './GitChangesPanel.vue'
 import GitWorktreeList from './GitWorktreeList.vue'
 import type { GitState, ProjectEnvironment, RuntimeAction } from '../../../api/generated/types.gen'
@@ -23,27 +22,40 @@ const emit = defineEmits<{
   register: []
   refresh: []
   environmentAction: [id: string, action: RuntimeAction]
-  branchSwitched: []
 }>()
-const switching = useGitSwitch(
-  computed(() => props.git?.projectId || ''),
-  () => emit('branchSwitched'),
+const controls = ref<InstanceType<typeof CheckoutControls>>()
+const selectedGit = ref<GitState>()
+const selectedId = ref('')
+const git = computed(() =>
+  selectedId.value && selectedId.value !== props.git?.projectId ? selectedGit.value : props.git,
 )
+function refresh() {
+  void controls.value?.refresh()
+  emit('refresh')
+}
 </script>
 
 <template>
-  <p v-if="switching.error.value" class="panel-state message--error" role="alert">
-    {{ switching.error.value }}
-  </p>
-  <p v-if="switching.pending.value" class="panel-state" role="status">
-    Preparing or applying the reviewed checkout transition…
-  </p>
+  <CheckoutControls
+    v-if="props.git?.projectId"
+    ref="controls"
+    :project-id="props.git.projectId"
+    :git="props.git"
+    :environments="environments"
+    @select="
+      (id, snapshot) => {
+        selectedId = id
+        selectedGit = snapshot
+      }
+    "
+    @refresh="emit('refresh')"
+  />
   <p v-if="pending" class="panel-state" role="status">
     Reading repository status, files, and branches…
   </p>
   <div v-else-if="error" class="panel-state message--error" role="alert">
     Repository observation failed. Any previous snapshot may be stale.
-    <button type="button" @click="$emit('refresh')">Retry repository</button>
+    <button type="button" @click="refresh">Retry repository</button>
   </div>
   <p v-else-if="git && !git.repository" class="panel-state">
     This project is not a Git working tree.
@@ -54,9 +66,7 @@ const switching = useGitSwitch(
         <p>Read-only snapshot</p>
         <h2>Repository state</h2>
       </div>
-      <button type="button" :disabled="pending" @click="$emit('refresh')">
-        Refresh repository
-      </button>
+      <button type="button" :disabled="pending" @click="refresh">Refresh repository</button>
     </header>
     <dl class="fact-grid">
       <div>
@@ -115,8 +125,8 @@ const switching = useGitSwitch(
           v-if="!branch.current"
           class="btn"
           type="button"
-          :disabled="switching.pending.value"
-          @click="switching.prepare(branch.name)"
+          :disabled="controls?.pending === true"
+          @click="controls?.branch(branch.name)"
         >
           Review switch
         </button>
@@ -130,7 +140,11 @@ const switching = useGitSwitch(
         <p>Parallel feature environments</p>
         <h2>Worktrees &amp; environments</h2>
       </div>
-      <button type="button" :disabled="registrationPending" @click="$emit('register')">
+      <button
+        type="button"
+        :disabled="registrationPending || controls?.pending === true"
+        @click="$emit('register')"
+      >
         {{ registrationPending ? 'Registering…' : '↻ Reconcile worktrees' }}
       </button>
     </header>
@@ -146,22 +160,21 @@ const switching = useGitSwitch(
     <p v-else-if="environmentsError" class="panel-state message--error" role="alert">
       Worktree environments are unavailable.
     </p>
+    <p v-if="driver === 'process'" class="panel-state">
+      Native worktrees use independent ports. Commands or environment values must reference
+      ${ports.id}; reconcile after changing port declarations.
+    </p>
     <GitWorktreeList
-      v-else
-      :worktrees="git?.worktrees ?? []"
+      v-if="!registrationError && !environmentsPending && !pending && !environmentsError"
+      :worktrees="props.git?.worktrees ?? []"
+      :selected="selectedId || props.git?.projectId"
       :driver="driver"
       :environments="environments"
-      :pending="switching.pending.value || lifecyclePending === true"
+      :pending="controls?.pending === true || lifecyclePending === true"
+      @move="(id) => controls?.move(id)"
       @action="(id, action) => $emit('environmentAction', id, action)"
     />
   </article>
-  <BranchSwitchDialog
-    v-if="switching.plan.value"
-    :plan="switching.plan.value"
-    :pending="switching.pending.value"
-    @cancel="switching.cancel"
-    @confirm="switching.confirm"
-  />
 </template>
 
 <style scoped>

@@ -55,16 +55,17 @@ const (
 
 // ProjectRuntime is the trusted, resolved input supplied to a driver.
 type ProjectRuntime struct {
-	EnvironmentID string
-	ProjectID     string
-	ProjectSlug   string
-	Root          string
-	Kind          Kind
-	Compose       *ComposeRuntime
-	Process       *ProcessRuntime
-	Services      []ServiceDeclaration
-	Ports         map[string]PortDeclaration
-	ManifestHash  string
+	EnvironmentID    string
+	CatalogProjectID string
+	ProjectID        string
+	ProjectSlug      string
+	Root             string
+	Kind             Kind
+	Compose          *ComposeRuntime
+	Process          *ProcessRuntime
+	Services         []ServiceDeclaration
+	Ports            map[string]PortDeclaration
+	ManifestHash     string
 }
 
 // ProcessRuntime contains resolved native process declarations.
@@ -76,6 +77,7 @@ type ProcessRuntime struct {
 
 // ProcessDefinition is one executable process template referenced by a service.
 type ProcessDefinition struct {
+	PortBindings       []string
 	ID                 string
 	Command            []string
 	WorkingDirectory   string
@@ -120,11 +122,12 @@ type ServiceDeclaration struct {
 
 // PortDeclaration is a trusted manifest port available to diagnostics.
 type PortDeclaration struct {
-	ID       string
-	Service  string
-	Host     int
-	Target   int
-	Protocol string
+	Allocated bool
+	ID        string
+	Service   string
+	Host      int
+	Target    int
+	Protocol  string
 }
 
 // HealthCheckDefinition is the driver-neutral readiness input resolved from a trusted manifest.
@@ -300,18 +303,19 @@ type LogRequest struct {
 
 // LogEntry is an immutable line retaining driver, stream, service, and run identity.
 type LogEntry struct {
-	Sequence    int64             `json:"sequence,omitempty"`
-	Timestamp   time.Time         `json:"timestamp"`
-	ProjectID   string            `json:"projectId"`
-	ServiceID   string            `json:"serviceId"`
-	RunID       string            `json:"runId"`
-	Source      string            `json:"source"`
-	Stream      string            `json:"stream"`
-	Level       string            `json:"level"`
-	Message     string            `json:"message"`
-	OperationID string            `json:"operationId,omitempty"`
-	Redacted    bool              `json:"redacted,omitempty"`
-	Attributes  map[string]string `json:"attributes"`
+	CatalogProjectID string            `json:"-"`
+	Sequence         int64             `json:"sequence,omitempty"`
+	Timestamp        time.Time         `json:"timestamp"`
+	ProjectID        string            `json:"projectId"`
+	ServiceID        string            `json:"serviceId"`
+	RunID            string            `json:"runId"`
+	Source           string            `json:"source"`
+	Stream           string            `json:"stream"`
+	Level            string            `json:"level"`
+	Message          string            `json:"message"`
+	OperationID      string            `json:"operationId,omitempty"`
+	Redacted         bool              `json:"redacted,omitempty"`
+	Attributes       map[string]string `json:"attributes"`
 }
 
 // MetricRequest selects live container measurements.
@@ -356,6 +360,7 @@ type RuntimeEvent struct {
 
 // RunRecord is the durable ownership record for one managed native service run.
 type RunRecord struct {
+	CatalogProjectID    string
 	ID                  string
 	ProjectID           string
 	ServiceID           string

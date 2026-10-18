@@ -3,7 +3,7 @@ title: "Phase 13: Workspaces, dependencies, worktrees, and local routing"
 description: Implementation evidence for Envarium product phase 13.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-07-17
+lastVerified: 2026-10-18
 ---
 
 ## Implemented
@@ -123,8 +123,8 @@ survived restart.
   router, as required by the phase scope guard.
 - Routing selects a validated HTTP target from exact active environment facts;
   non-HTTP bound services remain visible but are not proxyable.
-- Worktrees are observed and registered but never created, removed, or checked
-  out by Envarium. Repository mutation remains outside this phase.
+- Worktrees are created and removed with external Git tools. ADR-0026 and
+  ADR-0027 subsequently add explicitly reviewed local branch transitions.
 
 ## October 2026 checkout workflow refresh
 
@@ -134,9 +134,32 @@ can switch to an existing local branch; runtime execution then requires a fresh
 start preview. Root-scoped serialization and checkout revisions reject earlier
 runtime confirmations, including branch changes with identical manifests.
 
-Isolated worktree starts currently support Compose only. Native worktree runs
-need environment-aware durable run ownership and explicit port remapping; the
-existing native run table is owned by catalog project IDs. The UI and shared
-runtime planner now reject those starts explicitly, while preserving stop/kill
-cleanup. Native users can switch branches in the main checkout and review its
-normal lifecycle controls. Registration alone does not imply native isolation.
+### Native worktree completion — 2026-10-18
+
+ADR-0027 supersedes the earlier Compose-only limitation. Native worktree starts
+now resolve the selected checkout's manifest and local overlay, expand explicit
+`${ports.ID}` references to exact leases, and persist runtime scope separately
+from the catalog foreign-key owner. Schema 19 preserves existing run fingerprints
+and health history; a downgrade refuses to conflate environment-scoped records.
+Logs retain scoped queries while their segment metadata belongs to the catalog.
+Live port attribution includes trusted environments and HTTP routes require
+actual owned socket evidence. No additional background Git/socket poll was added.
+
+The Git checkout selector and guided transition stop the selected source, review
+the branch change when applicable, and prepare a fresh target start/restart.
+Failure, cancellation, stale configuration, revoked trust, occupied ports,
+unallocated or unused leases, and escaping working directories fail explicitly.
+Whole-runtime cleanup includes retired service declarations, which remain visible
+in observations so they cannot bypass the stopped-checkout gate.
+
+Verification covers simultaneous native scopes, independent restart/stop, daemon
+ownership recovery, scoped SQLite runs/logs/health, live metrics, selected-root
+configuration, local edits, trust revocation, lease stability, port collisions,
+transition cancellation and failure, schema 18 upgrade and lossless/guarded
+downgrade. The real browser workflow runs two owned Git worktrees, confirms their
+distinct ports and logs/metrics, switches one to a branch-specific HTTP response,
+checks the other run is untouched, and moves services through reviewed stop and
+restart steps. The fixture is stopped and removed afterward.
+
+See [native worktree instructions](../how-to/native-worktrees.md). Final installed
+build, resource measurements, and hosted CI are recorded in the follow-up evidence.

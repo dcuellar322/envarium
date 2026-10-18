@@ -36,7 +36,7 @@ const worktree = {
   bare: false,
   locked: false,
 }
-test('only observed Compose checkouts offer isolated starts; native cleanup stays available', async () => {
+test('observed native and Compose checkouts offer isolated starts and reviewed transitions', async () => {
   const view = render(GitWorktreeList, {
     props: {
       worktrees: [worktree],
@@ -45,8 +45,9 @@ test('only observed Compose checkouts offer isolated starts; native cleanup stay
       driver: 'process',
     },
   })
-  expect(screen.getByRole('button', { name: 'Review start' })).toBeDisabled()
-  expect(screen.getByText(/Isolated worktree starts currently support Compose/)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Review start' })).toBeEnabled()
+  await fireEvent.click(screen.getByRole('button', { name: 'Switch services here…' }))
+  expect(view.emitted().move).toEqual([['env-feature']])
   await fireEvent.click(screen.getByRole('button', { name: 'Review stop' }))
   expect(view.emitted().action).toEqual([['env-feature', 'stop']])
   await view.rerender({ driver: 'compose' })

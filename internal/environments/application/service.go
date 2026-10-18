@@ -175,8 +175,12 @@ func (s *Service) RegisterWorktrees(ctx context.Context, projectID string) (Regi
 	if err := s.repository.ReplaceProject(ctx, project.ID, environments); err != nil {
 		return Registration{}, fmt.Errorf("persist registered environments: %w", err)
 	}
+	persisted, err := s.ListProject(ctx, project.ID)
+	if err != nil {
+		return Registration{}, err
+	}
 	return Registration{
-		ProjectID: project.ID, Environments: environments,
+		ProjectID: project.ID, Environments: persisted,
 		RemovedIDs: removedEnvironmentIDs(existing, project.ID, environments), ObservedAt: observedAt,
 	}, nil
 }

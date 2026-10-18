@@ -24,7 +24,7 @@ type runtimeProjection struct {
 
 func (c *runtimeProjections) load(project catalog.Project, hash string) (domain.ProjectRuntime, bool) {
 	c.mu.Lock()
-	entry, ok := c.entries[project.ID]
+	entry, ok := c.entries[project.ID+"\x00"+project.PrimaryLocation]
 	c.mu.Unlock()
 	if !ok || entry.value.ManifestHash != hash || entry.value.Root != project.PrimaryLocation || entry.value.ProjectSlug != project.Slug {
 		return domain.ProjectRuntime{}, false
@@ -47,14 +47,14 @@ func (c *runtimeProjections) store(value domain.ProjectRuntime) {
 	if c.entries == nil {
 		c.entries = make(map[string]runtimeProjection)
 	}
-	if old, ok := c.entries[value.ProjectID]; ok {
+	if old, ok := c.entries[value.ProjectID+"\x00"+value.Root]; ok {
 		c.bytes -= old.weight
 	}
 	if len(c.entries) >= 128 || c.bytes+weight > maximumBytes {
 		clear(c.entries)
 		c.bytes = 0
 	}
-	c.entries[value.ProjectID] = runtimeProjection{value: cloneRuntimeProjection(value), weight: weight}
+	c.entries[value.ProjectID+"\x00"+value.Root] = runtimeProjection{value: cloneRuntimeProjection(value), weight: weight}
 	c.bytes += weight
 }
 
@@ -76,6 +76,7 @@ func cloneRuntimeProjection(value domain.ProjectRuntime) domain.ProjectRuntime {
 		for i := range process.Processes {
 			p := &process.Processes[i]
 			p.Command = slices.Clone(p.Command)
+			p.PortBindings = slices.Clone(p.PortBindings)
 			p.Environment = maps.Clone(p.Environment)
 			p.Secrets = maps.Clone(p.Secrets)
 		}

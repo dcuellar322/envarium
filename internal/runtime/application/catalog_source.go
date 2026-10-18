@@ -69,6 +69,9 @@ func (s *CatalogSource) runtimeProject(ctx context.Context, project catalogDomai
 	if project.TrustState != catalogDomain.TrustTrusted {
 		return domain.ProjectRuntime{}, ErrProjectUntrusted
 	}
+	if environment.ID != "" {
+		project.PrimaryLocation = environment.Root
+	}
 	hash, err := s.catalog.ManifestContentHash(ctx, project)
 	if err != nil {
 		return domain.ProjectRuntime{}, err
@@ -84,6 +87,9 @@ func (s *CatalogSource) runtimeProject(ctx context.Context, project catalogDomai
 	if environment.ID != "" {
 		applyRuntimeEnvironment(&result, requestedID, environment)
 	}
+	if err := projectNativePorts(&result); err != nil {
+		return domain.ProjectRuntime{}, err
+	}
 	return result, nil
 }
 
@@ -93,7 +99,7 @@ func (s *CatalogSource) projectRuntime(ctx context.Context, project catalogDomai
 		return domain.ProjectRuntime{}, err
 	}
 	result := domain.ProjectRuntime{
-		ProjectID: project.ID, ProjectSlug: project.Slug, Root: project.PrimaryLocation,
+		ProjectID: project.ID, CatalogProjectID: project.ID, ProjectSlug: project.Slug, Root: project.PrimaryLocation,
 		Kind: domain.Kind(effective.Manifest.Runtime.Driver), ManifestHash: effective.ContentHash, Ports: map[string]domain.PortDeclaration{},
 	}
 	if compose := effective.Manifest.Runtime.Compose; compose != nil {
@@ -191,6 +197,7 @@ func applyRuntimeEnvironment(result *domain.ProjectRuntime, requestedID string, 
 			continue
 		}
 		port.Host = host
+		port.Allocated = true
 		result.Ports[id] = port
 	}
 	for index := range result.Services {

@@ -182,7 +182,6 @@ const {
           :registration-error="registerWorktrees.error.value?.message"
           @register="registerWorktrees.mutate()"
           @refresh="refreshGitContext"
-          @branch-switched="requestLifecycle('start')"
           @environment-action="(id, action) => requestLifecycle(action, {}, id)"
         />
       </div>

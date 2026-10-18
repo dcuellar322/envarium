@@ -32,7 +32,7 @@ func runtimeEnvironment(environment domain.Environment) runtimeApplication.Runti
 	}
 	return runtimeApplication.RuntimeEnvironment{
 		ID: environment.ID, ProjectID: environment.ProjectID, Name: environment.Name, Root: environment.Path,
-		Available:          environment.Availability == domain.AvailabilityAvailable && environment.State != domain.StateUnavailable,
+		Available:          environment.Availability == domain.AvailabilityAvailable && environment.State != domain.StateUnavailable && !environment.Bare,
 		ComposeProjectName: environment.Allocation.ComposeProjectName, PortLeases: leases,
 	}
 }
@@ -58,7 +58,7 @@ func (s *RuntimeSource) ListRuntimeEnvironments(ctx context.Context) ([]runtimeA
 	}
 	result := make([]runtimeApplication.RuntimeEnvironment, 0, len(environments))
 	for _, environment := range environments {
-		if environment.Availability == domain.AvailabilityAvailable && environment.State != domain.StateUnavailable {
+		if environment.Availability == domain.AvailabilityAvailable && environment.State != domain.StateUnavailable && !environment.Bare {
 			result = append(result, runtimeEnvironment(environment))
 		}
 	}

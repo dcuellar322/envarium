@@ -77,3 +77,41 @@ func validLifecycleEnvironment() domain.Environment {
 		RegisteredAt: now, LastObservedAt: now, UpdatedAt: now,
 	}
 }
+
+type bindingObserverStub struct {
+	runtimeObserverStub
+	bindings runtimeDomain.Observation
+}
+
+func (s bindingObserverStub) InspectBindings(context.Context, string) (runtimeDomain.Observation, error) {
+	return s.bindings, nil
+}
+func TestNativeLifecycleRequiresActualOwnedSocketBeforePublishingRoute(t *testing.T) {
+	ctx := context.Background()
+	repository := NewMemoryRepository()
+	environment := validLifecycleEnvironment()
+	if err := repository.ReplaceProject(ctx, environment.ProjectID, []domain.Environment{environment}); err != nil {
+		t.Fatal(err)
+	}
+	service := application.NewService(nil, nil, repository)
+	declared := runtimeDomain.Observation{Driver: runtimeDomain.KindProcess, Services: []runtimeDomain.ServiceObservation{{Ports: []runtimeDomain.PublishedPort{{HostPort: 22080, Protocol: "tcp"}}}}}
+	if err := NewLifecycle(service, runtimeObserverStub{observation: declared}, nil).Started(ctx, environment.ID); err == nil {
+		t.Fatal("unverified native bindings accepted")
+	}
+	lifecycle := NewLifecycle(service, bindingObserverStub{runtimeObserverStub: runtimeObserverStub{observation: declared}}, nil)
+	if err := lifecycle.Started(ctx, environment.ID); err != nil {
+		t.Fatal(err)
+	}
+	current, _ := service.Get(ctx, environment.ID)
+	if current.Target != "" {
+		t.Fatal("declared port fabricated route")
+	}
+	lifecycle = NewLifecycle(service, bindingObserverStub{runtimeObserverStub: runtimeObserverStub{observation: declared}, bindings: declared}, nil)
+	if err := lifecycle.Started(ctx, environment.ID); err != nil {
+		t.Fatal(err)
+	}
+	current, _ = service.Get(ctx, environment.ID)
+	if current.Target != "http://127.0.0.1:22080" {
+		t.Fatal("verified route missing")
+	}
+}

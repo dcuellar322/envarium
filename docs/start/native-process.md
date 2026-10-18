@@ -5,7 +5,7 @@ category: tutorial
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-18
 sidebar:
   order: 4
 ---
@@ -46,3 +46,8 @@ envarium status <project>
 Envarium captures stdout and stderr separately, sends graceful termination
 to the process group or Job Object, and escalates only after the configured
 timeout. Success ends with no managed child process left behind.
+
+## Parallel checkouts
+
+For independent native runs in Git worktrees and reviewed switch/restart flows,
+see [Run native services in Git worktrees](../how-to/native-worktrees.md).

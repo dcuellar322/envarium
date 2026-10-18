@@ -255,9 +255,13 @@ func (s *LogStore) createSegment(ctx context.Context, entry runtime.LogEntry) (*
 	if err := file.Close(); err != nil {
 		return nil, err
 	}
+	owner := entry.CatalogProjectID
+	if owner == "" {
+		owner = entry.ProjectID
+	}
 	_, err = s.database.connection.ExecContext(ctx, `INSERT INTO log_segments
         (id, project_id, service_id, run_id, operation_id, path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		id, entry.ProjectID, entry.ServiceID, entry.RunID, nullString(entry.OperationID), path, formatTime(s.now().UTC()))
+		id, owner, entry.ServiceID, entry.RunID, nullString(entry.OperationID), path, formatTime(s.now().UTC()))
 	if err != nil {
 		_ = os.Remove(path)
 		return nil, fmt.Errorf("create log segment metadata: %w", err)

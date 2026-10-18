@@ -41,7 +41,7 @@ func TestDataInspectAndBackupCommandsDoNotStartDaemon(t *testing.T) {
 	if err := Execute(context.Background(), []string{"--data-dir", dataDir, "data", "inspect"}, &output, &output); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(output.String(), "schema=18 target=18 migration=false") {
+	if !strings.Contains(output.String(), "schema=19 target=19 migration=false") {
 		t.Fatalf("inspect output = %q", output.String())
 	}
 	output.Reset()

@@ -80,14 +80,33 @@ func (r *EnvironmentRepository) ReplaceProject(ctx context.Context, projectID st
 		return err
 	}
 	defer func() { _ = tx.Rollback() }()
-	if _, err := tx.ExecContext(ctx, `DELETE FROM project_environments WHERE project_id = ?`, projectID); err != nil {
-		return fmt.Errorf("clear project environments: %w", err)
+	previous, err := environmentIDs(ctx, tx, projectID)
+	if err != nil {
+		return err
 	}
 	for _, environment := range environments {
 		if environment.ProjectID != projectID {
 			return errors.New("replacement environment belongs to another project")
 		}
-		if err := insertEnvironment(ctx, tx, environment); err != nil {
+		if err := environment.Validate(); err != nil {
+			return err
+		}
+		if previous[environment.ID] {
+			// Discovery updates metadata, never an older snapshot of live routing or leases.
+			_, err = tx.ExecContext(ctx, `UPDATE project_environments SET name=?,path=?,head=?,branch=?,detached=?,bare=?,locked=?,is_primary=?,availability=?,unavailable_reason=?,last_observed_at=?,updated_at=?,
+             runtime_state=CASE WHEN ? != 'available' THEN 'unavailable' WHEN runtime_state='unavailable' THEN 'inactive' ELSE runtime_state END,
+             target=CASE WHEN ? != 'available' THEN '' ELSE target END WHERE id=? AND project_id=?`,
+				environment.Name, environment.Path, environment.Head, environment.Branch, boolInt(environment.Detached), boolInt(environment.Bare), boolInt(environment.Locked), boolInt(environment.Primary), environment.Availability, environment.UnavailableReason, formatTime(environment.LastObservedAt), formatTime(environment.UpdatedAt), environment.Availability, environment.Availability, environment.ID, projectID)
+		} else {
+			err = insertEnvironment(ctx, tx, environment)
+		}
+		if err != nil {
+			return err
+		}
+		delete(previous, environment.ID)
+	}
+	for id := range previous {
+		if _, err := tx.ExecContext(ctx, `DELETE FROM project_environments WHERE id=? AND project_id=?`, id, projectID); err != nil {
 			return err
 		}
 	}
@@ -221,4 +240,21 @@ func boolInt(value bool) int {
 		return 1
 	}
 	return 0
+}
+
+func environmentIDs(ctx context.Context, tx *sql.Tx, projectID string) (map[string]bool, error) {
+	rows, err := tx.QueryContext(ctx, `SELECT id FROM project_environments WHERE project_id=?`, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	result := map[string]bool{}
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		result[id] = true
+	}
+	return result, rows.Err()
 }

@@ -141,13 +141,13 @@ func TestCheckoutRevisionsBoundMemoryAndFailClosedOnIdentityFailure(t *testing.T
 		t.Fatal("old revision survived failed invalidation")
 	}
 }
-func TestNativeEnvironmentCannotClaimIsolation(t *testing.T) {
+func TestNativeEnvironmentCanPlanThroughSharedLifecycleGate(t *testing.T) {
 	t.Parallel()
 	project := domain.ProjectRuntime{ProjectID: "env-feature", EnvironmentID: "env-feature", Root: "/worktree", Kind: domain.KindProcess, Ports: map[string]domain.PortDeclaration{}}
 	driver := &driverStub{kind: domain.KindProcess}
 	service := NewService(projectSourceStub{projects: map[string]domain.ProjectRuntime{project.ProjectID: project}}, driver)
-	if _, err := service.Plan(context.Background(), project.ProjectID, domain.ActionStart, false); !errors.Is(err, ErrNativeEnvironmentUnsupported) {
-		t.Fatalf("unsafe isolation allowed: %v", err)
+	if _, err := service.Plan(context.Background(), project.ProjectID, domain.ActionStart, false); err != nil {
+		t.Fatalf("native environment planning failed: %v", err)
 	}
 	if _, err := service.Plan(context.Background(), project.ProjectID, domain.ActionStop, false); err != nil {
 		t.Fatal("existing environment cannot be stopped", err)

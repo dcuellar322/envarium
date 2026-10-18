@@ -3,6 +3,7 @@ package process
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
 	"envarium.dev/envarium/internal/runtime/domain"
@@ -19,7 +20,8 @@ func (d *Driver) stopAll(ctx context.Context, plan executionPlan, sink domain.Pr
 			active[run.ServiceID] = run
 		}
 	}
-	for _, service := range plan.services {
+
+	for _, service := range stoppingServices(plan, active) {
 		run, ok := active[service.service.ID]
 		if !ok {
 			if err := sink.Step(ctx, "process.stop."+service.service.ID, "succeeded", "already stopped"); err != nil {
@@ -206,4 +208,27 @@ func uniqueGroups(identities []domain.ProcessIdentity) []int32 {
 		result = append(result, identity.ProcessGroup)
 	}
 	return result
+}
+
+// Include retired declarations for whole-runtime cleanup without touching other scopes.
+func stoppingServices(plan executionPlan, active map[string]domain.RunRecord) []servicePlan {
+	services := append([]servicePlan(nil), plan.services...)
+	if !plan.allServices {
+		return services
+	}
+	declared := map[string]bool{}
+	for _, service := range services {
+		declared[service.service.ID] = true
+	}
+	retired := []string{}
+	for id := range active {
+		if !declared[id] {
+			retired = append(retired, id)
+		}
+	}
+	sort.Strings(retired)
+	for _, id := range retired {
+		services = append(services, servicePlan{service: domain.ServiceDeclaration{ID: id}})
+	}
+	return services
 }

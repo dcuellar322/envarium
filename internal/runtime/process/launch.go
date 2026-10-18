@@ -35,6 +35,9 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 			return nil, false, err
 		}
 	}
+	if err := d.checkWorktreePorts(ctx, project, service); err != nil {
+		return nil, false, err
+	}
 	external, found, err := d.externalService(ctx, service, d.inspector)
 	if err != nil {
 		return nil, false, err
@@ -53,7 +56,7 @@ func (d *Driver) startService(ctx context.Context, project domain.ProjectRuntime
 	buffer := d.serviceLogBuffer(project.ProjectID, service.service.ID)
 	managed := &managedRun{
 		run: domain.RunRecord{
-			ID: runID, ProjectID: project.ProjectID, ServiceID: service.service.ID,
+			ID: runID, ProjectID: project.ProjectID, CatalogProjectID: project.CatalogProjectID, ServiceID: service.service.ID,
 			RuntimeDriver: domain.KindProcess, Origin: domain.OriginEnvarium, OperationID: service.operationID,
 		},
 		project: project, service: service, logs: buffer,

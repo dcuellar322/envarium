@@ -26,6 +26,11 @@ type PortDeclarationSource interface {
 	Declarations(context.Context, string) ([]PortDeclaration, error)
 }
 
+// EnvironmentPortDeclarationSource resolves declarations from each selected checkout.
+type EnvironmentPortDeclarationSource interface {
+	DeclarationsForEnvironment(context.Context, string) ([]PortDeclaration, error)
+}
+
 // PortAllocator selects one currently free, exact host port.
 type PortAllocator interface {
 	Suggest(context.Context, int, int, string, string, []int) (int, error)
@@ -51,28 +56,53 @@ func (c *RegistrationCoordinator) RegisterWorktrees(ctx context.Context, project
 	if err != nil {
 		return Registration{}, err
 	}
-	declarations, err := c.declarations.Declarations(ctx, projectID)
-	if err != nil {
-		return Registration{}, fmt.Errorf("read environment port declarations: %w", err)
-	}
-	sort.Slice(declarations, func(left, right int) bool { return declarations[left].ID < declarations[right].ID })
 	used := hostPorts(registration.Environments)
 	for index := range registration.Environments {
 		environment := registration.Environments[index]
 		if environment.Availability != domain.AvailabilityAvailable {
 			continue
 		}
+		scope := projectID
+		var declarations []PortDeclaration
+		var declarationErr error
+		if selected, ok := c.declarations.(EnvironmentPortDeclarationSource); ok {
+			declarations, declarationErr = selected.DeclarationsForEnvironment(ctx, environment.ID)
+		} else {
+			declarations, declarationErr = c.declarations.Declarations(ctx, scope)
+		}
+		if declarationErr != nil {
+			return Registration{}, fmt.Errorf("read environment port declarations: %w", declarationErr)
+		}
+		sort.Slice(declarations, func(i, j int) bool { return declarations[i].ID < declarations[j].ID })
 		leases, allocationErr := c.allocate(ctx, environment, declarations, used)
 		if allocationErr != nil {
 			return Registration{}, fmt.Errorf("allocate ports for environment %s: %w", environment.ID, allocationErr)
 		}
-		state := environment.State
-		if state == domain.StateRegistered {
-			state = domain.StateInactive
+		if environment.State != domain.StateRegistered && equalLeases(environment.Allocation.PortLeases, leases) {
+			continue
 		}
-		environment, allocationErr = c.environments.ConfigureRuntime(ctx, environment.ID, RuntimeConfiguration{
-			State: state, Hostname: environment.Hostname, Target: environment.Target, PortLeases: leases,
-		})
+		configure := func() error {
+			current, err := c.environments.Get(ctx, environment.ID)
+			if err != nil {
+				return err
+			}
+			state := current.State
+			if state == domain.StateRegistered {
+				state = domain.StateInactive
+			}
+			environment, allocationErr = c.environments.ConfigureRuntime(ctx, environment.ID, RuntimeConfiguration{
+				State: state, Hostname: current.Hostname, Target: current.Target, PortLeases: leases,
+			})
+			return allocationErr
+		}
+		if guard, ok := c.declarations.(interface {
+			WithLeaseChange(context.Context, domain.Environment, []domain.PortLease, func() error) error
+		}); ok {
+			allocationErr = guard.WithLeaseChange(ctx, environment, leases, configure)
+		} else {
+			allocationErr = configure()
+		}
+
 		if allocationErr != nil {
 			return Registration{}, allocationErr
 		}
@@ -131,4 +161,20 @@ func hostPorts(environments []domain.Environment) []int {
 		}
 	}
 	return result
+}
+
+func equalLeases(previous, current []domain.PortLease) bool {
+	if len(previous) != len(current) {
+		return false
+	}
+	byID := map[string]domain.PortLease{}
+	for _, lease := range previous {
+		byID[lease.PortID] = lease
+	}
+	for _, lease := range current {
+		if old, ok := byID[lease.PortID]; !ok || old != lease {
+			return false
+		}
+	}
+	return true
 }

@@ -1,6 +1,7 @@
 package application
 
 import (
+	"envarium.dev/envarium/internal/manifest/domain"
 	"strings"
 	"testing"
 )
@@ -72,5 +73,22 @@ services:
 	}
 	if manifest.Runtime.Process.Secrets["API_TOKEN"].Key != "envarium-test" {
 		t.Fatalf("secret reference = %#v", manifest.Runtime.Process.Secrets)
+	}
+}
+
+func TestHealthPortReferencesPreserveLoopbackValidation(t *testing.T) {
+	ports := []domain.Port{{ID: "http", Host: 19001}}
+	for _, value := range []string{"http://127.0.0.1:${ports.http}/", "http://[::1]:${ports.http}/"} {
+		if !loopbackURL(healthPortReferences(value, ports)) {
+			t.Fatalf("declared loopback health port rejected: %s", value)
+		}
+	}
+	for _, value := range []string{"http://example.com:${ports.http}/", "http://127.0.0.1:${ports.missing}/", "http://${ports.http}.example.com/"} {
+		if loopbackURL(healthPortReferences(value, ports)) {
+			t.Fatalf("unsafe or unknown target accepted: %s", value)
+		}
+	}
+	if !loopbackAddress(healthPortReferences("127.0.0.1:${ports.http}", ports)) || loopbackAddress("127.0.0.1:${ports.missing}") {
+		t.Fatal("TCP port validation incorrect")
 	}
 }

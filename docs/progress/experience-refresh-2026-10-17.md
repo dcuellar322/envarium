@@ -259,9 +259,8 @@ Hosted `c55b811f167b` checks are green: [main CI](https://github.com/dcuellar322
 Final evidence/documentation updates must regenerate the site and receive their
 own exact-commit hosted verification before handoff.
 
-Remaining boundaries are explicit: isolated native worktree starts require
-environment-specific run ownership and port allocation; Compose worktrees and
-reviewed main-checkout branch switching work. Live external pairing, paid AI,
+The native-worktree limitation recorded above was subsequently addressed by
+ADR-0027 and the Phase 13 native-worktree completion on 2026-10-18. Live external pairing, paid AI,
 signed release installation and user-data deletion were not exercised on the
 user's system. The existing unused-API Linux GLib advisory remains tracked in
 `security-cleanup-2026-10-18.md`; passing audit CI does not mean zero dependency

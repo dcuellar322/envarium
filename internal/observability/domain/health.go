@@ -29,16 +29,17 @@ const (
 
 // HealthResult is one immutable, redaction-safe check sample.
 type HealthResult struct {
-	ProjectID  string       `json:"projectId"`
-	ServiceID  string       `json:"serviceId"`
-	CheckID    string       `json:"checkId"`
-	Type       string       `json:"type"`
-	Status     HealthStatus `json:"status"`
-	Severity   string       `json:"severity"`
-	Required   bool         `json:"required"`
-	LatencyMS  int64        `json:"latencyMs"`
-	Message    string       `json:"message"`
-	ObservedAt time.Time    `json:"observedAt"`
+	CatalogProjectID string       `json:"-"`
+	ProjectID        string       `json:"projectId"`
+	ServiceID        string       `json:"serviceId"`
+	CheckID          string       `json:"checkId"`
+	Type             string       `json:"type"`
+	Status           HealthStatus `json:"status"`
+	Severity         string       `json:"severity"`
+	Required         bool         `json:"required"`
+	LatencyMS        int64        `json:"latencyMs"`
+	Message          string       `json:"message"`
+	ObservedAt       time.Time    `json:"observedAt"`
 }
 
 // ProjectHealth is the current aggregate diagnostic view.

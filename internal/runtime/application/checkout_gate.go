@@ -190,6 +190,3 @@ func CheckReview(plan domain.Plan, checkoutRevision, manifestHash string) error 
 	}
 	return nil
 }
-
-// ErrNativeEnvironmentUnsupported rejects unsupported native worktree starts.
-var ErrNativeEnvironmentUnsupported = errors.New("native worktree starts are not supported; switch branches in the main checkout and use its project controls instead")

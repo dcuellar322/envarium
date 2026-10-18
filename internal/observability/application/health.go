@@ -224,6 +224,9 @@ func (s *HealthService) evaluateChecks(ctx context.Context, project runtime.Proj
 		}
 		return results[i].ServiceID < results[j].ServiceID
 	})
+	for i := range results {
+		results[i].CatalogProjectID = project.CatalogProjectID
+	}
 	return results
 }
 

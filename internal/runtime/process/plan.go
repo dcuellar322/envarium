@@ -17,9 +17,10 @@ type servicePlan struct {
 }
 
 type executionPlan struct {
-	project  domain.ProjectRuntime
-	action   domain.Action
-	services []servicePlan
+	allServices bool
+	project     domain.ProjectRuntime
+	action      domain.Action
+	services    []servicePlan
 }
 
 func buildPlan(request domain.PlanRequest) (domain.Plan, error) {
@@ -51,6 +52,11 @@ func buildPlan(request domain.PlanRequest) (domain.Plan, error) {
 			return domain.Plan{}, fmt.Errorf("shell process %q must contain one command string", service.definition.ID)
 		}
 	}
+	if request.Action != domain.ActionStop && request.Action != domain.ActionKill {
+		if err := validateWorktreeServices(request.Project, services); err != nil {
+			return domain.Plan{}, err
+		}
+	}
 	if request.Action == domain.ActionStop || request.Action == domain.ActionKill {
 		reverseServices(services)
 	}
@@ -59,8 +65,9 @@ func buildPlan(request domain.PlanRequest) (domain.Plan, error) {
 		Risk: processRisk(request.Action), RemoveVolumes: false,
 		Summary:    fmt.Sprintf("%s %d native process service(s) for %s", request.Action, len(services), request.Project.ProjectSlug),
 		Effects:    []string{"Process ownership will be verified using durable identity fingerprints."},
-		DriverData: executionPlan{project: request.Project, action: request.Action, services: services},
+		DriverData: executionPlan{project: request.Project, action: request.Action, services: services, allServices: len(request.Services) == 0},
 	}
+	plan.Effects = append(plan.Effects, worktreeEffects(request)...)
 	if request.Action == domain.ActionKill {
 		plan.Effects = append(plan.Effects, "Managed process groups will be force-stopped without a graceful timeout.")
 	}
@@ -229,4 +236,27 @@ func shellSyntax(command []string) bool {
 		}
 	}
 	return false
+}
+
+func sortedPortIDs(ports map[string]domain.PortDeclaration) []string {
+	ids := make([]string, 0, len(ports))
+	for id := range ports {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	return ids
+}
+
+func worktreeEffects(request domain.PlanRequest) []string {
+	effects := []string{}
+	if len(request.Services) == 0 && (request.Action == domain.ActionStop || request.Action == domain.ActionRestart || request.Action == domain.ActionKill) {
+		effects = append(effects, "Stops every owned service in this runtime scope, including services removed from the current manifest.")
+	}
+	if request.Project.EnvironmentID != "" {
+		for _, id := range sortedPortIDs(request.Project.Ports) {
+			port := request.Project.Ports[id]
+			effects = append(effects, fmt.Sprintf("Worktree port %s: %d/%s.", id, port.Host, port.Protocol))
+		}
+	}
+	return effects
 }
