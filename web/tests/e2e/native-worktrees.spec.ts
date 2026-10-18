@@ -48,7 +48,14 @@ test('native worktrees isolate ports, logs and metrics and review stop/switch/st
     b = join(fixture, 'feature-b')
   mkdirSync(join(main, '.envarium'), { recursive: true })
   const git = (...args: string[]) =>
-    execFileSync('git', ['-C', main, ...args], { encoding: 'utf8' })
+    execFileSync('git', ['-C', main, ...args], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        GIT_CONFIG_NOSYSTEM: '1',
+        GIT_CONFIG_GLOBAL: process.platform === 'win32' ? 'NUL' : '/dev/null',
+      },
+    })
   git('init', '--initial-branch=main')
   git('config', 'user.name', 'Envarium test')
   git('config', 'user.email', 'test@localhost')
@@ -60,7 +67,7 @@ test('native worktrees isolate ports, logs and metrics and review stop/switch/st
     join(main, '.envarium/project.yml'),
     `schemaVersion: envarium.dev/v1
 kind: Project
-metadata: {id: native-worktrees, name: Native worktree fixture}
+metadata: {id: native-worktrees-${fixture.slice(-6).toLowerCase()}, name: Native worktree fixture}
 repository: {root: .}
 runtime:
   driver: process
