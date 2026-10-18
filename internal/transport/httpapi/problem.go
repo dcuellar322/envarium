@@ -53,6 +53,9 @@ func writeProblem(w http.ResponseWriter, r *http.Request, status int, code, titl
 }
 
 func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
+	if writeCheckoutError(w, r, err) {
+		return
+	}
 	if writeSpecializedError(w, r, err) {
 		return
 	}

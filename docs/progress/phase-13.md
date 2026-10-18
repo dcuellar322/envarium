@@ -125,3 +125,18 @@ survived restart.
   non-HTTP bound services remain visible but are not proxyable.
 - Worktrees are observed and registered but never created, removed, or checked
   out by Envarium. Repository mutation remains outside this phase.
+
+## October 2026 checkout workflow refresh
+
+ADR-0026 adds on-demand changed-file, branch and Git worktree inventory and an
+explicitly reviewed local branch switch. A stopped, clean, trusted main checkout
+can switch to an existing local branch; runtime execution then requires a fresh
+start preview. Root-scoped serialization and checkout revisions reject earlier
+runtime confirmations, including branch changes with identical manifests.
+
+Isolated worktree starts currently support Compose only. Native worktree runs
+need environment-aware durable run ownership and explicit port remapping; the
+existing native run table is owned by catalog project IDs. The UI and shared
+runtime planner now reject those starts explicitly, while preserving stop/kill
+cleanup. Native users can switch branches in the main checkout and review its
+normal lifecycle controls. Registration alone does not imply native isolation.

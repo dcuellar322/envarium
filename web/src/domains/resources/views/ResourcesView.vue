@@ -76,11 +76,15 @@ const {
         </article>
         <article>
           <span>Docker storage</span
-          ><strong>{{ formatBytes(overview.data.value.storage.bytes) }}</strong
-          ><small
+          ><strong>{{
+            overview.data.value.storage.classification === 'unknown'
+              ? '—'
+              : formatBytes(overview.data.value.storage.bytes)
+          }}</strong
+          ><small v-if="overview.data.value.storage.classification !== 'unknown'"
             >{{ overview.data.value.storage.classification }} · ≈
             {{ formatBytes(overview.data.value.storage.reclaimableBytes) }} reclaimable</small
-          >
+          ><small v-else>Storage observation unavailable</small>
         </article>
         <article>
           <span>Envarium footprint</span><strong>{{ formatBytes(footprintBytes) }}</strong

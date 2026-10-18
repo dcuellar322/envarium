@@ -502,6 +502,21 @@ func (e FleetIdentityProtocolVersion) Valid() bool {
 	}
 }
 
+// Defines values for GitBranchSwitchPlanRisk.
+const (
+	GitBranchSwitchPlanRiskMutating GitBranchSwitchPlanRisk = "mutating"
+)
+
+// Valid indicates whether the value is a known member of the GitBranchSwitchPlanRisk enum.
+func (e GitBranchSwitchPlanRisk) Valid() bool {
+	switch e {
+	case GitBranchSwitchPlanRiskMutating:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for GitRemoteKind.
 const (
 	Fetch GitRemoteKind = "fetch"
@@ -522,17 +537,29 @@ func (e GitRemoteKind) Valid() bool {
 
 // Defines values for GitStateOperationState.
 const (
-	GitStateOperationStateMerge   GitStateOperationState = "merge"
-	GitStateOperationStateRebase  GitStateOperationState = "rebase"
-	GitStateOperationStateUnknown GitStateOperationState = "unknown"
+	GitStateOperationStateBisect     GitStateOperationState = "bisect"
+	GitStateOperationStateCherryPick GitStateOperationState = "cherry_pick"
+	GitStateOperationStateMerge      GitStateOperationState = "merge"
+	GitStateOperationStateRebase     GitStateOperationState = "rebase"
+	GitStateOperationStateRevert     GitStateOperationState = "revert"
+	GitStateOperationStateSequencer  GitStateOperationState = "sequencer"
+	GitStateOperationStateUnknown    GitStateOperationState = "unknown"
 )
 
 // Valid indicates whether the value is a known member of the GitStateOperationState enum.
 func (e GitStateOperationState) Valid() bool {
 	switch e {
+	case GitStateOperationStateBisect:
+		return true
+	case GitStateOperationStateCherryPick:
+		return true
 	case GitStateOperationStateMerge:
 		return true
 	case GitStateOperationStateRebase:
+		return true
+	case GitStateOperationStateRevert:
+		return true
+	case GitStateOperationStateSequencer:
 		return true
 	case GitStateOperationStateUnknown:
 		return true
@@ -1458,19 +1485,19 @@ func (e RuntimePlanDriver) Valid() bool {
 
 // Defines values for RuntimePlanRisk.
 const (
-	Caution     RuntimePlanRisk = "caution"
-	Destructive RuntimePlanRisk = "destructive"
-	Safe        RuntimePlanRisk = "safe"
+	RuntimePlanRiskCaution     RuntimePlanRisk = "caution"
+	RuntimePlanRiskDestructive RuntimePlanRisk = "destructive"
+	RuntimePlanRiskSafe        RuntimePlanRisk = "safe"
 )
 
 // Valid indicates whether the value is a known member of the RuntimePlanRisk enum.
 func (e RuntimePlanRisk) Valid() bool {
 	switch e {
-	case Caution:
+	case RuntimePlanRiskCaution:
 		return true
-	case Destructive:
+	case RuntimePlanRiskDestructive:
 		return true
-	case Safe:
+	case RuntimePlanRiskSafe:
 		return true
 	default:
 		return false
@@ -2654,6 +2681,29 @@ type FleetSnapshot struct {
 	Projects     []FleetProject     `json:"projects"`
 }
 
+// GitBranch defines model for GitBranch.
+type GitBranch struct {
+	Current  bool    `json:"current"`
+	Head     string  `json:"head"`
+	Name     string  `json:"name"`
+	Upstream *string `json:"upstream,omitempty"`
+}
+
+// GitBranchSwitchPlan defines model for GitBranchSwitchPlan.
+type GitBranchSwitchPlan struct {
+	FromBranch    string                  `json:"fromBranch"`
+	FromHead      string                  `json:"fromHead"`
+	ProjectId     string                  `json:"projectId"`
+	ReviewRestart bool                    `json:"reviewRestart"`
+	Risk          GitBranchSwitchPlanRisk `json:"risk"`
+	Root          string                  `json:"root"`
+	ToBranch      string                  `json:"toBranch"`
+	ToHead        string                  `json:"toHead"`
+}
+
+// GitBranchSwitchPlanRisk defines model for GitBranchSwitchPlan.Risk.
+type GitBranchSwitchPlanRisk string
+
 // GitChangeCounts defines model for GitChangeCounts.
 type GitChangeCounts struct {
 	Conflicted int `json:"conflicted"`
@@ -2669,6 +2719,24 @@ type GitCommit struct {
 	Hash        string    `json:"hash"`
 	ShortHash   string    `json:"shortHash"`
 	Subject     string    `json:"subject"`
+}
+
+// GitDetails defines model for GitDetails.
+type GitDetails struct {
+	Branches          []GitBranch     `json:"branches"`
+	BranchesTruncated bool            `json:"branchesTruncated"`
+	Files             []GitFileChange `json:"files"`
+	FilesTruncated    bool            `json:"filesTruncated"`
+}
+
+// GitFileChange defines model for GitFileChange.
+type GitFileChange struct {
+	Conflicted   bool    `json:"conflicted"`
+	Index        string  `json:"index"`
+	OriginalPath *string `json:"originalPath,omitempty"`
+	Path         string  `json:"path"`
+	Untracked    bool    `json:"untracked"`
+	WorkingTree  string  `json:"workingTree"`
 }
 
 // GitRemote defines model for GitRemote.
@@ -2688,6 +2756,7 @@ type GitState struct {
 	Branch         *string                 `json:"branch,omitempty"`
 	Changes        GitChangeCounts         `json:"changes"`
 	Detached       bool                    `json:"detached"`
+	Details        *GitDetails             `json:"details,omitempty"`
 	Head           *string                 `json:"head,omitempty"`
 	LastCommit     *GitCommit              `json:"lastCommit,omitempty"`
 	ObservedAt     time.Time               `json:"observedAt"`
@@ -3313,11 +3382,13 @@ type RuntimeAction string
 
 // RuntimeActionRequest defines model for RuntimeActionRequest.
 type RuntimeActionRequest struct {
-	Action        RuntimeAction `json:"action"`
-	ConfirmRisk   *bool         `json:"confirmRisk,omitempty"`
-	Profiles      *[]string     `json:"profiles,omitempty"`
-	RemoveVolumes *bool         `json:"removeVolumes,omitempty"`
-	Services      *[]string     `json:"services,omitempty"`
+	Action                   RuntimeAction `json:"action"`
+	ConfirmRisk              *bool         `json:"confirmRisk,omitempty"`
+	ExpectedCheckoutRevision *string       `json:"expectedCheckoutRevision,omitempty"`
+	ExpectedManifestHash     *string       `json:"expectedManifestHash,omitempty"`
+	Profiles                 *[]string     `json:"profiles,omitempty"`
+	RemoveVolumes            *bool         `json:"removeVolumes,omitempty"`
+	Services                 *[]string     `json:"services,omitempty"`
 }
 
 // RuntimeCommand defines model for RuntimeCommand.
@@ -3405,16 +3476,18 @@ type RuntimeObservationState string
 
 // RuntimePlan defines model for RuntimePlan.
 type RuntimePlan struct {
-	Action        RuntimeAction     `json:"action"`
-	Commands      []RuntimeCommand  `json:"commands"`
-	Driver        RuntimePlanDriver `json:"driver"`
-	Effects       []string          `json:"effects"`
-	Profiles      *[]string         `json:"profiles,omitempty"`
-	ProjectId     string            `json:"projectId"`
-	RemoveVolumes bool              `json:"removeVolumes"`
-	Risk          RuntimePlanRisk   `json:"risk"`
-	Services      []string          `json:"services"`
-	Summary       string            `json:"summary"`
+	Action           RuntimeAction     `json:"action"`
+	CheckoutRevision *string           `json:"checkoutRevision,omitempty"`
+	Commands         []RuntimeCommand  `json:"commands"`
+	Driver           RuntimePlanDriver `json:"driver"`
+	Effects          []string          `json:"effects"`
+	ManifestHash     *string           `json:"manifestHash,omitempty"`
+	Profiles         *[]string         `json:"profiles,omitempty"`
+	ProjectId        string            `json:"projectId"`
+	RemoveVolumes    bool              `json:"removeVolumes"`
+	Risk             RuntimePlanRisk   `json:"risk"`
+	Services         []string          `json:"services"`
+	Summary          string            `json:"summary"`
 }
 
 // RuntimePlanDriver defines model for RuntimePlan.Driver.
@@ -4020,6 +4093,27 @@ type RegisterProjectEnvironmentsParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
 
+// CreateGitBranchSwitchJSONBody defines parameters for CreateGitBranchSwitch.
+type CreateGitBranchSwitchJSONBody struct {
+	ConfirmRisk bool                `json:"confirmRisk"`
+	Plan        GitBranchSwitchPlan `json:"plan"`
+}
+
+// CreateGitBranchSwitchParams defines parameters for CreateGitBranchSwitch.
+type CreateGitBranchSwitchParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// PlanGitBranchSwitchJSONBody defines parameters for PlanGitBranchSwitch.
+type PlanGitBranchSwitchJSONBody struct {
+	Branch string `json:"branch"`
+}
+
+// PlanGitBranchSwitchParams defines parameters for PlanGitBranchSwitch.
+type PlanGitBranchSwitchParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
 // GetProjectLogsParams defines parameters for GetProjectLogs.
 type GetProjectLogsParams struct {
 	Service     *string `form:"service,omitempty" json:"service,omitempty"`
@@ -4170,6 +4264,12 @@ type CreateActionOperationJSONRequestBody = ActionExecutionRequest
 
 // CreateProjectDiagnosisJSONRequestBody defines body for CreateProjectDiagnosis for application/json ContentType.
 type CreateProjectDiagnosisJSONRequestBody = CreateDiagnosisRequest
+
+// CreateGitBranchSwitchJSONRequestBody defines body for CreateGitBranchSwitch for application/json ContentType.
+type CreateGitBranchSwitchJSONRequestBody CreateGitBranchSwitchJSONBody
+
+// PlanGitBranchSwitchJSONRequestBody defines body for PlanGitBranchSwitch for application/json ContentType.
+type PlanGitBranchSwitchJSONRequestBody PlanGitBranchSwitchJSONBody
 
 // CreateProjectOperationJSONRequestBody defines body for CreateProjectOperation for application/json ContentType.
 type CreateProjectOperationJSONRequestBody = RuntimeActionRequest
@@ -4737,6 +4837,41 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /projects/{projectId}/git (the `GetProjectGit` operationId).
 	GetProjectGit(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateGitBranchSwitchWithBody Queue an explicitly confirmed local-user branch switch
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /projects/{projectId}/git/branch-switch (the `CreateGitBranchSwitch` operationId).
+	CreateGitBranchSwitchWithBody(ctx context.Context, projectId ProjectId, params *CreateGitBranchSwitchParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateGitBranchSwitch Queue an explicitly confirmed local-user branch switch
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /projects/{projectId}/git/branch-switch (the `CreateGitBranchSwitch` operationId).
+	CreateGitBranchSwitch(ctx context.Context, projectId ProjectId, params *CreateGitBranchSwitchParams, body CreateGitBranchSwitchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PlanGitBranchSwitchWithBody Review an existing local branch switch in a clean stopped checkout
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /projects/{projectId}/git/branch-switch/plan (the `PlanGitBranchSwitch` operationId).
+	PlanGitBranchSwitchWithBody(ctx context.Context, projectId ProjectId, params *PlanGitBranchSwitchParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PlanGitBranchSwitch Review an existing local branch switch in a clean stopped checkout
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /projects/{projectId}/git/branch-switch/plan (the `PlanGitBranchSwitch` operationId).
+	PlanGitBranchSwitch(ctx context.Context, projectId ProjectId, params *PlanGitBranchSwitchParams, body PlanGitBranchSwitchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetProjectGitInventory Read bounded changed files, local branches and worktrees on demand
+	//
+	// Includes details with literal repository-relative filenames and independent index/working-tree status. Dashboard and scheduled diagnostics do not request this inventory. Results explicitly report truncation; no file contents are returned.
+	//
+	// Corresponds with GET /projects/{projectId}/git/inventory (the `GetProjectGitInventory` operationId).
+	GetProjectGitInventory(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetProjectGitStatus Read fresh working-tree and branch status for a trusted project
 	//
@@ -6272,6 +6407,91 @@ func (c *Client) RegisterProjectEnvironments(ctx context.Context, projectId Proj
 // Corresponds with GET /projects/{projectId}/git (the `GetProjectGit` operationId).
 func (c *Client) GetProjectGit(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProjectGitRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateGitBranchSwitchWithBody Queue an explicitly confirmed local-user branch switch
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /projects/{projectId}/git/branch-switch (the `CreateGitBranchSwitch` operationId).
+func (c *Client) CreateGitBranchSwitchWithBody(ctx context.Context, projectId ProjectId, params *CreateGitBranchSwitchParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateGitBranchSwitchRequestWithBody(c.Server, projectId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateGitBranchSwitch Queue an explicitly confirmed local-user branch switch
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /projects/{projectId}/git/branch-switch (the `CreateGitBranchSwitch` operationId).
+func (c *Client) CreateGitBranchSwitch(ctx context.Context, projectId ProjectId, params *CreateGitBranchSwitchParams, body CreateGitBranchSwitchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateGitBranchSwitchRequest(c.Server, projectId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PlanGitBranchSwitchWithBody Review an existing local branch switch in a clean stopped checkout
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /projects/{projectId}/git/branch-switch/plan (the `PlanGitBranchSwitch` operationId).
+func (c *Client) PlanGitBranchSwitchWithBody(ctx context.Context, projectId ProjectId, params *PlanGitBranchSwitchParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPlanGitBranchSwitchRequestWithBody(c.Server, projectId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PlanGitBranchSwitch Review an existing local branch switch in a clean stopped checkout
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /projects/{projectId}/git/branch-switch/plan (the `PlanGitBranchSwitch` operationId).
+func (c *Client) PlanGitBranchSwitch(ctx context.Context, projectId ProjectId, params *PlanGitBranchSwitchParams, body PlanGitBranchSwitchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPlanGitBranchSwitchRequest(c.Server, projectId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetProjectGitInventory Read bounded changed files, local branches and worktrees on demand
+//
+// Includes details with literal repository-relative filenames and independent index/working-tree status. Dashboard and scheduled diagnostics do not request this inventory. Results explicitly report truncation; no file contents are returned.
+//
+// Corresponds with GET /projects/{projectId}/git/inventory (the `GetProjectGitInventory` operationId).
+func (c *Client) GetProjectGitInventory(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProjectGitInventoryRequest(c.Server, projectId)
 	if err != nil {
 		return nil, err
 	}
@@ -9673,6 +9893,160 @@ func NewGetProjectGitRequest(server string, projectId ProjectId) (*http.Request,
 	return req, nil
 }
 
+// NewCreateGitBranchSwitchRequest calls the generic CreateGitBranchSwitch builder with application/json body
+func NewCreateGitBranchSwitchRequest(server string, projectId ProjectId, params *CreateGitBranchSwitchParams, body CreateGitBranchSwitchJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateGitBranchSwitchRequestWithBody(server, projectId, params, "application/json", bodyReader)
+}
+
+// NewCreateGitBranchSwitchRequestWithBody constructs an http.Request for the CreateGitBranchSwitch method, with any body, and a specified content type
+func NewCreateGitBranchSwitchRequestWithBody(server string, projectId ProjectId, params *CreateGitBranchSwitchParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/git/branch-switch", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewPlanGitBranchSwitchRequest calls the generic PlanGitBranchSwitch builder with application/json body
+func NewPlanGitBranchSwitchRequest(server string, projectId ProjectId, params *PlanGitBranchSwitchParams, body PlanGitBranchSwitchJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPlanGitBranchSwitchRequestWithBody(server, projectId, params, "application/json", bodyReader)
+}
+
+// NewPlanGitBranchSwitchRequestWithBody constructs an http.Request for the PlanGitBranchSwitch method, with any body, and a specified content type
+func NewPlanGitBranchSwitchRequestWithBody(server string, projectId ProjectId, params *PlanGitBranchSwitchParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/git/branch-switch/plan", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewGetProjectGitInventoryRequest constructs an http.Request for the GetProjectGitInventory method
+func NewGetProjectGitInventoryRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectId", projectId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/git/inventory", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetProjectGitStatusRequest constructs an http.Request for the GetProjectGitStatus method
 func NewGetProjectGitStatusRequest(server string, projectId ProjectId) (*http.Request, error) {
 	var err error
@@ -12120,6 +12494,43 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /projects/{projectId}/git (the `GetProjectGit` operationId).
 	GetProjectGitWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectGitResponse, error)
 
+	// CreateGitBranchSwitchWithBodyWithResponse Queue an explicitly confirmed local-user branch switch
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /projects/{projectId}/git/branch-switch (the `CreateGitBranchSwitch` operationId).
+	CreateGitBranchSwitchWithBodyWithResponse(ctx context.Context, projectId ProjectId, params *CreateGitBranchSwitchParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateGitBranchSwitchResponse, error)
+
+	// CreateGitBranchSwitchWithResponse Queue an explicitly confirmed local-user branch switch
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /projects/{projectId}/git/branch-switch (the `CreateGitBranchSwitch` operationId).
+	CreateGitBranchSwitchWithResponse(ctx context.Context, projectId ProjectId, params *CreateGitBranchSwitchParams, body CreateGitBranchSwitchJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateGitBranchSwitchResponse, error)
+
+	// PlanGitBranchSwitchWithBodyWithResponse Review an existing local branch switch in a clean stopped checkout
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /projects/{projectId}/git/branch-switch/plan (the `PlanGitBranchSwitch` operationId).
+	PlanGitBranchSwitchWithBodyWithResponse(ctx context.Context, projectId ProjectId, params *PlanGitBranchSwitchParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PlanGitBranchSwitchResponse, error)
+
+	// PlanGitBranchSwitchWithResponse Review an existing local branch switch in a clean stopped checkout
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /projects/{projectId}/git/branch-switch/plan (the `PlanGitBranchSwitch` operationId).
+	PlanGitBranchSwitchWithResponse(ctx context.Context, projectId ProjectId, params *PlanGitBranchSwitchParams, body PlanGitBranchSwitchJSONRequestBody, reqEditors ...RequestEditorFn) (*PlanGitBranchSwitchResponse, error)
+
+	// GetProjectGitInventoryWithResponse Read bounded changed files, local branches and worktrees on demand
+	//
+	// Includes details with literal repository-relative filenames and independent index/working-tree status. Dashboard and scheduled diagnostics do not request this inventory. Results explicitly report truncation; no file contents are returned.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /projects/{projectId}/git/inventory (the `GetProjectGitInventory` operationId).
+	GetProjectGitInventoryWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectGitInventoryResponse, error)
+
 	// GetProjectGitStatusWithResponse Read fresh working-tree and branch status for a trusted project
 	//
 	// Omits commit enrichment, remote inventory and worktree inventory. Those remain available from the full Git endpoint.
@@ -14419,6 +14830,105 @@ func (r GetProjectGitResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetProjectGitResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateGitBranchSwitchResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON202 the response for an HTTP 202 `application/json` response
+	JSON202 *Operation
+	// ApplicationproblemJSONDefault the response for an HTTP default `application/problem+json` response
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateGitBranchSwitchResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateGitBranchSwitchResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateGitBranchSwitchResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PlanGitBranchSwitchResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *GitBranchSwitchPlan
+	// ApplicationproblemJSONDefault the response for an HTTP default `application/problem+json` response
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r PlanGitBranchSwitchResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PlanGitBranchSwitchResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PlanGitBranchSwitchResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetProjectGitInventoryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *GitState
+	// ApplicationproblemJSONDefault the response for an HTTP default `application/problem+json` response
+	ApplicationproblemJSONDefault *Problem
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProjectGitInventoryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProjectGitInventoryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetProjectGitInventoryResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -16795,6 +17305,73 @@ func (c *ClientWithResponses) GetProjectGitWithResponse(ctx context.Context, pro
 		return nil, err
 	}
 	return ParseGetProjectGitResponse(rsp)
+}
+
+// CreateGitBranchSwitchWithBodyWithResponse Queue an explicitly confirmed local-user branch switch
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /projects/{projectId}/git/branch-switch (the `CreateGitBranchSwitch` operationId).
+func (c *ClientWithResponses) CreateGitBranchSwitchWithBodyWithResponse(ctx context.Context, projectId ProjectId, params *CreateGitBranchSwitchParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateGitBranchSwitchResponse, error) {
+	rsp, err := c.CreateGitBranchSwitchWithBody(ctx, projectId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateGitBranchSwitchResponse(rsp)
+}
+
+// CreateGitBranchSwitchWithResponse Queue an explicitly confirmed local-user branch switch
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /projects/{projectId}/git/branch-switch (the `CreateGitBranchSwitch` operationId).
+func (c *ClientWithResponses) CreateGitBranchSwitchWithResponse(ctx context.Context, projectId ProjectId, params *CreateGitBranchSwitchParams, body CreateGitBranchSwitchJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateGitBranchSwitchResponse, error) {
+	rsp, err := c.CreateGitBranchSwitch(ctx, projectId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateGitBranchSwitchResponse(rsp)
+}
+
+// PlanGitBranchSwitchWithBodyWithResponse Review an existing local branch switch in a clean stopped checkout
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /projects/{projectId}/git/branch-switch/plan (the `PlanGitBranchSwitch` operationId).
+func (c *ClientWithResponses) PlanGitBranchSwitchWithBodyWithResponse(ctx context.Context, projectId ProjectId, params *PlanGitBranchSwitchParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PlanGitBranchSwitchResponse, error) {
+	rsp, err := c.PlanGitBranchSwitchWithBody(ctx, projectId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePlanGitBranchSwitchResponse(rsp)
+}
+
+// PlanGitBranchSwitchWithResponse Review an existing local branch switch in a clean stopped checkout
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /projects/{projectId}/git/branch-switch/plan (the `PlanGitBranchSwitch` operationId).
+func (c *ClientWithResponses) PlanGitBranchSwitchWithResponse(ctx context.Context, projectId ProjectId, params *PlanGitBranchSwitchParams, body PlanGitBranchSwitchJSONRequestBody, reqEditors ...RequestEditorFn) (*PlanGitBranchSwitchResponse, error) {
+	rsp, err := c.PlanGitBranchSwitch(ctx, projectId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePlanGitBranchSwitchResponse(rsp)
+}
+
+// GetProjectGitInventoryWithResponse Read bounded changed files, local branches and worktrees on demand
+//
+// Includes details with literal repository-relative filenames and independent index/working-tree status. Dashboard and scheduled diagnostics do not request this inventory. Results explicitly report truncation; no file contents are returned.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /projects/{projectId}/git/inventory (the `GetProjectGitInventory` operationId).
+func (c *ClientWithResponses) GetProjectGitInventoryWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*GetProjectGitInventoryResponse, error) {
+	rsp, err := c.GetProjectGitInventory(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProjectGitInventoryResponse(rsp)
 }
 
 // GetProjectGitStatusWithResponse Read fresh working-tree and branch status for a trusted project
@@ -19433,6 +20010,105 @@ func ParseGetProjectGitResponse(rsp *http.Response) (*GetProjectGitResponse, err
 	return response, nil
 }
 
+// ParseCreateGitBranchSwitchResponse parses an HTTP response from a CreateGitBranchSwitchWithResponse call
+func ParseCreateGitBranchSwitchResponse(rsp *http.Response) (*CreateGitBranchSwitchResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateGitBranchSwitchResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest Operation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePlanGitBranchSwitchResponse parses an HTTP response from a PlanGitBranchSwitchWithResponse call
+func ParsePlanGitBranchSwitchResponse(rsp *http.Response) (*PlanGitBranchSwitchResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PlanGitBranchSwitchResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GitBranchSwitchPlan
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetProjectGitInventoryResponse parses an HTTP response from a GetProjectGitInventoryWithResponse call
+func ParseGetProjectGitInventoryResponse(rsp *http.Response) (*GetProjectGitInventoryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProjectGitInventoryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GitState
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Problem
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetProjectGitStatusResponse parses an HTTP response from a GetProjectGitStatusWithResponse call
 func ParseGetProjectGitStatusResponse(rsp *http.Response) (*GetProjectGitStatusResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -20984,6 +21660,15 @@ type ServerInterface interface {
 	// GetProjectGit Read a fresh Git porcelain snapshot for a trusted project
 	// (GET /projects/{projectId}/git)
 	GetProjectGit(w http.ResponseWriter, r *http.Request, projectId ProjectId)
+	// CreateGitBranchSwitch Queue an explicitly confirmed local-user branch switch
+	// (POST /projects/{projectId}/git/branch-switch)
+	CreateGitBranchSwitch(w http.ResponseWriter, r *http.Request, projectId ProjectId, params CreateGitBranchSwitchParams)
+	// PlanGitBranchSwitch Review an existing local branch switch in a clean stopped checkout
+	// (POST /projects/{projectId}/git/branch-switch/plan)
+	PlanGitBranchSwitch(w http.ResponseWriter, r *http.Request, projectId ProjectId, params PlanGitBranchSwitchParams)
+	// GetProjectGitInventory Read bounded changed files, local branches and worktrees on demand
+	// (GET /projects/{projectId}/git/inventory)
+	GetProjectGitInventory(w http.ResponseWriter, r *http.Request, projectId ProjectId)
 	// GetProjectGitStatus Read fresh working-tree and branch status for a trusted project
 	// (GET /projects/{projectId}/git/status)
 	GetProjectGitStatus(w http.ResponseWriter, r *http.Request, projectId ProjectId)
@@ -21461,6 +22146,24 @@ func (_ Unimplemented) RegisterProjectEnvironments(w http.ResponseWriter, r *htt
 // GetProjectGit Read a fresh Git porcelain snapshot for a trusted project
 // (GET /projects/{projectId}/git)
 func (_ Unimplemented) GetProjectGit(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// CreateGitBranchSwitch Queue an explicitly confirmed local-user branch switch
+// (POST /projects/{projectId}/git/branch-switch)
+func (_ Unimplemented) CreateGitBranchSwitch(w http.ResponseWriter, r *http.Request, projectId ProjectId, params CreateGitBranchSwitchParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// PlanGitBranchSwitch Review an existing local branch switch in a clean stopped checkout
+// (POST /projects/{projectId}/git/branch-switch/plan)
+func (_ Unimplemented) PlanGitBranchSwitch(w http.ResponseWriter, r *http.Request, projectId ProjectId, params PlanGitBranchSwitchParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// GetProjectGitInventory Read bounded changed files, local branches and worktrees on demand
+// (GET /projects/{projectId}/git/inventory)
+func (_ Unimplemented) GetProjectGitInventory(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -23618,6 +24321,140 @@ func (siw *ServerInterfaceWrapper) GetProjectGit(w http.ResponseWriter, r *http.
 	handler.ServeHTTP(w, r)
 }
 
+// CreateGitBranchSwitch operation middleware
+func (siw *ServerInterfaceWrapper) CreateGitBranchSwitch(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateGitBranchSwitchParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateGitBranchSwitch(w, r, projectId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PlanGitBranchSwitch operation middleware
+func (siw *ServerInterfaceWrapper) PlanGitBranchSwitch(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PlanGitBranchSwitchParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PlanGitBranchSwitch(w, r, projectId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetProjectGitInventory operation middleware
+func (siw *ServerInterfaceWrapper) GetProjectGitInventory(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProjectGitInventory(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetProjectGitStatus operation middleware
 func (siw *ServerInterfaceWrapper) GetProjectGitStatus(w http.ResponseWriter, r *http.Request) {
 
@@ -25257,6 +26094,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/git", wrapper.GetProjectGit)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/projects/{projectId}/git/branch-switch", wrapper.CreateGitBranchSwitch)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/projects/{projectId}/git/branch-switch/plan", wrapper.PlanGitBranchSwitch)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/git/inventory", wrapper.GetProjectGitInventory)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/git/status", wrapper.GetProjectGitStatus)

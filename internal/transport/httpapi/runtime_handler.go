@@ -8,6 +8,7 @@ import (
 	observabilityDomain "envarium.dev/envarium/internal/observability/domain"
 	operations "envarium.dev/envarium/internal/operations/application"
 	overview "envarium.dev/envarium/internal/overview/application"
+	runtimeApplication "envarium.dev/envarium/internal/runtime/application"
 	"envarium.dev/envarium/internal/runtime/domain"
 	"envarium.dev/envarium/internal/transport/contract/generated"
 )
@@ -73,12 +74,23 @@ func (h *handler) CreateProjectOperation(
 		writeApplicationError(w, r, err)
 		return
 	}
+	expectedRevision, expectedHash := "", ""
+	if request.ExpectedCheckoutRevision != nil {
+		expectedRevision = *request.ExpectedCheckoutRevision
+	}
+	if request.ExpectedManifestHash != nil {
+		expectedHash = *request.ExpectedManifestHash
+	}
+	if err := runtimeApplication.CheckReview(plan, expectedRevision, expectedHash); err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
 	confirmRisk := request.ConfirmRisk != nil && *request.ConfirmRisk
 	if plan.Risk == domain.RiskDestructive && !confirmRisk {
 		writeProblem(w, r, http.StatusConflict, "RUNTIME_CONFIRMATION_REQUIRED", "Lifecycle confirmation required", "Destructive runtime actions require an explicit preview and confirmation.")
 		return
 	}
-	input, _ := json.Marshal(map[string]any{"action": action, "removeVolumes": removeVolumes, "services": services, "profiles": profiles})
+	input, _ := json.Marshal(map[string]any{"action": action, "removeVolumes": removeVolumes, "services": services, "profiles": profiles, "expectedCheckoutRevision": plan.SourceCheckoutRevision, "expectedManifestHash": plan.SourceManifestHash})
 	identity := identityFrom(r.Context())
 	operation, err := h.operations.Submit(r.Context(), operations.SubmitRequest{
 		ProjectID: projectID, Kind: "runtime." + string(action), Input: input,

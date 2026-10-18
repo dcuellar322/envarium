@@ -9,6 +9,17 @@ import (
 )
 
 func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime) (domain.Observation, error) {
+	if project.Process == nil {
+		return d.inspectRuns(ctx, project, nil)
+	}
+	runs, err := d.store.ListProjectRuns(ctx, project.ProjectID)
+	if err != nil {
+		return domain.Observation{}, err
+	}
+	return d.inspectRuns(ctx, project, runs)
+}
+
+func (d *Driver) inspectRuns(ctx context.Context, project domain.ProjectRuntime, runs []domain.RunRecord) (domain.Observation, error) {
 	observation := domain.Observation{
 		ProjectID: project.ProjectID, Driver: domain.KindProcess, ProjectIdentity: project.ProjectSlug,
 		Origin: domain.OriginExternal, ObservedAt: d.now().UTC(), Services: []domain.ServiceObservation{},
@@ -16,10 +27,6 @@ func (d *Driver) inspect(ctx context.Context, project domain.ProjectRuntime) (do
 	if project.Process == nil {
 		observation.State = domain.StateUnknown
 		return observation, ErrInvalidProcessPlan
-	}
-	runs, err := d.store.ListProjectRuns(ctx, project.ProjectID)
-	if err != nil {
-		return domain.Observation{}, err
 	}
 	latest := make(map[string]domain.RunRecord)
 	active := make(map[string]domain.RunRecord)

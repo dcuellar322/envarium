@@ -297,17 +297,20 @@ input {
 .root-policy code {
   overflow-wrap: anywhere;
 }
-.outside-root {
+.scan-form .outside-root {
   display: flex;
   align-items: flex-start;
   gap: 9px;
   margin-top: 12px;
   color: var(--muted);
+  font-weight: 400;
 }
 .outside-root input {
   flex: 0 0 auto;
   width: 17px;
   height: 17px;
+  margin: 2px 0 0;
+  padding: 0;
 }
 .outside-root span {
   display: grid;
@@ -318,7 +321,8 @@ input {
   font-size: 12px;
 }
 .outside-root small {
-  font-size: 10px;
+  font-size: 11px;
+  line-height: 1.5;
 }
 button {
   padding: 10px 15px;

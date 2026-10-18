@@ -70,11 +70,7 @@ func NewHealthService(source RuntimeSource, observer RuntimeObserver, repository
 
 // Get returns persisted health with explicit stale and disconnected states.
 func (s *HealthService) Get(ctx context.Context, projectID string) (observability.ProjectHealth, error) {
-	project, err := s.source.ResolveRuntime(ctx, projectID)
-	if err != nil {
-		return observability.ProjectHealth{}, err
-	}
-	observation, err := s.observer.Inspect(ctx, projectID)
+	project, observation, err := observeHealthProject(ctx, s.source, s.observer, projectID)
 	if err != nil {
 		return observability.ProjectHealth{}, err
 	}
@@ -130,11 +126,7 @@ func (s *HealthService) LatestResults(ctx context.Context, projectID string) ([]
 
 // EvaluateProject runs every declared check and records only sanitized result messages.
 func (s *HealthService) EvaluateProject(ctx context.Context, projectID string) (observability.ProjectHealth, error) {
-	project, err := s.source.ResolveRuntime(ctx, projectID)
-	if err != nil {
-		return observability.ProjectHealth{}, err
-	}
-	observation, err := s.observer.Inspect(ctx, projectID)
+	project, observation, err := observeHealthProject(ctx, s.source, s.observer, projectID)
 	if err != nil {
 		return observability.ProjectHealth{}, err
 	}

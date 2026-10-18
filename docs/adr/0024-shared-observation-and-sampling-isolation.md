@@ -166,3 +166,51 @@ estimate segment rotation.
 Contain dashboard-card layout and painting within each card, preserving its
 intrinsic sizing, keyboard controls and existing visual hierarchy. Validate
 desktop/narrow/hover rendering and actual native performance before accepting.
+
+Resolve sibling optional manifests through one confined, identity-checked
+directory handle per resolution. Read each current file and validate its opened
+descriptor and byte cap independently; retain no directory or byte cache across
+resolutions. A missing directory is checked again on the next resolution.
+This removes repeated parent walks without allowing symlink aliases or stale
+manifest contents.
+
+Read registered environments and their exact leases in one adapter-owned SQL
+snapshot. Scheduler snapshots may consume a typed batch of those current
+environment allocations instead of listing them and immediately fetching each
+one again. Preserve independent direct lifecycle reads, per-target trust and
+availability checks, caller-owned maps, cancellation and explicit errors.
+
+Drive background health, event-subscription reconciliation and log inventory from
+one fresh one-second project observation feed. Each subscriber owns a copied,
+bounded latest snapshot; slow consumers do not block monitoring or queue stale
+cycles. Failed cycles remain explicit. Direct requests and lifecycle execution
+continue resolving current trust and files independently. The feed has an
+explicit daemon-owned lifetime and retains no interactive query cache. This
+preserves the fastest existing configuration check cadence while eliminating
+independent duplicate catalog, manifest and environment reads.
+
+On Darwin and Linux, traverse manifest parent directories using pinned directory
+file descriptors and kernel-enforced `openat(O_DIRECTORY|O_NOFOLLOW)` boundaries.
+This replaces redundant pre/post directory stats with an atomic no-symlink
+open, while retaining pre-open regular-file checks, nonblocking/no-follow file
+opens, opened-descriptor identity checks and post-read byte caps. Synchronize
+close against opens to prevent descriptor reuse from changing the capability.
+Other platforms retain the rooted Go filesystem implementation. Retain no
+handles or bytes between observations, and verify symlink, FIFO, replacement,
+close/cancellation and cross-platform behavior before accepting the change.
+
+Native process watchers retain their two-second reconciliation cadence and
+immediate lifecycle events, but share one fresh batch of durable run records per
+cycle. Batch only through the run store's explicit domain interface (at most 64
+project IDs per SQL read); preserve the newest 200 runs per project and every
+stored fingerprint. Each subscriber receives owned values, failed reads stop
+that watch explicitly, slow subscribers retain only the latest cycle, and the
+feed stops when its final watcher exits. Do not cache run results between cycles
+or weaken PID/group ownership verification.
+
+Resolve current trusted runtime inputs once per combined health or resource
+read. The runtime application service can return both its resolved project and
+current observation, or observation plus statistics, to the owning monitoring
+adapter. Reuse only that call's typed inputs; preserve direct trust/file checks,
+active/inactive classification, existing status coalescing, driver failures and
+metric sampling. Alternate adapters retain their existing independent reads.

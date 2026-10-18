@@ -15,11 +15,10 @@ const api = vi.hoisted(() => ({
   saveRecipe: vi.fn(),
   setRecipeEnabled: vi.fn(),
 }))
+const projectAPI = vi.hoisted(() => ({ loadProjects: vi.fn() }))
 const settingsAPI = vi.hoisted(() => ({ loadDaemonSettings: vi.fn() }))
 vi.mock('../../src/domains/diagnostics/api', () => api)
-vi.mock('../../src/domains/projects/api', () => ({
-  loadProjects: vi.fn().mockResolvedValue([{ id: 'alpha', displayName: 'Alpha API' }]),
-}))
+vi.mock('../../src/domains/projects/api', () => projectAPI)
 vi.mock('../../src/domains/system/settingsApi', () => settingsAPI)
 
 import DiagnosticsView from '../../src/domains/diagnostics/views/DiagnosticsView.vue'
@@ -73,6 +72,9 @@ const diagnosis = {
 afterEach(cleanup)
 beforeEach(() => {
   vi.clearAllMocks()
+  projectAPI.loadProjects.mockResolvedValue([
+    { id: 'alpha', displayName: 'Alpha API', trustState: 'trusted' },
+  ])
   api.loadLatestDiagnosis.mockResolvedValue(diagnosis)
   api.loadNotifications.mockResolvedValue([])
   api.loadProviders.mockResolvedValue([])
@@ -178,4 +180,16 @@ test('prefers an available durable AI default without hiding the deterministic o
 
   await waitFor(() => expect(screen.getByLabelText('Optional AI')).toHaveValue('codex'))
   expect(screen.getByRole('option', { name: 'Deterministic only' })).toBeInTheDocument()
+})
+
+test('does not offer untrusted projects or contact a provider in the empty state', async () => {
+  projectAPI.loadProjects.mockResolvedValue([
+    { id: 'pending', displayName: 'Unreviewed project', trustState: 'pending' },
+  ])
+  renderView()
+  expect(await screen.findByText('No trusted projects')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Run diagnosis' })).toBeDisabled()
+  expect(screen.queryByRole('option', { name: 'Unreviewed project' })).not.toBeInTheDocument()
+  expect(api.diagnoseProject).not.toHaveBeenCalled()
+  expect(screen.getByRole('link', { name: 'Discovery' })).toHaveAttribute('href', '/discovery')
 })

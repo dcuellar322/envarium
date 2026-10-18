@@ -66,18 +66,19 @@ func resolutionDocuments(root string, discovered, accepted domain.Manifest, over
 	}
 	// An absent parent proves both optional source files are absent at this
 	// observation point. Avoid walking the same missing path twice per project.
-	if _, err := os.Stat(filepath.Join(root, ".envarium")); os.IsNotExist(err) {
+	if _, err := os.Lstat(filepath.Join(root, ".envarium")); os.IsNotExist(err) {
 		return documents, nil
 	}
+	directory, err := repositoryfile.OpenDirectory(root, ".envarium")
+	if err != nil {
+		return nil, fmt.Errorf("open manifest directory: %w", err)
+	}
+	defer func() { _ = directory.Close() }()
 	for index := range documents {
 		if documents[index].path == "" {
 			continue
 		}
-		relative, err := filepath.Rel(root, documents[index].path)
-		if err != nil {
-			return nil, err
-		}
-		contents, err := repositoryfile.Read(root, relative, 1<<20)
+		contents, err := directory.Read(filepath.Base(documents[index].path), 1<<20)
 		if os.IsNotExist(err) {
 			continue
 		}

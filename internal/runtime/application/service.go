@@ -32,6 +32,7 @@ type Service struct {
 	projects     ProjectSource
 	drivers      map[domain.Kind]Driver
 	observations *observationCache
+	checkouts    checkoutGate
 }
 
 // NewService constructs runtime use cases from explicit project and driver boundaries.
@@ -72,17 +73,58 @@ func (s *Service) PlanSelection(ctx context.Context, projectID string, action do
 	if err != nil {
 		return domain.Plan{}, err
 	}
-	return driver.Plan(ctx, domain.PlanRequest{Project: project, Action: action, RemoveVolumes: removeVolumes, Services: services, Profiles: profiles})
+	if project.EnvironmentID != "" && project.Kind == domain.KindProcess && action != domain.ActionStop && action != domain.ActionKill {
+		return domain.Plan{}, ErrNativeEnvironmentUnsupported
+	}
+	revision, err := s.checkouts.revision(project.Root)
+	if err != nil {
+		return domain.Plan{}, err
+	}
+	plan, err := driver.Plan(ctx, domain.PlanRequest{Project: project, Action: action, RemoveVolumes: removeVolumes, Services: services, Profiles: profiles})
+	currentRevision, revisionErr := s.checkouts.revision(project.Root)
+	if revisionErr != nil {
+		return domain.Plan{}, revisionErr
+	}
+	if currentRevision != revision {
+		return domain.Plan{}, ErrPlanStale
+	}
+	plan.SourceCheckoutRevision = revision
+	plan.SourceRoot = project.Root
+	plan.SourceManifestHash = project.ManifestHash
+	return plan, err
 }
 
 // Execute applies a previously produced plan through its owning driver.
 func (s *Service) Execute(ctx context.Context, plan domain.Plan, sink domain.ProgressSink) error {
+	project, _, err := s.resolve(ctx, plan.ProjectID)
+	if err != nil {
+		return err
+	}
+	release, err := s.checkouts.acquire(ctx, project.Root)
+	if err != nil {
+		return err
+	}
+	defer release()
+	current, _, err := s.resolve(ctx, plan.ProjectID)
+	if err != nil {
+		return err
+	}
+	if current.Root != project.Root || plan.SourceRoot != "" && plan.SourceRoot != current.Root || plan.SourceManifestHash != "" && plan.SourceManifestHash != current.ManifestHash {
+		return ErrPlanStale
+	}
+	currentRevision, err := s.checkouts.revision(current.Root)
+	if err != nil {
+		return err
+	}
+	if plan.SourceCheckoutRevision != "" && plan.SourceCheckoutRevision != currentRevision {
+		return ErrPlanStale
+	}
 	driver, ok := s.drivers[plan.Driver]
 	if !ok {
 		return fmt.Errorf("%w: %s", domain.ErrUnsupportedDriver, plan.Driver)
 	}
 	s.observations.invalidate(plan.ProjectID)
-	err := driver.Execute(ctx, plan, sink)
+	err = driver.Execute(ctx, plan, sink)
 	s.observations.invalidate(plan.ProjectID)
 	return err
 }

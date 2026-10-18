@@ -58,6 +58,7 @@ import PortRegistryView from '../../src/domains/ports/views/PortRegistryView.vue
 test('renders conflict provenance and a current free-port suggestion', async () => {
   render(PortRegistryView, {
     global: {
+      stubs: { RouterLink: true },
       plugins: [
         [
           VueQueryPlugin,
@@ -67,9 +68,13 @@ test('renders conflict provenance and a current free-port suggestion', async () 
     },
   })
 
+  await screen.findByRole('heading', { name: 'Application connections' })
+  await fireEvent.click(screen.getByText(/All port facts ·/))
   expect(await screen.findByRole('heading', { name: 'All port facts' })).toBeInTheDocument()
   expect(screen.getAllByText('18081/tcp')).toHaveLength(2)
-  expect(screen.getAllByText('conflict').length).toBeGreaterThan(0)
+  expect(screen.getByRole('region', { name: 'Port conflicts' })).toHaveTextContent(
+    '18081 · conflict',
+  )
   await fireEvent.click(screen.getByRole('button', { name: 'Find next free port' }))
   expect((await screen.findAllByText(/18082/)).length).toBeGreaterThan(0)
   expect(screen.getByText(/16000–16999/)).toBeInTheDocument()

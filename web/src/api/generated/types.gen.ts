@@ -574,6 +574,40 @@ export type GitWorktree = {
     locked: boolean;
 };
 
+export type GitBranchSwitchPlan = {
+    projectId: string;
+    root: string;
+    fromBranch: string;
+    fromHead: string;
+    toBranch: string;
+    toHead: string;
+    risk: 'mutating';
+    reviewRestart: boolean;
+};
+
+export type GitFileChange = {
+    path: string;
+    originalPath?: string;
+    index: string;
+    workingTree: string;
+    untracked: boolean;
+    conflicted: boolean;
+};
+
+export type GitBranch = {
+    name: string;
+    head: string;
+    current: boolean;
+    upstream?: string;
+};
+
+export type GitDetails = {
+    files: Array<GitFileChange>;
+    branches: Array<GitBranch>;
+    filesTruncated: boolean;
+    branchesTruncated: boolean;
+};
+
 export type GitState = {
     projectId: string;
     repository: boolean;
@@ -585,10 +619,11 @@ export type GitState = {
     behind: number;
     changes: GitChangeCounts;
     stashes: number;
-    operationState?: 'merge' | 'rebase' | 'unknown';
+    operationState?: 'merge' | 'rebase' | 'cherry_pick' | 'revert' | 'bisect' | 'sequencer' | 'unknown';
     lastCommit?: GitCommit;
     remotes: Array<GitRemote>;
     worktrees: Array<GitWorktree>;
+    details?: GitDetails;
     observedAt: string;
 };
 
@@ -858,6 +893,8 @@ export type RuntimeAction = 'start' | 'stop' | 'restart' | 'deploy' | 'kill' | '
 export type RuntimeActionRequest = {
     action: RuntimeAction;
     removeVolumes?: boolean;
+    expectedCheckoutRevision?: string;
+    expectedManifestHash?: string;
     confirmRisk?: boolean;
     services?: Array<string>;
     profiles?: Array<string>;
@@ -870,6 +907,8 @@ export type RuntimeCommand = {
 };
 
 export type RuntimePlan = {
+    checkoutRevision?: string;
+    manifestHash?: string;
     projectId: string;
     driver: 'compose' | 'process';
     action: RuntimeAction;
@@ -2503,6 +2542,98 @@ export type GetProjectObservationsResponses = {
 };
 
 export type GetProjectObservationsResponse = GetProjectObservationsResponses[keyof GetProjectObservationsResponses];
+
+export type PlanGitBranchSwitchData = {
+    body: {
+        branch: string;
+    };
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/git/branch-switch/plan';
+};
+
+export type PlanGitBranchSwitchErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type PlanGitBranchSwitchError = PlanGitBranchSwitchErrors[keyof PlanGitBranchSwitchErrors];
+
+export type PlanGitBranchSwitchResponses = {
+    /**
+     * Exact source and target refs; runtime restart requires a new review
+     */
+    200: GitBranchSwitchPlan;
+};
+
+export type PlanGitBranchSwitchResponse = PlanGitBranchSwitchResponses[keyof PlanGitBranchSwitchResponses];
+
+export type CreateGitBranchSwitchData = {
+    body: {
+        plan: GitBranchSwitchPlan;
+        confirmRisk: boolean;
+    };
+    headers: {
+        'Idempotency-Key': string;
+    };
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/git/branch-switch';
+};
+
+export type CreateGitBranchSwitchErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type CreateGitBranchSwitchError = CreateGitBranchSwitchErrors[keyof CreateGitBranchSwitchErrors];
+
+export type CreateGitBranchSwitchResponses = {
+    /**
+     * Durable audited checkout operation
+     */
+    202: Operation;
+};
+
+export type CreateGitBranchSwitchResponse = CreateGitBranchSwitchResponses[keyof CreateGitBranchSwitchResponses];
+
+export type GetProjectGitInventoryData = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/projects/{projectId}/git/inventory';
+};
+
+export type GetProjectGitInventoryErrors = {
+    /**
+     * RFC 9457-style problem details
+     */
+    default: ProblemDetails;
+};
+
+export type GetProjectGitInventoryError = GetProjectGitInventoryErrors[keyof GetProjectGitInventoryErrors];
+
+export type GetProjectGitInventoryResponses = {
+    /**
+     * Current repository state with explicit file and branch details
+     */
+    200: GitState;
+};
+
+export type GetProjectGitInventoryResponse = GetProjectGitInventoryResponses[keyof GetProjectGitInventoryResponses];
 
 export type GetProjectGitStatusData = {
     body?: never;

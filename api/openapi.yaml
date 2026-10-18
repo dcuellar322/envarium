@@ -654,6 +654,74 @@ paths:
               schema: { $ref: "#/components/schemas/ProjectObservationBatch" }
         default:
           $ref: "#/components/responses/Problem"
+  /projects/{projectId}/git/branch-switch/plan:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    post:
+      operationId: planGitBranchSwitch
+      summary: Review an existing local branch switch in a clean stopped checkout
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [branch]
+              properties:
+                branch: { type: string, minLength: 1, maxLength: 256 }
+      responses:
+        "200":
+          description: Exact source and target refs; runtime restart requires a new review
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GitBranchSwitchPlan" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/git/branch-switch:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    post:
+      operationId: createGitBranchSwitch
+      summary: Queue an explicitly confirmed local-user branch switch
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [plan, confirmRisk]
+              properties:
+                plan: { $ref: "#/components/schemas/GitBranchSwitchPlan" }
+                confirmRisk: { type: boolean }
+      responses:
+        "202":
+          description: Durable audited checkout operation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Operation" }
+        default:
+          $ref: "#/components/responses/Problem"
+  /projects/{projectId}/git/inventory:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      operationId: getProjectGitInventory
+      summary: Read bounded changed files, local branches and worktrees on demand
+      description: Includes details with literal repository-relative filenames and independent index/working-tree status. Dashboard and scheduled diagnostics do not request this inventory. Results explicitly report truncation; no file contents are returned.
+      responses:
+        "200":
+          description: Current repository state with explicit file and branch details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GitState" }
+        default:
+          $ref: "#/components/responses/Problem"
   /projects/{projectId}/git/status:
     parameters:
       - $ref: "#/components/parameters/ProjectId"
@@ -2511,6 +2579,54 @@ components:
         detached: { type: boolean }
         bare: { type: boolean }
         locked: { type: boolean }
+    GitBranchSwitchPlan:
+      type: object
+      additionalProperties: false
+      required: [projectId, root, fromBranch, fromHead, toBranch, toHead, risk, reviewRestart]
+      properties:
+        projectId: { type: string }
+        root: { type: string }
+        fromBranch: { type: string }
+        fromHead: { type: string }
+        toBranch: { type: string }
+        toHead: { type: string }
+        risk: { type: string, enum: [mutating] }
+        reviewRestart: { type: boolean }
+    GitFileChange:
+      type: object
+      additionalProperties: false
+      required: [path, index, workingTree, untracked, conflicted]
+      properties:
+        path: { type: string }
+        originalPath: { type: string }
+        index: { type: string }
+        workingTree: { type: string }
+        untracked: { type: boolean }
+        conflicted: { type: boolean }
+    GitBranch:
+      type: object
+      additionalProperties: false
+      required: [name, head, current]
+      properties:
+        name: { type: string }
+        head: { type: string }
+        current: { type: boolean }
+        upstream: { type: string }
+    GitDetails:
+      type: object
+      additionalProperties: false
+      required: [files, branches, filesTruncated, branchesTruncated]
+      properties:
+        files:
+          type: array
+          maxItems: 1024
+          items: { $ref: "#/components/schemas/GitFileChange" }
+        branches:
+          type: array
+          maxItems: 512
+          items: { $ref: "#/components/schemas/GitBranch" }
+        filesTruncated: { type: boolean }
+        branchesTruncated: { type: boolean }
     GitState:
       type: object
       additionalProperties: false
@@ -2526,7 +2642,7 @@ components:
         behind: { type: integer, minimum: 0 }
         changes: { $ref: "#/components/schemas/GitChangeCounts" }
         stashes: { type: integer, minimum: 0 }
-        operationState: { type: string, enum: [merge, rebase, unknown] }
+        operationState: { type: string, enum: [merge, rebase, cherry_pick, revert, bisect, sequencer, unknown] }
         lastCommit: { $ref: "#/components/schemas/GitCommit" }
         remotes:
           type: array
@@ -2534,6 +2650,7 @@ components:
         worktrees:
           type: array
           items: { $ref: "#/components/schemas/GitWorktree" }
+        details: { $ref: "#/components/schemas/GitDetails" }
         observedAt: { type: string, format: date-time }
     ActionDefinition:
       type: object
@@ -2877,6 +2994,8 @@ components:
       properties:
         action: { $ref: "#/components/schemas/RuntimeAction" }
         removeVolumes: { type: boolean, default: false }
+        expectedCheckoutRevision: { type: string, minLength: 1, maxLength: 128 }
+        expectedManifestHash: { type: string, minLength: 1, maxLength: 128 }
         confirmRisk: { type: boolean, default: false }
         services:
           type: array
@@ -2905,6 +3024,8 @@ components:
       additionalProperties: false
       required: [projectId, driver, action, risk, summary, commands, effects, services, removeVolumes]
       properties:
+        checkoutRevision: { type: string, minLength: 1, maxLength: 128 }
+        manifestHash: { type: string, minLength: 1, maxLength: 128 }
         projectId: { type: string }
         driver: { type: string, enum: [compose, process] }
         action: { $ref: "#/components/schemas/RuntimeAction" }

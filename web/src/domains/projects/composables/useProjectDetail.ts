@@ -14,7 +14,8 @@ import {
   loadEffectiveManifest,
   loadProject,
   loadProjectActions,
-  loadProjectGit,
+  loadProjectGitInventory,
+  loadProjectGitStatus,
   loadProjectHealth,
   loadProjectLogs,
   loadProjectMetrics,
@@ -27,11 +28,15 @@ import {
 import { markProjectAccess } from '../recent'
 import { useProjectLogStream } from './useProjectLogStream'
 
-export function useProjectDetail(projectId: ComputedRef<string>) {
+export function useProjectDetail(
+  projectId: ComputedRef<string>,
+  gitDetailsActive: ComputedRef<boolean> = computed(() => false),
+) {
   const operationError = ref('')
   const liveLogs = ref<Array<RuntimeLogEntry>>([])
   const lifecyclePlan = ref<RuntimePlan>()
   const lifecycleSelection = ref<RuntimeSelection>({})
+  const lifecycleTarget = ref('')
   const project = useQuery({
     queryKey: computed(() => ['project', projectId.value]),
     queryFn: () => loadProject(projectId.value),
@@ -57,8 +62,16 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
     refetchInterval: 5_000,
   })
   const git = useQuery({
-    queryKey: computed(() => ['project-git', projectId.value]),
-    queryFn: () => loadProjectGit(projectId.value),
+    queryKey: computed(() => [
+      'project-git',
+      projectId.value,
+      gitDetailsActive.value ? 'full' : 'status',
+    ]),
+    queryFn: ({ signal }) =>
+      gitDetailsActive.value
+        ? loadProjectGitInventory(projectId.value, signal)
+        : loadProjectGitStatus(projectId.value, signal),
+    shallow: true,
     refetchInterval: 10_000,
   })
   const actions = useQuery({
@@ -76,6 +89,7 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
   })
 
   watch(projectId, markProjectAccess, { immediate: true })
+  watch(projectId, closeLifecyclePlan)
   watch(
     () => logs.data.value,
     (entries) => {
@@ -90,12 +104,12 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
 
   const lifecycle = useMutation({
     mutationFn: ({ action, selection }: { action: RuntimeAction; selection: RuntimeSelection }) =>
-      runRuntimeAction(projectId.value, action, selection),
+      runRuntimeAction(lifecycleTarget.value || projectId.value, action, selection),
     onSuccess: trackOperation,
   })
   const lifecyclePreview = useMutation({
     mutationFn: ({ action, selection }: { action: RuntimeAction; selection: RuntimeSelection }) =>
-      previewRuntimeAction(projectId.value, action, selection),
+      previewRuntimeAction(lifecycleTarget.value || projectId.value, action, selection),
   })
   const customAction = useMutation({
     mutationFn: (action: ActionDefinition) => runProjectAction(projectId.value, action.id),
@@ -171,11 +185,19 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
     ),
   )
 
-  async function requestLifecycle(action: RuntimeAction, selection: RuntimeSelection = {}) {
+  async function requestLifecycle(
+    action: RuntimeAction,
+    selection: RuntimeSelection = {},
+    target = projectId.value,
+  ) {
+    if (lifecyclePreview.isPending.value || lifecycle.isPending.value) return
+    const requestedProject = projectId.value
     operationError.value = ''
     try {
       lifecycleSelection.value = selection
-      lifecyclePlan.value = await lifecyclePreview.mutateAsync({ action, selection })
+      lifecycleTarget.value = target
+      const plan = await lifecyclePreview.mutateAsync({ action, selection })
+      if (projectId.value === requestedProject) lifecyclePlan.value = plan
     } catch (cause) {
       operationError.value =
         cause instanceof Error ? cause.message : 'The lifecycle preview could not be prepared.'
@@ -188,7 +210,16 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
     try {
       await lifecycle.mutateAsync({
         action: lifecyclePlan.value.action,
-        selection: { ...lifecycleSelection.value, confirmRisk: true },
+        selection: {
+          ...lifecycleSelection.value,
+          confirmRisk: true,
+          ...(lifecyclePlan.value.checkoutRevision
+            ? { expectedCheckoutRevision: lifecyclePlan.value.checkoutRevision }
+            : {}),
+          ...(lifecyclePlan.value.manifestHash
+            ? { expectedManifestHash: lifecyclePlan.value.manifestHash }
+            : {}),
+        },
       })
       closeLifecyclePlan()
     } catch (cause) {
@@ -200,6 +231,7 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
   function closeLifecyclePlan() {
     lifecyclePlan.value = undefined
     lifecycleSelection.value = {}
+    lifecycleTarget.value = ''
   }
 
   async function runAction(action: ActionDefinition | undefined) {
@@ -213,7 +245,12 @@ export function useProjectDetail(projectId: ComputedRef<string>) {
     }
   }
 
+  function refreshGitContext() {
+    void Promise.all([git.refetch(), runtime.refetch(), environments.refetch()])
+  }
+
   return {
+    refreshGitContext,
     project,
     runtime,
     health,

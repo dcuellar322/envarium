@@ -56,7 +56,7 @@ function selectProject(projectId: string) {
       <span class="boundary">Inspection only · no delete capability</span>
     </header>
     <p v-if="inventory && !inventory.connected" class="warning" role="status">
-      Docker is disconnected. Persisted process metrics and history remain available.
+      Storage inventory is unavailable. Persisted process metrics and history remain available.
     </p>
     <div class="filters">
       <label

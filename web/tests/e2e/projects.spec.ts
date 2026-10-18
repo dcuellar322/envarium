@@ -48,6 +48,14 @@ test('scans a repository into an evidence-backed review', async ({ page }) => {
   await page.getByRole('button', { name: 'Terminate process' }).click()
   await page.getByRole('link', { name: 'Ports' }).click()
   await expect(page.getByRole('heading', { name: 'Port registry' })).toBeVisible()
+  await page.getByLabel('Include configured ports').check()
+  await expect(
+    page
+      .getByRole('list', { name: 'Applications, services, and host ports' })
+      .getByText('18082', { exact: true })
+      .first(),
+  ).toBeVisible()
+  await page.getByText(/All port facts ·/).click()
   await expect(page.getByText('18082/tcp').first()).toBeVisible({
     timeout: 15_000,
   })

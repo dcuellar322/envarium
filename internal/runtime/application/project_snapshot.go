@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"sort"
 
 	catalogApp "envarium.dev/envarium/internal/catalog/application"
@@ -13,6 +14,12 @@ import (
 // requests still call ResolveRuntime and read their current catalog entry.
 type ProjectSnapshotSource interface {
 	ResolveRuntimeProjects(context.Context) (map[string]domain.ProjectRuntime, map[string]error, error)
+}
+
+// EnvironmentSnapshotSource avoids fetching the same allocation again after a
+// fresh environment listing. Direct lifecycle resolution keeps its own read.
+type EnvironmentSnapshotSource interface {
+	ListRuntimeEnvironments(context.Context) ([]RuntimeEnvironment, error)
 }
 
 // ResolveRuntimeProjects reads the current catalog once, preserving individual
@@ -30,7 +37,17 @@ func (s *CatalogSource) ResolveRuntimeProjects(ctx context.Context) (map[string]
 			ids = append(ids, project.ID)
 		}
 	}
-	if s.environments != nil {
+	environmentsByID := map[string]RuntimeEnvironment{}
+	if source, ok := s.environments.(EnvironmentSnapshotSource); ok {
+		environments, err := source.ListRuntimeEnvironments(ctx)
+		if err != nil {
+			return nil, nil, err
+		}
+		for _, environment := range environments {
+			ids = append(ids, environment.ID)
+			environmentsByID[environment.ID] = environment
+		}
+	} else if s.environments != nil {
 		environments, err := s.environments.ListRuntimeEnvironmentIDs(ctx)
 		if err != nil {
 			return nil, nil, err
@@ -43,9 +60,19 @@ func (s *CatalogSource) ResolveRuntimeProjects(ctx context.Context) (map[string]
 		if err := ctx.Err(); err != nil {
 			return nil, nil, err
 		}
-		parentID, environment, err := s.resolveEnvironment(ctx, id)
-		if err != nil {
-			failures[id] = err
+		var parentID string
+		environment, batched := environmentsByID[id]
+		var resolveErr error
+		if !batched {
+			parentID, environment, resolveErr = s.resolveEnvironment(ctx, id)
+		} else {
+			parentID = environment.ProjectID
+			if !environment.Available {
+				resolveErr = fmt.Errorf("project environment %s is unavailable", id)
+			}
+		}
+		if resolveErr != nil {
+			failures[id] = resolveErr
 			continue
 		}
 		project, exists := parents[parentID]

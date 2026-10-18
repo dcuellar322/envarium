@@ -175,7 +175,7 @@ test('keeps disconnected and failed storage states honest and actionable', async
     },
   })
 
-  expect(screen.getByRole('status')).toHaveTextContent('Docker is disconnected')
+  expect(screen.getByRole('status')).toHaveTextContent('Storage inventory is unavailable')
   expect(screen.getByRole('button', { name: 'Preview reclaimable' })).toBeDisabled()
   await view.rerender({ inventoryError: true, previewError: 'Cleanup preview failed.' })
   expect(screen.getByText(/Storage inventory could not be read/)).toHaveAttribute('role', 'alert')

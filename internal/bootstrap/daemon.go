@@ -85,12 +85,13 @@ func RunDaemon(ctx context.Context, config Config) error {
 
 	journal := sqlite.NewJournal(database)
 	catalogService := catalog.NewService(sqlite.NewCatalogRepository(database), discoveryAdapters.Defaults(), settingsService)
-	gitService := sourcecontrolApplication.NewService(sourcecontrolApplication.NewCatalogSource(catalogService), sourcecontrolAdapters.NewGit())
+	gitAdapter := sourcecontrolAdapters.NewGit()
+	gitService := sourcecontrolApplication.NewService(sourcecontrolApplication.NewCatalogSource(catalogService), gitAdapter)
 	environmentService := environmentsApplication.NewService(
 		environmentsAdapters.NewCatalogSource(catalogService), environmentsAdapters.NewSourceControlSource(gitService),
 		sqlite.NewEnvironmentRepository(database),
 	)
-	runtimeSource := runtimeApplication.NewCatalogSource(catalogService, environmentsAdapters.NewRuntimeSource(environmentService))
+	runtimeSource := runtimeApplication.NewSchedulerSource(runtimeApplication.NewCatalogSource(catalogService, environmentsAdapters.NewRuntimeSource(environmentService)))
 	composeDriver := compose.NewDriverWithArtifacts(filepath.Join(config.DataDir, "runtime", "compose"))
 	defer closeComposeDriver(config.Logger, composeDriver)
 	runtimeService := runtimeApplication.NewService(
@@ -98,6 +99,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 		composeDriver,
 		processRuntime.NewDriverWithLogCapacity(ctx, sqlite.NewRunRepository(database), config.LogRingCapacity, redactor),
 	)
+	branchService := sourcecontrolApplication.NewBranchService(gitService, gitAdapter, runtimeService)
 	logStore, err := sqlite.NewLogStore(database, sqlite.LogStoreConfig{
 		Directory:    filepath.Join(config.DataDir, "logs"),
 		SegmentBytes: config.LogSegmentBytes, RetentionAge: config.LogRetentionAge, RetentionBytes: config.LogRetentionBytes,
@@ -196,14 +198,14 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}
 	launcher := actionsAdapters.NewLauncher()
 	var workspaceService *workspaceApplication.Service
-	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, operations.ExecutorFunc(
+	coordinator := operations.NewCoordinator(ctx, operationRepository, journal, branchAwareExecutor{branches: branchService, fallback: operations.ExecutorFunc(
 		func(operationCtx context.Context, operation domain.Operation, progress operations.Progress) error {
 			return executeOperation(
 				operationCtx, runtimeService, healthService, actionService, aiService, extensions.plugin, workspaceService,
 				workspaceRecipeRunner{projects: runtimeSource, launcher: launcher}, environmentRuntime, operation, progress,
 			)
 		},
-	), extensions.shared.telemetry)
+	)}, extensions.shared.telemetry)
 	fleetService, remoteHandler, err := newFleetExpansion(
 		config, database, extensions.shared.team, catalogService, runtimeService, environmentService, coordinator, build.Version,
 	)
@@ -235,7 +237,7 @@ func RunDaemon(ctx context.Context, config Config) error {
 	dependencies := httpapi.Dependencies{
 		System: system, Host: host, Operations: coordinator, Sessions: sessions, Catalog: catalogService, Runtime: runtimeService,
 		Health: healthService, LogService: logService, Events: eventtransport.NewEvents(journal), Logs: eventtransport.NewLogs(logService),
-		Ports: portService, Git: gitService, Actions: actionService, Overview: overviewApplication.NewService(runtimeService, gitService, actionService, healthService),
+		Ports: portService, Git: gitService, Branches: branchService, Actions: actionService, Overview: overviewApplication.NewService(runtimeService, gitService, actionService, healthService),
 		AI: aiService, Resources: resourceService, Plugins: extensions.plugin, Diagnostics: diagnosticService, Automations: automationService,
 		Workspaces: workspaceService, Environments: environmentService, EnvironmentRegistration: environmentRegistration, Routes: routeRegistry,
 		Fleet: fleetService, Team: extensions.shared.team, Telemetry: extensions.shared.telemetry, Settings: settingsService,
@@ -251,7 +253,8 @@ func RunDaemon(ctx context.Context, config Config) error {
 	}
 	reconcileSink := runtimeReconciliationSink{runtime: runtimeService, journal: journal}
 	var background sync.WaitGroup
-	background.Add(7)
+	background.Add(8)
+	go func() { defer background.Done(); runtimeSource.Run(ctx) }()
 	go func() {
 		defer background.Done()
 		runtimeService.WatchAll(ctx, reconcileSink, func(projectID string, watchErr error) {

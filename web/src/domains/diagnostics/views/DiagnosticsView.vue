@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DiagnosticControls from '../components/DiagnosticControls.vue'
 import DiagnosticNotifications from '../components/DiagnosticNotifications.vue'
 import { useDiagnosticsView } from '../composables/useDiagnosticsView'
 
@@ -10,6 +11,7 @@ const {
   recipeAction,
   notice,
   projects,
+  trustedProjects,
   providers,
   diagnosis,
   recipes,
@@ -29,42 +31,32 @@ const {
 </script>
 
 <template>
-  <main class="diagnostics page-shell">
+  <section class="diagnostics" aria-labelledby="diagnostics-title">
     <header class="page-heading">
       <div>
         <p class="eyebrow">Intelligent diagnosis</p>
-        <h1>Evidence first. Automation on a leash.</h1>
-        <p>
-          Known failures are resolved deterministically. Optional AI can only cite the bounded
-          evidence and existing approved actions shown here.
-        </p>
+        <h1 id="diagnostics-title">Agents &amp; diagnostics</h1>
+        <p>Find issues, review the evidence, and run approved actions for your projects.</p>
       </div>
-      <div class="controls">
-        <label
-          >Project<select v-model="selectedProject">
-            <option v-for="project in projects.data.value" :key="project.id" :value="project.id">
-              {{ project.displayName }}
-            </option>
-          </select></label
-        >
-        <label
-          >Optional AI<select v-model="selectedProvider">
-            <option value="">Deterministic only</option>
-            <option v-for="provider in availableProviders" :key="provider.id" :value="provider.id">
-              {{ provider.name }}
-            </option>
-          </select></label
-        >
-        <button
-          class="primary"
-          :disabled="!selectedProject || run.isPending.value"
-          @click="run.mutate()"
-        >
-          {{ run.isPending.value ? 'Collecting…' : 'Run diagnosis' }}
-        </button>
-      </div>
+      <DiagnosticControls
+        v-model:project="selectedProject"
+        v-model:provider="selectedProvider"
+        :projects="trustedProjects"
+        :providers="availableProviders"
+        :loading="projects.isPending.value"
+        :pending="run.isPending.value"
+        @run="run.mutate()"
+      />
     </header>
 
+    <p
+      v-if="!projects.isPending.value && !projects.isError.value && !trustedProjects.length"
+      class="notice"
+      role="status"
+    >
+      Approve a project in <a href="/discovery">Discovery</a> to start diagnostics. No AI provider
+      is contacted until you run a diagnosis with that provider selected.
+    </p>
     <p v-if="notice" class="notice" role="status">{{ notice }}</p>
     <p v-if="projects.isError.value" class="error" role="alert">
       The trusted project catalog is unavailable. Diagnosis cannot start until the daemon
@@ -240,11 +232,14 @@ const {
         </p>
       </section>
     </template>
-  </main>
+  </section>
 </template>
 
 <style scoped>
 .diagnostics {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 28px;
   display: grid;
   gap: 18px;
 }
@@ -253,11 +248,15 @@ const {
   justify-content: space-between;
   gap: 28px;
   align-items: end;
+  flex-wrap: wrap;
+}
+.page-heading > div:first-child {
+  flex: 1 1 420px;
 }
 .page-heading h1 {
   max-width: 720px;
   margin: 4px 0 8px;
-  font-size: clamp(28px, 4vw, 44px);
+  font-size: 32px;
   letter-spacing: -0.04em;
 }
 .page-heading p {
@@ -272,19 +271,6 @@ const {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.controls {
-  display: flex;
-  align-items: end;
-  gap: 8px;
-}
-.controls label {
-  display: grid;
-  gap: 5px;
-  color: var(--soft);
-  font-size: 10px;
-  text-transform: uppercase;
-}
-.controls select,
 .recipe-form select,
 .recipe-form input {
   min-height: 38px;
@@ -495,9 +481,6 @@ details span {
     align-items: stretch;
     flex-direction: column;
   }
-  .controls {
-    flex-wrap: wrap;
-  }
   .grid {
     grid-template-columns: 1fr;
   }
@@ -506,7 +489,9 @@ details span {
   }
 }
 @media (max-width: 700px) {
-  .controls,
+  .diagnostics {
+    padding: 24px 16px;
+  }
   .recipe-form {
     display: grid;
     grid-template-columns: 1fr;

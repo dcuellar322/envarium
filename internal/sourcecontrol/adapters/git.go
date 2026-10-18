@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -24,17 +25,42 @@ type gitRunner interface {
 type installedGit struct{ executable string }
 
 func (g installedGit) Run(ctx context.Context, root string, arguments ...string) ([]byte, error) {
-	args := append([]string{"-C", root}, arguments...)
+	args := append([]string{"-c", "core.fsmonitor=false", "-C", root}, arguments...)
 	executable := g.executable
 	if executable == "" {
 		executable = "git"
 	}
-	output, err := exec.CommandContext(ctx, executable, args...).Output()
+	output, err := boundedGitOutput(exec.CommandContext(ctx, executable, args...))
 	// A selected toolchain may be removed while the daemon remains running.
 	if executable != "git" && errors.Is(err, os.ErrNotExist) {
-		return exec.CommandContext(ctx, "git", args...).Output()
+		return boundedGitOutput(exec.CommandContext(ctx, "git", args...))
 	}
 	return output, err
+}
+
+func boundedGitOutput(command *exec.Cmd) ([]byte, error) {
+	output := &gitOutput{remaining: 4 << 20}
+	command.Stdout = output
+	err := command.Run()
+	if output.exceeded {
+		return nil, errors.New("Git observation exceeded the four-MiB output limit")
+	}
+	return output.Bytes(), err
+}
+
+type gitOutput struct {
+	bytes.Buffer
+	remaining int
+	exceeded  bool
+}
+
+func (o *gitOutput) Write(p []byte) (int, error) {
+	if len(p) > o.remaining {
+		o.exceeded = true
+		return 0, io.ErrShortBuffer
+	}
+	o.remaining -= len(p)
+	return o.Buffer.Write(p)
 }
 
 // Git observes one repository without invoking hooks or repository commands.
@@ -58,6 +84,17 @@ func (g *Git) Observe(ctx context.Context, projectID, root string) (domain.State
 	state.LastCommit = g.commitAtHead(ctx, root, state.Head)
 	state.Remotes = g.remotes(ctx, root)
 	state.Worktrees, err = g.ObserveWorktrees(ctx, root)
+	return state, err
+}
+
+// ObserveInventory adds file and local branch inventory only on explicit demand.
+func (g *Git) ObserveInventory(ctx context.Context, projectID, root string) (domain.State, error) {
+	state, err := g.Observe(ctx, projectID, root)
+	if err != nil || !state.Repository {
+		return state, err
+	}
+	details, err := g.details(ctx, root)
+	state.Details = &details
 	return state, err
 }
 
@@ -161,7 +198,7 @@ func (g *Git) remotes(ctx context.Context, root string) []domain.Remote {
 // ObserveWorktrees reads stable Git porcelain without invoking repository
 // hooks or repository-defined commands.
 func (g *Git) ObserveWorktrees(ctx context.Context, root string) ([]domain.Worktree, error) {
-	output, err := g.runner.Run(ctx, root, "worktree", "list", "--porcelain")
+	output, err := g.runner.Run(ctx, root, "worktree", "list", "--porcelain", "-z")
 	if err != nil {
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
@@ -174,7 +211,11 @@ func (g *Git) ObserveWorktrees(ctx context.Context, root string) ([]domain.Workt
 func parseWorktrees(output []byte) []domain.Worktree {
 	var result []domain.Worktree
 	var current *domain.Worktree
-	for _, line := range strings.Split(string(output), "\n") {
+	separator := "\n"
+	if bytes.IndexByte(output, 0) >= 0 {
+		separator = "\x00"
+	}
+	for _, line := range strings.Split(string(output), separator) {
 		switch {
 		case strings.HasPrefix(line, "worktree "):
 			result = append(result, domain.Worktree{Path: strings.TrimPrefix(line, "worktree ")})
@@ -195,7 +236,7 @@ func parseWorktrees(output []byte) []domain.Worktree {
 }
 
 func operationState(directory string) string {
-	for _, candidate := range []struct{ path, state string }{{"MERGE_HEAD", "merge"}, {"rebase-merge", "rebase"}, {"rebase-apply", "rebase"}} {
+	for _, candidate := range []struct{ path, state string }{{"MERGE_HEAD", "merge"}, {"rebase-merge", "rebase"}, {"rebase-apply", "rebase"}, {"CHERRY_PICK_HEAD", "cherry_pick"}, {"REVERT_HEAD", "revert"}, {"BISECT_LOG", "bisect"}, {"sequencer", "sequencer"}, {"index.lock", "unknown"}} {
 		path := filepath.Join(directory, candidate.path)
 		if _, err := os.Stat(path); err == nil {
 			return candidate.state

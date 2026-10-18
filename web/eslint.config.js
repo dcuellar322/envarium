@@ -21,8 +21,10 @@ export default tseslint.config(
       globals: {
         document: 'readonly',
         HTMLInputElement: 'readonly',
+        HTMLDialogElement: 'readonly',
         HTMLElement: 'readonly',
         KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
         localStorage: 'readonly',
         process: 'readonly',
         requestAnimationFrame: 'readonly',

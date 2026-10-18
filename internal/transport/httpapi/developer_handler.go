@@ -1,7 +1,9 @@
 package httpapi
 
 import (
+	"context"
 	"encoding/json"
+	sourcecontrolDomain "envarium.dev/envarium/internal/sourcecontrol/domain"
 	"net/http"
 
 	actionsDomain "envarium.dev/envarium/internal/actions/domain"
@@ -141,4 +143,20 @@ func actionDefinition(actions []actionsDomain.Definition, id string) (actionsDom
 		}
 	}
 	return actionsDomain.Definition{}, false
+}
+
+func (h *handler) GetProjectGitInventory(w http.ResponseWriter, r *http.Request, projectID generated.ProjectId) {
+	source, ok := h.git.(interface {
+		GetInventory(context.Context, string) (sourcecontrolDomain.State, error)
+	})
+	if !ok {
+		writeProblem(w, r, http.StatusServiceUnavailable, "GIT_INVENTORY_UNAVAILABLE", "Git inventory unavailable", "The source-control adapter does not support detailed inventory.")
+		return
+	}
+	state, err := source.GetInventory(r.Context(), projectID)
+	if err != nil {
+		writeApplicationError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, state)
 }

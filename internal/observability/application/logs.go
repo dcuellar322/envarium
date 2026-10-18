@@ -90,8 +90,7 @@ func (s *LogService) Run(ctx context.Context, onError func(string, error)) {
 	type worker struct{ cancel context.CancelFunc }
 	workers := map[string]worker{}
 	var wait sync.WaitGroup
-	refresh := func() {
-		ids, err := s.runtime.ListProjectIDs(ctx)
+	refresh := func(ids []string, err error) {
 		if err != nil {
 			onError("", err)
 			return
@@ -118,7 +117,19 @@ func (s *LogService) Run(ctx context.Context, onError func(string, error)) {
 			}
 		}
 	}
-	refresh()
+	snapshots, unsubscribe := subscribeHealthProjects(s.runtime)
+	defer unsubscribe()
+	defer func() {
+		for _, worker := range workers {
+			worker.cancel()
+		}
+		wait.Wait()
+	}()
+	if snapshots != nil {
+		ticker.Stop()
+	} else {
+		refresh(s.runtime.ListProjectIDs(ctx))
+	}
 	for {
 		select {
 		case <-ctx.Done():
@@ -127,8 +138,13 @@ func (s *LogService) Run(ctx context.Context, onError func(string, error)) {
 			}
 			wait.Wait()
 			return
+		case snapshot, ok := <-snapshots:
+			if !ok {
+				return
+			}
+			refresh(healthProjectIDs(snapshot.Projects, snapshot.Failures), snapshot.Err)
 		case <-ticker.C:
-			refresh()
+			refresh(s.runtime.ListProjectIDs(ctx))
 		case <-retention.C:
 			if err := s.archive.ApplyRetention(ctx); err != nil && ctx.Err() == nil {
 				onError("", fmt.Errorf("retain runtime logs: %w", err))

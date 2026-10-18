@@ -28,6 +28,9 @@ export function useDiagnosticsView() {
   const recipeAction = ref('')
   const notice = ref('')
   const projects = useQuery({ queryKey: ['projects'], queryFn: loadProjects })
+  const trustedProjects = computed(
+    () => projects.data.value?.filter((project) => project.trustState === 'trusted') ?? [],
+  )
   const providers = useQuery({ queryKey: ['ai-providers'], queryFn: loadProviders })
   const settings = useQuery({ queryKey: ['daemon-settings'], queryFn: loadDaemonSettings })
   const diagnosis = useQuery({
@@ -47,9 +50,10 @@ export function useDiagnosticsView() {
     enabled: computed(() => Boolean(selectedProject.value)),
   })
   watch(
-    () => projects.data.value,
+    trustedProjects,
     (values) => {
-      if (!selectedProject.value && values?.length) selectedProject.value = values[0]!.id
+      if (!values.some((project) => project.id === selectedProject.value))
+        selectedProject.value = values[0]?.id ?? ''
     },
     { immediate: true },
   )
@@ -83,7 +87,7 @@ export function useDiagnosticsView() {
   const run = useMutation({
     mutationFn: () => diagnoseProject(selectedProject.value, selectedProvider.value || undefined),
     onSuccess: (value) => {
-      queryClient.setQueryData(['diagnosis', selectedProject.value], value)
+      queryClient.setQueryData(['diagnosis', value.projectId], value)
       void queryClient.invalidateQueries({
         queryKey: ['diagnostic-notifications', selectedProject.value],
       })
@@ -115,7 +119,7 @@ export function useDiagnosticsView() {
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: ['automation-recipes', selectedProject.value],
+        queryKey: ['automation-recipes'],
       })
       notice.value = 'Recipe saved disabled for separate review.'
     },
@@ -125,7 +129,7 @@ export function useDiagnosticsView() {
       setRecipeEnabled(input.id, input.enabled),
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: ['automation-recipes', selectedProject.value],
+        queryKey: ['automation-recipes'],
       })
     },
   })
@@ -160,6 +164,7 @@ export function useDiagnosticsView() {
     recipeAction,
     notice,
     projects,
+    trustedProjects,
     providers,
     diagnosis,
     recipes,

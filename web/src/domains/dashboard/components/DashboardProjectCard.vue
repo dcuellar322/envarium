@@ -197,6 +197,7 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
 
 <style scoped>
 .project-card {
+  min-width: 0;
   contain: layout paint;
   border: 1px solid var(--border);
   background: linear-gradient(
@@ -231,6 +232,7 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
   min-width: 0;
 }
 .project-avatar {
+  flex-shrink: 0;
   width: 38px;
   height: 38px;
   border: 1px solid var(--border);
@@ -245,6 +247,7 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
   min-width: 0;
 }
 .project-copy h3 {
+  overflow-wrap: anywhere;
   margin: 0 0 3px;
   font-size: 14px;
 }
@@ -412,6 +415,24 @@ const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? 
   }
   .project-top {
     align-items: flex-start;
+  }
+}
+@media (max-width: 500px) {
+  .project-top {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .project-title-line {
+    width: 100%;
+  }
+  .project-copy {
+    flex: 1;
+  }
+  .project-copy span {
+    max-width: 100%;
+  }
+  .project-top > .status {
+    margin-left: 49px;
   }
 }
 </style>

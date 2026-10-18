@@ -107,3 +107,15 @@ func (s *CatalogSource) Root(ctx context.Context, projectID string) (string, err
 	}
 	return project.PrimaryLocation, nil
 }
+
+// ErrInventoryUnsupported prevents a fabricated empty file or branch inventory.
+var ErrInventoryUnsupported = errors.New("source-control observer does not support file and branch inventory")
+
+// GetInventory returns explicit file and branch details after a current trust check.
+func (s *Service) GetInventory(ctx context.Context, projectID string) (domain.State, error) {
+	root, err := s.projects.Root(ctx, projectID)
+	if err != nil {
+		return domain.State{}, err
+	}
+	return s.coalescedRead(ctx, projectID, root, "inventory")
+}

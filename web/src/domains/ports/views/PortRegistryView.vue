@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import PortTopology from '../components/PortTopology.vue'
+import { portTopology } from '../topology'
 
 import { loadDaemonSettings } from '../../system/settingsApi'
 import { loadPortRegistry, suggestPort } from '../api'
@@ -9,6 +11,7 @@ const registry = useQuery({
   queryKey: ['ports'],
   queryFn: loadPortRegistry,
   refetchInterval: 10_000,
+  shallow: true,
 })
 const settings = useQuery({ queryKey: ['daemon-settings'], queryFn: loadDaemonSettings })
 const preferred = computed(
@@ -21,9 +24,26 @@ const suggestion = useMutation({
 })
 const facts = computed(() => registry.data.value?.facts ?? [])
 const conflicts = computed(() => registry.data.value?.conflicts ?? [])
-const conflictingPorts = computed(() => new Set(conflicts.value.map((conflict) => conflict.port)))
+const conflictingFacts = computed(
+  () => new Set(conflicts.value.flatMap((conflict) => conflict.facts.map((fact) => fact.id))),
+)
+const configured = ref(false)
+const host = ref(false)
+const search = ref('')
+const applications = computed(() =>
+  portTopology(facts.value, conflictingFacts.value, {
+    configured: configured.value,
+    host: host.value,
+    search: search.value,
+  }),
+)
 const managedPorts = computed(
-  () => new Set(facts.value.filter((fact) => fact.projectId).map((fact) => fact.port)).size,
+  () =>
+    new Set(
+      facts.value
+        .filter((fact) => fact.projectId && fact.kind === 'binding')
+        .map((fact) => `${fact.port}/${fact.protocol}`),
+    ).size,
 )
 </script>
 
@@ -33,7 +53,7 @@ const managedPorts = computed(
       <div>
         <p class="eyebrow">Host intelligence</p>
         <h1 id="ports-title">Port registry</h1>
-        <p>Reserved, configured, and currently bound local ports with their evidence.</p>
+        <p>Follow each application through its services to the host ports it is using.</p>
       </div>
       <button type="button" :disabled="suggestion.isPending.value" @click="suggestion.mutate()">
         {{ suggestion.isPending.value ? 'Checking…' : 'Find next free port' }}
@@ -50,8 +70,8 @@ const managedPorts = computed(
     <template v-else>
       <div class="summary-grid">
         <article>
-          <span>Managed ports</span><strong>{{ managedPorts }}</strong
-          ><small>Across trusted projects</small>
+          <span>Active endpoints</span><strong>{{ managedPorts }}</strong
+          ><small>Published by managed services</small>
         </article>
         <article>
           <span>Current facts</span><strong>{{ facts.length }}</strong
@@ -78,59 +98,70 @@ const managedPorts = computed(
         <div class="panel-heading">
           <div>
             <p class="eyebrow">Visual map</p>
-            <h2>Observed ports</h2>
+            <h2>Application connections</h2>
           </div>
           <span>Live refresh · 10s</span>
         </div>
-        <div v-if="facts.length" class="port-map">
-          <div
-            v-for="fact in facts"
-            :key="fact.id"
-            class="port-block"
-            :class="{ conflict: conflictingPorts.has(fact.port) }"
-          >
-            <strong>{{ fact.port }}<span v-if="conflictingPorts.has(fact.port)"> ⚠</span></strong>
-            <small
-              >{{ fact.projectName ?? 'Unknown process' }} ·
-              {{ fact.serviceId ?? fact.kind }}</small
-            >
-          </div>
-          <div v-if="suggestion.data.value" class="port-block port-block--free">
-            <strong>{{ suggestion.data.value.port }}</strong
-            ><small>Suggested next free</small>
-          </div>
+        <div class="topology-controls">
+          <label class="port-search"
+            >Filter connections<input
+              v-model="search"
+              type="search"
+              placeholder="Application, service, or port"
+          /></label>
+          <label><input v-model="configured" type="checkbox" /> Include configured ports</label>
+          <label><input v-model="host" type="checkbox" /> Include other host listeners</label>
         </div>
-        <p v-else class="empty">No port evidence is available yet.</p>
+        <PortTopology v-if="applications.length" :applications="applications" />
+        <p v-else class="empty">
+          {{
+            search
+              ? 'No connections match this filter.'
+              : 'No managed port bindings are currently observed. Enable configured ports to see declarations and reservations.'
+          }}
+        </p>
       </article>
 
-      <article class="panel">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Evidence</p>
-            <h2>All port facts</h2>
+      <section v-if="conflicts.length" class="panel conflict-summary" aria-label="Port conflicts">
+        <h2>Conflicts need attention</h2>
+        <ul>
+          <li v-for="conflict in conflicts" :key="conflict.id">
+            <strong>{{ conflict.port }}</strong> · {{ conflict.summary }}
+          </li>
+        </ul>
+      </section>
+      <details class="port-evidence">
+        <summary>All port facts · {{ facts.length }} observations</summary>
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Evidence</p>
+              <h2>All port facts</h2>
+            </div>
+            <span>{{
+              registry.data.value?.observedAt
+                ? new Date(registry.data.value.observedAt).toLocaleTimeString()
+                : '—'
+            }}</span>
           </div>
-          <span>{{
-            registry.data.value?.observedAt
-              ? new Date(registry.data.value.observedAt).toLocaleTimeString()
-              : '—'
-          }}</span>
-        </div>
-        <div v-if="facts.length" class="port-table" role="table" aria-label="All port facts">
-          <div class="port-row port-row--header" role="row">
-            <span>Port</span><span>Project</span><span>Service</span><span>Source</span
-            ><span>State</span>
+          <div v-if="facts.length" class="port-table" role="table" aria-label="All port facts">
+            <div class="port-row port-row--header" role="row">
+              <span role="columnheader">Port</span><span role="columnheader">Project</span
+              ><span role="columnheader">Service</span><span role="columnheader">Source</span
+              ><span role="columnheader">State</span>
+            </div>
+            <div v-for="fact in facts" :key="`row-${fact.id}`" class="port-row" role="row">
+              <strong role="cell" :class="{ conflict: conflictingFacts.has(fact.id) }"
+                >{{ fact.port }}/{{ fact.protocol }}</strong
+              ><span role="cell">{{ fact.projectName ?? 'Unknown process' }}</span
+              ><span role="cell">{{ fact.serviceId ?? '—' }}</span
+              ><span role="cell" :title="fact.evidence">{{ fact.source }}</span
+              ><em role="cell">{{ conflictingFacts.has(fact.id) ? 'conflict' : fact.kind }}</em>
+            </div>
           </div>
-          <div v-for="fact in facts" :key="`row-${fact.id}`" class="port-row" role="row">
-            <strong :class="{ conflict: conflictingPorts.has(fact.port) }"
-              >{{ fact.port }}/{{ fact.protocol }}</strong
-            ><span>{{ fact.projectName ?? 'Unknown process' }}</span
-            ><span>{{ fact.serviceId ?? '—' }}</span
-            ><span :title="fact.evidence">{{ fact.source }}</span
-            ><em>{{ conflictingPorts.has(fact.port) ? 'conflict' : fact.kind }}</em>
-          </div>
-        </div>
-        <p v-else class="empty">Register and trust a project to protect its declared ports.</p>
-      </article>
+          <p v-else class="empty">Register and trust a project to protect its declared ports.</p>
+        </article>
+      </details>
     </template>
   </section>
 </template>
@@ -231,32 +262,6 @@ button {
 .panel-heading h2 {
   margin: 4px 0 0;
 }
-.port-map {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-  gap: 8px;
-}
-.port-block {
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  background: var(--panel);
-}
-.port-block strong {
-  display: block;
-  margin-bottom: 4px;
-}
-.port-block small {
-  color: var(--muted);
-}
-.port-block.conflict {
-  border-color: color-mix(in srgb, var(--red) 50%, transparent);
-  background: color-mix(in srgb, var(--red) 6%, transparent);
-}
-.port-block--free {
-  border-style: dashed;
-  color: var(--green);
-}
 .port-table {
   border: 1px solid var(--border);
   border-radius: 9px;
@@ -304,5 +309,53 @@ button {
   .port-row--header {
     display: none;
   }
+}
+.topology-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  align-items: center;
+  margin: 18px 0 22px;
+}
+.topology-controls label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+.topology-controls .port-search {
+  display: grid;
+  gap: 7px;
+  flex: 1 1 260px;
+}
+.port-search input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  min-width: 0;
+}
+.port-evidence {
+  margin-top: 22px;
+}
+.port-evidence summary {
+  cursor: pointer;
+  padding: 12px 0;
+  color: var(--soft);
+  font-size: 13px;
+}
+.conflict-summary h2 {
+  font-size: 15px;
+  color: var(--red);
+  margin-top: 0;
+}
+.conflict-summary ul {
+  padding-left: 20px;
+  color: var(--muted);
+}
+.conflict-summary li {
+  margin: 8px 0;
 }
 </style>

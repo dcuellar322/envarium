@@ -43,3 +43,31 @@ func healthProjectIDs(projects map[string]runtime.ProjectRuntime, failures map[s
 	sort.Strings(ids)
 	return ids
 }
+
+// runtimeProjectFeed is restricted to background configuration observation.
+type runtimeProjectFeed interface {
+	SubscribeRuntimeProjects() (<-chan runtime.ProjectSnapshot, func())
+}
+
+func subscribeHealthProjects(source any) (<-chan runtime.ProjectSnapshot, func()) {
+	if feed, ok := source.(runtimeProjectFeed); ok {
+		return feed.SubscribeRuntimeProjects()
+	}
+	return nil, func() {}
+}
+
+// A combined runtime observer owns its current trust/configuration check. This
+// avoids immediately resolving the same files twice in one health read.
+func observeHealthProject(ctx context.Context, source RuntimeSource, observer RuntimeObserver, id string) (runtime.ProjectRuntime, runtime.Observation, error) {
+	if combined, ok := observer.(interface {
+		InspectProject(context.Context, string) (runtime.ProjectRuntime, runtime.Observation, error)
+	}); ok {
+		return combined.InspectProject(ctx, id)
+	}
+	project, err := source.ResolveRuntime(ctx, id)
+	if err != nil {
+		return runtime.ProjectRuntime{}, runtime.Observation{}, err
+	}
+	observation, err := observer.Inspect(ctx, id)
+	return project, observation, err
+}

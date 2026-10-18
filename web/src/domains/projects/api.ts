@@ -12,6 +12,7 @@ import {
   getOperation,
   getProject,
   getProjectGit,
+  getProjectGitInventory,
   getProjectGitStatus,
   getProjectHealth,
   getProjectLogs,
@@ -38,6 +39,7 @@ import type {
   ProjectActions,
   ProjectHealth,
   RuntimeAction,
+  RuntimeActionRequest,
   RuntimePlan,
   RuntimeLogEntry,
   RuntimeMetricSample,
@@ -219,6 +221,16 @@ export async function loadProjectGit(projectId: string, signal?: AbortSignal): P
   return result.data
 }
 
+export async function loadProjectGitInventory(
+  projectId: string,
+  signal?: AbortSignal,
+): Promise<GitState> {
+  const result = await getProjectGitInventory({ path: { projectId }, signal })
+  if (result.error || !result.data)
+    throw new Error('The repository file and branch inventory could not be loaded.')
+  return result.data
+}
+
 export async function loadProjectGitStatus(
   projectId: string,
   signal?: AbortSignal,
@@ -270,12 +282,15 @@ export async function runRuntimeAction(
   return result.data
 }
 
-export type RuntimeSelection = {
-  profiles?: string[]
-  services?: string[]
-  removeVolumes?: boolean
-  confirmRisk?: boolean
-}
+export type RuntimeSelection = Pick<
+  RuntimeActionRequest,
+  | 'profiles'
+  | 'services'
+  | 'removeVolumes'
+  | 'confirmRisk'
+  | 'expectedCheckoutRevision'
+  | 'expectedManifestHash'
+>
 
 export async function previewRuntimeAction(
   projectId: string,
@@ -311,6 +326,12 @@ function runtimeRequest(action: RuntimeAction, selection: RuntimeSelection) {
     action,
     removeVolumes: selection.removeVolumes ?? false,
     confirmRisk: selection.confirmRisk ?? false,
+    ...(selection.expectedCheckoutRevision
+      ? { expectedCheckoutRevision: selection.expectedCheckoutRevision }
+      : {}),
+    ...(selection.expectedManifestHash
+      ? { expectedManifestHash: selection.expectedManifestHash }
+      : {}),
     ...(profiles.length > 0 ? { profiles } : {}),
     ...(services.length > 0 ? { services } : {}),
   }

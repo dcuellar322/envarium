@@ -100,6 +100,23 @@ func TestRunHistoryJoinPreservesRunLimitAndEveryIdentity(t *testing.T) {
 	if err != nil || len(empty) != 0 {
 		t.Fatal("cross-project run leak")
 	}
+	if _, err := database.connection.ExecContext(ctx, `INSERT INTO projects (id,slug,display_name,trust_state,primary_location,created_at,updated_at) VALUES ('q','q','Q','trusted','/tmp/q',?,?)`, formatTime(now), formatTime(now)); err != nil {
+		t.Fatal(err)
+	}
+	if err := repository.CreateRun(ctx, domain.RunRecord{ID: "q-run", ProjectID: "q", ServiceID: "api", RuntimeDriver: domain.KindProcess, Origin: domain.OriginEnvarium, StartedAt: now}); err != nil {
+		t.Fatal(err)
+	}
+	batch, err := repository.ListProjectsRuns(ctx, []string{"p", "q", "other", "p"})
+	if err != nil || len(batch["p"]) != 200 || len(batch["q"]) != 1 || batch["q"][0].ID != "q-run" || len(batch["other"]) != 0 || len(batch["p"][0].Processes) != 3 {
+		t.Fatalf("batch per-project limits/identities: %v %v", batch, err)
+	}
+	if err := repository.SetRestartCount(ctx, "q-run", 9); err != nil {
+		t.Fatal(err)
+	}
+	batch, err = repository.ListProjectsRuns(ctx, []string{"q"})
+	if err != nil || batch["q"][0].RestartCount != 9 {
+		t.Fatal("batch run values cached")
+	}
 	canceled, cancel := context.WithCancel(ctx)
 	cancel()
 	if _, err := repository.ListProjectRuns(canceled, "p"); !errors.Is(err, context.Canceled) {

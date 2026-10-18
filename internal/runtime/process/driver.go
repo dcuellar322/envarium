@@ -59,6 +59,7 @@ type Driver struct {
 	managed     map[string]*managedRun
 	logs        map[string]*logBuffer
 	subscribers map[string]map[chan domain.RuntimeEvent]struct{}
+	runFeed     *runSnapshotHub
 }
 
 // NewDriver creates a production native-process driver scoped to the daemon lifecycle.

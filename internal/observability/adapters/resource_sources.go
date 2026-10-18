@@ -91,17 +91,16 @@ func NewResourceRuntimeSource(runtime *runtimeApplication.Service, health *obser
 
 // ObserveResources skips driver statistics unless current runtime evidence is active.
 func (s *ResourceRuntimeSource) ObserveResources(ctx context.Context, project observabilityDomain.ProjectDescriptor) (observabilityDomain.RuntimeSnapshot, error) {
-	observation, err := s.runtime.Inspect(ctx, project.ID)
-	if err != nil {
+	observation, samples, err := observeMetricCycle(ctx, s.runtime, project.ID)
+	if err != nil && !observation.State.IsActive() {
 		return observabilityDomain.RuntimeSnapshot{}, err
 	}
 	result := observabilityDomain.RuntimeSnapshot{ProjectID: project.ID, Driver: string(observation.Driver), State: string(observation.State), Active: activeRuntime(observation.State), Samples: []observabilityDomain.MetricPoint{}, Warnings: []string{}}
-	if !result.Active {
-		return result, nil
-	}
-	samples, err := s.runtime.Metrics(ctx, project.ID, "")
 	if err != nil {
 		return result, err
+	}
+	if !result.Active {
+		return result, nil
 	}
 	latencies := map[string]int64{}
 	if s.health != nil {
@@ -132,13 +131,18 @@ func (s *ResourceRuntimeSource) ObserveResources(ctx context.Context, project ob
 	return result, nil
 }
 
-func activeRuntime(state runtimeDomain.ProjectState) bool {
-	switch state {
-	case runtimeDomain.StateStarting, runtimeDomain.StateRunning, runtimeDomain.StateRunningExternal,
-		runtimeDomain.StatePartiallyRunning, runtimeDomain.StateDegraded, runtimeDomain.StatePaused:
-		return true
-	case runtimeDomain.StateUnknown, runtimeDomain.StateStopped, runtimeDomain.StateStopping, runtimeDomain.StateFailed:
-		return false
+func activeRuntime(state runtimeDomain.ProjectState) bool { return state.IsActive() }
+
+func observeMetricCycle(ctx context.Context, source runtimeMetrics, id string) (runtimeDomain.Observation, []runtimeDomain.MetricSample, error) {
+	if combined, ok := source.(interface {
+		ObserveMetrics(context.Context, string) (runtimeDomain.Observation, []runtimeDomain.MetricSample, error)
+	}); ok {
+		return combined.ObserveMetrics(ctx, id)
 	}
-	return false
+	observation, err := source.Inspect(ctx, id)
+	if err != nil || !observation.State.IsActive() {
+		return observation, nil, err
+	}
+	samples, err := source.Metrics(ctx, id, "")
+	return observation, samples, err
 }

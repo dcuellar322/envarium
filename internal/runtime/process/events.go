@@ -4,7 +4,6 @@ import (
 	"context"
 	"strconv"
 	"strings"
-	"time"
 
 	"envarium.dev/envarium/internal/runtime/domain"
 )
@@ -25,12 +24,10 @@ func (d *Driver) watchEvents(ctx context.Context, project domain.ProjectRuntime,
 		}
 		d.mu.Unlock()
 	}()
-	ticker := time.NewTicker(2 * time.Second)
-	defer ticker.Stop()
+	snapshots, unsubscribe := d.subscribeRunSnapshots(project.ProjectID)
+	defer unsubscribe()
 	lastSignature := ""
-	if observation, err := d.inspect(ctx, project); err == nil {
-		lastSignature = observationSignature(observation)
-	}
+	initial := true
 	for {
 		select {
 		case <-ctx.Done():
@@ -41,20 +38,32 @@ func (d *Driver) watchEvents(ctx context.Context, project domain.ProjectRuntime,
 			}
 			if observation, err := d.inspect(ctx, project); err == nil {
 				lastSignature = observationSignature(observation)
+				initial = false
 			}
-		case occurredAt := <-ticker.C:
-			observation, err := d.inspect(ctx, project)
+		case snapshot, ok := <-snapshots:
+			if !ok {
+				return context.Canceled
+			}
+			if snapshot.err != nil {
+				return snapshot.err
+			}
+			observation, err := d.inspectRuns(ctx, project, snapshot.runs)
 			if err != nil {
 				return err
 			}
 			signature := observationSignature(observation)
+			if initial {
+				lastSignature = signature
+				initial = false
+				continue
+			}
 			if signature == lastSignature {
 				continue
 			}
 			lastSignature = signature
 			if err := sink.WriteRuntimeEvent(ctx, domain.RuntimeEvent{
 				Driver: domain.KindProcess, ProjectIdentity: project.ProjectSlug,
-				Action: "reconcile", OccurredAt: occurredAt.UTC(),
+				Action: "reconcile", OccurredAt: d.now().UTC(),
 			}); err != nil {
 				return err
 			}

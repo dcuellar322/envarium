@@ -157,10 +157,12 @@ func executeRuntimeOperation(
 	progress operations.Progress,
 ) error {
 	var input struct {
-		Action        string   `json:"action"`
-		RemoveVolumes bool     `json:"removeVolumes"`
-		Services      []string `json:"services"`
-		Profiles      []string `json:"profiles"`
+		Action                   string   `json:"action"`
+		RemoveVolumes            bool     `json:"removeVolumes"`
+		Services                 []string `json:"services"`
+		Profiles                 []string `json:"profiles"`
+		ExpectedCheckoutRevision string   `json:"expectedCheckoutRevision"`
+		ExpectedManifestHash     string   `json:"expectedManifestHash"`
 	}
 	if err := json.Unmarshal(operation.Input, &input); err != nil {
 		return fmt.Errorf("decode runtime operation: %w", err)
@@ -171,6 +173,9 @@ func executeRuntimeOperation(
 	}
 	plan, err := service.PlanSelection(ctx, operation.ProjectID, action, input.RemoveVolumes, input.Services, input.Profiles)
 	if err != nil {
+		return err
+	}
+	if err := runtimeApplication.CheckReview(plan, input.ExpectedCheckoutRevision, input.ExpectedManifestHash); err != nil {
 		return err
 	}
 	plan.OperationID = operation.ID

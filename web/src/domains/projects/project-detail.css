@@ -574,133 +574,6 @@
     overflow-wrap: anywhere;
     color: var(--text);
   }
-  .modal-backdrop {
-    position: fixed;
-    z-index: 100;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    padding: 24px;
-    background: color-mix(in srgb, var(--bg) 78%, transparent);
-    backdrop-filter: blur(5px);
-  }
-  .runtime-plan-dialog {
-    width: min(680px, 100%);
-    max-height: min(820px, calc(100vh - 48px));
-    overflow: auto;
-    padding: 18px;
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    background: var(--panel);
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
-  }
-  .runtime-plan-dialog > header,
-  .runtime-plan-dialog > footer,
-  .plan-risk {
-    display: flex;
-    align-items: center;
-  }
-  .runtime-plan-dialog > header,
-  .runtime-plan-dialog > footer {
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .runtime-plan-dialog header p {
-    margin: 0;
-    color: var(--accent);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-  .runtime-plan-dialog h2 {
-    margin: 4px 0 0;
-    font-size: 18px;
-  }
-  .runtime-plan-dialog button {
-    display: inline-flex;
-    min-height: 35px;
-    align-items: center;
-    justify-content: center;
-    padding: 7px 10px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--panel-2);
-    color: var(--text);
-  }
-  .runtime-plan-dialog .primary {
-    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-    background: var(--accent);
-    color: var(--on-accent);
-    font-weight: 800;
-  }
-  .runtime-plan-dialog .primary.danger {
-    border-color: color-mix(in srgb, var(--red) 55%, transparent);
-    background: var(--red);
-  }
-  .plan-risk {
-    gap: 8px;
-    margin: 15px 0;
-    padding: 10px;
-    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
-    border-radius: 8px;
-    color: var(--accent);
-    text-transform: capitalize;
-  }
-  .plan-risk--caution {
-    border-color: color-mix(in srgb, var(--yellow) 25%, transparent);
-    color: var(--yellow);
-  }
-  .plan-risk--destructive {
-    border-color: color-mix(in srgb, var(--red) 30%, transparent);
-    color: var(--red);
-  }
-  .plan-facts {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 7px;
-  }
-  .plan-facts > div,
-  .plan-command {
-    padding: 9px;
-    border-radius: 7px;
-    background: var(--panel);
-  }
-  .plan-facts dt {
-    color: var(--soft);
-  }
-  .plan-facts dd {
-    margin: 3px 0 0;
-    color: var(--text);
-  }
-  .plan-section {
-    margin-top: 15px;
-  }
-  .plan-section h3 {
-    margin: 0 0 8px;
-    font-size: 12px;
-  }
-  .plan-section ul {
-    margin: 0;
-    padding-left: 20px;
-    color: var(--muted);
-  }
-  .plan-command {
-    display: grid;
-    gap: 5px;
-    margin-top: 6px;
-  }
-  .plan-command code {
-    overflow-wrap: anywhere;
-    color: var(--text);
-  }
-  .plan-command small {
-    color: var(--soft);
-  }
-  .runtime-plan-dialog > footer {
-    margin-top: 18px;
-    justify-content: flex-end;
-  }
   .resource-card dl {
     display: grid;
     gap: 12px;
@@ -976,8 +849,7 @@
     .service-actions {
       justify-content: flex-start;
     }
-    .service-inspector dl,
-    .plan-facts {
+    .service-inspector dl {
       grid-template-columns: 1fr;
     }
     .project-log-filters,

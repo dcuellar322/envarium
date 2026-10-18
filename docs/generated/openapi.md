@@ -50,6 +50,9 @@ page manually.
 | `GET` | `/api/v1/projects/{projectId}/metrics/history` | `getMetricHistory` |
 | `GET` | `/api/v1/projects/{projectId}/git` | `getProjectGit` |
 | `GET` | `/api/v1/project-observations` | `getProjectObservations` |
+| `POST` | `/api/v1/projects/{projectId}/git/branch-switch/plan` | `planGitBranchSwitch` |
+| `POST` | `/api/v1/projects/{projectId}/git/branch-switch` | `createGitBranchSwitch` |
+| `GET` | `/api/v1/projects/{projectId}/git/inventory` | `getProjectGitInventory` |
 | `GET` | `/api/v1/projects/{projectId}/git/status` | `getProjectGitStatus` |
 | `GET` | `/api/v1/projects/{projectId}/environments` | `listProjectEnvironments` |
 | `POST` | `/api/v1/projects/{projectId}/environments` | `registerProjectEnvironments` |

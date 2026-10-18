@@ -56,14 +56,11 @@ const {
   confirmLifecycle,
   closeLifecyclePlan,
   runAction,
-} = useProjectDetail(projectId)
-function openPreferredTerminal() {
-  if (terminalAction.value) {
-    void runAction(terminalAction.value)
-    return
-  }
-  void selectTab('terminal')
-}
+  refreshGitContext,
+} = useProjectDetail(
+  projectId,
+  computed(() => activeTab.value === 'git'),
+)
 </script>
 
 <template>
@@ -85,7 +82,7 @@ function openPreferredTerminal() {
         :browser-action="browserAction"
         :action-pending="customAction.isPending.value"
         :lifecycle-pending="lifecycle.isPending.value || lifecyclePreview.isPending.value"
-        :operation-error="operationError"
+        :operation-error="activeTab === 'git' ? '' : operationError"
         :partial="isPartial"
         :docker-unavailable="
           runtime.data.value?.driver === 'compose' && runtime.data.value.engine?.connected === false
@@ -94,7 +91,7 @@ function openPreferredTerminal() {
         :driver="runtime.data.value?.driver"
         @action="runAction"
         @lifecycle="requestLifecycle"
-        @terminal="openPreferredTerminal"
+        @terminal="terminalAction ? runAction(terminalAction) : selectTab('terminal')"
       />
       <ProjectTabList :active="activeTab" @select="selectTab" />
 
@@ -173,12 +170,20 @@ function openPreferredTerminal() {
       >
         <ProjectGitTab
           :git="git.data.value"
+          :driver="runtime.data.value?.driver"
+          :lifecycle-pending="lifecycle.isPending.value || lifecyclePreview.isPending.value"
+          :operation-error="operationError"
+          :pending="git.isPending.value"
+          :error="git.isError.value"
           :environments="environments.data.value ?? []"
           :environments-pending="environments.isPending.value"
           :environments-error="environments.isError.value"
           :registration-pending="registerWorktrees.isPending.value"
           :registration-error="registerWorktrees.error.value?.message"
           @register="registerWorktrees.mutate()"
+          @refresh="refreshGitContext"
+          @branch-switched="requestLifecycle('start')"
+          @environment-action="(id, action) => requestLifecycle(action, {}, id)"
         />
       </div>
       <div

@@ -30,8 +30,19 @@ func (s *Service) WatchAll(ctx context.Context, sink domain.EventSink, onError f
 	defer ticker.Stop()
 	results := make(chan watchResult)
 	active := make(map[string]activeWatch)
+	defer func() {
+		for _, watch := range active {
+			watch.cancel()
+		}
+	}()
 	refresh := func() { s.refreshWatches(ctx, sink, active, results, onError) }
-	refresh()
+	snapshots, unsubscribe := s.SubscribeRuntimeProjects()
+	defer unsubscribe()
+	if snapshots != nil {
+		ticker.Stop()
+	} else {
+		refresh()
+	}
 	for {
 		select {
 		case <-ctx.Done():
@@ -47,6 +58,11 @@ func (s *Service) WatchAll(ctx context.Context, sink domain.EventSink, onError f
 			if result.err != nil && !errors.Is(result.err, context.Canceled) {
 				onError(result.projectID, result.err)
 			}
+		case snapshot, ok := <-snapshots:
+			if !ok {
+				return
+			}
+			s.refreshWatchSnapshot(ctx, sink, active, results, snapshot, onError)
 		case <-ticker.C:
 			refresh()
 		}
@@ -61,6 +77,11 @@ func (s *Service) refreshWatches(
 	onError func(string, error),
 ) {
 	projects, failures, err := snapshotProjects(ctx, s.projects)
+	s.refreshWatchSnapshot(ctx, sink, active, results, domain.ProjectSnapshot{Projects: projects, Failures: failures, Err: err}, onError)
+}
+
+func (s *Service) refreshWatchSnapshot(ctx context.Context, sink domain.EventSink, active map[string]activeWatch, results chan<- watchResult, snapshot domain.ProjectSnapshot, onError func(string, error)) {
+	projects, failures, err := snapshot.Projects, snapshot.Failures, snapshot.Err
 	if err != nil {
 		onError("", err)
 		return

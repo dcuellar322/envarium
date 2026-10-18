@@ -55,15 +55,16 @@ const (
 
 // ProjectRuntime is the trusted, resolved input supplied to a driver.
 type ProjectRuntime struct {
-	ProjectID    string
-	ProjectSlug  string
-	Root         string
-	Kind         Kind
-	Compose      *ComposeRuntime
-	Process      *ProcessRuntime
-	Services     []ServiceDeclaration
-	Ports        map[string]PortDeclaration
-	ManifestHash string
+	EnvironmentID string
+	ProjectID     string
+	ProjectSlug   string
+	Root          string
+	Kind          Kind
+	Compose       *ComposeRuntime
+	Process       *ProcessRuntime
+	Services      []ServiceDeclaration
+	Ports         map[string]PortDeclaration
+	ManifestHash  string
 }
 
 // ProcessRuntime contains resolved native process declarations.
@@ -158,18 +159,21 @@ type PlanRequest struct {
 
 // Plan is an immutable, reviewable description of a lifecycle mutation.
 type Plan struct {
-	OperationID   string    `json:"-"`
-	ProjectID     string    `json:"projectId"`
-	Driver        Kind      `json:"driver"`
-	Action        Action    `json:"action"`
-	Risk          Risk      `json:"risk"`
-	Summary       string    `json:"summary"`
-	Commands      []Command `json:"commands"`
-	Effects       []string  `json:"effects"`
-	Services      []string  `json:"services"`
-	Profiles      []string  `json:"profiles,omitempty"`
-	RemoveVolumes bool      `json:"removeVolumes"`
-	DriverData    any       `json:"-"`
+	SourceCheckoutRevision string    `json:"checkoutRevision,omitempty"`
+	SourceRoot             string    `json:"-"`
+	SourceManifestHash     string    `json:"manifestHash,omitempty"`
+	OperationID            string    `json:"-"`
+	ProjectID              string    `json:"projectId"`
+	Driver                 Kind      `json:"driver"`
+	Action                 Action    `json:"action"`
+	Risk                   Risk      `json:"risk"`
+	Summary                string    `json:"summary"`
+	Commands               []Command `json:"commands"`
+	Effects                []string  `json:"effects"`
+	Services               []string  `json:"services"`
+	Profiles               []string  `json:"profiles,omitempty"`
+	RemoveVolumes          bool      `json:"removeVolumes"`
+	DriverData             any       `json:"-"`
 }
 
 // Command is a shell-free command preview.

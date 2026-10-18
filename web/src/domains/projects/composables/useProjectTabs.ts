@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import { computed, ref, type ComputedRef } from 'vue'
+import { computed, ref, watch, type ComputedRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { loadPortRegistry } from '../../ports/api'
@@ -12,6 +12,12 @@ export function useProjectTabs(projectId: ComputedRef<string>) {
     projectTabs.includes(route.query.tab as ProjectTab)
       ? (route.query.tab as ProjectTab)
       : 'overview',
+  )
+  watch(
+    () => route.query.tab,
+    (tab) => {
+      activeTab.value = projectTabs.includes(tab as ProjectTab) ? (tab as ProjectTab) : 'overview'
+    },
   )
   const portRegistry = useQuery({
     queryKey: ['ports'],

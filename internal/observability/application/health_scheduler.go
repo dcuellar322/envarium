@@ -17,11 +17,22 @@ func (s *HealthService) Run(ctx context.Context, onError func(string, error)) {
 	}
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
-	s.runDue(ctx, onError)
+	snapshots, unsubscribe := subscribeHealthProjects(s.source)
+	defer unsubscribe()
+	if snapshots != nil {
+		ticker.Stop()
+	} else {
+		s.runDue(ctx, onError)
+	}
 	for {
 		select {
 		case <-ctx.Done():
 			return
+		case snapshot, ok := <-snapshots:
+			if !ok {
+				return
+			}
+			s.runDueSnapshot(ctx, snapshot.Projects, snapshot.Failures, snapshot.Err, onError)
 		case <-ticker.C:
 			s.runDue(ctx, onError)
 		}
@@ -30,6 +41,10 @@ func (s *HealthService) Run(ctx context.Context, onError func(string, error)) {
 
 func (s *HealthService) runDue(ctx context.Context, onError func(string, error)) {
 	projects, failures, err := healthProjects(ctx, s.source)
+	s.runDueSnapshot(ctx, projects, failures, err, onError)
+}
+
+func (s *HealthService) runDueSnapshot(ctx context.Context, projects map[string]runtime.ProjectRuntime, failures map[string]error, err error, onError func(string, error)) {
 	if err != nil {
 		onError("", err)
 		return

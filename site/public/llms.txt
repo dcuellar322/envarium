@@ -33,6 +33,7 @@ Source: https://github.com/dcuellar322/envarium
 - [ADR-0023: Collect scheduled diagnostic evidence for notification rules](https://envarium.davidcuellar.tech/docs/adr/0023-scheduled-diagnostic-evidence/): Preserve automatic alerts without repeatedly gathering unrelated Git and cleanup recommendations.
 - [ADR-0024: Share observations and isolate resource sampling](https://envarium.davidcuellar.tech/docs/adr/0024-shared-observation-and-sampling-isolation/): Bound presentation-driven work while preserving live monitoring and explicit freshness.
 - [ADR-0025: Origin proof and immutable reviewed inputs](https://envarium.davidcuellar.tech/docs/adr/0025-origin-proof-and-reviewed-inputs/): Close cross-port browser replay and bind external disclosure to reviewed bytes.
+- [ADR-0026: Reviewed checkout transitions](https://envarium.davidcuellar.tech/docs/adr/0026-reviewed-checkout-transitions/): Keep Git branch changes and runtime restarts explicit, serialized and recoverable.
 - [Architecture decision records](https://envarium.davidcuellar.tech/docs/adr/): Accepted technical decisions and the process for superseding them.
 - [Architecture overview](https://envarium.davidcuellar.tech/docs/architecture/): Process topology, bounded contexts, dependency direction, and accepted Envarium decisions.
 - [Agent integration](https://envarium.davidcuellar.tech/docs/architecture/agent-integration/): Provider-neutral MCP, permission, audit, guidance, and agent-session architecture.

@@ -49,6 +49,11 @@ func (s *RuntimeBindings) Facts(ctx context.Context) ([]domain.Fact, error) {
 			continue
 		}
 		for _, service := range observation.Services {
+			// Stopped process observations retain declared ports for planning;
+			// those are configuration, not evidence of a live host binding.
+			if service.State != "running" && service.State != "paused" && service.State != "restarting" {
+				continue
+			}
 			for _, port := range service.Ports {
 				if port.HostPort == 0 {
 					continue

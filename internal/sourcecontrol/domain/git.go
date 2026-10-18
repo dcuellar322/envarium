@@ -37,6 +37,32 @@ type Worktree struct {
 	Locked   bool   `json:"locked"`
 }
 
+// FileChange preserves literal repository-relative names, including renames.
+type FileChange struct {
+	Path         string `json:"path"`
+	OriginalPath string `json:"originalPath,omitempty"`
+	Index        string `json:"index"`
+	WorkingTree  string `json:"workingTree"`
+	Untracked    bool   `json:"untracked"`
+	Conflicted   bool   `json:"conflicted"`
+}
+
+// Branch is one local branch; remote-tracking refs are not switch targets.
+type Branch struct {
+	Name     string `json:"name"`
+	Head     string `json:"head"`
+	Current  bool   `json:"current"`
+	Upstream string `json:"upstream,omitempty"`
+}
+
+// Details is explicitly requested repository inventory, never dashboard work.
+type Details struct {
+	Files             []FileChange `json:"files"`
+	Branches          []Branch     `json:"branches"`
+	FilesTruncated    bool         `json:"filesTruncated"`
+	BranchesTruncated bool         `json:"branchesTruncated"`
+}
+
 // State is a fresh, read-only Git snapshot.
 type State struct {
 	ProjectID      string       `json:"projectId"`
@@ -53,5 +79,6 @@ type State struct {
 	LastCommit     *Commit      `json:"lastCommit,omitempty"`
 	Remotes        []Remote     `json:"remotes"`
 	Worktrees      []Worktree   `json:"worktrees"`
+	Details        *Details     `json:"details,omitempty"`
 	ObservedAt     time.Time    `json:"observedAt"`
 }

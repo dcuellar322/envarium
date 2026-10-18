@@ -2,6 +2,9 @@ package application
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -168,6 +171,7 @@ func (s *CatalogSource) resolveEnvironment(ctx context.Context, requestedID stri
 }
 
 func applyRuntimeEnvironment(result *domain.ProjectRuntime, requestedID string, environment RuntimeEnvironment) {
+	result.EnvironmentID = environment.ID
 	result.ProjectID = requestedID
 	result.ProjectSlug += "-" + environment.Name
 	result.Root = environment.Root
@@ -175,6 +179,12 @@ func applyRuntimeEnvironment(result *domain.ProjectRuntime, requestedID string, 
 		result.Compose.ProjectName = environment.ComposeProjectName
 		result.Compose.PortOverrides = cloneIntMap(environment.PortLeases)
 	}
+	identity, _ := json.Marshal(struct {
+		Base, ID, Root, Compose string
+		Ports                   map[string]int
+	}{result.ManifestHash, environment.ID, environment.Root, environment.ComposeProjectName, environment.PortLeases})
+	digest := sha256.Sum256(identity)
+	result.ManifestHash = hex.EncodeToString(digest[:])
 	for id, host := range environment.PortLeases {
 		port, exists := result.Ports[id]
 		if !exists {

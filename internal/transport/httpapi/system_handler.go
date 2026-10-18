@@ -67,6 +67,7 @@ type handler struct {
 	logs                    logService
 	ports                   portService
 	git                     gitService
+	branches                branchService
 	actions                 actionService
 	overview                overviewService
 	ai                      aiOnboardingService

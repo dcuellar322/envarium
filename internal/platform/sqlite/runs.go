@@ -74,33 +74,11 @@ func (r *RunRepository) SetRestartCount(ctx context.Context, runID string, count
 
 // ListProjectRuns returns newest runs first with every recorded process fingerprint.
 func (r *RunRepository) ListProjectRuns(ctx context.Context, projectID string) ([]domain.RunRecord, error) {
-	rows, err := r.database.queryContext(ctx, `WITH selected AS (
-        SELECT * FROM runs WHERE project_id = ? ORDER BY started_at DESC, id DESC LIMIT 200
-    ) SELECT r.id, r.project_id, r.service_id, r.runtime_driver, r.origin, r.started_at,
-        r.ended_at, r.exit_code, r.termination_reason, r.identity_fingerprint, r.restart_count, r.operation_id,
-        p.run_id, p.pid, p.process_group_id, p.executable, p.started_at, p.working_directory,
-        p.identity_fingerprint, p.observed_at FROM selected r
-        LEFT JOIN run_processes p ON p.run_id = r.id
-        ORDER BY r.started_at DESC, r.id DESC, p.observed_at DESC, p.pid`, projectID)
+	result, err := r.ListProjectsRuns(ctx, []string{projectID})
 	if err != nil {
-		return nil, fmt.Errorf("list runtime runs: %w", err)
+		return nil, err
 	}
-	defer func() { _ = rows.Close() }()
-	result := []domain.RunRecord{}
-	for rows.Next() {
-		run, identity, err := scanRunWithProcess(rows)
-		if err != nil {
-			return nil, err
-		}
-		if len(result) == 0 || result[len(result)-1].ID != run.ID {
-			run.Processes = []domain.ProcessIdentity{}
-			result = append(result, run)
-		}
-		if identity.RunID != "" {
-			result[len(result)-1].Processes = append(result[len(result)-1].Processes, identity)
-		}
-	}
-	return result, rows.Err()
+	return result[projectID], nil
 }
 
 func scanRunWithProcess(row rowScanner) (domain.RunRecord, domain.ProcessIdentity, error) {

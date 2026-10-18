@@ -155,9 +155,7 @@ test('diagnostic review keeps evidence, actions, alerts, and automation limits v
   )
 
   await page.goto(browserBootstrapPath('/agents'))
-  await expect(
-    page.getByRole('heading', { name: 'Evidence first. Automation on a leash.' }),
-  ).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Agents & diagnostics' })).toBeVisible()
   await expect(page.getByText('API is repeatedly crashing').first()).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Explicit triggers and limits' })).toBeVisible()
   await expect(page).toHaveScreenshot('diagnostic-automation-review.png', {

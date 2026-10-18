@@ -83,7 +83,11 @@ const events = useEventConnection((event) => {
 }, presentationActive)
 
 function onGlobalKeydown(event: KeyboardEvent) {
-  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+  if (
+    (event.metaKey || event.ctrlKey) &&
+    event.key.toLowerCase() === 'k' &&
+    !document.querySelector('dialog[open]')
+  ) {
     event.preventDefault()
     paletteOpen.value = true
   }

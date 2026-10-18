@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useMutation, useQuery, type Query } from '@tanstack/vue-query'
 import { computed, onBeforeUnmount, watch } from 'vue'
+import AppDialog from './AppDialog.vue'
 
 import { usePresentationActivity } from '../../domains/system/composables/usePresentationActivity'
 import { isTerminalOperation, stateLabel } from '../../lib/format'
@@ -76,50 +77,53 @@ onBeforeUnmount(() => {
     >
     <button type="button" aria-label="Open operation details">→</button>
   </div>
-  <div v-if="store.drawerOpen.value" class="drawer-backdrop" @mousedown.self="store.close()">
-    <aside class="operation-drawer" aria-labelledby="operation-drawer-title">
-      <header>
-        <div>
-          <p>Durable work</p>
-          <h2 id="operation-drawer-title">Operations</h2>
-        </div>
-        <button type="button" aria-label="Close operations" @click="store.close()">×</button>
-      </header>
-      <div v-if="query.isError.value" class="drawer-error" role="alert">
-        Operations are unavailable.
-        <button type="button" @click="query.refetch()">Retry</button>
+  <AppDialog
+    v-if="store.drawerOpen.value"
+    class="operation-drawer"
+    labelledby="operation-drawer-title"
+    @close="store.close()"
+  >
+    <header>
+      <div>
+        <p>Durable work</p>
+        <h2 id="operation-drawer-title">Operations</h2>
       </div>
-      <ol v-else-if="recent.length" class="operation-list">
-        <li v-for="operation in recent" :key="operation.id">
-          <span
-            class="operation-spinner"
-            :class="{
-              done: isTerminalOperation(operation.state),
-              failed: operation.state === 'failed',
-            }"
-            aria-hidden="true"
-          ></span>
-          <div>
-            <strong>{{ operation.kind }}</strong
-            ><code>{{ operation.id }}</code
-            ><small v-if="operation.errorMessage">{{ operation.errorMessage }}</small>
-          </div>
-          <div class="operation-state">
-            <span>{{ stateLabel(operation.state) }}</span
-            ><button
-              v-if="!isTerminalOperation(operation.state)"
-              type="button"
-              :disabled="cancellation.isPending.value"
-              @click="cancellation.mutate(operation.id)"
-            >
-              Cancel
-            </button>
-          </div>
-        </li>
-      </ol>
-      <p v-else class="drawer-empty">No durable operations yet.</p>
-    </aside>
-  </div>
+      <button type="button" aria-label="Close operations" @click="store.close()">×</button>
+    </header>
+    <div v-if="query.isError.value" class="drawer-error" role="alert">
+      Operations are unavailable.
+      <button type="button" @click="query.refetch()">Retry</button>
+    </div>
+    <ol v-else-if="recent.length" class="operation-list">
+      <li v-for="operation in recent" :key="operation.id">
+        <span
+          class="operation-spinner"
+          :class="{
+            done: isTerminalOperation(operation.state),
+            failed: operation.state === 'failed',
+          }"
+          aria-hidden="true"
+        ></span>
+        <div>
+          <strong>{{ operation.kind }}</strong
+          ><code>{{ operation.id }}</code
+          ><small v-if="operation.errorMessage">{{ operation.errorMessage }}</small>
+        </div>
+        <div class="operation-state">
+          <span>{{ stateLabel(operation.state) }}</span
+          ><button
+            v-if="!isTerminalOperation(operation.state)"
+            type="button"
+            :disabled="cancellation.isPending.value"
+            @click="cancellation.mutate(operation.id)"
+          >
+            Cancel
+          </button>
+        </div>
+      </li>
+    </ol>
+    <p v-else class="drawer-empty">No durable operations yet.</p>
+  </AppDialog>
 </template>
 
 <style scoped>
@@ -179,18 +183,15 @@ onBeforeUnmount(() => {
 .operation-spinner.failed {
   border-color: var(--red);
 }
-.drawer-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  background: color-mix(in srgb, var(--bg) 52%, transparent);
-}
 .operation-drawer {
-  position: absolute;
+  position: fixed;
+  left: auto;
+  margin: 0;
+  max-height: 100dvh;
   top: 0;
   right: 0;
   width: min(440px, 100vw);
-  height: 100%;
+  height: 100dvh;
   padding: 18px;
   border-left: 1px solid var(--border);
   background: var(--panel);

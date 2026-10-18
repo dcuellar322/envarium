@@ -20,32 +20,39 @@ func NewEnvironmentRepository(database *Database) *EnvironmentRepository {
 
 // List returns every environment and its exact port leases in stable order.
 func (r *EnvironmentRepository) List(ctx context.Context) ([]domain.Environment, error) {
-	rows, err := r.database.queryContext(ctx, `SELECT id, project_id, name, path, head, branch,
-        detached, bare, locked, is_primary, availability, unavailable_reason, runtime_state, hostname, target,
-        compose_project_name, port_lease_namespace, port_offset, registered_at, last_observed_at, updated_at
-        FROM project_environments ORDER BY project_id, is_primary DESC, name, id`)
+	rows, err := r.database.queryContext(ctx, `SELECT e.id, e.project_id, e.name, e.path, e.head, e.branch,
+        e.detached, e.bare, e.locked, e.is_primary, e.availability, e.unavailable_reason, e.runtime_state, e.hostname, e.target,
+        e.compose_project_name, e.port_lease_namespace, e.port_offset, e.registered_at, e.last_observed_at, e.updated_at,
+        l.port_id, l.protocol, l.target_port, l.host_port
+        FROM project_environments e LEFT JOIN environment_port_leases l ON l.environment_id = e.id
+        ORDER BY e.project_id, e.is_primary DESC, e.name, e.id, l.port_id`)
 	if err != nil {
 		return nil, fmt.Errorf("list project environments: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 	result := make([]domain.Environment, 0)
 	for rows.Next() {
-		environment, scanErr := scanEnvironment(rows)
-		if scanErr != nil {
-			return nil, scanErr
+		var portID, protocol sql.NullString
+		var target, host sql.NullInt64
+		environment, err := scanEnvironment(rows, &portID, &protocol, &target, &host)
+		if err != nil {
+			return nil, err
 		}
-		result = append(result, environment)
+		if len(result) == 0 || result[len(result)-1].ID != environment.ID {
+			environment.Allocation.PortLeases = []domain.PortLease{}
+			result = append(result, environment)
+		}
+		if portID.Valid {
+			current := &result[len(result)-1]
+			current.Allocation.PortLeases = append(current.Allocation.PortLeases, domain.PortLease{
+				PortID: portID.String, Protocol: protocol.String, TargetPort: int(target.Int64), HostPort: int(host.Int64),
+			})
+		}
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	for index := range result {
-		leases, err := r.listLeases(ctx, r.database.connection, result[index].ID)
-		if err != nil {
-			return nil, err
-		}
-		result[index].Allocation.PortLeases = leases
-	}
+
 	return result, nil
 }
 
@@ -129,16 +136,17 @@ func (r *EnvironmentRepository) Update(ctx context.Context, environment domain.E
 
 type environmentRowScanner interface{ Scan(...any) error }
 
-func scanEnvironment(row environmentRowScanner) (domain.Environment, error) {
+func scanEnvironment(row environmentRowScanner, extra ...any) (domain.Environment, error) {
 	var environment domain.Environment
 	var detached, bare, locked, primary int
 	var registered, observed, updated string
-	err := row.Scan(
+	destinations := []any{
 		&environment.ID, &environment.ProjectID, &environment.Name, &environment.Path, &environment.Head, &environment.Branch,
 		&detached, &bare, &locked, &primary, &environment.Availability, &environment.UnavailableReason,
 		&environment.State, &environment.Hostname, &environment.Target, &environment.Allocation.ComposeProjectName,
 		&environment.Allocation.PortLeaseNamespace, &environment.Allocation.PortOffset, &registered, &observed, &updated,
-	)
+	}
+	err := row.Scan(append(destinations, extra...)...)
 	if err != nil {
 		return domain.Environment{}, err
 	}
