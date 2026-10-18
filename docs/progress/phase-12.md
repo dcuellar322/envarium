@@ -3,7 +3,7 @@ title: "Phase 12: Resource and storage intelligence"
 description: Implementation evidence for Envarium product phase 12.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-10-17
+lastVerified: 2026-10-18
 ---
 
 ## Implemented
@@ -1574,3 +1574,15 @@ subscriber bounds and shutdown/restart paths have regression coverage.
 
 Installed sustained acceptance and raw-series continuity are recorded in
 `experience-refresh-2026-10-17.md`; short profiles alone do not satisfy acceptance.
+
+The installed acceptance now passes with sixteen real running services: closed
+CPU averages 0.795% over fifteen minutes, with consecutive five-minute windows
+0.781%, 0.772% and 0.834%. Median daemon RSS is 49.13 MiB. The final optimized
+local native bundle averages 4.890% visible and 1.207% hidden, including the
+daemon, shell, WebKit helpers and child CPU. No monitoring interval was relaxed;
+all sixteen raw series retained available CPU/memory and zero partial samples.
+The detailed ledger records durations, memory accounting, artifact identities,
+container continuity, platform checks and remaining integration boundaries.
+A further five-minute check after using and quitting the native app averages
+0.764% CPU and 47.79 MiB RSS, with all native helpers exited and all sixteen
+service series still complete.

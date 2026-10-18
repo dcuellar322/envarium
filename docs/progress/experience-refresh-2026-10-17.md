@@ -3,7 +3,7 @@ title: Operational experience and resource refresh
 description: Execution plan and verification ledger for performance, source control, ports and page usability.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-10-17
+lastVerified: 2026-10-18
 ---
 
 # Operational experience refresh
@@ -190,3 +190,79 @@ The `a9cffe7478da` hosted main CI, full site CI, security checks and site deploy
 all passed. This includes Linux/Windows/macOS adapters, native packaging, all
 five browser integration flows and seventeen visual cases. The final native-only
 commit still requires its own hosted verification.
+
+### Accepted installed results — 2026-10-18
+
+This section supersedes the earlier pending acceptance entries. The installed
+daemon remains `a9cffe7478da` (version 1.0.0, schema 18, PID 70733). The installed
+CLI and native adapter are `c55b811f167b`. That follow-up changes only the native
+CLI presentation, Rust child-process policy, tests and documentation; daemon
+runtime/monitoring source is unchanged. Native installation kept the exact
+measured daemon process running and retained rollback copies of both artifacts.
+
+The local native bundle uses the optimized release profile with debug assertions
+enabled, retaining the existing disabled signed-updater behavior. A normal signed
+release intentionally requires updater trust/feed credentials held by release
+CI; no placeholder credentials or relaxed updater verification were installed.
+The ordinary debug build also passes. The installed app passes strict deep
+ad-hoc signature verification, and installed CLI build metadata is verified.
+
+| Native state | Measurement duration | Total CPU (% of one core) | Median summed RSS (MiB) | Median charged footprint (MiB) |
+|---|---:|---:|---:|---:|
+| Closed | 900 s | 0.795 | 49.13 | 34.21 |
+| Dashboard visible | 300 s | 4.890 | 270.32 | 309.88 |
+| Hidden, still running | 300 s | 1.207 | 271.82 | 152.36 |
+
+CPU includes the daemon, native shell, coalition-attributed WebKit/Metal helpers,
+and cumulative live/reaped child CPU. Docker VM and project workloads are
+recorded separately. Memory includes native helpers; summed RSS can count shared
+pages, so charged footprint is reported separately. Short-lived snapshot-child
+peak RSS was separately measured at 18.35 MiB. Initial launch/hide settling and
+compilation are outside the native windows; periodic work inside a window remains
+included. These are window averages, not a guarantee against instantaneous CPU
+spikes.
+
+After the visible/hidden cycle, a further 300-second closed-app window averaged
+**0.764% CPU**, **47.79 MiB RSS** and **35.63 MiB charged footprint**. The exact
+native/WebKit cohort had exited, the same daemon process remained running, and
+all sixteen services again had 30 complete raw samples (worst gap 10.117 s).
+Container identities, start times and restart counts still matched. This checks
+that using and quitting the app returns to the measured closed-app baseline.
+The verified app was then reopened to leave it available hidden.
+
+All targets pass: three consecutive closed five-minute windows are **0.781%,
+0.772%, 0.834%**; visible is below 5%; hidden is below closed plus 0.5 percentage
+points (limit 1.295%). Compared with the prior approximately 6.00% visible / 1.80%
+hidden samples, native CPU is lower by about 18% / 33%. Earlier short samples and
+failed candidates remain above as investigation evidence.
+
+Raw continuity checks found all sixteen service series in every state, with CPU
+and memory available at every point and zero partial samples: 90 points each
+closed, 30 each visible, 30 each hidden. Worst gaps were 10.074 s, 10.061 s and
+11.056 s respectively at the unchanged ten-second policy. Closed accuracy was
+archived before the normal one-hour raw retention expired. All sixteen container
+IDs, start times and restart counts stayed unchanged, with all eleven projects
+retained. No user branch, trust record or project configuration was modified.
+
+The installed dashboard was visually checked after launch. All thirteen routes
+passed desktop/390-pixel overflow, serious/critical accessibility and browser
+exception checks. Five real browser integration flows and seventeen visual cases
+pass, alongside the complete bounded-concurrency Go race suite, Go vet/lint,
+architecture/migration/generated-contract checks, frontend checks and 18 Rust
+tests. Focused Go race and full lint/vet checks also pass for the final native
+presentation change.
+
+Hosted `c55b811f167b` checks are green: [main CI](https://github.com/dcuellar322/envarium/actions/runs/39103239426),
+[full site CI](https://github.com/dcuellar322/envarium/actions/runs/39103239424),
+[security](https://github.com/dcuellar322/envarium/actions/runs/39103239432), and
+[site deployment](https://github.com/dcuellar322/envarium/actions/runs/39103239443).
+Final evidence/documentation updates must regenerate the site and receive their
+own exact-commit hosted verification before handoff.
+
+Remaining boundaries are explicit: isolated native worktree starts require
+environment-specific run ownership and port allocation; Compose worktrees and
+reviewed main-checkout branch switching work. Live external pairing, paid AI,
+signed release installation and user-data deletion were not exercised on the
+user's system. The existing unused-API Linux GLib advisory remains tracked in
+`security-cleanup-2026-10-18.md`; passing audit CI does not mean zero dependency
+advisories.

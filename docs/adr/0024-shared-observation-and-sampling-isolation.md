@@ -238,7 +238,7 @@ workspace identities, operation transitions, notification contents, conflicts
 and unavailable observations. This does not change the public HTTP contract or
 ordinary CLI views, nor any observation source or interval.
 
-The short-lived `desktop snapshot` child uses one Go execution thread and skips
+The short-lived `desktop snapshot` child limits Go parallelism to one and skips
 percentage-triggered collection while retaining a 64 MiB soft runtime memory
 limit. A read-only benchmark against sixteen running containers reduced child
 CPU by about 25% and output from 34 KiB to 7 KiB without increasing peak RSS.
