@@ -202,8 +202,19 @@ func TestNativeProcessCancellationRollsBackStartedDependencies(t *testing.T) {
 		t.Fatalf("cancellation termination reason = %q", reason)
 	}
 	for _, identity := range runs[0].Processes {
-		if _, snapshotErr := (gopsutilInspector{}).Snapshot(context.Background(), identity.PID); snapshotErr == nil {
-			t.Fatalf("cancelled PID %d still exists", identity.PID)
+		// Windows Job Object active count can reach zero before the monitor's
+		// command.Wait closes the final process handle. The exited PID remains
+		// queryable in that interval. Keep the dead-PID assertion, but await
+		// asynchronous kernel/reaper cleanup rather than assuming it is inline.
+		deadline := time.Now().Add(3 * time.Second)
+		for {
+			if _, snapshotErr := (gopsutilInspector{}).Snapshot(context.Background(), identity.PID); snapshotErr != nil {
+				break
+			}
+			if time.Now().After(deadline) {
+				t.Fatalf("cancelled PID %d still exists after reaping deadline", identity.PID)
+			}
+			time.Sleep(25 * time.Millisecond)
 		}
 	}
 }

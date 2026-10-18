@@ -3,7 +3,7 @@ title: "Phase 6: Native process runtime"
 description: Implementation evidence for Envarium product phase 6.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-07-17
+lastVerified: 2026-10-18
 ---
 
 ## Implemented
@@ -156,3 +156,11 @@ so the existing runtime correctly escalates and records
 outcome as well as `start_cancelled`, and strengthens its assertions that only
 the first dependency started, its run ended, process identities were captured,
 and every captured PID is gone. Runtime stop behavior and timeouts are unchanged.
+
+An October 18 hosted run exposed a second fixture timing assumption: Windows
+Job Object termination can finish before the command waiter releases the final
+process handle, leaving an exited PID briefly queryable. The same dead-PID
+assertion now waits up to three seconds for asynchronous reaping and still fails
+on a surviving process. No production lifecycle behavior changes. Twenty-five
+local race-enabled repetitions, the full native-process race suite, vet/lint and
+Windows compilation pass; hosted Windows execution is checked before handoff.

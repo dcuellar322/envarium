@@ -5880,6 +5880,18 @@ user's system. The existing unused-API Linux GLib advisory remains tracked in
 `security-cleanup-2026-10-18.md`; passing audit CI does not mean zero dependency
 advisories.
 
+Final evidence-commit CI exposed a Windows cancellation-test race: Job Object
+active count reached zero before the asynchronous command waiter released the
+last process handle, leaving the exited PID briefly queryable. The integration
+test now polls for the same PID-disappearance assertion with a three-second
+deadline. It still fails if cleanup does not finish; no test is skipped and no
+runtime termination, ownership or monitoring behavior changes.
+This matches Microsoft's documented [process-object lifetime](https://learn.microsoft.com/en-us/windows/win32/procthread/terminating-a-process):
+other open handles can keep an exited process object valid. Twenty-five local
+race-enabled repetitions, the full native-process race suite, Go vet/lint and
+Windows test compilation pass; hosted Windows execution remains the acceptance
+check for this fixture-only repair.
+
 ---
 
 # Local catalog usability
@@ -6920,6 +6932,14 @@ so the existing runtime correctly escalates and records
 outcome as well as `start_cancelled`, and strengthens its assertions that only
 the first dependency started, its run ended, process identities were captured,
 and every captured PID is gone. Runtime stop behavior and timeouts are unchanged.
+
+An October 18 hosted run exposed a second fixture timing assumption: Windows
+Job Object termination can finish before the command waiter releases the final
+process handle, leaving an exited PID briefly queryable. The same dead-PID
+assertion now waits up to three seconds for asynchronous reaping and still fails
+on a surviving process. No production lifecycle behavior changes. Twenty-five
+local race-enabled repetitions, the full native-process race suite, vet/lint and
+Windows compilation pass; hosted Windows execution is checked before handoff.
 
 ---
 

@@ -266,3 +266,15 @@ signed release installation and user-data deletion were not exercised on the
 user's system. The existing unused-API Linux GLib advisory remains tracked in
 `security-cleanup-2026-10-18.md`; passing audit CI does not mean zero dependency
 advisories.
+
+Final evidence-commit CI exposed a Windows cancellation-test race: Job Object
+active count reached zero before the asynchronous command waiter released the
+last process handle, leaving the exited PID briefly queryable. The integration
+test now polls for the same PID-disappearance assertion with a three-second
+deadline. It still fails if cleanup does not finish; no test is skipped and no
+runtime termination, ownership or monitoring behavior changes.
+This matches Microsoft's documented [process-object lifetime](https://learn.microsoft.com/en-us/windows/win32/procthread/terminating-a-process):
+other open handles can keep an exited process object valid. Twenty-five local
+race-enabled repetitions, the full native-process race suite, Go vet/lint and
+Windows test compilation pass; hosted Windows execution remains the acceptance
+check for this fixture-only repair.
