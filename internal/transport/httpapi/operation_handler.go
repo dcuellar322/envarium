@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"envarium.dev/envarium/internal/operations/domain"
@@ -66,6 +67,12 @@ func operationResponse(operation domain.Operation) generated.Operation {
 	}
 	if operation.WorkspaceID != "" {
 		response.WorkspaceId = &operation.WorkspaceID
+		var scope struct {
+			WorkspaceMemberIDs []string `json:"workspaceMemberIds"`
+		}
+		if json.Unmarshal(operation.Input, &scope) == nil {
+			response.WorkspaceMemberIds = &scope.WorkspaceMemberIDs
+		}
 	}
 	if operation.ErrorMessage != "" {
 		response.ErrorMessage = &operation.ErrorMessage

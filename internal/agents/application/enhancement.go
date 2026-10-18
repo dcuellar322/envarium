@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"crypto/subtle"
 	"errors"
 	"fmt"
 	"strings"
@@ -35,12 +36,21 @@ func (s *EnhancementService) Providers(ctx context.Context) []ProviderDescriptor
 }
 
 // Preview builds the exact sanitized payload that would cross the provider boundary.
-func (s *EnhancementService) Preview(ctx context.Context, proposalID string, limits Limits) (BundlePreview, error) {
+func (s *EnhancementService) Preview(ctx context.Context, proposalID, providerID string, limits Limits) (BundlePreview, error) {
 	normalized, err := limits.Normalize()
 	if err != nil {
 		return BundlePreview{}, err
 	}
-	return buildBundle(ctx, s.catalog, s.reader, s.redactor, proposalID, normalized)
+	if _, _, err := s.providers.provider(ctx, providerID); err != nil {
+		return BundlePreview{}, err
+	}
+	preview, err := buildBundle(ctx, s.catalog, s.reader, s.redactor, proposalID, normalized)
+	if err != nil {
+		return BundlePreview{}, err
+	}
+	preview.Provider = providerID
+	preview.ConsentSHA256, err = consentDigest(preview, providerID)
+	return preview, err
 }
 
 // GetRun returns one durable assisted-onboarding receipt.
@@ -49,7 +59,7 @@ func (s *EnhancementService) GetRun(ctx context.Context, operationID string) (Ru
 }
 
 // Execute performs one cancellable provider operation and creates an untrusted proposal revision.
-func (s *EnhancementService) Execute(ctx context.Context, operationID, proposalID, providerID string, limits Limits) (err error) {
+func (s *EnhancementService) Execute(ctx context.Context, operationID, proposalID, providerID string, limits Limits, approvedDigest string) (err error) {
 	if existing, getErr := s.runs.Get(ctx, operationID); getErr == nil && existing.State == RunSucceeded {
 		return nil
 	}
@@ -65,14 +75,14 @@ func (s *EnhancementService) Execute(ctx context.Context, operationID, proposalI
 	if err != nil {
 		return err
 	}
-	baseline, err := s.catalog.GetProposal(ctx, proposalID)
+	expected, err := consentDigest(preview, providerID)
 	if err != nil {
 		return err
 	}
-	project, err := s.catalog.GetProject(ctx, baseline.ProjectID)
-	if err != nil {
-		return err
+	if len(approvedDigest) != 64 || subtle.ConstantTimeCompare([]byte(expected), []byte(approvedDigest)) != 1 {
+		return ErrEvidenceChanged
 	}
+	baseline, project := preview.proposal, preview.project
 	run := Run{
 		OperationID: operationID, ProjectID: baseline.ProjectID, SourceProposalID: proposalID,
 		Provider: providerID, Model: descriptor.Model, State: RunRunning, Bundle: preview.Encoded,

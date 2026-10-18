@@ -31,7 +31,7 @@ AI output are not trusted merely because they are local.
 | Threat | Primary controls | Residual risk |
 |---|---|---|
 | Malicious repository executes during discovery | bounded allowlisted reads; no discovery commands; explicit trust before lifecycle/action/agent operations | an approved repository may intentionally define powerful reviewed actions |
-| Cross-origin browser mutation | loopback binding, bootstrap exchange, HttpOnly same-origin cookie, CSRF token, Origin checks for HTTP/WebSocket, no permissive CORS | malware running as the same OS user remains outside the browser threat boundary |
+| Cross-origin browser mutation | loopback binding, bootstrap exchange, origin-scoped session proof on every HTTP/WS request, Origin checks for HTTP/WebSocket, no permissive CORS | malware running as the same OS user remains outside the browser threat boundary |
 | Another local user invokes privileged API | mode `0600` Unix socket; Windows named-pipe DACL grants only LocalSystem and current-user SID | administrators can inspect or control a user's processes by OS design |
 | PID reuse or orphaned child escapes lifecycle | executable/start/cwd fingerprint, process groups on Unix, Job Objects with kill-on-close on Windows, bounded graceful-to-force stop | externally started processes remain observed rather than silently adopted |
 | Terminal becomes generic browser shell | server-resolved trusted launch plans, owner-scoped session attachment, bounded input/output, memory-only scrollback, audit metadata | terminal output can contain application data and is visible to its authorized owner |

@@ -1,3 +1,4 @@
+import { browserSocketProtocols } from '../../session/bootstrap'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { Terminal } from '@xterm/xterm'
@@ -149,6 +150,7 @@ export function useTerminalPanel(props: TerminalPanelProps) {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     socket = new WebSocket(
       `${protocol}//${window.location.host}/ws/v1/terminal/${encodeURIComponent(session.id)}`,
+      browserSocketProtocols(),
     )
     socket.binaryType = 'arraybuffer'
     socket.onopen = () => {

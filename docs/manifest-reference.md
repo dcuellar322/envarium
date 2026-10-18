@@ -43,6 +43,6 @@ envarium manifest explain <project>
 envarium manifest diff <project>
 ```
 
-Alpha/beta `envarium.dev/v1alpha1` documents are read compatibly and can be
-rewritten with the backup-producing migration command documented in
+Only the stable `envarium.dev/v1` document is accepted. Prelaunch alpha manifests
+must be replaced through deterministic onboarding; see
 [compatibility](compatibility.md).

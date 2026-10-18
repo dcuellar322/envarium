@@ -2115,10 +2115,18 @@ type AIEvidenceItem struct {
 
 // AIEvidencePreview defines model for AIEvidencePreview.
 type AIEvidencePreview struct {
-	Bundle  AIEvidenceBundle       `json:"bundle"`
-	Encoded map[string]interface{} `json:"encoded"`
-	Limits  AIGenerationLimits     `json:"limits"`
-	Sha256  string                 `json:"sha256"`
+	Bundle        AIEvidenceBundle       `json:"bundle"`
+	ConsentSha256 string                 `json:"consentSha256"`
+	Encoded       map[string]interface{} `json:"encoded"`
+	Limits        AIGenerationLimits     `json:"limits"`
+	Provider      string                 `json:"provider"`
+	Sha256        string                 `json:"sha256"`
+}
+
+// AIEvidencePreviewRequest defines model for AIEvidencePreviewRequest.
+type AIEvidencePreviewRequest struct {
+	Limits   AIGenerationLimits `json:"limits"`
+	Provider string             `json:"provider"`
 }
 
 // AIFieldReview defines model for AIFieldReview.
@@ -2304,6 +2312,7 @@ type BrowserBootstrap struct {
 
 // BrowserSession defines model for BrowserSession.
 type BrowserSession struct {
+	// CsrfToken Origin-scoped browser proof required on every HTTP request and WebSocket handshake; never placed in a cookie or URL.
 	CsrfToken string    `json:"csrfToken"`
 	ExpiresAt time.Time `json:"expiresAt"`
 }
@@ -2353,8 +2362,9 @@ type ContainerMetadata struct {
 
 // CreateAIManifestEnhancementRequest defines model for CreateAIManifestEnhancementRequest.
 type CreateAIManifestEnhancementRequest struct {
-	Limits   AIGenerationLimits `json:"limits"`
-	Provider string             `json:"provider"`
+	ConsentSha256 string             `json:"consentSha256"`
+	Limits        AIGenerationLimits `json:"limits"`
+	Provider      string             `json:"provider"`
 }
 
 // CreateAutomationRecipeRequest defines model for CreateAutomationRecipeRequest.
@@ -2559,12 +2569,11 @@ type EffectiveManifest struct {
 
 // EffectiveTeamPolicy defines model for EffectiveTeamPolicy.
 type EffectiveTeamPolicy struct {
-	AllowedPluginPublishers    []string `json:"allowedPluginPublishers"`
-	AllowedRemoteActions       []string `json:"allowedRemoteActions"`
-	AllowedRemoteCapabilities  []string `json:"allowedRemoteCapabilities"`
-	RequireSignedConfiguration bool     `json:"requireSignedConfiguration"`
-	SourceBundleIds            []string `json:"sourceBundleIds"`
-	TelemetryAllowed           bool     `json:"telemetryAllowed"`
+	AllowedRegistryPublishers []string `json:"allowedRegistryPublishers"`
+	AllowedRemoteActions      []string `json:"allowedRemoteActions"`
+	AllowedRemoteCapabilities []string `json:"allowedRemoteCapabilities"`
+	SourceBundleIds           []string `json:"sourceBundleIds"`
+	TelemetryAllowed          bool     `json:"telemetryAllowed"`
 }
 
 // EnvironmentPortLease defines model for EnvironmentPortLease.
@@ -2857,6 +2866,9 @@ type Operation struct {
 	State                 OperationState `json:"state"`
 	UpdatedAt             time.Time      `json:"updatedAt"`
 	WorkspaceId           *string        `json:"workspaceId,omitempty"`
+
+	// WorkspaceMemberIds Immutable member identities captured when this workspace operation was submitted.
+	WorkspaceMemberIds *[]string `json:"workspaceMemberIds,omitempty"`
 }
 
 // OperationState defines model for OperationState.
@@ -3549,16 +3561,20 @@ type TeamSyncDocumentSchemaVersion string
 
 // TeamSyncImportRequest defines model for TeamSyncImportRequest.
 type TeamSyncImportRequest struct {
-	ConfirmRisk bool             `json:"confirmRisk"`
-	Document    TeamSyncDocument `json:"document"`
+	ConfirmRisk   bool             `json:"confirmRisk"`
+	Document      TeamSyncDocument `json:"document"`
+	PreviewSha256 string           `json:"previewSha256"`
 }
 
 // TeamSyncPreview defines model for TeamSyncPreview.
 type TeamSyncPreview struct {
-	BundleCount    int      `json:"bundleCount"`
-	BundleIds      []string `json:"bundleIds"`
-	PublisherCount int      `json:"publisherCount"`
-	Warnings       []string `json:"warnings"`
+	BundleCount    int             `json:"bundleCount"`
+	BundleIds      []string        `json:"bundleIds"`
+	Bundles        []TeamBundle    `json:"bundles"`
+	PublisherCount int             `json:"publisherCount"`
+	Publishers     []TeamPublisher `json:"publishers"`
+	Sha256         string          `json:"sha256"`
+	Warnings       []string        `json:"warnings"`
 }
 
 // TeamTemplateRenderRequest defines model for TeamTemplateRenderRequest.
@@ -3793,6 +3809,9 @@ type WorkspaceOperationRequest struct {
 	ProfileId          *string                  `json:"profileId,omitempty"`
 	RemoveData         *bool                    `json:"removeData,omitempty"`
 	RunRecipes         *bool                    `json:"runRecipes,omitempty"`
+
+	// WorkspaceRevision Reject a changed workspace before submission.
+	WorkspaceRevision *int64 `json:"workspaceRevision,omitempty"`
 }
 
 // WorkspaceProfile defines model for WorkspaceProfile.
@@ -4132,7 +4151,7 @@ type CreateManifestProposalJSONRequestBody = CreateManifestProposalRequest
 type CreateAIManifestEnhancementJSONRequestBody = CreateAIManifestEnhancementRequest
 
 // PreviewAIManifestEvidenceJSONRequestBody defines body for PreviewAIManifestEvidence for application/json ContentType.
-type PreviewAIManifestEvidenceJSONRequestBody = AIGenerationLimits
+type PreviewAIManifestEvidenceJSONRequestBody = AIEvidencePreviewRequest
 
 // EnablePluginJSONRequestBody defines body for EnablePlugin for application/json ContentType.
 type EnablePluginJSONRequestBody = PluginEnableRequest

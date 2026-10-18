@@ -157,7 +157,7 @@ type teamService interface {
 	EffectivePolicy(context.Context) (teamDomain.EffectivePolicy, error)
 	ExportSync(context.Context) (teamDomain.SyncDocument, error)
 	PreviewSync(context.Context, teamDomain.SyncDocument) (teamDomain.SyncPreview, error)
-	ImportSync(context.Context, teamDomain.SyncDocument, bool, teamApplication.Actor) (teamDomain.SyncPreview, error)
+	ImportSync(context.Context, teamDomain.SyncDocument, bool, string, teamApplication.Actor) (teamDomain.SyncPreview, error)
 }
 
 type telemetryService interface {
@@ -204,7 +204,7 @@ type actionService interface {
 
 type aiOnboardingService interface {
 	Providers(context.Context) []agentsApplication.ProviderDescriptor
-	Preview(context.Context, string, agentsApplication.Limits) (agentsApplication.BundlePreview, error)
+	Preview(context.Context, string, string, agentsApplication.Limits) (agentsApplication.BundlePreview, error)
 	GetRun(context.Context, string) (agentsApplication.Run, error)
 }
 
@@ -279,7 +279,6 @@ type sessionService interface {
 	IssueBootstrap() (session.Bootstrap, error)
 	Exchange(token string) (session.Session, error)
 	ValidateSession(id string) (session.Session, error)
-	ValidateMutation(id, csrfToken string) (session.Session, error)
 }
 
 func (h *handler) GetSystem(w http.ResponseWriter, r *http.Request) {

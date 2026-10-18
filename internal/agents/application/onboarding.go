@@ -25,6 +25,9 @@ const (
 )
 
 var (
+	// ErrEvidenceChanged requires fresh review when evidence or delivery context changes.
+	ErrEvidenceChanged = errors.New("reviewed provider evidence changed; preview and consent again")
+
 	// ErrProviderUnavailable identifies a configured provider that cannot currently run.
 	ErrProviderUnavailable = errors.New("structured provider unavailable")
 	// ErrProviderOutput identifies malformed or unsafe provider output.

@@ -46,7 +46,11 @@ func TestAmbiguousFixtureReceivesValidReviewableProviderProposal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := service.Execute(ctx, "op-fixture", deterministic.ID, "fixture-provider", agents.Limits{}); err != nil {
+	preview, err := service.Preview(ctx, deterministic.ID, "fixture-provider", agents.Limits{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := service.Execute(ctx, "op-fixture", deterministic.ID, "fixture-provider", agents.Limits{}, preview.ConsentSHA256); err != nil {
 		t.Fatal(err)
 	}
 	run, err := service.GetRun(ctx, "op-fixture")

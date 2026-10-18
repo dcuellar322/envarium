@@ -9,7 +9,7 @@ import type { ReleaseArchitecture, ReleaseChannelName, ReleaseManifest } from '@
 
 const manifest = releaseManifest as ReleaseManifest
 const requestedChannel = Astro.url.searchParams.get('channel')
-const channel: ReleaseChannelName = requestedChannel === 'beta' || requestedChannel === 'nightly' ? requestedChannel : 'stable'
+const channel: ReleaseChannelName = requestedChannel === 'alpha' || requestedChannel === 'beta' || requestedChannel === 'nightly' ? requestedChannel : 'stable'
 const release = manifest.channels[channel]
 const selection = Astro.url.searchParams.get('platform')
 const selectedGuide = platformGuides.find((guide) => guide.slug === selection) ?? platformGuides[0]
@@ -26,7 +26,7 @@ const asset = selectedGuide ? recommendAsset(release, selectedGuide.releasePlatf
   <section class="download-grid">
     <aside class="selector panel" aria-label="Download selection">
       <form method="get">
-        <label>Release channel<select name="channel"><option value="stable" selected={channel === 'stable'}>Stable</option><option value="beta" selected={channel === 'beta'}>Beta</option><option value="nightly" selected={channel === 'nightly'}>Nightly</option></select></label>
+        <label>Release channel<select name="channel"><option value="stable" selected={channel === 'stable'}>Stable</option><option value="alpha" selected={channel === 'alpha'}>Alpha</option><option value="beta" selected={channel === 'beta'}>Beta</option><option value="nightly" selected={channel === 'nightly'}>Nightly</option></select></label>
         <fieldset><legend>Operating system</legend>{platformGuides.map((guide) => <label class="choice"><input type="radio" name="platform" value={guide.slug} checked={selectedGuide?.slug === guide.slug} /> <span><strong>{guide.shortName}</strong><small>{guide.primaryFormat}</small></span></label>)}</fieldset>
         <fieldset><legend>Architecture</legend><label class="choice"><input type="radio" name="architecture" value="arm64" checked={architecture === 'arm64'} /> <span><strong>arm64</strong><small>Apple silicon and ARM systems</small></span></label><label class="choice"><input type="radio" name="architecture" value="amd64" checked={architecture === 'amd64'} /> <span><strong>amd64</strong><small>Intel and AMD 64-bit systems</small></span></label></fieldset>
         <button class="button" type="submit">Update recommendation</button>

@@ -27,8 +27,7 @@ func (r *PluginRepository) Reconcile(ctx context.Context, discovered []domain.Pl
 		return fmt.Errorf("begin plugin reconciliation: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	if _, err := tx.ExecContext(ctx, `UPDATE plugin_registrations SET available = 0, enabled = 0,
-        health = 'unknown', health_message = '', updated_at = ?`, formatTime(now)); err != nil {
+	if _, err := tx.ExecContext(ctx, `UPDATE plugin_registrations SET available = 0, updated_at = ?`, formatTime(now)); err != nil {
 		return fmt.Errorf("mark plugins unavailable: %w", err)
 	}
 	for _, current := range discovered {
@@ -56,6 +55,10 @@ func (r *PluginRepository) Reconcile(ctx context.Context, discovered []domain.Pl
 		if err != nil {
 			return fmt.Errorf("reconcile plugin %s: %w", current.ID, err)
 		}
+	}
+	if _, err := tx.ExecContext(ctx, `UPDATE plugin_registrations SET enabled = 0,
+        granted_scopes_json = '[]', health = 'unknown', health_message = '' WHERE available = 0`); err != nil {
+		return fmt.Errorf("disable missing plugins: %w", err)
 	}
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("commit plugin reconciliation: %w", err)

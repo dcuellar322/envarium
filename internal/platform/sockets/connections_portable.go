@@ -4,6 +4,7 @@ package sockets
 
 import (
 	"context"
+
 	gnet "github.com/shirou/gopsutil/v4/net"
 )
 

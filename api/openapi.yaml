@@ -287,7 +287,7 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: "#/components/schemas/AIGenerationLimits" }
+            schema: { $ref: "#/components/schemas/AIEvidencePreviewRequest" }
       responses:
         "200":
           description: Exact provider evidence receipt
@@ -2079,14 +2079,13 @@ components:
     EffectiveTeamPolicy:
       type: object
       additionalProperties: false
-      required: [sourceBundleIds, allowedRemoteCapabilities, allowedRemoteActions, allowedPluginPublishers, telemetryAllowed, requireSignedConfiguration]
+      required: [sourceBundleIds, allowedRemoteCapabilities, allowedRemoteActions, allowedRegistryPublishers, telemetryAllowed]
       properties:
         sourceBundleIds: { type: array, items: { type: string } }
         allowedRemoteCapabilities: { type: array, items: { type: string } }
         allowedRemoteActions: { type: array, items: { type: string } }
-        allowedPluginPublishers: { type: array, items: { type: string } }
+        allowedRegistryPublishers: { type: array, items: { type: string } }
         telemetryAllowed: { type: boolean }
-        requireSignedConfiguration: { type: boolean }
     CuratedPlugin:
       type: object
       additionalProperties: false
@@ -2114,8 +2113,11 @@ components:
     TeamSyncPreview:
       type: object
       additionalProperties: false
-      required: [publisherCount, bundleCount, bundleIds, warnings]
+      required: [publisherCount, bundleCount, bundleIds, warnings, publishers, bundles, sha256]
       properties:
+        sha256: { type: string, pattern: "^[a-f0-9]{64}$" }
+        publishers: { type: array, items: { $ref: "#/components/schemas/TeamPublisher" } }
+        bundles: { type: array, items: { $ref: "#/components/schemas/TeamBundle" } }
         publisherCount: { type: integer, minimum: 0 }
         bundleCount: { type: integer, minimum: 0 }
         bundleIds: { type: array, items: { type: string } }
@@ -2123,8 +2125,9 @@ components:
     TeamSyncImportRequest:
       type: object
       additionalProperties: false
-      required: [document, confirmRisk]
+      required: [document, confirmRisk, previewSha256]
       properties:
+        previewSha256: { type: string, pattern: "^[a-f0-9]{64}$" }
         document: { $ref: "#/components/schemas/TeamSyncDocument" }
         confirmRisk: { type: boolean }
     TelemetryCounter:
@@ -2720,11 +2723,20 @@ components:
         redactionCount: { type: integer, minimum: 0 }
         truncated: { type: boolean }
         encodedBytes: { type: integer, minimum: 0 }
+    AIEvidencePreviewRequest:
+      type: object
+      additionalProperties: false
+      required: [provider, limits]
+      properties:
+        provider: { type: string, minLength: 1 }
+        limits: { $ref: "#/components/schemas/AIGenerationLimits" }
     AIEvidencePreview:
       type: object
       additionalProperties: false
-      required: [bundle, encoded, sha256, limits]
+      required: [provider, consentSha256, bundle, encoded, sha256, limits]
       properties:
+        provider: { type: string }
+        consentSha256: { type: string, pattern: "^[a-f0-9]{64}$" }
         bundle: { $ref: "#/components/schemas/AIEvidenceBundle" }
         encoded: { type: object, additionalProperties: true }
         sha256: { type: string, minLength: 64, maxLength: 64 }
@@ -2732,8 +2744,9 @@ components:
     CreateAIManifestEnhancementRequest:
       type: object
       additionalProperties: false
-      required: [provider, limits]
+      required: [consentSha256, provider, limits]
       properties:
+        consentSha256: { type: string, pattern: "^[a-f0-9]{64}$" }
         provider: { type: string, minLength: 1, maxLength: 64 }
         limits: { $ref: "#/components/schemas/AIGenerationLimits" }
     AIFieldReview:
@@ -2848,6 +2861,7 @@ components:
       required: [csrfToken, expiresAt]
       properties:
         csrfToken:
+          description: Origin-scoped browser proof required on every HTTP request and WebSocket handshake; never placed in a cookie or URL.
           type: string
         expiresAt:
           type: string
@@ -3465,6 +3479,7 @@ components:
         removeData: { type: boolean, default: false }
         confirmDataRemoval: { type: boolean, default: false }
         runRecipes: { type: boolean, default: false }
+        workspaceRevision: { type: integer, format: int64, minimum: 1, description: Reject a changed workspace before submission. }
     WorkspaceOperationAction:
       type: string
       enum: [start, stop]
@@ -3565,6 +3580,10 @@ components:
           type: string
         workspaceId:
           type: string
+        workspaceMemberIds:
+          type: array
+          items: { type: string }
+          description: Immutable member identities captured when this workspace operation was submitted.
         kind:
           type: string
         state:

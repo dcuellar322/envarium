@@ -86,6 +86,9 @@ func NewService(repository Repository, peers PeerClient, policies ...Policy) (*S
 
 // Register persists reviewed mTLS identity and grants, then probes the peer.
 func (s *Service) Register(ctx context.Context, request RegisterRequest, actor Actor) (domain.Machine, error) {
+	if err := s.inventoryPolicy(ctx); err != nil {
+		return domain.Machine{}, err
+	}
 	if !request.ConfirmRisk {
 		return domain.Machine{}, ErrConfirmationNeeded
 	}
@@ -168,6 +171,9 @@ func (s *Service) ConfigureAccess(ctx context.Context, id string, enabled bool, 
 
 // Probe refreshes authenticated peer identity and bounded inventory state.
 func (s *Service) Probe(ctx context.Context, id string, actor Actor) (domain.Machine, error) {
+	if err := s.inventoryPolicy(ctx); err != nil {
+		return domain.Machine{}, err
+	}
 	machine, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return domain.Machine{}, err
@@ -195,6 +201,9 @@ func (s *Service) Probe(ctx context.Context, id string, actor Actor) (domain.Mac
 
 // Snapshot reads current bounded peer inventory when inventory access is granted.
 func (s *Service) Snapshot(ctx context.Context, id string) (domain.Snapshot, error) {
+	if err := s.inventoryPolicy(ctx); err != nil {
+		return domain.Snapshot{}, err
+	}
 	machine, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return domain.Snapshot{}, err
@@ -224,6 +233,20 @@ func (s *Service) Operate(ctx context.Context, machineID string, request domain.
 			s.recordAudit(ctx, domain.AuditEvent{MachineID: machineID, Type: "remote.operation.denied", ActorType: actorType(actor), ActorID: actorID(actor), RequestID: request.RequestID, Detail: "enterprise policy", OccurredAt: s.now().UTC()})
 			return domain.OperationReceipt{}, fmt.Errorf("%w: %v", ErrPermissionDenied, err)
 		}
+	}
+	if err := s.inventoryPolicy(ctx); err != nil {
+		return domain.OperationReceipt{}, err
+	}
+	if !machine.HasGrant(domain.CapabilityInventoryRead) {
+		return domain.OperationReceipt{}, ErrPermissionDenied
+	}
+	snapshot, err := s.peers.Snapshot(ctx, machine)
+	if err != nil {
+		return domain.OperationReceipt{}, err
+	}
+	actual, err := targetCapability(snapshot.Projects, snapshot.Environments, request)
+	if err != nil || actual != capability {
+		return domain.OperationReceipt{}, ErrPermissionDenied
 	}
 	if !request.ConfirmRisk {
 		return domain.OperationReceipt{}, ErrConfirmationNeeded
@@ -330,4 +353,14 @@ func actorID(actor Actor) string {
 
 func (s *Service) recordAudit(ctx context.Context, event domain.AuditEvent) {
 	_ = s.repository.RecordAudit(context.WithoutCancel(ctx), event)
+}
+
+func (s *Service) inventoryPolicy(ctx context.Context) error {
+	if s.policy == nil {
+		return nil
+	}
+	if err := s.policy.AuthorizeRemote(ctx, string(domain.CapabilityInventoryRead), ""); err != nil {
+		return fmt.Errorf("%w: %v", ErrPermissionDenied, err)
+	}
+	return nil
 }

@@ -21,7 +21,7 @@ func (s *Service) Registry(ctx context.Context) ([]domain.RegistryEntry, error) 
 	}
 	byID := map[string]domain.RegistryEntry{}
 	for _, bundle := range bundles {
-		if len(policy.SourceBundleIDs) > 0 && !slices.Contains(policy.AllowedPluginPublishers, bundle.Metadata.PublisherID) {
+		if len(policy.SourceBundleIDs) > 0 && !slices.Contains(policy.AllowedRegistryPublishers, bundle.Metadata.PublisherID) {
 			continue
 		}
 		var registry domain.PluginRegistry
@@ -59,39 +59,38 @@ func (s *Service) EffectivePolicy(ctx context.Context) (domain.EffectivePolicy, 
 			return domain.EffectivePolicy{}, err
 		}
 		for _, bundle := range bundles {
-			policy, signedConfiguration, err := s.bundlePolicy(ctx, bundle)
+			policy, err := s.bundlePolicy(ctx, bundle)
 			if err != nil {
 				return domain.EffectivePolicy{}, err
 			}
 			result.SourceBundleIDs = append(result.SourceBundleIDs, bundle.Metadata.ID)
 			result.AllowedRemoteCapabilities = intersection(result.AllowedRemoteCapabilities, policy.AllowedRemoteCapabilities)
 			result.AllowedRemoteActions = intersection(result.AllowedRemoteActions, policy.AllowedRemoteActions)
-			result.AllowedPluginPublishers = mergePublisherPolicy(result.AllowedPluginPublishers, policy.AllowedPluginPublishers, len(result.SourceBundleIDs) == 1)
+			result.AllowedRegistryPublishers = mergePublisherPolicy(result.AllowedRegistryPublishers, policy.AllowedRegistryPublishers, len(result.SourceBundleIDs) == 1)
 			result.TelemetryAllowed = result.TelemetryAllowed && policy.TelemetryAllowed
-			result.RequireSignedConfiguration = result.RequireSignedConfiguration || signedConfiguration
 		}
 	}
 	return result, nil
 }
 
-func (s *Service) bundlePolicy(ctx context.Context, bundle domain.Bundle) (domain.PolicyPack, bool, error) {
+func (s *Service) bundlePolicy(ctx context.Context, bundle domain.Bundle) (domain.PolicyPack, error) {
 	if bundle.Kind == domain.KindPolicyPack {
 		var policy domain.PolicyPack
 		if err := strictJSON(bundle.Payload, &policy); err != nil {
-			return domain.PolicyPack{}, false, err
+			return domain.PolicyPack{}, err
 		}
-		return policy, false, nil
+		return policy, nil
 	}
 	var enterprise domain.EnterpriseConfig
 	if err := strictJSON(bundle.Payload, &enterprise); err != nil {
-		return domain.PolicyPack{}, false, err
+		return domain.PolicyPack{}, err
 	}
 	for _, publisherID := range enterprise.RequiredPublisherIDs {
 		if _, err := s.repository.GetPublisher(ctx, publisherID); err != nil {
-			return domain.PolicyPack{}, false, fmt.Errorf("%w: required publisher %s is not trusted", ErrPolicyDenied, publisherID)
+			return domain.PolicyPack{}, fmt.Errorf("%w: required publisher %s is not trusted", ErrPolicyDenied, publisherID)
 		}
 	}
-	return enterprise.Policy, enterprise.RequireSignedConfiguration, nil
+	return enterprise.Policy, nil
 }
 
 // AuthorizeRemote enforces signed policy as an additional fleet restriction.

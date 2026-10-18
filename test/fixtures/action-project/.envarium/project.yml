@@ -1,4 +1,4 @@
-schemaVersion: envarium.dev/v1alpha1
+schemaVersion: envarium.dev/v1
 kind: Project
 metadata:
   id: action-project

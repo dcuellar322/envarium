@@ -2,13 +2,14 @@ package application
 
 import (
 	"context"
-	actions "envarium.dev/envarium/internal/actions/domain"
-	runtime "envarium.dev/envarium/internal/runtime/domain"
-	git "envarium.dev/envarium/internal/sourcecontrol/domain"
 	"errors"
 	"fmt"
 	"sync/atomic"
 	"testing"
+
+	actions "envarium.dev/envarium/internal/actions/domain"
+	runtime "envarium.dev/envarium/internal/runtime/domain"
+	git "envarium.dev/envarium/internal/sourcecontrol/domain"
 )
 
 type reads struct {

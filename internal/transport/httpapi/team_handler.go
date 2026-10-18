@@ -142,7 +142,7 @@ func (h *handler) ImportTeamSync(w http.ResponseWriter, r *http.Request) {
 		writeApplicationError(w, r, err)
 		return
 	}
-	preview, err := h.team.ImportSync(r.Context(), document, request.ConfirmRisk, requestTeamActor(r))
+	preview, err := h.team.ImportSync(r.Context(), document, request.ConfirmRisk, request.PreviewSha256, requestTeamActor(r))
 	if err != nil {
 		writeApplicationError(w, r, err)
 		return

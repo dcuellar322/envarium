@@ -40,7 +40,7 @@ test('signed team configuration keeps trust, policy, and registry provenance vis
           payload: {
             allowedRemoteCapabilities: ['inventory.read'],
             allowedRemoteActions: ['start'],
-            allowedPluginPublishers: [publisherId],
+            allowedRegistryPublishers: [publisherId],
             telemetryAllowed: false,
           },
           signature: { keyId: publisherId, algorithm: 'Ed25519', value: 'reviewed-signature' },
@@ -56,9 +56,8 @@ test('signed team configuration keeps trust, policy, and registry provenance vis
         sourceBundleIds: ['policy.official'],
         allowedRemoteCapabilities: ['inventory.read'],
         allowedRemoteActions: ['start'],
-        allowedPluginPublishers: [publisherId],
+        allowedRegistryPublishers: [publisherId],
         telemetryAllowed: false,
-        requireSignedConfiguration: true,
       },
     }),
   )

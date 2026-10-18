@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	observabilityAdapters "envarium.dev/envarium/internal/observability/adapters"
 	"envarium.dev/envarium/internal/platform/sqlite"
 	plugins "envarium.dev/envarium/internal/plugins/application"
 	"envarium.dev/envarium/internal/plugins/domain"
@@ -99,6 +100,35 @@ func TestServiceContainsPluginCrashAndRecordsHealth(t *testing.T) {
 	}
 }
 
+func TestRefreshPreservesUnchangedPluginAndRevokesMissingGrants(t *testing.T) {
+	service, discovery, _ := newService(t, true)
+	ctx := context.Background()
+	_, _ = service.Refresh(ctx)
+	_, _ = service.Trust(ctx, "fixture", "fingerprint-1")
+	_, err := service.Enable(ctx, "fixture", []string{string(pluginsdk.ScopeProjectMetadataRead)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	items, err := service.Refresh(ctx)
+	if err != nil || !items[0].Enabled || items[0].Health != domain.HealthHealthy {
+		t.Fatalf("unchanged: %#v, %v", items, err)
+	}
+	if _, err := service.Inspect(ctx, "fixture", "project-1"); err != nil {
+		t.Fatal(err)
+	}
+	saved := discovery.values
+	discovery.values = nil
+	items, err = service.Refresh(ctx)
+	if err != nil || items[0].Enabled || len(items[0].GrantedScopes) != 0 {
+		t.Fatalf("missing: %#v, %v", items, err)
+	}
+	discovery.values = saved
+	items, err = service.Refresh(ctx)
+	if err != nil || items[0].Enabled || len(items[0].GrantedScopes) != 0 {
+		t.Fatalf("returned: %#v, %v", items, err)
+	}
+}
+
 func TestServiceRejectsUntrustedProject(t *testing.T) {
 	service, _, _ := newService(t, false)
 	_, _ = service.Refresh(context.Background())
@@ -125,7 +155,11 @@ func newService(t *testing.T, projectTrusted bool) (*plugins.Service, *discovery
 		Available:       true, Trust: domain.TrustUntrusted, Health: domain.HealthUnknown, DiscoveredAt: now, UpdatedAt: now,
 	}}}
 	runner := &runnerStub{}
-	service, err := plugins.NewService(sqlite.NewPluginRepository(database), discovery, runner, projectSourceStub{trusted: projectTrusted})
+	redactor, err := observabilityAdapters.NewRedactor(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	service, err := plugins.NewService(sqlite.NewPluginRepository(database), discovery, runner, projectSourceStub{trusted: projectTrusted}, redactor)
 	if err != nil {
 		t.Fatal(err)
 	}

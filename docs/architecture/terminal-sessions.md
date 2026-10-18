@@ -47,7 +47,8 @@ No generic terminal, SQL, Docker, or shell tool is exposed through MCP.
 Every session is owned by the authenticated local principal that created it:
 the browser session ID, privileged IPC principal, or scoped agent identity.
 List, get, attach, and terminate operations enforce that owner. Browser PTY
-WebSockets require the session cookie and an exact same-origin `Origin` before
+WebSockets require origin-scoped session proof in an authentication subprotocol
+and an exact same-origin `Origin` before
 the application attach is attempted.
 
 Server frames are JSON text control messages (`ready` and `exit`) or binary PTY

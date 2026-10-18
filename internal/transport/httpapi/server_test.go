@@ -377,7 +377,7 @@ func TestBrowserSessionAndCSRFSecurity(t *testing.T) {
 	result := exchangeResponse.Result()
 	t.Cleanup(func() { _ = result.Body.Close() })
 	cookies := result.Cookies()
-	if len(cookies) != 1 || !cookies[0].HttpOnly || cookies[0].SameSite != http.SameSiteStrictMode {
+	if len(cookies) != 1 || cookies[0].MaxAge != -1 || cookies[0].Value != "" {
 		t.Fatalf("session cookies = %#v", cookies)
 	}
 
@@ -388,7 +388,7 @@ func TestBrowserSessionAndCSRFSecurity(t *testing.T) {
 	missingCSRF.Header.Set(idempotencyHeader, "cancel-key")
 	missingCSRFResponse := httptest.NewRecorder()
 	browser.ServeHTTP(missingCSRFResponse, missingCSRF)
-	if missingCSRFResponse.Code != http.StatusForbidden {
+	if missingCSRFResponse.Code != http.StatusUnauthorized {
 		t.Fatalf("missing CSRF status = %d", missingCSRFResponse.Code)
 	}
 
@@ -454,5 +454,64 @@ func TestBrowserMutationRejectsCrossOriginRequestWithValidCredentials(t *testing
 	browser.ServeHTTP(response, request)
 	if response.Code != http.StatusForbidden || !strings.Contains(response.Body.String(), "ORIGIN_INVALID") {
 		t.Fatalf("cross-origin mutation status=%d body=%s", response.Code, response.Body.String())
+	}
+}
+
+func TestEveryBrowserRequestRequiresOriginScopedProof(t *testing.T) {
+	t.Parallel()
+	sessions := session.NewManager()
+	boot, _ := sessions.IssueBootstrap()
+	active, _ := sessions.Exchange(boot.Token)
+	reached := 0
+	handler := withBrowserSecurity(sessions, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		reached++
+		if strings.Contains(r.Header.Get("Sec-WebSocket-Protocol"), "envarium.session.") {
+			t.Error("proof exposed to stream negotiation")
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	for _, method := range []string{"GET", "HEAD", "OPTIONS", "POST"} {
+		path := "/api/v1/system"
+		if method == "POST" {
+			path = "/api/v1/projects/project-1/runtime/plan"
+		}
+		r := httptest.NewRequest(method, path, nil)
+		r.AddCookie(&http.Cookie{Name: sessionCookieName, Value: active.ID})
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, r)
+		if response.Code != http.StatusUnauthorized {
+			t.Fatalf("cookie-only %s accepted: %d", method, response.Code)
+		}
+		r.Header.Set(csrfHeader, active.CSRFToken)
+		response = httptest.NewRecorder()
+		handler.ServeHTTP(response, r)
+		if response.Code != http.StatusNoContent {
+			t.Fatalf("valid %s denied: %d", method, response.Code)
+		}
+	}
+	for _, path := range []string{"/ws/v1/events", "/ws/v1/logs", "/ws/v1/terminal/id", "/ws/v1/agent-sessions/id"} {
+		r := httptest.NewRequest("GET", path, nil)
+		r.Header.Set("Origin", "http://"+r.Host)
+		r.AddCookie(&http.Cookie{Name: sessionCookieName, Value: active.ID})
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, r)
+		if response.Code != http.StatusUnauthorized {
+			t.Fatalf("cookie-only WS accepted: %s", path)
+		}
+		r.Header.Set("Sec-WebSocket-Protocol", "envarium.v1, envarium.session."+active.CSRFToken)
+		response = httptest.NewRecorder()
+		handler.ServeHTTP(response, r)
+		if response.Code != http.StatusNoContent {
+			t.Fatalf("proof WS denied: %s", path)
+		}
+		r.Header.Add("Sec-WebSocket-Protocol", "envarium.session.wrong")
+		response = httptest.NewRecorder()
+		handler.ServeHTTP(response, r)
+		if response.Code != http.StatusUnauthorized {
+			t.Fatal("ambiguous WS credentials accepted")
+		}
+	}
+	if reached != 8 {
+		t.Fatalf("downstream requests: %d", reached)
 	}
 }

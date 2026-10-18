@@ -423,6 +423,10 @@ Local clients share handlers while retaining transport-specific authentication.
 Socket/pipe cleanup and permissions are tested. Browser JavaScript never
 receives the Docker socket or generic process-execution capability.
 
+Current refinements: [ADR-0025](0025-origin-proof-and-reviewed-inputs.md)
+supersedes the browser cookie, replay retention and prelaunch compatibility
+exceptions where applicable.
+
 ---
 
 # ADR-0014: Bounded log retention and redaction
@@ -453,6 +457,10 @@ cap and indicate that a value was redacted without exposing it.
 Log memory and disk use stay predictable. Redaction correctness is a security
 quality gate across every sink. Full-text indexing and compression may be added
 without changing the canonical event model.
+
+Current refinements: [ADR-0025](0025-origin-proof-and-reviewed-inputs.md)
+supersedes the browser cookie, replay retention and prelaunch compatibility
+exceptions where applicable.
 
 ---
 
@@ -549,6 +557,10 @@ The direct peer model does not provide rendezvous, NAT traversal, hosted
 identity, organization billing, or fleet-wide secret distribution. Those
 would be separate products and require new decisions. Remote terminal access
 and arbitrary command execution remain intentionally absent.
+
+Current refinements: [ADR-0025](0025-origin-proof-and-reviewed-inputs.md)
+supersedes the browser cookie, replay retention and prelaunch compatibility
+exceptions where applicable.
 
 ---
 
@@ -1090,6 +1102,77 @@ desktop/narrow/hover rendering and actual native performance before accepting.
 
 ---
 
+# ADR-0025: Origin proof and immutable reviewed inputs
+
+Source: https://envarium.davidcuellar.tech/docs/adr/0025-origin-proof-and-reviewed-inputs/
+
+Close cross-port browser replay and bind external disclosure to reviewed bytes.
+
+- Status: Accepted
+- Date: 2026-10-18
+- Refines: ADR-0013, ADR-0014 and ADR-0016
+
+## Context
+
+Cookies ignore TCP ports. A development server sharing the browser API's
+loopback hostname can receive its cookie. Cookie possession must therefore
+never independently authorize API reads or interactive WebSocket attachment.
+Live repository files and imported configuration can also change after review.
+
+## Decision
+
+Require the session's origin-scoped proof on every browser API request,
+including reads and side-effect-free plans. Do not issue bearer session cookies.
+Keep the bootstrap-issued proof in origin-scoped session
+storage, send it as X-CSRF-Token for HTTP, and offer it in an authentication
+WebSocket subprotocol before attachment. Negotiate only the public
+`envarium.v1` protocol so browser handshakes complete. Never negotiate/echo the secret or
+place it in URLs. Preserve same-origin checks, idle/absolute expiry, IPC bootstrap and
+terminal ownership. Invalid proof must not extend session lifetime.
+
+External evidence dispatch and trust-changing imports require the digest of
+the reviewed canonical input. Revalidate before dispatch/import and reject
+changed input rather than silently using new bytes. New consent is required
+after provider, limits or payload changes.
+
+Repository readers use rooted filesystem operations, regular-file validation,
+nonblocking opens on Unix and hard byte caps. Evidence reads reject symlinked
+sources rather than allowing aliases to bypass sensitive-path policy. Current
+valid manifest edits remain observable; immutable caches do not hide changes.
+
+Remote capabilities derive from a resolved target, with an environment bound
+to its actual parent project. Current signed policy restricts reads as well as
+mutations, including inventory fetched to validate an operation target.
+Workspace operation authorization uses immutable submitted members, and
+execution requires the reviewed workspace revision. Unsupported policy promises must not be presented as enforced.
+
+The replay journal retains the latest 100,000 sequence positions, pruning on
+startup's first publish and every 1,024 events. Clients older than the retained
+window must refresh authoritative state. Audit records and resource history
+have separate ownership and are not pruned by this policy. Freed SQLite pages
+are reused; no blocking full-database VACUUM runs in monitoring paths.
+
+The prelaunch alpha manifest reader/migrator and old-daemon status fallback
+are retired. Only the stable manifest contract is accepted. Ordered database
+migrations remain intact for the active installation. This supersedes the
+earlier phase-18 prelaunch compatibility policy.
+
+Signed configuration is mandatory for all team bundles, so there is no optional
+`requireSignedConfiguration` switch. The registry publisher allowlist is named
+`allowedRegistryPublishers` and restricts curated registry metadata. Explicit
+local trust of a native plugin remains a separate owner-level decision; this
+policy does not claim to sandbox native code.
+
+## Consequences
+
+Cookies carry no browser authority. Browser
+clients must send proof on reads and WebSockets; privileged IPC is unchanged.
+Reviewed-input digests are additive contract changes enforced fail-closed.
+Adversarial special files, changed input, expired sessions and rejected scopes
+receive regression coverage alongside ordinary workflows.
+
+---
+
 # Architecture decision records
 
 Source: https://envarium.davidcuellar.tech/docs/adr/
@@ -1137,6 +1220,8 @@ Phase 0 subjects remain covered by the accepted records below.
 - [ADR-0023: Scheduled diagnostic evidence](0023-scheduled-diagnostic-evidence.md)
 
 - [ADR-0024: Shared observations and sampling isolation](0024-shared-observation-and-sampling-isolation.md)
+
+- [ADR-0025: Origin proof and immutable reviewed inputs](0025-origin-proof-and-reviewed-inputs.md)
 
 ---
 
@@ -2307,11 +2392,19 @@ The loopback browser API is a separate router:
 
 1. `envarium ui` requests a one-time, one-minute bootstrap token over local
    IPC.
-2. The browser exchanges that token once for an HttpOnly, SameSite=Strict
-   session cookie and an eight-hour CSRF token.
-3. Browser queries require the session cookie. Mutations also require the CSRF
-   token and an idempotency key.
-4. WebSockets require the session cookie and an exact same-origin `Origin`.
+2. The browser exchanges that token once for an origin-scoped proof, kept in
+   session storage. No bearer cookie is issued. Idle and absolute expiry apply.
+3. Every browser API request carries the proof in `X-CSRF-Token`. Mutations
+   also require an exact Origin and an idempotency key.
+4. WebSockets require the proof in an authentication subprotocol and an exact
+   same-origin `Origin`. Only the public `envarium.v1` protocol is negotiated.
+   The server never echoes the secret as its selected
+   protocol. A cookie from another loopback port has no authority.
+
+The replay journal retains the latest 100,000 sequence positions, with at most
+1,023 pending cleanup between compactions. Pruned cursors receive
+`system.refresh_required`; clients reload authoritative state. Audit records
+are retained separately. SQLite reuses freed pages without a blocking VACUUM.
 
 Bootstrap and session responses are not cacheable. Browser responses set a
 restrictive content-security policy, no-referrer policy, MIME sniffing
@@ -2509,7 +2602,8 @@ No generic terminal, SQL, Docker, or shell tool is exposed through MCP.
 Every session is owned by the authenticated local principal that created it:
 the browser session ID, privileged IPC principal, or scoped agent identity.
 List, get, attach, and terminate operations enforce that owner. Browser PTY
-WebSockets require the session cookie and an exact same-origin `Origin` before
+WebSockets require origin-scoped session proof in an authentication subprotocol
+and an exact same-origin `Origin` before
 the application attach is attempted.
 
 Server frames are JSON text control messages (`ready` and `exit`) or binary PTY
@@ -2785,7 +2879,7 @@ envarium team registry
 envarium team sync key-generate --output <new-age-identity>
 envarium team sync export --recipient <age-recipient> --output <new-age-file>
 envarium team sync preview <age-file> --identity <age-identity>
-envarium team sync import <age-file> --identity <age-identity> --yes
+envarium team sync import <age-file> --identity <age-identity> --preview-sha256 <reviewed-digest> --yes
 
 envarium telemetry status
 envarium telemetry enable --endpoint <https-url> --yes
@@ -3031,10 +3125,9 @@ migration preview are read-only. `data migrate --write` requires the daemon to
 be stopped and creates a verified non-overwriting pre-migration backup before
 changing schema. `data backup --output <path>` refuses to overwrite its output.
 
-`envarium manifest migrate <path>` previews the stable v1 YAML. `--write`
-creates a `.v1alpha1.bak` copy and atomically replaces the source. These
-commands follow the same JSON envelope and semantic error behavior as other
-CLI groups.
+Prelaunch manifest migration was retired before launch. Use deterministic
+onboarding to produce a reviewed stable v1 manifest. Database backup and
+migration commands retain the normal JSON envelope and semantic error behavior.
 
 ---
 
@@ -3077,23 +3170,17 @@ plugin, manifest, or database versions fail before mutation with an actionable
 error. A major-version migration must be previewable and create a verified
 backup before changing durable data.
 
-## Alpha and beta migration
+## Prelaunch compatibility
 
-Alpha/beta project manifests using `envarium.dev/v1alpha1` are accepted and
-normalized in memory. Preview or rewrite one explicitly with:
+Only `envarium.dev/v1` manifests are accepted. The unused prelaunch alpha
+normalizer and file-migration command were retired before public launch
+(ADR-0025). Generate a fresh stable manifest through deterministic onboarding
+for an obsolete prelaunch fixture. Incompatible plugin executables must be
+rebuilt against the stable SDK; the host never runs an incompatible plugin.
 
-```bash
-envarium manifest migrate .envarium/project.yml
-envarium manifest migrate .envarium/project.yml --write
-```
-
-`--write` creates `.envarium/project.yml.v1alpha1.bak` without overwriting an
-existing backup, then atomically replaces the source. Alpha plugin executables
-must be rebuilt against the v1 SDK and change both protocol identifiers; the
-host never runs an incompatible plugin as a migration shortcut.
-
-Embedded database migrations upgrade every schema produced by repository
-alpha/beta builds. See [v1 data migration](migration-v1.md).
+Ordered embedded database migrations remain supported for the active local
+installation, including verified pre-migration backups. See
+[v1 data migration](migration-v1.md).
 
 ---
 
@@ -3213,7 +3300,7 @@ cross-cutting implementation conventions explicit.
   is asynchronous.
 - Machine-readable CLI and MCP responses use stable, bounded, versioned
   schemas. Streaming output uses JSON Lines.
-- Browser mutations require a same-origin local session and CSRF token.
+- Every browser API/WS request requires origin-scoped session proof; mutations also require exact Origin checks.
 - Unknown input fields fail validation unless a contract explicitly permits
   extension data.
 
@@ -4858,8 +4945,8 @@ envarium manifest explain <project>
 envarium manifest diff <project>
 ```
 
-Alpha/beta `envarium.dev/v1alpha1` documents are read compatibly and can be
-rewritten with the backup-producing migration command documented in
+Only the stable `envarium.dev/v1` document is accepted. Prelaunch alpha manifests
+must be replaced through deterministic onboarding; see
 [compatibility](compatibility.md).
 
 ---
@@ -5238,6 +5325,33 @@ system, architecture, fixed operation-category counters, and generation time.
 It contains no project, machine, action, plugin, provider, path, command, log,
 diagnostic, or error detail. Disabling metrics clears the installation ID and
 all pending counters. A signed team policy may prohibit opt-in.
+
+---
+
+# Current acceptance status
+
+Source: https://envarium.davidcuellar.tech/docs/progress/acceptance-status/
+
+Separate implemented roadmap evidence from external release acceptance.
+
+This ledger is the current acceptance view. The main plan preserves its original
+phase 0–19 checklists. Each phase progress file retains historical evidence;
+checked implementation criteria do not certify a signed public release.
+
+| Area | Current status | Evidence |
+|---|---|---|
+| Phases 0–17: local control plane, adapters and UI | Implemented, automated coverage recorded per phase | [Phase 0](phase-00.md) and phase 1–17 progress files |
+| Phase 18: native adapters, stable contracts and migrations | Implemented; macOS/Linux/Windows CI required on each commit | [Phase 18](phase-18.md) |
+| Phase 18: signed install, notarization, updater lifecycle, retained-data reinstall | Pending protected release qualification on actual signed artifacts | [Release checklist](../release.md) |
+| Phase 19: optional fleet, team config, sync and telemetry | Implemented; local-only defaults and permissions remain enforced | [Phase 19](phase-19.md) |
+| Phase 20: Envarium identity and operational controls | Repository implementation complete | [Phase 20](phase-20.md) |
+| Browser/data/fleet security and technical debt review | Repairs implemented; verification results recorded in the repair evidence | [Repair evidence](security-cleanup-2026-10-18.md) |
+| Public canonical DNS/TLS | Namecheap CNAME and TLS activation still external prerequisites; Pages fallback remains available | [Rebrand rollout](../envarium-rebrand-checklist.md) |
+| Distribution accounts, OS signing and updater production keys | Account-owned prerequisites remain pending until configured and exercised | [Release checklist](../release.md) |
+
+No hosted run or unsigned build is evidence that signed installer/update
+acceptance has passed. Do not publish a stable release until that checklist is
+completed for its exact commit and artifacts.
 
 ---
 
@@ -9455,6 +9569,13 @@ plugin's cross-platform initializer instead, retaining explicit LaunchAgent
 selection on macOS and the platform implementation elsewhere. The Windows
 native compile gate remains enabled as regression coverage.
 
+## October 2026 repair follow-up
+
+The historical evidence above is retained. Current repairs and external
+acceptance gates are recorded in the [repair evidence](security-cleanup-2026-10-18.md)
+and [acceptance ledger](acceptance-status.md). Prelaunch manifest migration was
+retired under ADR-0025; ordered database migrations remain supported.
+
 ---
 
 # Phase 19: Post-v1 optional expansion
@@ -9965,6 +10086,116 @@ unchanged.
 The cleanup also removed the unused `dev.switchyard.desktop` cache, WebKit
 directory, and binary-cookie file after confirming no process had them open.
 Current Envarium identity and browser data were retained.
+
+## October 2026 repair follow-up
+
+The historical evidence above is retained. Current repairs and external
+acceptance gates are recorded in the [repair evidence](security-cleanup-2026-10-18.md)
+and [acceptance ledger](acceptance-status.md). Prelaunch manifest migration was
+retired under ADR-0025; ordered database migrations remain supported.
+
+---
+
+# Security and technical debt repairs, October 2026
+
+Source: https://envarium.davidcuellar.tech/docs/progress/security-cleanup-2026-10-18/
+
+Repair scope, regression evidence and remaining release qualification.
+
+## Scope and strategy
+
+The review at `450b86e` identified seven reportable security findings and a
+technical debt backlog. These repairs enforce the shared application or
+transport boundary and preserve legitimate typed operations. ADR-0025 records
+browser proof, reviewed-input consent, replay retention and prelaunch cleanup.
+
+| Finding | Repair | Focused evidence |
+|---|---|---|
+| Cross-port browser cookie replay | Origin-scoped proof on every HTTP and WS request; retire bearer cookies and strip secret subprotocol before upgrade | Session expiry/tab tests; cookie-only GET/HEAD/OPTIONS/plan and all four WS path classes denied; valid proof allowed |
+| Unbounded live manifest/evidence reads | Rooted file handles, no symlink sources, regular-file/type/identity checks and hard byte cap; nonblocking Unix opens | Regular/oversized/missing/symlink/FIFO regression tests plus manifest/discovery suites |
+| Git remote credentials | Strip URL userinfo, query and fragment; redact malformed or ambiguous credential forms | Username PAT, password, encoded userinfo, SSH/SCP and ordinary remote controls |
+| Plugin structured diagnostics | Canonical redactor at application return/persistence boundary; sanitize nested output/logs/errors, reject secret-bearing identifiers | Known-secret canaries in health/inspect/output/logs/errors and alternate fact/action/risk identifier fields |
+| Changed AI evidence after consent | Digest binds provider, normalized limits and exact sanitized payload; execution uses the same proposal snapshot | Missing/changed candidate/excerpt/limits consent rejects before provider; exact preview/sent/receipt bytes match; cancellation and succeeded-run recovery retained |
+| Fleet target-capability confusion | Resolve registered projects/environments and parent ownership before submission | Forged ordinary-project environment ID, wrong parent, environment-as-project denied; both legitimate capabilities work |
+| Fleet read-policy omission | Apply current policy on identity/snapshot/register/probe and target-validation inventory reads | Denied-policy tests cover agent and controller paths, including no peer call through operation validation |
+
+One fresh read-only investigator preceded implementation. One fresh read-only
+candidate review identified four remaining routes: plugin identifier fields,
+mutable workspace membership, path-filtered site CI versus exact-commit release
+gating, and operation target inventory reads. Each was confirmed, repaired and
+covered by a focused regression. No second review cycle was used.
+
+## Correctness and cleanup
+
+- Synchronize text redaction against secret registration and deduplicate secrets.
+- Preserve unchanged enabled plugins during discovery; missing/changed packages
+  lose execution grants and reappearance requires review.
+- Carry explicit provider disablement through availability and dispatch. Use
+  absolute PATH entries and platform-native Windows EXE/COM validation; never
+  infer a batch-shell launch from PATHEXT.
+- Capture workspace operation participants durably. MCP get/wait/cancel checks
+  those participants even after membership changes; submission/execution and
+  opt-in recipes reject changed reviewed workspace revisions.
+- Preview exact team publisher keys and signed configuration, and require a
+  digest covering the incoming document plus current replacement context.
+- Remove the unused HTTP client constructor and prelaunch manifest migrator /
+  old-daemon status fan-out. Preserve ordered SQL migrations and active data.
+- Bound replay history to 100,000 sequence positions with periodic indexed
+  pruning. Old cursors explicitly refresh; audit and metrics history are separate.
+- Split manifest validation, operation execution and typed HTTP clients into
+  cohesive files. No new dumping-ground abstractions were introduced.
+- Align explicit GoReleaser archive names and alpha/beta/nightly grammar with
+  the site contract. CI packages real unsigned CLI archives and validates their
+  aggregate checksums; stable still requires desktop packages.
+- Require successful exact-commit product, full-site and security workflows
+  before release packaging. Site CI runs on every master/main push.
+- Replace Cloudflare-zone DNS mutation with registrar readiness reporting.
+  Namecheap owns the canonical CNAME; Pages fallback stays available.
+- Apply the PostCSS selector parser security fix via a narrow dependency override.
+
+## Verification
+
+Focused security, compatibility and independent-review regressions pass. The
+original cookie-only, file-type, secret-canary, stale-consent and wrong-target
+triggers now reject; legitimate browser/terminal, provider, plugin, fleet and
+workspace controls remain covered.
+
+| Verification gate | Commands and result |
+|---|---|
+| Syntax/import/build boundaries | gofmt, `go vet ./...`, GolangCI-Lint (zero issues), architecture/repository checks: pass |
+| Focused exploit alternatives and legitimate controls | New origin-proof/real-WS, bounded-file/FIFO, Git, plugin identifiers, AI consent, fleet and immutable workspace scope tests: pass |
+| Owning application checks | `go test ./...` and `go test -race ./...`: pass; migration check: pass |
+| Frontend compatibility | Typecheck/lint and 68 unit tests: pass; all 5 browser integration and 16 visual tests: pass |
+| Site and packaging | Site quality/validation: pass; actual six-target GoReleaser snapshot, aggregate checksums, alpha normalization and stable desktop requirement: pass |
+| Dependencies | govulncheck: no called vulnerabilities; fresh pnpm audit: zero advisories |
+
+The required hosted checks on this commit provide native Linux/Windows/macOS,
+full-site browser/visual and desktop build evidence. Release-only signed gates
+remain distinct below. No test tolerance, permission check or monitoring
+interval was weakened to obtain these results.
+
+The first sandboxed full Go run could not bind test sockets; its unrestricted
+rerun passed. Browser integration exposed missing public WS negotiation; the
+corrected handshake and complete integration suite passed. A source build of
+GoReleaser hit a tool dependency conflict; the checksum-verified official
+2.16.0 binary built all six archives successfully.
+
+## Remaining external acceptance
+
+Signed OS installation/notarization, production updater signing and retained-data
+reinstall require protected release credentials and real signed artifacts.
+Unsigned snapshots do not satisfy those gates. Canonical DNS/TLS still requires
+the Namecheap account change described in the rebrand checklist.
+
+The latest published Tauri-2 updater 2.14.0 still requires vulnerable ZIP 4.
+Retain the immutable upstream security fix rather than replacing it with that
+published crate or a Tauri-3 alpha. Revisit when a compatible patched Tauri-2
+release is published.
+
+The existing GLib advisory GHSA-wrw7-89jp-8q8g remains tracked: the affected
+VariantStrIter API is not used by Envarium, and its patched GLib series is
+incompatible with Tauri's GTK3 stack. This is not a claim of zero dependency
+advisories. The hosted audit and documented exception must remain visible.
 
 ---
 
@@ -10672,7 +10903,7 @@ AI output are not trusted merely because they are local.
 | Threat | Primary controls | Residual risk |
 |---|---|---|
 | Malicious repository executes during discovery | bounded allowlisted reads; no discovery commands; explicit trust before lifecycle/action/agent operations | an approved repository may intentionally define powerful reviewed actions |
-| Cross-origin browser mutation | loopback binding, bootstrap exchange, HttpOnly same-origin cookie, CSRF token, Origin checks for HTTP/WebSocket, no permissive CORS | malware running as the same OS user remains outside the browser threat boundary |
+| Cross-origin browser mutation | loopback binding, bootstrap exchange, origin-scoped session proof on every HTTP/WS request, Origin checks for HTTP/WebSocket, no permissive CORS | malware running as the same OS user remains outside the browser threat boundary |
 | Another local user invokes privileged API | mode `0600` Unix socket; Windows named-pipe DACL grants only LocalSystem and current-user SID | administrators can inspect or control a user's processes by OS design |
 | PID reuse or orphaned child escapes lifecycle | executable/start/cwd fingerprint, process groups on Unix, Job Objects with kill-on-close on Windows, bounded graceful-to-force stop | externally started processes remain observed rather than silently adopted |
 | Terminal becomes generic browser shell | server-resolved trusted launch plans, owner-scoped session attachment, bounded input/output, memory-only scrollback, audit metadata | terminal output can contain application data and is visible to its authorized owner |
@@ -11200,7 +11431,10 @@ envarium team template render template.go-service \
 
 Policy packs use allowlists. Multiple packs and enterprise configurations are
 combined by restrictive intersection, so an empty allowed list denies that
-optional capability. Team policy can restrict remote inventory and lifecycle
+optional capability. All team configuration bundles require signatures; there is no optional unsigned
+configuration mode. `allowedRegistryPublishers` applies only to curated
+registry metadata; local native plugin trust remains a separate owner decision.
+Team policy can restrict remote inventory and lifecycle
 actions, registry publishers, and whether a user may opt in to anonymous
 metrics. It never broadens the built-in permission model.
 
@@ -11225,13 +11459,14 @@ envarium team sync export --recipient age1... --output team-config.age
 envarium team sync preview team-config.age \
   --identity receiving-machine.agekey
 envarium team sync import team-config.age \
-  --identity receiving-machine.agekey --yes
+  --identity receiving-machine.agekey --preview-sha256 <reviewed-digest> --yes
 ```
 
 The encrypted file uses the standard armored age format. Preview decrypts only
-in memory, validates every public identity and signature, lists bundle IDs, and
+in memory, validates every public identity and signature, shows exact publisher IDs/public keys and complete signed bundle payloads, and
 warns about replaced publisher metadata or signed bundle revisions. Import
-requires a second explicit confirmation. Encryption protects confidentiality;
+requires a second explicit confirmation and the `preview-sha256` receipt.
+Changes to the document or local replacement context invalidate that receipt. Encryption protects confidentiality;
 signature verification and the review step establish publisher trust.
 
 Back up signing keys and age identities with the same controls used for other
@@ -11263,7 +11498,7 @@ after automated redaction.
 - **Ports unavailable:** host policy may prevent process ownership details.
   Bindings without an accessible PID remain honest partial observations.
 - **Manifest rejected:** unknown fields and unsupported versions fail closed.
-  Run `envarium manifest migrate <path>` for alpha manifests, then validate.
+  Replace prelaunch alpha manifests through deterministic onboarding, then validate the stable v1 manifest.
 - **Database newer than binary:** install the matching/newer Envarium build or
   restore a pre-migration backup to a separate data directory. Never force an
   old binary to open it.

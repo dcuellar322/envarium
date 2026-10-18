@@ -2,9 +2,10 @@ package sqlite
 
 import (
 	"context"
-	health "envarium.dev/envarium/internal/observability/domain"
 	"testing"
 	"time"
+
+	health "envarium.dev/envarium/internal/observability/domain"
 )
 
 func TestLatestHealthPreservesScopeAndTimestampIDTieBreaking(t *testing.T) {

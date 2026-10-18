@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"envarium.dev/envarium/internal/foundation/repositoryfile"
 	"envarium.dev/envarium/internal/manifest/domain"
 )
 
@@ -72,7 +73,11 @@ func resolutionDocuments(root string, discovered, accepted domain.Manifest, over
 		if documents[index].path == "" {
 			continue
 		}
-		contents, err := os.ReadFile(documents[index].path)
+		relative, err := filepath.Rel(root, documents[index].path)
+		if err != nil {
+			return nil, err
+		}
+		contents, err := repositoryfile.Read(root, relative, 1<<20)
 		if os.IsNotExist(err) {
 			continue
 		}

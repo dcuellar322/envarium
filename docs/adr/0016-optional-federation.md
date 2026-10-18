@@ -63,3 +63,7 @@ The direct peer model does not provide rendezvous, NAT traversal, hosted
 identity, organization billing, or fleet-wide secret distribution. Those
 would be separate products and require new decisions. Remote terminal access
 and arbitrary command execution remain intentionally absent.
+
+Current refinements: [ADR-0025](0025-origin-proof-and-reviewed-inputs.md)
+supersedes the browser cookie, replay retention and prelaunch compatibility
+exceptions where applicable.

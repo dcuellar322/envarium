@@ -8,7 +8,7 @@ import (
 func TestParseYAMLRejectsUnknownFields(t *testing.T) {
 	t.Parallel()
 	_, err := ParseYAML([]byte(`
-schemaVersion: envarium.dev/v1alpha1
+schemaVersion: envarium.dev/v1
 kind: Project
 metadata:
   id: example
@@ -25,7 +25,7 @@ repository:
 func TestParseYAMLRejectsImplicitShellAndDependencyCycles(t *testing.T) {
 	t.Parallel()
 	_, err := ParseYAML([]byte(`
-schemaVersion: envarium.dev/v1alpha1
+schemaVersion: envarium.dev/v1
 kind: Project
 metadata: {id: unsafe, name: Unsafe}
 repository: {root: .}
@@ -51,7 +51,7 @@ services:
 func TestParseYAMLAcceptsKeychainReferencesWithoutSecretValues(t *testing.T) {
 	t.Parallel()
 	manifest, err := ParseYAML([]byte(`
-schemaVersion: envarium.dev/v1alpha1
+schemaVersion: envarium.dev/v1
 kind: Project
 metadata: {id: safe, name: Safe}
 repository: {root: .}

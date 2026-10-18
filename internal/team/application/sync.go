@@ -2,9 +2,14 @@ package application
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 
 	"envarium.dev/envarium/internal/team/domain"
 )
@@ -70,6 +75,7 @@ func (s *Service) PreviewSync(ctx context.Context, document domain.SyncDocument)
 	preview := domain.SyncPreview{
 		PublisherCount: len(document.Publishers), BundleCount: len(document.Bundles),
 		BundleIDs: []string{}, Warnings: warnings,
+		Publishers: append([]domain.Publisher{}, document.Publishers...), Bundles: append([]domain.Bundle{}, document.Bundles...),
 	}
 	for _, bundle := range document.Bundles {
 		publisher, ok := publishers[bundle.Metadata.PublisherID]
@@ -85,17 +91,33 @@ func (s *Service) PreviewSync(ctx context.Context, document domain.SyncDocument)
 		preview.BundleIDs = append(preview.BundleIDs, bundle.Metadata.ID)
 	}
 	slices.Sort(preview.BundleIDs)
+	// Bind approval to the incoming configuration and the replacement context.
+	slices.SortFunc(current, func(a, b domain.Publisher) int { return strings.Compare(a.ID, b.ID) })
+	slices.SortFunc(currentBundles, func(a, b domain.Bundle) int { return strings.Compare(a.Metadata.ID, b.Metadata.ID) })
+	encoded, err := json.Marshal(struct {
+		Document   domain.SyncDocument
+		Publishers []domain.Publisher
+		Bundles    []domain.Bundle
+	}{document, current, currentBundles})
+	if err != nil {
+		return domain.SyncPreview{}, err
+	}
+	digest := sha256.Sum256(encoded)
+	preview.SHA256 = hex.EncodeToString(digest[:])
 	return preview, nil
 }
 
 // ImportSync atomically applies a verified configuration document after confirmation.
-func (s *Service) ImportSync(ctx context.Context, document domain.SyncDocument, confirm bool, actor Actor) (domain.SyncPreview, error) {
+func (s *Service) ImportSync(ctx context.Context, document domain.SyncDocument, confirm bool, approvedDigest string, actor Actor) (domain.SyncPreview, error) {
 	preview, err := s.PreviewSync(ctx, document)
 	if err != nil {
 		return domain.SyncPreview{}, err
 	}
 	if !confirm {
 		return preview, ErrConfirmation
+	}
+	if len(approvedDigest) != 64 || subtle.ConstantTimeCompare([]byte(preview.SHA256), []byte(approvedDigest)) != 1 {
+		return preview, errors.New("sync preview changed; review the current preview before importing")
 	}
 	now := s.now().UTC()
 	for index := range document.Publishers {

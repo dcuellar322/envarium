@@ -114,11 +114,12 @@ export async function loadAIProviders(): Promise<Array<AiProviderDescriptor>> {
 
 export async function previewAIEvidence(
   proposalId: string,
+  provider: string,
   limits: AiGenerationLimits,
 ): Promise<AiEvidencePreview> {
   const result = await previewAiManifestEvidence({
     path: { proposalId },
-    body: limits,
+    body: { provider, limits },
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
   if (result.error || !result.data)
@@ -130,10 +131,11 @@ export async function startAIEnhancement(
   proposalId: string,
   provider: string,
   limits: AiGenerationLimits,
+  consentSha256: string,
 ): Promise<Operation> {
   const result = await createAiManifestEnhancement({
     path: { proposalId },
-    body: { provider, limits },
+    body: { provider, limits, consentSha256 },
     headers: mutationHeaders(requestKey()) as { 'Idempotency-Key': string },
   })
   if (result.error || !result.data)

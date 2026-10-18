@@ -2,7 +2,6 @@
 package application
 
 import (
-	"crypto/subtle"
 	"errors"
 	"fmt"
 	"sync"
@@ -16,8 +15,6 @@ var (
 	ErrInvalidBootstrap = errors.New("invalid browser bootstrap token")
 	// ErrInvalidSession identifies an unknown or expired browser session.
 	ErrInvalidSession = errors.New("invalid browser session")
-	// ErrInvalidCSRF identifies a missing or mismatched mutation token.
-	ErrInvalidCSRF = errors.New("invalid csrf token")
 )
 
 const (
@@ -93,34 +90,23 @@ func (m *Manager) Exchange(token string) (Session, error) {
 	}
 	now := m.now().UTC()
 	session := Session{ID: sessionID, CSRFToken: csrfToken, ExpiresAt: now.Add(sessionAbsoluteLifetime)}
-	m.sessions[session.ID] = managedSession{Session: session, lastSeenAt: now}
+	m.sessions[session.CSRFToken] = managedSession{Session: session, lastSeenAt: now}
 	return session, nil
 }
 
-// ValidateSession checks an opaque session credential.
-func (m *Manager) ValidateSession(id string) (Session, error) {
+// ValidateSession authenticates an origin-scoped browser proof. Invalid proof
+// cannot extend the idle lifetime of another session.
+func (m *Manager) ValidateSession(proof string) (Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.reapLocked()
-	managed, ok := m.sessions[id]
-	if !ok {
+	managed, ok := m.sessions[proof]
+	if !ok || proof == "" {
 		return Session{}, ErrInvalidSession
 	}
 	managed.lastSeenAt = m.now().UTC()
-	m.sessions[id] = managed
+	m.sessions[proof] = managed
 	return managed.Session, nil
-}
-
-// ValidateMutation checks both session and CSRF credentials.
-func (m *Manager) ValidateMutation(id, csrfToken string) (Session, error) {
-	session, err := m.ValidateSession(id)
-	if err != nil {
-		return Session{}, err
-	}
-	if csrfToken == "" || subtle.ConstantTimeCompare([]byte(csrfToken), []byte(session.CSRFToken)) != 1 {
-		return Session{}, ErrInvalidCSRF
-	}
-	return session, nil
 }
 
 func (m *Manager) reapLocked() {

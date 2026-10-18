@@ -152,7 +152,7 @@ func (g *Git) remotes(ctx context.Context, root string) []domain.Remote {
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
 		if len(fields) == 3 {
-			result = append(result, domain.Remote{Name: fields[0], URL: fields[1], Kind: strings.Trim(fields[2], "()")})
+			result = append(result, domain.Remote{Name: fields[0], URL: remoteURL(fields[1]), Kind: strings.Trim(fields[2], "()")})
 		}
 	}
 	return result

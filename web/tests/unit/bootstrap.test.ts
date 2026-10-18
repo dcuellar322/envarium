@@ -8,7 +8,11 @@ const { createBrowserSession, setConfig } = vi.hoisted(() => ({
 vi.mock('../../src/api/generated/sdk.gen', () => ({ createBrowserSession }))
 vi.mock('../../src/api/generated/client.gen', () => ({ client: { setConfig } }))
 
-import { bootstrapBrowserSession, mutationHeaders } from '../../src/domains/session/bootstrap'
+import {
+  bootstrapBrowserSession,
+  mutationHeaders,
+  browserSocketProtocols,
+} from '../../src/domains/session/bootstrap'
 
 describe('browser session bootstrap', () => {
   beforeEach(() => {
@@ -25,13 +29,17 @@ describe('browser session bootstrap', () => {
 
     expect(createBrowserSession).toHaveBeenCalledWith({
       body: { bootstrapToken: 'boot_test' },
-      credentials: 'same-origin',
+      credentials: 'omit',
     })
     expect(window.location.search).toBe('')
     expect(mutationHeaders('request-key')).toEqual({
       'Idempotency-Key': 'request-key',
       'X-CSRF-Token': 'csrf_test',
     })
-    expect(setConfig).toHaveBeenCalledWith({ credentials: 'same-origin' })
+    expect(setConfig).toHaveBeenLastCalledWith({
+      credentials: 'omit',
+      headers: { 'X-CSRF-Token': 'csrf_test' },
+    })
+    expect(browserSocketProtocols()).toEqual(['envarium.v1', 'envarium.session.csrf_test'])
   })
 })

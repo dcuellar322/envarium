@@ -4,6 +4,7 @@ package application
 import (
 	"context"
 	"errors"
+
 	"golang.org/x/sync/singleflight"
 
 	catalog "envarium.dev/envarium/internal/catalog/application"

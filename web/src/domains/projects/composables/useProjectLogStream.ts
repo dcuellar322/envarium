@@ -1,3 +1,4 @@
+import { browserSocketProtocols } from '../../session/bootstrap'
 import { onBeforeUnmount, onMounted, ref, type Ref } from 'vue'
 
 import type { RuntimeLogEntry } from '../../../api/generated/types.gen'
@@ -26,7 +27,10 @@ export function useProjectLogStream(
       projectId: projectId.value,
       after: String(lastSequence.value),
     })
-    socket = new WebSocket(`${protocol}//${window.location.host}/ws/v1/logs?${query}`)
+    socket = new WebSocket(
+      `${protocol}//${window.location.host}/ws/v1/logs?${query}`,
+      browserSocketProtocols(),
+    )
     socket.addEventListener('message', (message) => {
       try {
         const event = JSON.parse(String(message.data)) as Partial<RuntimeLogEntry> & {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"envarium.dev/envarium/internal/transport/contract"
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
 
@@ -36,7 +37,7 @@ func (l *Logs) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "after must be a non-negative log sequence", http.StatusBadRequest)
 		return
 	}
-	connection, err := websocket.Accept(w, r, &websocket.AcceptOptions{OriginPatterns: []string{"localhost:*", "127.0.0.1:*", "[::1]:*"}})
+	connection, err := websocket.Accept(w, r, &websocket.AcceptOptions{Subprotocols: []string{contract.BrowserSocketProtocol}, OriginPatterns: []string{"localhost:*", "127.0.0.1:*", "[::1]:*"}})
 	if err != nil {
 		return
 	}

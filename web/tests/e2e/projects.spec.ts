@@ -188,7 +188,9 @@ test('manages a real Compose project through the same browser workflow', async (
       .poll(
         async () =>
           page.evaluate(async (operationId) => {
-            const response = await fetch(`/api/v1/operations/${operationId}`)
+            const response = await fetch(`/api/v1/operations/${operationId}`, {
+              headers: { 'X-CSRF-Token': sessionStorage.getItem('envarium.csrf-token') ?? '' },
+            })
             const body = (await response.json()) as { state: string }
             return body.state
           }, operation.id),
@@ -199,7 +201,9 @@ test('manages a real Compose project through the same browser workflow', async (
       .poll(
         async () =>
           page.evaluate(async (id) => {
-            const response = await fetch(`/api/v1/projects/${id}/runtime`)
+            const response = await fetch(`/api/v1/projects/${id}/runtime`, {
+              headers: { 'X-CSRF-Token': sessionStorage.getItem('envarium.csrf-token') ?? '' },
+            })
             const body = (await response.json()) as {
               state: string
               origin: string
@@ -234,7 +238,9 @@ test('manages a real Compose project through the same browser workflow', async (
       .poll(
         async () =>
           page.evaluate(async (operationId) => {
-            const response = await fetch(`/api/v1/operations/${operationId}`)
+            const response = await fetch(`/api/v1/operations/${operationId}`, {
+              headers: { 'X-CSRF-Token': sessionStorage.getItem('envarium.csrf-token') ?? '' },
+            })
             const body = (await response.json()) as { state: string }
             return body.state
           }, deploy.id),
@@ -255,7 +261,9 @@ test('manages a real Compose project through the same browser workflow', async (
       .poll(
         async () =>
           page.evaluate(async (operationId) => {
-            const response = await fetch(`/api/v1/operations/${operationId}`)
+            const response = await fetch(`/api/v1/operations/${operationId}`, {
+              headers: { 'X-CSRF-Token': sessionStorage.getItem('envarium.csrf-token') ?? '' },
+            })
             const body = (await response.json()) as { state: string }
             return body.state
           }, kill.id),

@@ -23,7 +23,7 @@ type agentHTTPStub struct {
 	err         error
 }
 
-func (a *agentHTTPStub) Identity(fingerprint string) (domain.Identity, error) {
+func (a *agentHTTPStub) Identity(_ context.Context, fingerprint string) (domain.Identity, error) {
 	a.fingerprint = fingerprint
 	return domain.Identity{ProtocolVersion: domain.ProtocolVersion, MachineID: "peer", Name: "Peer", Version: "1", OS: "linux", Architecture: "amd64"}, a.err
 }

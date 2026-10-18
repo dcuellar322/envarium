@@ -57,6 +57,9 @@ type Invocation struct {
 	Result any
 }
 
+// TextRedactor sanitizes every plugin-controlled diagnostic channel.
+type TextRedactor interface{ RedactText(string) (string, bool) }
+
 // Runner owns external process lifetime and JSON-RPC exchange.
 type Runner interface {
 	Call(context.Context, Invocation) ([]domain.LogEntry, error)
@@ -80,14 +83,15 @@ type Service struct {
 	runner     Runner
 	projects   ProjectSource
 	now        func() time.Time
+	redactor   TextRedactor
 }
 
 // NewService constructs the plugin application service.
-func NewService(repository Repository, discovery Discovery, runner Runner, projects ProjectSource) (*Service, error) {
-	if repository == nil || discovery == nil || runner == nil || projects == nil {
+func NewService(repository Repository, discovery Discovery, runner Runner, projects ProjectSource, redactor TextRedactor) (*Service, error) {
+	if repository == nil || discovery == nil || runner == nil || projects == nil || redactor == nil {
 		return nil, errors.New("plugin service dependencies are required")
 	}
-	return &Service{repository: repository, discovery: discovery, runner: runner, projects: projects, now: time.Now}, nil
+	return &Service{repository: repository, discovery: discovery, runner: runner, projects: projects, redactor: redactor, now: time.Now}, nil
 }
 
 // Refresh performs deterministic discovery only; it never launches a plugin.
@@ -192,7 +196,7 @@ func (s *Service) Inspect(ctx context.Context, id, projectID string) (pluginsdk.
 		request.Project.Root = project.Root
 	}
 	var result pluginsdk.InspectResult
-	logs, err := s.runner.Call(ctx, Invocation{Plugin: current, Scopes: granted, Method: "project.inspect", Params: request, Result: &result})
+	logs, err := s.call(ctx, Invocation{Plugin: current, Scopes: granted, Method: "project.inspect", Params: request, Result: &result})
 	s.record(ctx, current.ID, logs, err)
 	if err != nil {
 		return pluginsdk.InspectResult{}, fmt.Errorf("%w: %v", ErrInvocation, err)
@@ -214,7 +218,7 @@ func (s *Service) Operate(ctx context.Context, id, projectID, action string, inp
 		return pluginsdk.OperateResult{}, errors.New("plugin action is required")
 	}
 	var result pluginsdk.OperateResult
-	logs, err := s.runner.Call(ctx, Invocation{Plugin: current, Scopes: granted, Method: "project.operate", Params: request, Result: &result})
+	logs, err := s.call(ctx, Invocation{Plugin: current, Scopes: granted, Method: "project.operate", Params: request, Result: &result})
 	s.record(ctx, current.ID, logs, err)
 	if err != nil {
 		return pluginsdk.OperateResult{}, fmt.Errorf("%w: %v", ErrInvocation, err)
@@ -257,14 +261,14 @@ func (s *Service) RunHealth(ctx context.Context, interval time.Duration) {
 
 func (s *Service) checkHealth(ctx context.Context, current domain.Plugin, granted []pluginsdk.Scope) error {
 	var result pluginsdk.HealthResult
-	logs, err := s.runner.Call(ctx, Invocation{Plugin: current, Scopes: granted, Method: "plugin.health", Params: struct{}{}, Result: &result})
+	logs, err := s.call(ctx, Invocation{Plugin: current, Scopes: granted, Method: "plugin.health", Params: struct{}{}, Result: &result})
 	s.record(ctx, current.ID, logs, err)
 	if err != nil {
 		_ = s.repository.SetHealth(context.WithoutCancel(ctx), current.ID, domain.HealthUnhealthy, "Plugin process or protocol unavailable", boundedError(err), s.now().UTC())
 		return fmt.Errorf("%w: %v", ErrInvocation, err)
 	}
 	state := domain.HealthState(result.Status)
-	if err := s.repository.SetHealth(ctx, current.ID, state, result.Message, "", s.now().UTC()); err != nil {
+	if err := s.repository.SetHealth(ctx, current.ID, state, s.text(result.Message), "", s.now().UTC()); err != nil {
 		return err
 	}
 	return nil

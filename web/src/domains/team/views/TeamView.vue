@@ -152,10 +152,10 @@ const {
             <dd>{{ policy.data.value.allowedRemoteActions.join(', ') || 'denied' }}</dd>
           </div>
           <div>
-            <dt>Plugin publishers</dt>
+            <dt>Registry publishers</dt>
             <dd>
               {{
-                policy.data.value.allowedPluginPublishers.join(', ') ||
+                policy.data.value.allowedRegistryPublishers.join(', ') ||
                 (policy.data.value.sourceBundleIds.length ? 'denied' : 'no team policy')
               }}
             </dd>

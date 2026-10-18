@@ -29,9 +29,8 @@ beforeEach(() => {
     sourceBundleIds: ['policy.official'],
     allowedRemoteCapabilities: ['inventory.read'],
     allowedRemoteActions: ['start'],
-    allowedPluginPublishers: [publisher.id],
+    allowedRegistryPublishers: [publisher.id],
     telemetryAllowed: false,
-    requireSignedConfiguration: true,
   })
   api.loadCuratedPlugins.mockResolvedValue([
     {
@@ -97,9 +96,8 @@ test('explains the local configuration scope when no team data is installed', as
     sourceBundleIds: [],
     allowedRemoteCapabilities: [],
     allowedRemoteActions: [],
-    allowedPluginPublishers: [],
+    allowedRegistryPublishers: [],
     telemetryAllowed: false,
-    requireSignedConfiguration: true,
   })
   api.loadCuratedPlugins.mockResolvedValue([])
 

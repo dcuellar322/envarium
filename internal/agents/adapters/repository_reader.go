@@ -5,11 +5,12 @@ import (
 	"bufio"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"envarium.dev/envarium/internal/foundation/repositoryfile"
 
 	discoveryDomain "envarium.dev/envarium/internal/discovery/domain"
 )
@@ -21,6 +22,9 @@ type RepositoryReader struct{}
 
 // ReadExcerpt enforces root containment, regular files, source size, line range, and output size.
 func (RepositoryReader) ReadExcerpt(ctx context.Context, root, relative string, location discoveryDomain.SourceRange, limit int64) (string, bool, error) {
+	if err := ctx.Err(); err != nil {
+		return "", false, err
+	}
 	if err := validateExcerptRequest(root, relative, location, limit); err != nil {
 		return "", false, err
 	}
@@ -40,32 +44,7 @@ func validateExcerptRequest(root, relative string, location discoveryDomain.Sour
 }
 
 func openEvidenceSource(root, relative string) (*os.File, error) {
-	canonicalRoot, err := filepath.EvalSymlinks(root)
-	if err != nil {
-		return nil, fmt.Errorf("resolve evidence root: %w", err)
-	}
-	candidate, err := filepath.EvalSymlinks(filepath.Join(canonicalRoot, filepath.Clean(relative)))
-	if err != nil {
-		return nil, err
-	}
-	contained, err := filepath.Rel(canonicalRoot, candidate)
-	if err != nil || contained == ".." || strings.HasPrefix(contained, ".."+string(filepath.Separator)) {
-		return nil, fmt.Errorf("evidence path %q escapes repository root", relative)
-	}
-	file, err := os.Open(candidate)
-	if err != nil {
-		return nil, err
-	}
-	info, err := file.Stat()
-	if err != nil {
-		_ = file.Close()
-		return nil, err
-	}
-	if !info.Mode().IsRegular() || info.Size() > maxEvidenceSourceBytes {
-		_ = file.Close()
-		return nil, fmt.Errorf("evidence source %q must be a regular file no larger than 1 MiB", relative)
-	}
-	return file, nil
+	return repositoryfile.Open(root, relative, maxEvidenceSourceBytes)
 }
 
 func scanExcerpt(ctx context.Context, file *os.File, location discoveryDomain.SourceRange, limit int64) (string, bool, error) {

@@ -89,15 +89,14 @@ type ProjectTemplate struct {
 type PolicyPack struct {
 	AllowedRemoteCapabilities []string `json:"allowedRemoteCapabilities"`
 	AllowedRemoteActions      []string `json:"allowedRemoteActions"`
-	AllowedPluginPublishers   []string `json:"allowedPluginPublishers"`
+	AllowedRegistryPublishers []string `json:"allowedRegistryPublishers"`
 	TelemetryAllowed          bool     `json:"telemetryAllowed"`
 }
 
 // EnterpriseConfig combines restrictive policy with publisher requirements.
 type EnterpriseConfig struct {
-	Policy                     PolicyPack `json:"policy"`
-	RequiredPublisherIDs       []string   `json:"requiredPublisherIds"`
-	RequireSignedConfiguration bool       `json:"requireSignedConfiguration"`
+	Policy               PolicyPack `json:"policy"`
+	RequiredPublisherIDs []string   `json:"requiredPublisherIds"`
 }
 
 // RegistryEntry is signed plugin metadata and never installation authority.
@@ -121,12 +120,11 @@ type PluginRegistry struct {
 
 // EffectivePolicy is the restrictive intersection of installed policy bundles.
 type EffectivePolicy struct {
-	SourceBundleIDs            []string `json:"sourceBundleIds"`
-	AllowedRemoteCapabilities  []string `json:"allowedRemoteCapabilities"`
-	AllowedRemoteActions       []string `json:"allowedRemoteActions"`
-	AllowedPluginPublishers    []string `json:"allowedPluginPublishers"`
-	TelemetryAllowed           bool     `json:"telemetryAllowed"`
-	RequireSignedConfiguration bool     `json:"requireSignedConfiguration"`
+	SourceBundleIDs           []string `json:"sourceBundleIds"`
+	AllowedRemoteCapabilities []string `json:"allowedRemoteCapabilities"`
+	AllowedRemoteActions      []string `json:"allowedRemoteActions"`
+	AllowedRegistryPublishers []string `json:"allowedRegistryPublishers"`
+	TelemetryAllowed          bool     `json:"telemetryAllowed"`
 }
 
 // SyncDocument contains configuration only. Fleet registrations, certificate
@@ -140,10 +138,13 @@ type SyncDocument struct {
 
 // SyncPreview lists verified import effects and replacement warnings.
 type SyncPreview struct {
-	PublisherCount int      `json:"publisherCount"`
-	BundleCount    int      `json:"bundleCount"`
-	BundleIDs      []string `json:"bundleIds"`
-	Warnings       []string `json:"warnings"`
+	PublisherCount int         `json:"publisherCount"`
+	BundleCount    int         `json:"bundleCount"`
+	BundleIDs      []string    `json:"bundleIds"`
+	Warnings       []string    `json:"warnings"`
+	Publishers     []Publisher `json:"publishers"`
+	Bundles        []Bundle    `json:"bundles"`
+	SHA256         string      `json:"sha256"`
 }
 
 // AuditEvent records publisher trust and signed configuration mutations.

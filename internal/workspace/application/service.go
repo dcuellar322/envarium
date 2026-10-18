@@ -78,10 +78,11 @@ type SaveRequest struct {
 
 // ExecuteRequest selects a synchronous coordinated lifecycle operation.
 type ExecuteRequest struct {
-	Kind       domain.ExecutionKind
-	Policy     domain.FailurePolicy
-	ProfileID  string
-	RemoveData bool
+	ExpectedRevision int64
+	Kind             domain.ExecutionKind
+	Policy           domain.FailurePolicy
+	ProfileID        string
+	RemoveData       bool
 }
 
 // ExecutionError retains a fully persisted result for failed or partial runs.

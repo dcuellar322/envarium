@@ -27,6 +27,8 @@ test('shows unavailable providers and the exact redacted evidence before consent
         },
       ],
       preview: {
+        provider: 'codex',
+        consentSha256: 'a'.repeat(64),
         bundle: {
           version: 'envarium.dev/ai-evidence/v1alpha1',
           projectId: 'project-1',

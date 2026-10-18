@@ -21,10 +21,10 @@ func TestBootstrapIsOneTimeAndMutationRequiresCSRF(t *testing.T) {
 	if _, err := manager.Exchange(bootstrap.Token); !errors.Is(err, ErrInvalidBootstrap) {
 		t.Fatalf("second Exchange() error = %v", err)
 	}
-	if _, err := manager.ValidateMutation(session.ID, "wrong"); !errors.Is(err, ErrInvalidCSRF) {
+	if _, err := manager.ValidateSession("wrong"); !errors.Is(err, ErrInvalidSession) {
 		t.Fatalf("ValidateMutation(wrong) error = %v", err)
 	}
-	if _, err := manager.ValidateMutation(session.ID, session.CSRFToken); err != nil {
+	if _, err := manager.ValidateSession(session.CSRFToken); err != nil {
 		t.Fatalf("ValidateMutation() error = %v", err)
 	}
 }
@@ -60,15 +60,15 @@ func TestSessionsExpireWhenIdleButActiveSessionsRetainTheirAbsoluteLimit(t *test
 		t.Fatal(err)
 	}
 	now = now.Add(sessionIdleLifetime - time.Second)
-	if _, err := manager.ValidateSession(session.ID); err != nil {
+	if _, err := manager.ValidateSession(session.CSRFToken); err != nil {
 		t.Fatalf("active session rejected: %v", err)
 	}
 	now = now.Add(sessionIdleLifetime - time.Second)
-	if _, err := manager.ValidateSession(session.ID); err != nil {
+	if _, err := manager.ValidateSession(session.CSRFToken); err != nil {
 		t.Fatalf("refreshed session rejected: %v", err)
 	}
 	now = session.ExpiresAt.Add(time.Second)
-	if _, err := manager.ValidateSession(session.ID); !errors.Is(err, ErrInvalidSession) {
+	if _, err := manager.ValidateSession(session.CSRFToken); !errors.Is(err, ErrInvalidSession) {
 		t.Fatalf("session beyond absolute limit error = %v", err)
 	}
 
@@ -81,7 +81,31 @@ func TestSessionsExpireWhenIdleButActiveSessionsRetainTheirAbsoluteLimit(t *test
 		t.Fatal(err)
 	}
 	now = now.Add(sessionIdleLifetime + time.Second)
-	if _, err := manager.ValidateSession(idle.ID); !errors.Is(err, ErrInvalidSession) {
+	if _, err := manager.ValidateSession(idle.CSRFToken); !errors.Is(err, ErrInvalidSession) {
 		t.Fatalf("idle session error = %v", err)
+	}
+}
+
+func TestInvalidProofDoesNotKeepSessionAliveAndTabsAreIndependent(t *testing.T) {
+	manager := NewManager()
+	now := time.Now()
+	manager.now = func() time.Time { return now }
+	boot, _ := manager.IssueBootstrap()
+	first, _ := manager.Exchange(boot.Token)
+	boot, _ = manager.IssueBootstrap()
+	second, _ := manager.Exchange(boot.Token)
+	now = now.Add(sessionIdleLifetime - time.Second)
+	if _, err := manager.ValidateSession(first.ID); !errors.Is(err, ErrInvalidSession) {
+		t.Fatal("owner ID accepted as credential")
+	}
+	if _, err := manager.ValidateSession(second.CSRFToken); err != nil {
+		t.Fatal(err)
+	}
+	now = now.Add(2 * time.Second)
+	if _, err := manager.ValidateSession(first.CSRFToken); !errors.Is(err, ErrInvalidSession) {
+		t.Fatal("invalid proof extended idle life")
+	}
+	if _, err := manager.ValidateSession(second.CSRFToken); err != nil {
+		t.Fatal("another tab invalidated active session")
 	}
 }

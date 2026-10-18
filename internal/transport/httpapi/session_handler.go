@@ -3,7 +3,6 @@ package httpapi
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"envarium.dev/envarium/internal/transport/contract/generated"
 )
@@ -37,12 +36,10 @@ func (h *handler) CreateBrowserSession(w http.ResponseWriter, r *http.Request) {
 		writeApplicationError(w, r, err)
 		return
 	}
-	// #nosec G124 -- the browser API is intentionally HTTP-only on loopback;
-	// Secure would prevent this cookie from being returned on IP-literal origins.
-	http.SetCookie(w, &http.Cookie{
-		Name: sessionCookieName, Value: session.ID, Path: "/", HttpOnly: true,
-		SameSite: http.SameSiteStrictMode, MaxAge: int(time.Until(session.ExpiresAt).Seconds()),
-	})
+	// Expire any pre-hardening cookie. Browser authority is the origin-scoped
+	// proof returned below, never an automatically transmitted host cookie.
+	// #nosec G124 -- deletion only, empty value and negative MaxAge.
+	http.SetCookie(w, &http.Cookie{Name: sessionCookieName, Path: "/", MaxAge: -1, HttpOnly: true, SameSite: http.SameSiteStrictMode})
 	w.Header().Set("Cache-Control", "no-store")
 	writeJSON(w, http.StatusCreated, generated.BrowserSession{
 		CsrfToken: session.CSRFToken, ExpiresAt: session.ExpiresAt,

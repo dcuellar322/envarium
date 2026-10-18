@@ -264,9 +264,8 @@ export type EffectiveTeamPolicy = {
     sourceBundleIds: Array<string>;
     allowedRemoteCapabilities: Array<string>;
     allowedRemoteActions: Array<string>;
-    allowedPluginPublishers: Array<string>;
+    allowedRegistryPublishers: Array<string>;
     telemetryAllowed: boolean;
-    requireSignedConfiguration: boolean;
 };
 
 export type CuratedPlugin = {
@@ -290,6 +289,9 @@ export type TeamSyncDocument = {
 };
 
 export type TeamSyncPreview = {
+    sha256: string;
+    publishers: Array<TeamPublisher>;
+    bundles: Array<TeamBundle>;
     publisherCount: number;
     bundleCount: number;
     bundleIds: Array<string>;
@@ -297,6 +299,7 @@ export type TeamSyncPreview = {
 };
 
 export type TeamSyncImportRequest = {
+    previewSha256: string;
     document: TeamSyncDocument;
     confirmRisk: boolean;
 };
@@ -732,7 +735,14 @@ export type AiEvidenceBundle = {
     encodedBytes: number;
 };
 
+export type AiEvidencePreviewRequest = {
+    provider: string;
+    limits: AiGenerationLimits;
+};
+
 export type AiEvidencePreview = {
+    provider: string;
+    consentSha256: string;
     bundle: AiEvidenceBundle;
     encoded: {
         [key: string]: unknown;
@@ -742,6 +752,7 @@ export type AiEvidencePreview = {
 };
 
 export type CreateAiManifestEnhancementRequest = {
+    consentSha256: string;
     provider: string;
     limits: AiGenerationLimits;
 };
@@ -835,6 +846,9 @@ export type CreateBrowserSessionRequest = {
 };
 
 export type BrowserSession = {
+    /**
+     * Origin-scoped browser proof required on every HTTP request and WebSocket handshake; never placed in a cookie or URL.
+     */
     csrfToken: string;
     expiresAt: string;
 };
@@ -1316,6 +1330,10 @@ export type WorkspaceOperationRequest = {
     removeData?: boolean;
     confirmDataRemoval?: boolean;
     runRecipes?: boolean;
+    /**
+     * Reject a changed workspace before submission.
+     */
+    workspaceRevision?: number;
 };
 
 export type WorkspaceOperationAction = 'start' | 'stop';
@@ -1379,6 +1397,10 @@ export type Operation = {
     id: string;
     projectId: string;
     workspaceId?: string;
+    /**
+     * Immutable member identities captured when this workspace operation was submitted.
+     */
+    workspaceMemberIds?: Array<string>;
     kind: string;
     state: OperationState;
     errorCode?: string;
@@ -1909,7 +1931,7 @@ export type ListAiProposalProvidersResponses = {
 export type ListAiProposalProvidersResponse = ListAiProposalProvidersResponses[keyof ListAiProposalProvidersResponses];
 
 export type PreviewAiManifestEvidenceData = {
-    body: AiGenerationLimits;
+    body: AiEvidencePreviewRequest;
     headers: {
         'Idempotency-Key': string;
     };

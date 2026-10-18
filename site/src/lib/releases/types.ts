@@ -1,7 +1,8 @@
-export type ReleaseChannelName = 'stable' | 'beta' | 'nightly'
+export type ReleaseChannelName = 'stable' | 'alpha' | 'beta' | 'nightly'
 export type ReleasePlatform = 'macos' | 'windows' | 'linux' | 'wsl' | 'headless'
 export type ReleaseArchitecture = 'arm64' | 'amd64' | 'universal' | 'unknown'
-export type PackageType = 'dmg' | 'app' | 'msi' | 'nsis' | 'deb' | 'rpm' | 'appimage' | 'tar.gz' | 'zip'
+export type PackageType =
+  'dmg' | 'app' | 'msi' | 'nsis' | 'deb' | 'rpm' | 'appimage' | 'tar.gz' | 'zip'
 
 export interface ReleaseAsset {
   name: string

@@ -40,20 +40,14 @@ plugin, manifest, or database versions fail before mutation with an actionable
 error. A major-version migration must be previewable and create a verified
 backup before changing durable data.
 
-## Alpha and beta migration
+## Prelaunch compatibility
 
-Alpha/beta project manifests using `envarium.dev/v1alpha1` are accepted and
-normalized in memory. Preview or rewrite one explicitly with:
+Only `envarium.dev/v1` manifests are accepted. The unused prelaunch alpha
+normalizer and file-migration command were retired before public launch
+(ADR-0025). Generate a fresh stable manifest through deterministic onboarding
+for an obsolete prelaunch fixture. Incompatible plugin executables must be
+rebuilt against the stable SDK; the host never runs an incompatible plugin.
 
-```bash
-envarium manifest migrate .envarium/project.yml
-envarium manifest migrate .envarium/project.yml --write
-```
-
-`--write` creates `.envarium/project.yml.v1alpha1.bak` without overwriting an
-existing backup, then atomically replaces the source. Alpha plugin executables
-must be rebuilt against the v1 SDK and change both protocol identifiers; the
-host never runs an incompatible plugin as a migration shortcut.
-
-Embedded database migrations upgrade every schema produced by repository
-alpha/beta builds. See [v1 data migration](migration-v1.md).
+Ordered embedded database migrations remain supported for the active local
+installation, including verified pre-migration backups. See
+[v1 data migration](migration-v1.md).

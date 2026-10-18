@@ -91,7 +91,7 @@ func registerRequest() RegisterRequest {
 func TestServiceRequiresConfirmationAndPinsObservedIdentity(t *testing.T) {
 	t.Parallel()
 	repository := &memoryRepository{}
-	peer := &peerStub{snapshot: domain.Snapshot{Identity: remoteIdentity(), ObservedAt: time.Now()}}
+	peer := &peerStub{snapshot: domain.Snapshot{Identity: remoteIdentity(), Projects: []domain.Project{{ID: "project-1"}}, ObservedAt: time.Now()}}
 	service, err := NewService(repository, peer)
 	if err != nil {
 		t.Fatal(err)
@@ -117,7 +117,7 @@ func TestServiceRequiresConfirmationAndPinsObservedIdentity(t *testing.T) {
 func TestServiceEnforcesDeclaredGrantsConfirmationAndAudit(t *testing.T) {
 	t.Parallel()
 	repository := &memoryRepository{}
-	peer := &peerStub{snapshot: domain.Snapshot{Identity: remoteIdentity(), ObservedAt: time.Now()}, receipt: domain.OperationReceipt{OperationID: "op-1", State: "queued"}}
+	peer := &peerStub{snapshot: domain.Snapshot{Identity: remoteIdentity(), Projects: []domain.Project{{ID: "project-1"}}, ObservedAt: time.Now()}, receipt: domain.OperationReceipt{OperationID: "op-1", State: "queued"}}
 	service, _ := NewService(repository, peer)
 	machine, err := service.Register(context.Background(), registerRequest(), Actor{Type: "user", ID: "fixture"})
 	if err != nil {
@@ -142,7 +142,7 @@ func TestServiceEnforcesDeclaredGrantsConfirmationAndAudit(t *testing.T) {
 func TestServiceRecordsOfflineWithoutReturningPeerInternals(t *testing.T) {
 	t.Parallel()
 	repository := &memoryRepository{}
-	peer := &peerStub{snapshot: domain.Snapshot{Identity: remoteIdentity(), ObservedAt: time.Now()}}
+	peer := &peerStub{snapshot: domain.Snapshot{Identity: remoteIdentity(), Projects: []domain.Project{{ID: "project-1"}}, ObservedAt: time.Now()}}
 	service, _ := NewService(repository, peer)
 	machine, err := service.Register(context.Background(), registerRequest(), Actor{})
 	if err != nil {

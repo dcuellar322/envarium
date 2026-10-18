@@ -107,7 +107,7 @@ func (s *Server) operationCancel(ctx context.Context, _ *mcp.CallToolRequest, in
 	if err != nil {
 		return nil, mutationOutput{}, err
 	}
-	if err := s.scope.Authorize(agents.CapabilityOperationCancel, operation.ProjectId); err != nil {
+	if err := s.authorizeOperation(ctx, operation, agents.CapabilityOperationCancel); err != nil {
 		return nil, mutationOutput{}, err
 	}
 	operation, err = s.backend.CancelOperation(ctx, input.OperationID, input.RequestID)

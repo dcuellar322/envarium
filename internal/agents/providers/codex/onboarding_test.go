@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -14,7 +15,11 @@ import (
 )
 
 func TestProposalProviderUsesReadOnlyEmptySchemaConstrainedInvocation(t *testing.T) {
-	executable := filepath.Join(t.TempDir(), "codex")
+	name := "codex"
+	if runtime.GOOS == "windows" {
+		name += ".exe"
+	}
+	executable := filepath.Join(t.TempDir(), name)
 	if err := os.WriteFile(executable, []byte("fixture"), 0o700); err != nil {
 		t.Fatal(err)
 	}

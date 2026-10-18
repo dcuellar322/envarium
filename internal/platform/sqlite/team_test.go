@@ -27,7 +27,7 @@ func TestTeamRepositoryRoundTripAndAtomicSync(t *testing.T) {
 	bundle := domain.Bundle{
 		SchemaVersion: domain.BundleSchemaVersion, Kind: domain.KindPolicyPack,
 		Metadata:  domain.BundleMetadata{ID: "policy.base", Name: "Base", Version: "1.0.0", PublisherID: publisher.ID, CreatedAt: now},
-		Payload:   json.RawMessage(`{"allowedRemoteCapabilities":[],"allowedRemoteActions":[],"allowedPluginPublishers":[],"telemetryAllowed":false}`),
+		Payload:   json.RawMessage(`{"allowedRemoteCapabilities":[],"allowedRemoteActions":[],"allowedRegistryPublishers":[],"telemetryAllowed":false}`),
 		Signature: domain.Signature{KeyID: publisher.ID, Algorithm: domain.SignatureAlgorithm, Value: "signature"}, InstalledAt: &now,
 	}
 	if err := repository.InstallBundle(ctx, bundle); err != nil {

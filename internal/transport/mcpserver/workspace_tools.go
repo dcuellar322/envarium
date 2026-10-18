@@ -72,7 +72,7 @@ func (s *Server) workspaceStart(ctx context.Context, _ *mcp.CallToolRequest, inp
 	if err != nil {
 		return nil, mutationOutput{}, err
 	}
-	request := generated.WorkspaceOperationRequest{Action: generated.WorkspaceStart, RunRecipes: &input.RunRecipes}
+	request := generated.WorkspaceOperationRequest{Action: generated.WorkspaceStart, RunRecipes: &input.RunRecipes, WorkspaceRevision: &workspace.Revision}
 	if input.ProfileID != "" {
 		request.ProfileId = &input.ProfileID
 	}
@@ -100,7 +100,7 @@ func (s *Server) workspaceStop(ctx context.Context, _ *mcp.CallToolRequest, inpu
 		return nil, mutationOutput{}, err
 	}
 	request := generated.WorkspaceOperationRequest{
-		Action: generated.WorkspaceStop, ProfileId: stringValue(input.ProfileID),
+		Action: generated.WorkspaceStop, ProfileId: stringValue(input.ProfileID), WorkspaceRevision: &workspace.Revision,
 		RemoveData: &input.RemoveData, ConfirmDataRemoval: &input.ConfirmRisk,
 	}
 	operation, err := api.CreateWorkspaceOperation(ctx, workspace.Id, request, input.RequestID)

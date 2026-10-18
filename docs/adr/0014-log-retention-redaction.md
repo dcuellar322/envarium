@@ -28,3 +28,7 @@ cap and indicate that a value was redacted without exposing it.
 Log memory and disk use stay predictable. Redaction correctness is a security
 quality gate across every sink. Full-text indexing and compression may be added
 without changing the canonical event model.
+
+Current refinements: [ADR-0025](0025-origin-proof-and-reviewed-inputs.md)
+supersedes the browser cookie, replay retention and prelaunch compatibility
+exceptions where applicable.

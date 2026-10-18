@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"envarium.dev/envarium/internal/transport/contract"
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
 
@@ -37,7 +38,7 @@ func (e *Events) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	connection, err := websocket.Accept(w, r, &websocket.AcceptOptions{
-		OriginPatterns: []string{"localhost:*", "127.0.0.1:*", "[::1]:*"},
+		Subprotocols: []string{contract.BrowserSocketProtocol}, OriginPatterns: []string{"localhost:*", "127.0.0.1:*", "[::1]:*"},
 	})
 	if err != nil {
 		return

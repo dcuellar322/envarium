@@ -196,3 +196,15 @@ jobs:
       - run: make build
       - run: ./scripts/test-mcp-inspector.sh
       - run: ./bin/envarium version
+      - run: node --test scripts/release-quality.test.mjs
+      - uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
+        with:
+          distribution: goreleaser
+          version: v2.16.0
+          args: release --snapshot --clean --skip=publish,announce,sbom,validate
+      - name: Stage the same top-level assets as the release upload
+        run: |
+          mkdir -p .cache/release-smoke
+          cp dist/*.tar.gz dist/*.zip dist/*.json dist/checksums.txt .cache/release-smoke/
+      - run: pnpm --dir site releases:prepare-files .cache/release-smoke alpha
+      - run: pnpm --dir site exec tsx scripts/test-cli-packaging.ts ../.cache/release-smoke

@@ -3,9 +3,10 @@ package process
 import (
 	"context"
 	"errors"
-	gnet "github.com/shirou/gopsutil/v4/net"
 	"testing"
 	"time"
+
+	gnet "github.com/shirou/gopsutil/v4/net"
 
 	"envarium.dev/envarium/internal/runtime/domain"
 )

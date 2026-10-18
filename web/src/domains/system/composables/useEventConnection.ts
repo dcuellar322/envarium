@@ -1,3 +1,4 @@
+import { browserSocketProtocols } from '../../session/bootstrap'
 import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 
 type ConnectionState = 'connecting' | 'connected' | 'disconnected'
@@ -28,6 +29,7 @@ export function useEventConnection(
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const connection = new WebSocket(
       `${protocol}//${window.location.host}/ws/v1/events?after=${lastSequence}`,
+      browserSocketProtocols(),
     )
     socket = connection
     connection.addEventListener('message', (message) => {

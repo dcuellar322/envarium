@@ -104,25 +104,19 @@ func TestDesktopProjectsRetainsPartialWarningsAndDoesNotRetryDeniedReads(t *test
 	}
 }
 
-func TestDesktopProjectsFallsBackForOlderDaemonAndHonorsCancellation(t *testing.T) {
+func TestDesktopProjectsDoesNotFanOutForOldDaemonAndHonorsCancellation(t *testing.T) {
 	t.Parallel()
 	projects := []generated.Project{{Id: "one", TrustState: generated.ProjectTrustStateTrusted}}
-	unsupported := &httpclient.APIError{Status: http.StatusNotFound}
-	client := &desktopStatusFake{batchErr: unsupported}
+	client := &desktopStatusFake{batchErr: &httpclient.APIError{Status: http.StatusNotFound}}
 	result, err := desktopProjects(context.Background(), client, projects)
-	if err != nil || result[0].Runtime == nil || result[0].Health == nil || client.runtimeCalls != 1 || client.healthCalls != 1 {
-		t.Fatalf("legacy = %#v, %v", result, err)
+	if err != nil || len(result[0].Warnings) != 2 || client.runtimeCalls != 0 || client.healthCalls != 0 {
+		t.Fatalf("unsupported=%#v err=%v client=%#v", result, err, client)
 	}
-	for _, legacy := range []bool{false, true} {
-		ctx, cancel := context.WithCancel(context.Background())
-		client = &desktopStatusFake{cancelBatch: cancel}
-		if legacy {
-			client = &desktopStatusFake{batchErr: unsupported, cancelRuntime: cancel}
-		}
-		result, err = desktopProjects(ctx, client, projects)
-		cancel()
-		if !errors.Is(err, context.Canceled) || result != nil || client.healthCalls != 0 {
-			t.Fatalf("canceled legacy=%v result=%#v err=%v", legacy, result, err)
-		}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	client = &desktopStatusFake{cancelBatch: cancel}
+	result, err = desktopProjects(ctx, client, projects)
+	if !errors.Is(err, context.Canceled) || result != nil {
+		t.Fatalf("result=%#v err=%v", result, err)
 	}
 }

@@ -63,7 +63,7 @@ func (s *Server) operationWait(ctx context.Context, request *mcp.CallToolRequest
 		if readErr != nil {
 			return nil, operationWaitOutput{}, readErr
 		}
-		if readErr = s.scope.AuthorizeRead(operation.ProjectId); readErr != nil {
+		if readErr = s.authorizeOperation(ctx, operation, ""); readErr != nil {
 			return nil, operationWaitOutput{}, readErr
 		}
 		if operationTerminal(operation.State) {

@@ -389,3 +389,10 @@ unchanged.
 The cleanup also removed the unused `dev.switchyard.desktop` cache, WebKit
 directory, and binary-cookie file after confirming no process had them open.
 Current Envarium identity and browser data were retained.
+
+## October 2026 repair follow-up
+
+The historical evidence above is retained. Current repairs and external
+acceptance gates are recorded in the [repair evidence](security-cleanup-2026-10-18.md)
+and [acceptance ledger](acceptance-status.md). Prelaunch manifest migration was
+retired under ADR-0025; ordered database migrations remain supported.

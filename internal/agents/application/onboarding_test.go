@@ -32,7 +32,7 @@ func TestEnhancementSendsExactRedactedBundleAndCreatesReviewableProcessProposal(
 		t.Fatal(err)
 	}
 
-	preview, err := service.Preview(context.Background(), baseline.ID, Limits{})
+	preview, err := service.Preview(context.Background(), baseline.ID, "fixture", Limits{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func TestEnhancementSendsExactRedactedBundleAndCreatesReviewableProcessProposal(
 		t.Fatal("prompt-injection fixture should remain visibly inert evidence")
 	}
 
-	if err := service.Execute(context.Background(), "op-ai", baseline.ID, "fixture", Limits{}); err != nil {
+	if err := service.Execute(context.Background(), "op-ai", baseline.ID, "fixture", Limits{}, preview.ConsentSHA256); err != nil {
 		t.Fatal(err)
 	}
 	if string(provider.request.Bundle) != string(runs.started.Bundle) || string(provider.request.Bundle) != string(preview.Encoded) {
@@ -147,7 +147,13 @@ func TestEnhancementCancellationPersistsCancelledReceipt(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan error, 1)
-	go func() { done <- service.Execute(ctx, "op-cancel", baseline.ID, "blocking", Limits{}) }()
+	preview, err := service.Preview(ctx, baseline.ID, "blocking", Limits{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	go func() {
+		done <- service.Execute(ctx, "op-cancel", baseline.ID, "blocking", Limits{}, preview.ConsentSHA256)
+	}()
 	<-provider.started
 	cancel()
 	if err := <-done; !errors.Is(err, context.Canceled) {
@@ -168,7 +174,7 @@ func TestEnhancementRecoveryDoesNotRepeatSucceededProviderRun(t *testing.T) {
 	provider := &providerFake{output: json.RawMessage(`not-called`)}
 	registry, _ := NewRegistry(provider)
 	service, _ := NewEnhancementService(catalog, runs, readerFake{}, redactorFake{}, domainValidator{}, registry)
-	if err := service.Execute(context.Background(), "op-complete", baseline.ID, "fixture", Limits{}); err != nil {
+	if err := service.Execute(context.Background(), "op-complete", baseline.ID, "fixture", Limits{}, ""); err != nil {
 		t.Fatal(err)
 	}
 	if provider.calls != 0 {
@@ -258,13 +264,14 @@ func (domainValidator) Validate(_ string, candidate manifestDomain.Manifest) Can
 }
 
 type providerFake struct {
+	id      string
 	output  json.RawMessage
 	request ProviderRequest
 	calls   int
 }
 
 func (f *providerFake) Descriptor(context.Context) ProviderDescriptor {
-	return ProviderDescriptor{ID: "fixture", Name: "Fixture", Kind: "test", Available: true, SupportedBudgetKinds: []string{}}
+	return ProviderDescriptor{ID: firstNonEmpty(f.id, "fixture"), Name: "Fixture", Kind: "test", Available: true, SupportedBudgetKinds: []string{}}
 }
 func (f *providerFake) ProposeManifest(_ context.Context, request ProviderRequest) (ProviderResult, error) {
 	f.calls++

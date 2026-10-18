@@ -20,7 +20,7 @@ const (
 )
 
 type remoteAgent interface {
-	Identity(string) (domain.Identity, error)
+	Identity(context.Context, string) (domain.Identity, error)
 	Snapshot(context.Context, string) (domain.Snapshot, error)
 	Operate(context.Context, string, domain.OperationRequest) (domain.OperationReceipt, error)
 }
@@ -51,7 +51,7 @@ func (h *agentHandler) identity(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	identity, err := h.agent.Identity(fingerprint)
+	identity, err := h.agent.Identity(r.Context(), fingerprint)
 	if err != nil {
 		writeRemoteApplicationError(w, err)
 		return

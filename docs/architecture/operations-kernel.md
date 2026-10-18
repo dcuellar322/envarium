@@ -76,11 +76,19 @@ The loopback browser API is a separate router:
 
 1. `envarium ui` requests a one-time, one-minute bootstrap token over local
    IPC.
-2. The browser exchanges that token once for an HttpOnly, SameSite=Strict
-   session cookie and an eight-hour CSRF token.
-3. Browser queries require the session cookie. Mutations also require the CSRF
-   token and an idempotency key.
-4. WebSockets require the session cookie and an exact same-origin `Origin`.
+2. The browser exchanges that token once for an origin-scoped proof, kept in
+   session storage. No bearer cookie is issued. Idle and absolute expiry apply.
+3. Every browser API request carries the proof in `X-CSRF-Token`. Mutations
+   also require an exact Origin and an idempotency key.
+4. WebSockets require the proof in an authentication subprotocol and an exact
+   same-origin `Origin`. Only the public `envarium.v1` protocol is negotiated.
+   The server never echoes the secret as its selected
+   protocol. A cookie from another loopback port has no authority.
+
+The replay journal retains the latest 100,000 sequence positions, with at most
+1,023 pending cleanup between compactions. Pruned cursors receive
+`system.refresh_required`; clients reload authoritative state. Audit records
+are retained separately. SQLite reuses freed pages without a blocking VACUUM.
 
 Bootstrap and session responses are not cacheable. Browser responses set a
 restrictive content-security policy, no-referrer policy, MIME sniffing

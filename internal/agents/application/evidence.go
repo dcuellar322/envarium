@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strings"
 
+	catalogDomain "envarium.dev/envarium/internal/catalog/domain"
 	discoveryDomain "envarium.dev/envarium/internal/discovery/domain"
 	manifestDomain "envarium.dev/envarium/internal/manifest/domain"
 )
@@ -19,10 +20,14 @@ const maxExcerptBytes = 4 << 10
 
 // BundlePreview is the user-visible consent receipt for an exact provider payload.
 type BundlePreview struct {
-	Bundle  EvidenceBundle  `json:"bundle"`
-	Encoded json.RawMessage `json:"encoded"`
-	SHA256  string          `json:"sha256"`
-	Limits  Limits          `json:"limits"`
+	Provider      string `json:"provider"`
+	ConsentSHA256 string `json:"consentSha256"`
+	proposal      discoveryDomain.Proposal
+	project       catalogDomain.Project
+	Bundle        EvidenceBundle  `json:"bundle"`
+	Encoded       json.RawMessage `json:"encoded"`
+	SHA256        string          `json:"sha256"`
+	Limits        Limits          `json:"limits"`
 }
 
 func buildBundle(
@@ -61,7 +66,7 @@ func buildBundle(
 		return BundlePreview{}, fmt.Errorf("evidence receipt exceeds %d-byte budget", limits.EvidenceBytes)
 	}
 	digest := sha256.Sum256(encoded)
-	return BundlePreview{Bundle: bundle, Encoded: encoded, SHA256: hex.EncodeToString(digest[:]), Limits: limits}, nil
+	return BundlePreview{Bundle: bundle, Encoded: encoded, SHA256: hex.EncodeToString(digest[:]), Limits: limits, proposal: proposal, project: project}, nil
 }
 
 func orderedEvidence(values []discoveryDomain.Evidence) []discoveryEvidence {
@@ -335,4 +340,17 @@ func isSecretKey(key string) bool {
 		}
 	}
 	return false
+}
+
+func consentDigest(preview BundlePreview, provider string) (string, error) {
+	value, err := json.Marshal(struct {
+		Provider       string `json:"provider"`
+		Limits         Limits `json:"limits"`
+		EvidenceSHA256 string `json:"evidenceSha256"`
+	}{provider, preview.Limits, preview.SHA256})
+	if err != nil {
+		return "", err
+	}
+	digest := sha256.Sum256(value)
+	return hex.EncodeToString(digest[:]), nil
 }

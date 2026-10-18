@@ -32,6 +32,9 @@ func (s *Service) Execute(
 	if err != nil {
 		return domain.ExecutionSummary{}, err
 	}
+	if request.ExpectedRevision > 0 && request.ExpectedRevision != workspace.Revision {
+		return domain.ExecutionSummary{}, ErrRevisionConflict
+	}
 	if err := workspace.Validate(); err != nil {
 		return domain.ExecutionSummary{}, err
 	}

@@ -225,3 +225,10 @@ path: an unconditional call to the macOS-only autostart builder method. Use the
 plugin's cross-platform initializer instead, retaining explicit LaunchAgent
 selection on macOS and the platform implementation elsewhere. The Windows
 native compile gate remains enabled as regression coverage.
+
+## October 2026 repair follow-up
+
+The historical evidence above is retained. Current repairs and external
+acceptance gates are recorded in the [repair evidence](security-cleanup-2026-10-18.md)
+and [acceptance ledger](acceptance-status.md). Prelaunch manifest migration was
+retired under ADR-0025; ordered database migrations remain supported.

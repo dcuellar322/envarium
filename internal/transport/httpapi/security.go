@@ -2,13 +2,12 @@ package httpapi
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 
-	session "envarium.dev/envarium/internal/session/application"
+	"envarium.dev/envarium/internal/transport/contract"
 )
 
 const (
@@ -89,38 +88,61 @@ func withBrowserSecurity(sessions sessionService, next http.Handler) http.Handle
 			next.ServeHTTP(w, r)
 			return
 		}
-		cookie, err := r.Cookie(sessionCookieName)
-		if err != nil {
+		proof := r.Header.Get(csrfHeader)
+		if isProtectedWebSocketPath(r.URL.Path) {
+			if !sameOrigin(r) {
+				writeProblem(w, r, http.StatusForbidden, "ORIGIN_INVALID", "WebSocket origin rejected", "The event stream is same-origin only.")
+				return
+			}
+			proof = websocketProof(r)
+		}
+		if proof == "" {
 			writeProblem(w, r, http.StatusUnauthorized, "SESSION_REQUIRED", "Browser session required", "Launch the UI through envarium ui.")
 			return
 		}
-		active, err := sessions.ValidateSession(cookie.Value)
+		active, err := sessions.ValidateSession(proof)
 		if err != nil {
 			writeProblem(w, r, http.StatusUnauthorized, "SESSION_INVALID", "Browser session invalid", "Launch the UI again to create a fresh session.")
 			return
 		}
-		if isProtectedWebSocketPath(r.URL.Path) && !sameOrigin(r) {
-			writeProblem(w, r, http.StatusForbidden, "ORIGIN_INVALID", "WebSocket origin rejected", "The event stream is same-origin only.")
+		if isMutationRequest(r) && !sameOrigin(r) {
+			writeProblem(w, r, http.StatusForbidden, "ORIGIN_INVALID", "Mutation origin rejected", "Browser mutations are same-origin only.")
 			return
 		}
-		if isMutationRequest(r) {
-			if !sameOrigin(r) {
-				writeProblem(w, r, http.StatusForbidden, "ORIGIN_INVALID", "Mutation origin rejected", "Browser mutations are same-origin only.")
-				return
-			}
-			if _, err := sessions.ValidateMutation(cookie.Value, r.Header.Get(csrfHeader)); err != nil {
-				code := "CSRF_INVALID"
-				if !errors.Is(err, session.ErrInvalidCSRF) {
-					code = "SESSION_INVALID"
-				}
-				writeProblem(w, r, http.StatusForbidden, code, "Mutation authorization failed", "A valid session and CSRF token are required.")
-				return
-			}
+		if isProtectedWebSocketPath(r.URL.Path) {
+			// The proof authenticates the handshake; it must never be echoed as
+			// a negotiated application protocol by a downstream stream adapter.
+			r = r.Clone(r.Context())
+			r.Header.Set("Sec-WebSocket-Protocol", contract.BrowserSocketProtocol)
 		}
 		identity := identityFrom(r.Context())
 		identity.ActorID = active.ID
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), securityContextKey{}, identity)))
 	})
+}
+
+func websocketProof(r *http.Request) string {
+	const prefix = "envarium.session."
+	var proof string
+	publicProtocol := false
+	for _, header := range r.Header.Values("Sec-WebSocket-Protocol") {
+		for _, item := range strings.Split(header, ",") {
+			item = strings.TrimSpace(item)
+			if item == contract.BrowserSocketProtocol {
+				publicProtocol = true
+			}
+			if strings.HasPrefix(item, prefix) {
+				if proof != "" {
+					return ""
+				}
+				proof = strings.TrimPrefix(item, prefix)
+			}
+		}
+	}
+	if !publicProtocol {
+		return ""
+	}
+	return proof
 }
 
 func isProtectedWebSocketPath(path string) bool {

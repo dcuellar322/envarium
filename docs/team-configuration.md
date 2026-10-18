@@ -71,7 +71,10 @@ envarium team template render template.go-service \
 
 Policy packs use allowlists. Multiple packs and enterprise configurations are
 combined by restrictive intersection, so an empty allowed list denies that
-optional capability. Team policy can restrict remote inventory and lifecycle
+optional capability. All team configuration bundles require signatures; there is no optional unsigned
+configuration mode. `allowedRegistryPublishers` applies only to curated
+registry metadata; local native plugin trust remains a separate owner decision.
+Team policy can restrict remote inventory and lifecycle
 actions, registry publishers, and whether a user may opt in to anonymous
 metrics. It never broadens the built-in permission model.
 
@@ -96,13 +99,14 @@ envarium team sync export --recipient age1... --output team-config.age
 envarium team sync preview team-config.age \
   --identity receiving-machine.agekey
 envarium team sync import team-config.age \
-  --identity receiving-machine.agekey --yes
+  --identity receiving-machine.agekey --preview-sha256 <reviewed-digest> --yes
 ```
 
 The encrypted file uses the standard armored age format. Preview decrypts only
-in memory, validates every public identity and signature, lists bundle IDs, and
+in memory, validates every public identity and signature, shows exact publisher IDs/public keys and complete signed bundle payloads, and
 warns about replaced publisher metadata or signed bundle revisions. Import
-requires a second explicit confirmation. Encryption protects confidentiality;
+requires a second explicit confirmation and the `preview-sha256` receipt.
+Changes to the document or local replacement context invalidate that receipt. Encryption protects confidentiality;
 signature verification and the review step establish publisher trust.
 
 Back up signing keys and age identities with the same controls used for other

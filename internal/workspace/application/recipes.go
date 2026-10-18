@@ -16,10 +16,13 @@ type RecipeRunner interface {
 
 // ExecuteRecipes runs the durable workspace recipe list in declared order.
 // Recipes are intentionally opt-in and never run as part of ordinary start.
-func (s *Service) ExecuteRecipes(ctx context.Context, workspaceID string, runner RecipeRunner) error {
+func (s *Service) ExecuteRecipes(ctx context.Context, workspaceID string, runner RecipeRunner, expectedRevision ...int64) error {
 	workspace, err := s.repository.Get(ctx, workspaceID)
 	if err != nil {
 		return err
+	}
+	if len(expectedRevision) > 0 && expectedRevision[0] != workspace.Revision {
+		return ErrRevisionConflict
 	}
 	if runner == nil {
 		return fmt.Errorf("%w: workspace recipe runner is unavailable", ErrInvalidRequest)

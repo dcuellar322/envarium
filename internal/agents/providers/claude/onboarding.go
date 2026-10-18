@@ -15,6 +15,7 @@ import (
 
 // ProposalConfig configures the Claude Code CLI adapter.
 type ProposalConfig struct {
+	Disabled          bool
 	Executable, Model string
 	Runner            providerProcess.Runner
 	Redactor          agents.TextRedactor
@@ -36,6 +37,9 @@ func NewProposalProvider(config ProposalConfig) *ProposalProvider {
 
 // Descriptor reports current Claude Code availability and supported limits.
 func (p *ProposalProvider) Descriptor(context.Context) agents.ProviderDescriptor {
+	if p.config.Disabled {
+		return agents.ProviderDescriptor{ID: "claude", Name: "Claude CLI", Kind: "cli", Available: false, Reason: "Provider is disabled in settings"}
+	}
 	_, err := providerProcess.CanonicalExecutable(p.config.Executable)
 	descriptor := agents.ProviderDescriptor{ID: "claude", Name: "Claude Code", Kind: "cli", Model: p.config.Model, Available: err == nil, SupportedBudgetKinds: []string{"evidence_bytes", "output_bytes", "timeout", "turns", "cost_usd"}}
 	if err != nil {
@@ -55,6 +59,9 @@ func (p *ProposalProvider) Diagnose(ctx context.Context, request agents.Provider
 }
 
 func (p *ProposalProvider) generate(ctx context.Context, request agents.ProviderRequest, prompt []byte) (agents.ProviderResult, error) {
+	if p.config.Disabled {
+		return agents.ProviderResult{}, agents.ErrProviderUnavailable
+	}
 	executable, err := providerProcess.CanonicalExecutable(p.config.Executable)
 	if err != nil {
 		return agents.ProviderResult{}, fmt.Errorf("%w: %v", agents.ErrProviderUnavailable, err)

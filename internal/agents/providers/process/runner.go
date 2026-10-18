@@ -6,12 +6,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"envarium.dev/envarium/internal/foundation/repositoryfile"
 	"envarium.dev/envarium/internal/platform/processgroup"
 )
 
@@ -103,16 +103,16 @@ func CanonicalExecutable(configured string) (string, error) {
 		return "", errors.New("provider executable is required")
 	}
 	if filepath.IsAbs(configured) {
-		return executableFile(configured)
+		return executableCandidates(configured)
 	}
-	if strings.ContainsRune(configured, filepath.Separator) {
+	if strings.ContainsAny(configured, `/\`) {
 		return "", errors.New("provider executable must be an absolute path or bare command name")
 	}
 	for _, directory := range filepath.SplitList(os.Getenv("PATH")) {
 		if !filepath.IsAbs(directory) {
 			continue
 		}
-		if resolved, err := executableFile(filepath.Join(directory, configured)); err == nil {
+		if resolved, err := executableCandidates(filepath.Join(directory, configured)); err == nil {
 			return resolved, nil
 		}
 	}
@@ -128,7 +128,7 @@ func executableFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if !info.Mode().IsRegular() || info.Mode().Perm()&0o111 == 0 {
+	if !info.Mode().IsRegular() || !executableMode(info.Mode(), resolved) {
 		return "", fmt.Errorf("provider executable %q is not executable", path)
 	}
 	return resolved, nil
@@ -145,21 +145,7 @@ func AllowEnvironment(names ...string) []string {
 	return result
 }
 
-func readBounded(path string, limit int64) ([]byte, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = file.Close() }()
-	value, err := io.ReadAll(io.LimitReader(file, limit+1))
-	if err != nil {
-		return nil, err
-	}
-	if int64(len(value)) > limit {
-		return nil, fmt.Errorf("provider result exceeded %d bytes", limit)
-	}
-	return value, nil
-}
-
 // ReadBounded reads a provider result file with a hard cap.
-func ReadBounded(path string, limit int64) ([]byte, error) { return readBounded(path, limit) }
+func ReadBounded(path string, limit int64) ([]byte, error) {
+	return repositoryfile.Read(filepath.Dir(path), filepath.Base(path), limit)
+}

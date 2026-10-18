@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"envarium.dev/envarium/internal/foundation/repositoryfile"
 	"envarium.dev/envarium/internal/plugins/domain"
 	pluginsdk "envarium.dev/envarium/sdk/plugin"
 )
@@ -157,19 +158,7 @@ func executableFingerprint(manifest []byte, executable string) (string, error) {
 }
 
 func readBoundedFile(path string, limit int64) ([]byte, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = file.Close() }()
-	raw, err := io.ReadAll(io.LimitReader(file, limit+1))
-	if err != nil {
-		return nil, err
-	}
-	if int64(len(raw)) > limit {
-		return nil, errors.New("file exceeds plugin limit")
-	}
-	return raw, nil
+	return repositoryfile.Read(filepath.Dir(path), filepath.Base(path), limit)
 }
 
 func stringCapabilities(values []pluginsdk.Capability) []string {

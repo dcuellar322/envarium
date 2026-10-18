@@ -3,11 +3,12 @@ package application
 import (
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"envarium.dev/envarium/internal/foundation/repositoryfile"
 )
 
 const maxDiscoveryFileSize = 1024 * 1024
@@ -37,27 +38,11 @@ func SelectRoot(path string) (Root, error) {
 
 // ReadFile reads one known relative file while enforcing size and containment.
 func (r Root) ReadFile(relative string) ([]byte, error) {
-	resolved, err := r.resolveFile(relative)
+	_, err := r.resolveFile(relative)
 	if err != nil {
 		return nil, err
 	}
-	file, err := os.Open(resolved)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = file.Close() }()
-	info, err := file.Stat()
-	if err != nil {
-		return nil, err
-	}
-	if !info.Mode().IsRegular() || info.Size() > maxDiscoveryFileSize {
-		return nil, fmt.Errorf("discovery file %q must be a regular file no larger than 1 MiB", relative)
-	}
-	contents, err := io.ReadAll(io.LimitReader(file, maxDiscoveryFileSize+1))
-	if err != nil {
-		return nil, err
-	}
-	return contents, nil
+	return repositoryfile.Read(r.Path, relative, maxDiscoveryFileSize)
 }
 
 // HasFile reports whether one known relative discovery file exists without
@@ -82,7 +67,8 @@ func (r Root) HasFile(relative string) (bool, error) {
 }
 
 func (r Root) resolveFile(relative string) (string, error) {
-	if relative == "" || filepath.IsAbs(relative) || relative == ".env" || strings.HasPrefix(relative, ".env.") && relative != ".env.example" {
+	name := filepath.Base(filepath.Clean(relative))
+	if !filepath.IsLocal(relative) || name == ".env" || strings.HasPrefix(name, ".env.") && name != ".env.example" {
 		return "", fmt.Errorf("discovery file %q is not allowed", relative)
 	}
 	path := filepath.Join(r.Path, filepath.Clean(relative))

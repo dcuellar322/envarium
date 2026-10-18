@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import { classifyReleaseAsset, missingStableArtifacts, stableArtifactRequirements } from '../../src/lib/releases/artifactContract'
 import { normalizeManifest, normalizeRelease, releaseChannelForTag, validatePublishedStable } from '../../src/lib/releases/normalize'
 import { formatBytes, recommendAsset } from '../../src/lib/releases/recommend'
@@ -126,4 +128,16 @@ describe('recommendation', () => {
 it('accepts a manifest without a published stable channel', () => {
   const manifest: ReleaseManifest = { schemaVersion: 'envarium.release-manifest/v1', generatedAt: '1970-01-01T00:00:00Z', repository: 'dcuellar322/envarium', channels: {}, releases: [] }
   expect(() => validatePublishedStable(manifest)).not.toThrow()
+})
+
+
+it('keeps release tag grammar identical between shell and site', () => {
+ const script=fileURLToPath(new URL('../../../scripts/release-channel.sh',import.meta.url))
+ const cases: Array<[string,string|undefined]>=[['v1.0.0','stable'],['v1.0.0-alpha.1','alpha'],['v1.0.0-beta.rc-2','beta'],['v1.0.0-nightly.20261018.sha','nightly'],['v01.0.0',undefined],['v1.0.0-beta.1..2',undefined],['v1.0.0-alpha.',undefined],['v1.0.0-other.1',undefined]]
+ for(const [tag,channel] of cases){
+  expect(releaseChannelForTag(tag)).toBe(channel)
+  const result=spawnSync('sh',[script,tag],{encoding:'utf8'})
+  expect(result.status).toBe(channel ? 0 : 2)
+  if(channel)expect(result.stdout.trim()).toBe(channel)
+ }
 })

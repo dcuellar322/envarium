@@ -91,8 +91,7 @@ func writeApplicationError(w http.ResponseWriter, r *http.Request, err error) {
 		writeProblem(w, r, http.StatusUnauthorized, "BOOTSTRAP_INVALID", "Bootstrap token invalid", "The token is unknown, expired, or already used.")
 	case errors.Is(err, session.ErrInvalidSession):
 		writeProblem(w, r, http.StatusUnauthorized, "SESSION_INVALID", "Browser session invalid", "Launch the UI again to create a fresh session.")
-	case errors.Is(err, session.ErrInvalidCSRF):
-		writeProblem(w, r, http.StatusForbidden, "CSRF_INVALID", "CSRF token invalid", "Mutations require the session CSRF token.")
+
 	default:
 		writeProblem(w, r, http.StatusInternalServerError, "INTERNAL", "Internal server error", "The request could not be completed.")
 	}

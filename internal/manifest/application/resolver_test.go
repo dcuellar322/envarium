@@ -17,7 +17,7 @@ func TestResolveLocalOverlayWinsWithoutModifyingPortableManifest(t *testing.T) {
 		t.Fatal(err)
 	}
 	portable := []byte(`
-schemaVersion: envarium.dev/v1alpha1
+schemaVersion: envarium.dev/v1
 kind: Project
 metadata: {id: overlay-test, name: Portable Name}
 repository: {root: .}

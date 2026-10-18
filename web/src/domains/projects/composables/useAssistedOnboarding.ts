@@ -80,7 +80,11 @@ export function useAssistedOnboarding(proposal: Ref<ManifestProposal | undefined
     error.value = ''
     evidenceConsented.value = false
     try {
-      evidencePreview.value = await previewAIEvidence(proposal.value.id, limits)
+      evidencePreview.value = await previewAIEvidence(
+        proposal.value.id,
+        selectedProvider.value,
+        limits,
+      )
     } catch (cause) {
       error.value = cause instanceof Error ? cause.message : 'Evidence preview failed.'
     } finally {
@@ -89,13 +93,24 @@ export function useAssistedOnboarding(proposal: Ref<ManifestProposal | undefined
   }
 
   async function enhance() {
-    if (!proposal.value || !selectedProvider.value || !evidenceConsented.value) return
+    if (
+      !proposal.value ||
+      !selectedProvider.value ||
+      !evidenceConsented.value ||
+      !evidencePreview.value
+    )
+      return
     pending.value = true
     error.value = ''
     run.value = undefined
     const sourceProposalId = proposal.value.id
     try {
-      operation.value = await startAIEnhancement(sourceProposalId, selectedProvider.value, limits)
+      operation.value = await startAIEnhancement(
+        sourceProposalId,
+        selectedProvider.value,
+        limits,
+        evidencePreview.value.consentSha256,
+      )
       const generation = ++pollGeneration
       pending.value = false
       while (

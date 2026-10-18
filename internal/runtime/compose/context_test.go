@@ -2,9 +2,10 @@ package compose
 
 import (
 	"context"
-	"envarium.dev/envarium/internal/runtime/domain"
 	"io"
 	"testing"
+
+	"envarium.dev/envarium/internal/runtime/domain"
 )
 
 func TestDefaultContextUsesOneFreshInspectCommand(t *testing.T) {

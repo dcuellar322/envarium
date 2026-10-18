@@ -2,17 +2,12 @@ package cli
 
 import (
 	"context"
-	"errors"
-	"net/http"
 
 	"envarium.dev/envarium/internal/transport/contract/generated"
-	"envarium.dev/envarium/internal/transport/httpclient"
 )
 
 type desktopStatusClient interface {
 	StatusBatch(context.Context, []string) (generated.ProjectObservationBatch, error)
-	Runtime(context.Context, string) (generated.RuntimeObservation, error)
-	Health(context.Context, string) (generated.ProjectHealth, error)
 }
 
 func desktopProjects(ctx context.Context, client desktopStatusClient, projects []generated.Project) ([]desktopProjectSnapshot, error) {
@@ -38,13 +33,7 @@ func desktopProjects(ctx context.Context, client desktopStatusClient, projects [
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
 		}
-		if legacyStatusBatch(err) {
-			for _, id := range chunk {
-				if err := legacyDesktopStatus(ctx, client, &result[indices[id]]); err != nil {
-					return nil, err
-				}
-			}
-		} else if err == nil {
+		if err == nil {
 			wanted := make(map[string]struct{}, len(chunk))
 			for _, id := range chunk {
 				wanted[id] = struct{}{}
@@ -72,25 +61,4 @@ func desktopProjects(ctx context.Context, client desktopStatusClient, projects [
 		}
 	}
 	return result, nil
-}
-
-func legacyDesktopStatus(ctx context.Context, client desktopStatusClient, item *desktopProjectSnapshot) error {
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-	if value, err := client.Runtime(ctx, item.Project.Id); err == nil {
-		item.Runtime = &value
-	}
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-	if value, err := client.Health(ctx, item.Project.Id); err == nil {
-		item.Health = &value
-	}
-	return ctx.Err()
-}
-
-func legacyStatusBatch(err error) bool {
-	var apiErr *httpclient.APIError
-	return errors.As(err, &apiErr) && (apiErr.Status == http.StatusNotFound || apiErr.Status == http.StatusBadRequest || apiErr.Status == http.StatusMethodNotAllowed)
 }

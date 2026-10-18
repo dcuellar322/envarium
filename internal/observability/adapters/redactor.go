@@ -42,6 +42,12 @@ func (r *Redactor) AddSecret(value string) {
 		return
 	}
 	r.mu.Lock()
+	for _, existing := range r.secrets {
+		if existing == value {
+			r.mu.Unlock()
+			return
+		}
+	}
 	r.secrets = append(r.secrets, value)
 	r.mu.Unlock()
 }
@@ -63,6 +69,8 @@ func (r *Redactor) RedactLog(entry runtime.LogEntry) runtime.LogEntry {
 
 // RedactText applies the canonical credential policy to provider evidence and diagnostic text.
 func (r *Redactor) RedactText(value string) (string, bool) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	return r.redact(value)
 }
 

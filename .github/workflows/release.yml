@@ -14,6 +14,7 @@ permissions:
   contents: write
   id-token: write
   attestations: write
+  actions: read
 
 jobs:
   metadata:
@@ -34,6 +35,10 @@ jobs:
           git show-ref --verify --quiet "refs/tags/$RELEASE_TAG"
           test "$(git rev-parse HEAD)" = "$(git rev-list -n 1 "$RELEASE_TAG")"
           sh ./scripts/release-channel.sh "$RELEASE_TAG"
+      - name: Require exact-commit quality results
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: RELEASE_SHA="$(git rev-parse HEAD)" node scripts/release-quality.mjs
 
   cli:
     name: CLI archives, checksums, and SBOMs

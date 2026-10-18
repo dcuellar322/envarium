@@ -63,9 +63,12 @@ func NewAgentService(identity domain.Identity, inventory LocalInventory, operato
 }
 
 // Identity returns the bounded peer identity to an inventory-authorized controller.
-func (s *AgentService) Identity(controller string) (domain.Identity, error) {
+func (s *AgentService) Identity(ctx context.Context, controller string) (domain.Identity, error) {
 	if !s.authorized(controller, domain.CapabilityInventoryRead) {
 		return domain.Identity{}, ErrPermissionDenied
+	}
+	if err := s.authorizePolicy(ctx, domain.CapabilityInventoryRead, ""); err != nil {
+		return domain.Identity{}, err
 	}
 	return s.identity, nil
 }
@@ -74,6 +77,9 @@ func (s *AgentService) Identity(controller string) (domain.Identity, error) {
 func (s *AgentService) Snapshot(ctx context.Context, controller string) (domain.Snapshot, error) {
 	if !s.authorized(controller, domain.CapabilityInventoryRead) {
 		return domain.Snapshot{}, ErrPermissionDenied
+	}
+	if err := s.authorizePolicy(ctx, domain.CapabilityInventoryRead, ""); err != nil {
+		return domain.Snapshot{}, err
 	}
 	projects, environments, err := s.inventory.Inventory(ctx)
 	if err != nil {
@@ -84,9 +90,22 @@ func (s *AgentService) Snapshot(ctx context.Context, controller string) (domain.
 
 // Operate authorizes and submits one confirmed typed controller request.
 func (s *AgentService) Operate(ctx context.Context, controller string, request domain.OperationRequest) (domain.OperationReceipt, error) {
-	capability := domain.CapabilityProjectOperate
+	// Check the requested grant before reading local metadata, then derive
+	// authority from actual registered target identities rather than a field.
+	requested := domain.CapabilityProjectOperate
 	if request.EnvironmentID != "" {
-		capability = domain.CapabilityEnvironmentManage
+		requested = domain.CapabilityEnvironmentManage
+	}
+	if !s.authorized(controller, requested) {
+		return domain.OperationReceipt{}, ErrPermissionDenied
+	}
+	projects, environments, err := s.inventory.Inventory(ctx)
+	if err != nil {
+		return domain.OperationReceipt{}, err
+	}
+	capability, err := targetCapability(projects, environments, request)
+	if err != nil {
+		return domain.OperationReceipt{}, err
 	}
 	if !s.authorized(controller, capability) {
 		return domain.OperationReceipt{}, ErrPermissionDenied
@@ -118,4 +137,29 @@ func (s *AgentService) ControllerFingerprints() []string {
 	}
 	slices.Sort(result)
 	return result
+}
+
+func (s *AgentService) authorizePolicy(ctx context.Context, capability domain.Capability, action string) error {
+	if s.policy == nil {
+		return nil
+	}
+	if err := s.policy.AuthorizeRemote(ctx, string(capability), action); err != nil {
+		return fmt.Errorf("%w: %v", ErrPermissionDenied, err)
+	}
+	return nil
+}
+
+func targetCapability(projects []domain.Project, environments []domain.Environment, request domain.OperationRequest) (domain.Capability, error) {
+	if !slices.ContainsFunc(projects, func(p domain.Project) bool { return p.ID == request.ProjectID }) {
+		return "", ErrPermissionDenied
+	}
+	if request.EnvironmentID == "" {
+		return domain.CapabilityProjectOperate, nil
+	}
+	for _, environment := range environments {
+		if environment.ID == request.EnvironmentID && environment.ProjectID == request.ProjectID && environment.Availability == "available" {
+			return domain.CapabilityEnvironmentManage, nil
+		}
+	}
+	return "", ErrPermissionDenied
 }

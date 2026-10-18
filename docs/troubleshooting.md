@@ -25,7 +25,7 @@ after automated redaction.
 - **Ports unavailable:** host policy may prevent process ownership details.
   Bindings without an accessible PID remain honest partial observations.
 - **Manifest rejected:** unknown fields and unsupported versions fail closed.
-  Run `envarium manifest migrate <path>` for alpha manifests, then validate.
+  Replace prelaunch alpha manifests through deterministic onboarding, then validate the stable v1 manifest.
 - **Database newer than binary:** install the matching/newer Envarium build or
   restore a pre-migration backup to a separate data directory. Never force an
   old binary to open it.

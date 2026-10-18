@@ -31,7 +31,7 @@ func TestSignedBundleTrustVerificationAndTamperRejection(t *testing.T) {
 	bundle := signTeamBundle(t, privateKey, domain.KindPolicyPack, "policy.base", domain.PolicyPack{
 		AllowedRemoteCapabilities: []string{"inventory.read"},
 		AllowedRemoteActions:      []string{"start"},
-		AllowedPluginPublishers:   []string{publisher.ID},
+		AllowedRegistryPublishers: []string{publisher.ID},
 		TelemetryAllowed:          false,
 	})
 	if _, err := service.Install(context.Background(), bundle, true, Actor{Type: "user", ID: "test"}); err != nil {
@@ -61,7 +61,7 @@ func TestEffectivePolicyAndCuratedRegistryAreRestrictive(t *testing.T) {
 	}
 	policy := signTeamBundle(t, privateKey, domain.KindPolicyPack, "policy.restrictive", domain.PolicyPack{
 		AllowedRemoteCapabilities: []string{"inventory.read"}, AllowedRemoteActions: []string{"start"},
-		AllowedPluginPublishers: []string{publisher.ID}, TelemetryAllowed: false,
+		AllowedRegistryPublishers: []string{publisher.ID}, TelemetryAllowed: false,
 	})
 	installTeamBundle(t, service, policy)
 	registry := signTeamBundle(t, privateKey, domain.KindPluginRegistry, "registry.official", domain.PluginRegistry{Entries: []domain.RegistryEntry{
@@ -70,8 +70,8 @@ func TestEffectivePolicyAndCuratedRegistryAreRestrictive(t *testing.T) {
 	}})
 	installTeamBundle(t, service, registry)
 	enterprise := signTeamBundle(t, privateKey, domain.KindEnterpriseConfig, "enterprise.required", domain.EnterpriseConfig{
-		Policy:               domain.PolicyPack{AllowedRemoteCapabilities: []string{"inventory.read"}, AllowedRemoteActions: []string{"start"}, AllowedPluginPublishers: []string{publisher.ID}},
-		RequiredPublisherIDs: []string{"publisher-00000000000000000000000000000000"}, RequireSignedConfiguration: true,
+		RequiredPublisherIDs: []string{"publisher-00000000000000000000000000000000"},
+		Policy:               domain.PolicyPack{AllowedRemoteCapabilities: []string{"inventory.read"}, AllowedRemoteActions: []string{"start"}, AllowedRegistryPublishers: []string{publisher.ID}},
 	})
 	if _, err := service.Install(context.Background(), enterprise, true, Actor{}); !errors.Is(err, ErrPolicyDenied) {
 		t.Fatalf("Install(enterprise with unknown required publisher) error = %v", err)
@@ -110,7 +110,7 @@ func TestTemplateRenderAndEncryptedSyncReview(t *testing.T) {
 		t.Fatal(err)
 	}
 	template := signTeamBundle(t, privateKey, domain.KindProjectTemplate, "template.go", domain.ProjectTemplate{
-		Manifest:  json.RawMessage(`{"schemaVersion":"envarium.dev/v1alpha1","name":"{{name}}","root":"{{root}}"}`),
+		Manifest:  json.RawMessage(`{"schemaVersion":"envarium.dev/v1","name":"{{name}}","root":"{{root}}"}`),
 		Variables: []domain.TemplateVariable{{ID: "name", Label: "Name", Required: true}, {ID: "root", Label: "Root", Default: "."}},
 	})
 	installTeamBundle(t, service, template)
@@ -127,11 +127,23 @@ func TestTemplateRenderAndEncryptedSyncReview(t *testing.T) {
 		t.Fatal(err)
 	}
 	importService, importRepository := newTeamTestService(t)
-	preview, err := importService.ImportSync(context.Background(), document, false, Actor{})
+	preview, err := importService.ImportSync(context.Background(), document, false, "", Actor{})
 	if !errors.Is(err, ErrConfirmation) || preview.BundleCount != 1 {
 		t.Fatalf("ImportSync preview=%#v error=%v", preview, err)
 	}
-	if _, err := importService.ImportSync(context.Background(), document, true, Actor{Type: "user", ID: "test"}); err != nil {
+	if len(preview.Publishers) != 1 || len(preview.Bundles) != 1 || preview.Publishers[0].PublicKey == "" || len(preview.Bundles[0].Payload) == 0 {
+		t.Fatal("preview omits reviewed trust or configuration")
+	}
+	changed := document
+	changed.Publishers = append([]domain.Publisher(nil), document.Publishers...)
+	changed.Publishers[0].Name = "Unreviewed replacement"
+	if _, err := importService.ImportSync(context.Background(), changed, true, preview.SHA256, Actor{}); err == nil {
+		t.Fatal("changed import accepted")
+	}
+	if len(importRepository.publishers) != 0 {
+		t.Fatal("rejected import changed trust")
+	}
+	if _, err := importService.ImportSync(context.Background(), document, true, preview.SHA256, Actor{Type: "user", ID: "test"}); err != nil {
 		t.Fatal(err)
 	}
 	if len(importRepository.publishers) != 1 || len(importRepository.bundles) != 1 {

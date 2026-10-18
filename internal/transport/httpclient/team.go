@@ -122,8 +122,8 @@ func (c *Client) PreviewTeamSync(ctx context.Context, document generated.TeamSyn
 }
 
 // ImportTeamSync applies one previewed configuration document.
-func (c *Client) ImportTeamSync(ctx context.Context, document generated.TeamSyncDocument, confirm bool) (generated.TeamSyncPreview, error) {
-	response, err := c.generated.ImportTeamSyncWithResponse(ctx, generated.TeamSyncImportRequest{Document: document, ConfirmRisk: confirm})
+func (c *Client) ImportTeamSync(ctx context.Context, document generated.TeamSyncDocument, confirm bool, previewSHA256 string) (generated.TeamSyncPreview, error) {
+	response, err := c.generated.ImportTeamSyncWithResponse(ctx, generated.TeamSyncImportRequest{Document: document, ConfirmRisk: confirm, PreviewSha256: previewSHA256})
 	if err != nil {
 		return generated.TeamSyncPreview{}, fmt.Errorf("import team sync: %w", err)
 	}

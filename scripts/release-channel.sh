@@ -2,7 +2,7 @@
 set -eu
 
 tag=${1:-}
-if ! printf '%s\n' "$tag" | grep -Eq '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(nightly|alpha|beta)\.[0-9A-Za-z][0-9A-Za-z.-]*)?$'; then
+if ! printf '%s\n' "$tag" | grep -Eq '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(nightly|alpha|beta)\.[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$'; then
 	printf 'invalid Envarium release tag: %s\n' "$tag" >&2
 	exit 2
 fi

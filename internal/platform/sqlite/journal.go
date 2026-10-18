@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -12,15 +13,17 @@ import (
 
 // Journal is a durable SQLite event journal with in-process fan-out.
 type Journal struct {
-	queries *generated.Queries
-	mu      sync.Mutex
-	nextID  uint64
-	live    map[uint64]chan events.Envelope
+	queries    *generated.Queries
+	connection *sql.DB
+	pruned     bool
+	mu         sync.Mutex
+	nextID     uint64
+	live       map[uint64]chan events.Envelope
 }
 
 // NewJournal creates a journal over database.
 func NewJournal(database *Database) *Journal {
-	return &Journal{queries: database.queries, live: make(map[uint64]chan events.Envelope)}
+	return &Journal{queries: database.queries, connection: database.connection, live: make(map[uint64]chan events.Envelope)}
 }
 
 // Publish persists an event before broadcasting it.
@@ -28,7 +31,14 @@ func (j *Journal) Publish(ctx context.Context, event events.Envelope) (events.En
 	if len(event.Payload) == 0 {
 		event.Payload = json.RawMessage(`{}`)
 	}
-	sequence, err := j.queries.CreateJournalEvent(ctx, generated.CreateJournalEventParams{
+	j.mu.Lock()
+	defer j.mu.Unlock()
+	tx, err := j.connection.BeginTx(ctx, nil)
+	if err != nil {
+		return events.Envelope{}, err
+	}
+	defer func() { _ = tx.Rollback() }()
+	sequence, err := j.queries.WithTx(tx).CreateJournalEvent(ctx, generated.CreateJournalEventParams{
 		ID: event.ID, Type: event.Type, OccurredAt: formatTime(event.OccurredAt),
 		ProjectID: nullable(event.ProjectID), OperationID: nullable(event.OperationID),
 		PayloadJson: string(event.Payload),
@@ -37,7 +47,18 @@ func (j *Journal) Publish(ctx context.Context, event events.Envelope) (events.En
 		return events.Envelope{}, fmt.Errorf("insert journal event: %w", err)
 	}
 	event.Sequence = sequence
-	j.mu.Lock()
+	if !j.pruned || sequence%1024 == 0 {
+		// Sequence is monotonic even after deletion; this indexed range avoids a
+		// table count or a full history scan on the monitoring hot path.
+		_, pruneErr := tx.ExecContext(ctx, "DELETE FROM event_journal WHERE sequence <= ?", sequence-100000)
+		if pruneErr != nil {
+			return events.Envelope{}, fmt.Errorf("prune replay journal: %w", pruneErr)
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return events.Envelope{}, err
+	}
+	j.pruned = true
 	for id, subscriber := range j.live {
 		select {
 		case subscriber <- event:
@@ -46,7 +67,6 @@ func (j *Journal) Publish(ctx context.Context, event events.Envelope) (events.En
 			delete(j.live, id)
 		}
 	}
-	j.mu.Unlock()
 	return event, nil
 }
 
@@ -61,6 +81,11 @@ func (j *Journal) Replay(ctx context.Context, after int64, limit int) ([]events.
 	if err != nil {
 		return nil, false, fmt.Errorf("replay journal events: %w", err)
 	}
+	var oldest sql.NullInt64
+	if err := j.connection.QueryRowContext(ctx, "SELECT MIN(sequence) FROM event_journal").Scan(&oldest); err != nil {
+		return nil, false, err
+	}
+	stale := oldest.Valid && after < oldest.Int64-1
 	truncated := len(records) > limit
 	if truncated {
 		records = records[:limit]
@@ -77,7 +102,7 @@ func (j *Journal) Replay(ctx context.Context, after int64, limit int) ([]events.
 			OperationID: record.OperationID.String, Payload: json.RawMessage(record.PayloadJson),
 		})
 	}
-	return result, truncated, nil
+	return result, truncated || stale, nil
 }
 
 // Subscribe returns a bounded live event stream and idempotent cancellation.

@@ -203,7 +203,7 @@ func (s *Server) operationGet(ctx context.Context, _ *mcp.CallToolRequest, input
 	}
 	operation, err := s.backend.Operation(ctx, input.OperationID)
 	if err == nil {
-		err = s.scope.AuthorizeRead(operation.ProjectId)
+		err = s.authorizeOperation(ctx, operation, "")
 	}
 	return nil, operationOutput{SchemaVersion: schemaVersion, Operation: operation}, err
 }

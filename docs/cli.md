@@ -132,7 +132,7 @@ envarium team registry
 envarium team sync key-generate --output <new-age-identity>
 envarium team sync export --recipient <age-recipient> --output <new-age-file>
 envarium team sync preview <age-file> --identity <age-identity>
-envarium team sync import <age-file> --identity <age-identity> --yes
+envarium team sync import <age-file> --identity <age-identity> --preview-sha256 <reviewed-digest> --yes
 
 envarium telemetry status
 envarium telemetry enable --endpoint <https-url> --yes
@@ -378,7 +378,6 @@ migration preview are read-only. `data migrate --write` requires the daemon to
 be stopped and creates a verified non-overwriting pre-migration backup before
 changing schema. `data backup --output <path>` refuses to overwrite its output.
 
-`envarium manifest migrate <path>` previews the stable v1 YAML. `--write`
-creates a `.v1alpha1.bak` copy and atomically replaces the source. These
-commands follow the same JSON envelope and semantic error behavior as other
-CLI groups.
+Prelaunch manifest migration was retired before launch. Use deterministic
+onboarding to produce a reviewed stable v1 manifest. Database backup and
+migration commands retain the normal JSON envelope and semantic error behavior.

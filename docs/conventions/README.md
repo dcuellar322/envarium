@@ -71,7 +71,7 @@ cross-cutting implementation conventions explicit.
   is asynchronous.
 - Machine-readable CLI and MCP responses use stable, bounded, versioned
   schemas. Streaming output uses JSON Lines.
-- Browser mutations require a same-origin local session and CSRF token.
+- Every browser API/WS request requires origin-scoped session proof; mutations also require exact Origin checks.
 - Unknown input fields fail validation unless a contract explicitly permits
   extension data.
 

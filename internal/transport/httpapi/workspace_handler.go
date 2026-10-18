@@ -96,9 +96,19 @@ func (h *handler) CreateWorkspaceOperation(
 		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request body invalid", "Provide a workspace start or stop action and supported policy options.")
 		return
 	}
-	if _, err := h.workspaces.Get(r.Context(), workspaceID); err != nil {
+	selectedWorkspace, err := h.workspaces.Get(r.Context(), workspaceID)
+	if err != nil {
 		writeApplicationError(w, r, err)
 		return
+	}
+	if request.WorkspaceRevision != nil && *request.WorkspaceRevision != selectedWorkspace.Revision {
+		writeApplicationError(w, r, workspace.ErrRevisionConflict)
+		return
+	}
+	request.WorkspaceRevision = &selectedWorkspace.Revision
+	members := make([]string, 0, len(selectedWorkspace.Members))
+	for _, member := range selectedWorkspace.Members {
+		members = append(members, member.ProjectID)
 	}
 	removeData := request.RemoveData != nil && *request.RemoveData
 	confirmed := request.ConfirmDataRemoval != nil && *request.ConfirmDataRemoval
@@ -106,7 +116,10 @@ func (h *handler) CreateWorkspaceOperation(
 		writeProblem(w, r, http.StatusConflict, "WORKSPACE_DATA_CONFIRMATION_REQUIRED", "Data removal confirmation required", "Bulk stop preserves runtime data unless removeData and confirmDataRemoval are both explicit.")
 		return
 	}
-	input, _ := json.Marshal(request)
+	input, _ := json.Marshal(struct {
+		generated.WorkspaceOperationRequest
+		WorkspaceMemberIDs []string `json:"workspaceMemberIds"`
+	}{request, members})
 	identity := identityFrom(r.Context())
 	operation, err := h.operations.Submit(r.Context(), operations.SubmitRequest{
 		ProjectID: "workspace:" + workspaceID, WorkspaceID: workspaceID, Kind: "workspace." + string(request.Action), Input: input,

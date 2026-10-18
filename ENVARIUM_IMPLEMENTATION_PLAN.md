@@ -8,7 +8,10 @@
 > **Architecture:** Local-first modular monolith with strict domain boundaries  
 > **Agent strategy:** MCP-first, provider-neutral, schema-constrained, least-privilege  
 > **Document status:** Implementation blueprint  
-> **Last updated:** 2026-07-16
+> **Last updated:** 2026-10-18
+> **Current acceptance status:** [Acceptance ledger](docs/progress/acceptance-status.md).
+> Phase 0–19 checkboxes below preserve the original planning baseline; the
+> ledger separates implemented/tested behavior from signed-release/manual gates.
 
 ---
 

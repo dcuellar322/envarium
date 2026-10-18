@@ -18,6 +18,7 @@ builds:
 
 archives:
   - id: envarium
+    name_template: 'envarium_{{ if eq .Os "darwin" }}Darwin{{ else if eq .Os "linux" }}Linux{{ else }}Windows{{ end }}_{{ if eq .Arch "amd64" }}x86_64{{ else }}{{ .Arch }}{{ end }}'
     formats: [tar.gz]
     format_overrides:
       - goos: windows

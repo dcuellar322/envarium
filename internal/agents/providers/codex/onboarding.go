@@ -13,6 +13,7 @@ import (
 
 // ProposalConfig configures the Codex CLI assisted-onboarding adapter.
 type ProposalConfig struct {
+	Disabled          bool
 	Executable, Model string
 	Runner            providerProcess.Runner
 	Redactor          agents.TextRedactor
@@ -34,6 +35,9 @@ func NewProposalProvider(config ProposalConfig) *ProposalProvider {
 
 // Descriptor reports current Codex CLI availability and supported limits.
 func (p *ProposalProvider) Descriptor(context.Context) agents.ProviderDescriptor {
+	if p.config.Disabled {
+		return agents.ProviderDescriptor{ID: "codex", Name: "Codex CLI", Kind: "cli", Available: false, Reason: "Provider is disabled in settings"}
+	}
 	_, err := providerProcess.CanonicalExecutable(p.config.Executable)
 	descriptor := agents.ProviderDescriptor{ID: "codex", Name: "Codex CLI", Kind: "cli", Model: p.config.Model, Available: err == nil, SupportedBudgetKinds: []string{"evidence_bytes", "output_bytes", "timeout"}}
 	if err != nil {
@@ -53,6 +57,9 @@ func (p *ProposalProvider) Diagnose(ctx context.Context, request agents.Provider
 }
 
 func (p *ProposalProvider) generate(ctx context.Context, request agents.ProviderRequest, prompt []byte) (agents.ProviderResult, error) {
+	if p.config.Disabled {
+		return agents.ProviderResult{}, agents.ErrProviderUnavailable
+	}
 	executable, err := providerProcess.CanonicalExecutable(p.config.Executable)
 	if err != nil {
 		return agents.ProviderResult{}, fmt.Errorf("%w: %v", agents.ErrProviderUnavailable, err)

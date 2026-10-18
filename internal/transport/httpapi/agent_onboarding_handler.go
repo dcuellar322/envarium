@@ -14,14 +14,14 @@ func (h *handler) ListAIProposalProviders(w http.ResponseWriter, r *http.Request
 }
 
 func (h *handler) PreviewAIManifestEvidence(w http.ResponseWriter, r *http.Request, proposalID generated.ProposalId, _ generated.PreviewAIManifestEvidenceParams) {
-	var request generated.AIGenerationLimits
+	var request generated.AIEvidencePreviewRequest
 	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 8<<10))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&request); err != nil {
 		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request body invalid", "Provide supported assisted-onboarding limits.")
 		return
 	}
-	preview, err := h.ai.Preview(r.Context(), proposalID, generationLimits(request))
+	preview, err := h.ai.Preview(r.Context(), proposalID, request.Provider, generationLimits(request.Limits))
 	if err != nil {
 		writeApplicationError(w, r, err)
 		return
@@ -48,7 +48,7 @@ func (h *handler) CreateAIManifestEnhancement(w http.ResponseWriter, r *http.Req
 		return
 	}
 	identity := identityFrom(r.Context())
-	input, _ := json.Marshal(map[string]any{"proposalId": proposalID, "provider": request.Provider, "limits": limits})
+	input, _ := json.Marshal(map[string]any{"proposalId": proposalID, "provider": request.Provider, "limits": limits, "consentSha256": request.ConsentSha256})
 	operation, err := h.operations.Submit(r.Context(), operations.SubmitRequest{
 		ProjectID: proposal.ProjectID, Kind: "manifest.enhance", IdempotencyKey: params.IdempotencyKey,
 		Input: input, ActorType: string(identity.Access), ActorID: identity.ActorID,

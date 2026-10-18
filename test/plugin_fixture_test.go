@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"testing"
 
+	observabilityAdapters "envarium.dev/envarium/internal/observability/adapters"
 	"envarium.dev/envarium/internal/platform/sqlite"
 	pluginsAdapters "envarium.dev/envarium/internal/plugins/adapters"
 	pluginsApplication "envarium.dev/envarium/internal/plugins/application"
@@ -53,9 +54,13 @@ func TestSampleExternalPluginInspectsAndOperatesFixture(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = database.Close() })
+	redactor, err := observabilityAdapters.NewRedactor(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	service, err := pluginsApplication.NewService(
 		sqlite.NewPluginRepository(database), pluginsAdapters.NewDirectoryDiscovery(filepath.Join(data, "plugins")),
-		pluginsAdapters.NewProcessRunner("test-host", nil), trustedFixtureProject{root: filepath.Join(root, "test", "fixtures", "node-single-process")},
+		pluginsAdapters.NewProcessRunner("test-host", nil), trustedFixtureProject{root: filepath.Join(root, "test", "fixtures", "node-single-process")}, redactor,
 	)
 	if err != nil {
 		t.Fatal(err)

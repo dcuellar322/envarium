@@ -215,7 +215,7 @@ func decodePublicKey(value string) (ed25519.PublicKey, error) {
 func validPolicy(policy domain.PolicyPack) bool {
 	return subset(policy.AllowedRemoteCapabilities, []string{"inventory.read", "project.operate", "environment.manage"}) &&
 		subset(policy.AllowedRemoteActions, []string{"start", "stop", "restart", "rebuild"}) &&
-		validPublisherIDs(policy.AllowedPluginPublishers)
+		validPublisherIDs(policy.AllowedRegistryPublishers)
 }
 
 func validPublisherIDs(values []string) bool {

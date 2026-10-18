@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"envarium.dev/envarium/internal/foundation/secretfile"
 	teamAdapters "envarium.dev/envarium/internal/team/adapters"
 	teamDomain "envarium.dev/envarium/internal/team/domain"
 	"envarium.dev/envarium/internal/transport/contract/generated"
@@ -125,6 +126,7 @@ func newTeamSyncPreviewCommand(options *rootOptions) *cobra.Command {
 func newTeamSyncImportCommand(options *rootOptions) *cobra.Command {
 	identity := ""
 	yes := false
+	previewSHA256 := ""
 	command := &cobra.Command{
 		Use:   "import <encrypted-file>",
 		Short: "Import a previewed encrypted configuration document",
@@ -141,7 +143,7 @@ func newTeamSyncImportCommand(options *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			preview, err := client.ImportTeamSync(command.Context(), document, true)
+			preview, err := client.ImportTeamSync(command.Context(), document, true, previewSHA256)
 			if err != nil {
 				return err
 			}
@@ -150,6 +152,8 @@ func newTeamSyncImportCommand(options *rootOptions) *cobra.Command {
 	}
 	command.Flags().StringVar(&identity, "identity", "", "owner-only age identity file")
 	command.Flags().BoolVar(&yes, "yes", false, "confirm publisher trust and signed bundle installation")
+	command.Flags().StringVar(&previewSHA256, "preview-sha256", "", "digest returned by the reviewed sync preview")
+	_ = command.MarkFlagRequired("preview-sha256")
 	_ = command.MarkFlagRequired("identity")
 	return command
 }
@@ -157,6 +161,9 @@ func newTeamSyncImportCommand(options *rootOptions) *cobra.Command {
 func decryptTeamSync(path, identityPath string) (generated.TeamSyncDocument, error) {
 	encrypted, err := readBoundedFile(path, 20<<20)
 	if err != nil {
+		return generated.TeamSyncDocument{}, err
+	}
+	if err := secretfile.Validate(identityPath); err != nil {
 		return generated.TeamSyncDocument{}, err
 	}
 	identity, err := readBoundedFile(identityPath, 8<<10)
@@ -179,10 +186,18 @@ func writeTeamSyncPreview(options *rootOptions, kind string, preview generated.T
 		if _, err := fmt.Fprintf(writer, "publishers: %d\nbundles: %d\n", preview.PublisherCount, preview.BundleCount); err != nil {
 			return err
 		}
-		for _, bundleID := range preview.BundleIds {
-			if _, err := fmt.Fprintf(writer, "bundle: %s\n", bundleID); err != nil {
-				return err
-			}
+		if _, err := fmt.Fprintf(writer, "preview-sha256: %s\n", preview.Sha256); err != nil {
+			return err
+		}
+		details, err := json.MarshalIndent(struct {
+			Publishers []generated.TeamPublisher `json:"publishers"`
+			Bundles    []generated.TeamBundle    `json:"bundles"`
+		}{preview.Publishers, preview.Bundles}, "", "  ")
+		if err != nil {
+			return err
+		}
+		if _, err = fmt.Fprintln(writer, string(details)); err != nil {
+			return err
 		}
 		for _, warning := range preview.Warnings {
 			if _, err := fmt.Fprintf(writer, "warning: %s\n", warning); err != nil {

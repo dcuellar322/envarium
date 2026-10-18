@@ -28,3 +28,7 @@ permissive CORS, expire idle sessions, and audit mutations.
 Local clients share handlers while retaining transport-specific authentication.
 Socket/pipe cleanup and permissions are tested. Browser JavaScript never
 receives the Docker socket or generic process-execution capability.
+
+Current refinements: [ADR-0025](0025-origin-proof-and-reviewed-inputs.md)
+supersedes the browser cookie, replay retention and prelaunch compatibility
+exceptions where applicable.

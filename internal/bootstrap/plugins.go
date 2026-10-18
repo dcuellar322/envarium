@@ -35,6 +35,7 @@ func newPluginService(
 				Trusted: project.TrustState == catalogDomain.TrustTrusted,
 			}, nil
 		}),
+		redactor,
 	)
 	if err != nil {
 		return nil, err
