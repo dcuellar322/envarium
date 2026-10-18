@@ -4,6 +4,7 @@ import type { GitBranchSwitchPlan, RuntimePlan } from '../../../api/generated/ty
 import { isTerminalOperation } from '../../../lib/format'
 import { trackOperation, useOperationStore } from '../../operations/store'
 import { previewBranchSwitch, switchBranch } from '../gitApi'
+import { registerEnvironments } from '../../environments/api'
 import { loadProjectRuntime, previewRuntimeAction, runRuntimeAction } from '../api'
 
 type Step =
@@ -141,6 +142,16 @@ export function useCheckoutTransition(
     const current = generation
     const completed = steps.shift()
     busy.value = true
+    if (completed?.kind === 'branch') {
+      try {
+        message.value = 'Reconciling ports from the selected branch before its start review…'
+        await registerEnvironments(context.value)
+      } catch (cause) {
+        if (current === generation) fail(cause)
+        return
+      }
+      if (current !== generation) return
+    }
     await Promise.all(
       [
         'project-git',

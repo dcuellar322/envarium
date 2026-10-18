@@ -34,11 +34,12 @@ fails transactionally. No additional closed-app Git or socket poll was added.
 - Go vet, full tests, full race tests, lint, architecture and repository checks pass.
 - Migration tests cover schema 18 upgrades, preserving ownership, a lossless
   downgrade, and refusal to collapse isolated ownership on downgrade.
-- UI lint/type checks and 88 tests in 35 files pass; 17 macOS visual checks pass.
+- UI lint/type checks and 89 tests in 35 files pass; 17 macOS visual checks pass.
 - All six real browser flows pass. The native-worktree acceptance also passes
   separately with explicit port-registry attribution checks. It runs two owned
   Git worktrees concurrently, verifies separate ports, logs and live metrics,
-  switches one to a distinct branch response while the other's run stays intact,
+  switches one to a distinct branch response and different port declaration while
+  the other's run stays intact,
   and reviews moving services to the other checkout. Fixture services are stopped
   before its repositories are removed.
 - Site quality passes: 124 documentation sources, 160 built pages, no content or

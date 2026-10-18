@@ -71,7 +71,8 @@ ownership-verified socket at the allocated TCP port.
 Choose **Inspect checkout** to see that checkout's staged, unstaged, untracked
 and conflicted files, branches, and HEAD. **Review switch** guides you through
 stopping the selected root's services, reviewing an existing local branch, and
-reviewing a fresh start plan from the new branch. The main checkout also checks
+reconciling its declared ports, and reviewing a fresh start plan from the new
+branch. The main checkout also checks
 its registered primary environment before changing files.
 
 To move running services to another existing checkout, use **Switch services

@@ -11,9 +11,11 @@ const api = vi.hoisted(() => ({
   runRuntimeAction: vi.fn(),
   previewBranchSwitch: vi.fn(),
   switchBranch: vi.fn(),
+  registerEnvironments: vi.fn(),
 }))
 vi.mock('../../src/domains/projects/api', () => api)
 vi.mock('../../src/domains/projects/gitApi', () => api)
+vi.mock('../../src/domains/environments/api', () => api)
 afterEach(() => {
   cleanup()
   vi.resetAllMocks()
@@ -81,6 +83,7 @@ test('reviews stop, branch, then fresh start and waits for each successful opera
   await transition.confirm()
   trackOperation(operation('transition-branch', 'succeeded'))
   await waitFor(() => expect(transition.runtimePlan.value?.action).toBe('start'))
+  expect(api.registerEnvironments).toHaveBeenCalledWith('p')
   expect(api.previewRuntimeAction).toHaveBeenLastCalledWith('env-a', 'start')
 })
 test('failure stops the sequence; cancellation of review performs no mutation', async () => {
@@ -105,4 +108,16 @@ test('leaving checkout context cancels future stages while queued work remains t
   trackOperation(operation('transition-unmount', 'succeeded'))
   await new Promise((resolve) => setTimeout(resolve, 0))
   expect(api.previewRuntimeAction).toHaveBeenCalledTimes(1)
+})
+test('failed port reconciliation leaves the new branch stopped without preparing a start', async () => {
+  setup()
+  api.loadProjectRuntime.mockResolvedValue({ state: 'stopped' })
+  api.switchBranch.mockResolvedValueOnce(operation('transition-lease-fail'))
+  api.registerEnvironments.mockRejectedValueOnce(new Error('Port allocation unavailable'))
+  await transition.prepare(['env-a'], 'env-a', 'feature')
+  await transition.confirm()
+  trackOperation(operation('transition-lease-fail', 'succeeded'))
+  await waitFor(() => expect(transition.error.value).toContain('Port allocation unavailable'))
+  expect(api.previewRuntimeAction).not.toHaveBeenCalled()
+  expect(transition.runtimePlan.value).toBeUndefined()
 })

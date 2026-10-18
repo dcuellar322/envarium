@@ -5120,7 +5120,8 @@ ownership-verified socket at the allocated TCP port.
 Choose **Inspect checkout** to see that checkout's staged, unstaged, untracked
 and conflicted files, branches, and HEAD. **Review switch** guides you through
 stopping the selected root's services, reviewing an existing local branch, and
-reviewing a fresh start plan from the new branch. The main checkout also checks
+reconciling its declared ports, and reviewing a fresh start plan from the new
+branch. The main checkout also checks
 its registered primary environment before changing files.
 
 To move running services to another existing checkout, use **Switch services
@@ -6178,11 +6179,12 @@ fails transactionally. No additional closed-app Git or socket poll was added.
 - Go vet, full tests, full race tests, lint, architecture and repository checks pass.
 - Migration tests cover schema 18 upgrades, preserving ownership, a lossless
   downgrade, and refusal to collapse isolated ownership on downgrade.
-- UI lint/type checks and 88 tests in 35 files pass; 17 macOS visual checks pass.
+- UI lint/type checks and 89 tests in 35 files pass; 17 macOS visual checks pass.
 - All six real browser flows pass. The native-worktree acceptance also passes
   separately with explicit port-registry attribution checks. It runs two owned
   Git worktrees concurrently, verifies separate ports, logs and live metrics,
-  switches one to a distinct branch response while the other's run stays intact,
+  switches one to a distinct branch response and different port declaration while
+  the other's run stays intact,
   and reviews moving services to the other checkout. Fixture services are stopped
   before its repositories are removed.
 - Site quality passes: 124 documentation sources, 160 built pages, no content or

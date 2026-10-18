@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, writeFileSync, rmSync, readFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { browserBootstrapPath } from '../helpers/browserSession'
 
@@ -86,6 +86,13 @@ ports:
   git('branch', 'feature-b')
   git('switch', '-c', 'next')
   writeFileSync(join(main, 'server.mjs'), server('next'))
+  const manifestPath = join(main, '.envarium/project.yml')
+  writeFileSync(
+    manifestPath,
+    readFileSync(manifestPath, 'utf8')
+      .replaceAll('ports.http', 'ports.alt')
+      .replace('{id: http, service: web', '{id: alt, service: web'),
+  )
   git('add', '.')
   git('commit', '-m', 'Branch-specific response')
   git('switch', 'main')
@@ -175,11 +182,16 @@ ports:
     await page.getByRole('button', { name: 'Switch branch', exact: true }).click()
     await expect(page.getByRole('dialog', { name: /start 1 native process/ })).toBeVisible()
     expect(git('-C', a, 'branch', '--show-current').trim()).toBe('next')
+    const newAllocation = await api(page, `environments/${envA.id}`)
+    const newPortA = newAllocation.allocation.portLeases.find(
+      (lease: { portId: string }) => lease.portId === 'alt',
+    ).hostPort
+    expect(newPortA).not.toBe(portA)
     await page.getByRole('button', { name: 'Confirm start', exact: true }).click()
     await expect
       .poll(async () => {
         try {
-          return await (await page.request.get(`http://127.0.0.1:${portA}`)).text()
+          return await (await page.request.get(`http://127.0.0.1:${newPortA}`)).text()
         } catch {
           return 'waiting for listener'
         }
