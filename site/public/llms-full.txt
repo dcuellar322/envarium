@@ -10180,6 +10180,24 @@ corrected handshake and complete integration suite passed. A source build of
 GoReleaser hit a tool dependency conflict; the checksum-verified official
 2.16.0 binary built all six archives successfully.
 
+## Installed-workload resource follow-up
+
+The repaired control plane was installed with 11 registered projects and 16
+running user containers. Graceful daemon replacement preserved their container
+identities, start times and restart counts. Its first closed-app measurement
+averaged 1.27% CPU over three minutes, above the existing under-1% target.
+
+Docker's default two idle connections per host caused observation connection
+churn. The observer now retains up to 32 idle connections, and finite metrics
+responses consume a bounded trailing chunk before closure. A real HTTP fixture
+demonstrates three unchanged metric samples using one connection instead of
+four; concurrent eight-request waves also reuse their connections. Verified TLS,
+redirect handling and context-specific Unix/named-pipe dialing are preserved.
+Full Go tests, race tests, vet and lint pass. Polling intervals, sample contents
+and repository-file safety checks are unchanged. A missing-source traversal
+experiment did not show a useful improvement and was removed. Final installed
+CPU/memory measurements and workflow links accompany the retained fix report.
+
 ## Remaining external acceptance
 
 Signed OS installation/notarization, production updater signing and retained-data
