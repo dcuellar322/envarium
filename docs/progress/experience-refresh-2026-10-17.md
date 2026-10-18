@@ -164,3 +164,29 @@ cycle shares one inventory and post-statistics inspections, without retaining
 old restart values, changing intervals or weakening lifecycle reconciliation.
 Focused race tests verify reuse, fresh restart counts, inactive containers,
 partial failures, cancellation and current trust at the optimized boundary.
+
+### Installed acceptance and native follow-up
+
+The installed `a9cffe7478da` daemon meets sustained closed-app acceptance:
+**0.781%, 0.772%, 0.834%** in three consecutive five-minute windows, overall
+**0.795%**, median RSS **49.13 MiB**, median charged footprint **34.21 MiB**.
+All sixteen real services retained available CPU and memory at every raw point
+(90 points each, zero partial samples, worst gap 10.074 seconds). Their container
+identities, start times and restart counts remained unchanged. CPU includes
+attributable live/reaped children, not just the daemon's own process.
+
+The initial installed native measurements were **4.868% visible** and
+**1.382% hidden**, including daemon, app and WebKit helpers, over five minutes
+each. These improve the earlier approximately 6.00% / 1.80% samples, but hidden
+still misses this work's stricter closed-plus-0.5-point target. A native-only
+follow-up narrows the tray presentation payload and confines a bounded Go runtime
+policy to its short-lived snapshot child. In 25 reads against the live daemon,
+child CPU fell from 45.65 ms to 34.11 ms, payload from 34,479 to 7,198 bytes,
+and maximum child RSS from 18.84 to 18.35 MiB. Read sources, intervals, tray and
+notification inputs remain unchanged. Installation and repeated native
+acceptance measurements for this final adapter change are pending.
+
+The `a9cffe7478da` hosted main CI, full site CI, security checks and site deploy
+all passed. This includes Linux/Windows/macOS adapters, native packaging, all
+five browser integration flows and seventeen visual cases. The final native-only
+commit still requires its own hosted verification.

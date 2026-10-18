@@ -80,13 +80,17 @@ impl<R: Runtime> Sidecar<R> {
     async fn run<T: DeserializeOwned>(&self, args: &[&str]) -> Result<T, SidecarError> {
         let mut complete_args = vec!["--json", "--compact", "--non-interactive", "--no-color"];
         complete_args.extend_from_slice(args);
-        let output = self
+        let mut command = self
             .app
             .shell()
             .sidecar("envarium")
             .map_err(|error| SidecarError(format!("bundled sidecar unavailable: {error}")))?
             .args(complete_args)
-            .env("PATH", crate::environment::sidecar_path())
+            .env("PATH", crate::environment::sidecar_path());
+        for (key, value) in snapshot_environment(args) {
+            command = command.env(*key, *value);
+        }
+        let output = command
             .output()
             .await
             .map_err(|error| SidecarError(format!("sidecar launch failed: {error}")))?;
@@ -104,6 +108,21 @@ impl<R: Runtime> Sidecar<R> {
         }
         serde_json::from_slice(&output.stdout)
             .map_err(|_| SidecarError("sidecar returned an invalid structured response".into()))
+    }
+}
+
+// This leaf process only fetches a bounded read model and exits. Limit its Go
+// scheduler and percentage-triggered GC; the soft memory limit still enables GC
+// for larger snapshots. Never pass this policy to daemon startup or mutations.
+fn snapshot_environment(args: &[&str]) -> &'static [(&'static str, &'static str)] {
+    if args == ["desktop", "snapshot"] {
+        &[
+            ("GOMAXPROCS", "1"),
+            ("GOGC", "off"),
+            ("GOMEMLIMIT", "64MiB"),
+        ]
+    } else {
+        &[]
     }
 }
 
@@ -158,6 +177,23 @@ fn validate_identifier(value: &str) -> Result<(), SidecarError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn snapshot_resource_policy_never_reaches_daemon_or_mutations() {
+        let settings = snapshot_environment(&["desktop", "snapshot"]);
+        assert!(settings.contains(&("GOMAXPROCS", "1")));
+        assert!(settings.contains(&("GOGC", "off")));
+        assert!(settings.contains(&("GOMEMLIMIT", "64MiB")));
+        for args in [
+            vec!["daemon", "--detach"],
+            vec!["start", "project"],
+            vec!["stop", "project"],
+            vec!["ui"],
+            vec!["version"],
+        ] {
+            assert!(snapshot_environment(&args).is_empty());
+        }
+    }
 
     #[test]
     fn rejects_unbounded_or_shell_like_identifiers() {

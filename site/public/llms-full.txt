@@ -1163,6 +1163,23 @@ inspections, stopped containers do no statistics work, partial failures remain
 explicit, and the pre-inventory ownership token still guards reconciliation.
 Direct lifecycle inspection and planning retain their existing fresh paths.
 
+Keep the native tray snapshot a presentation DTO containing the actual menu and
+notification inputs. Do not serialize full runtime service inventories,
+repository paths, workspace recipes or operation details that the native shell
+does not consume. Preserve system/host values, project state and health,
+workspace identities, operation transitions, notification contents, conflicts
+and unavailable observations. This does not change the public HTTP contract or
+ordinary CLI views, nor any observation source or interval.
+
+The short-lived `desktop snapshot` child uses one Go execution thread and skips
+percentage-triggered collection while retaining a 64 MiB soft runtime memory
+limit. A read-only benchmark against sixteen running containers reduced child
+CPU by about 25% and output from 34 KiB to 7 KiB without increasing peak RSS.
+Apply these environment overrides only to that exact leaf command; daemon
+startup, UI initialization and mutations retain their ordinary runtime policy.
+Tests enforce that boundary. The daemon and managed processes never inherit
+these overrides.
+
 ---
 
 # ADR-0025: Origin proof and immutable reviewed inputs
@@ -5760,6 +5777,32 @@ cycle shares one inventory and post-statistics inspections, without retaining
 old restart values, changing intervals or weakening lifecycle reconciliation.
 Focused race tests verify reuse, fresh restart counts, inactive containers,
 partial failures, cancellation and current trust at the optimized boundary.
+
+### Installed acceptance and native follow-up
+
+The installed `a9cffe7478da` daemon meets sustained closed-app acceptance:
+**0.781%, 0.772%, 0.834%** in three consecutive five-minute windows, overall
+**0.795%**, median RSS **49.13 MiB**, median charged footprint **34.21 MiB**.
+All sixteen real services retained available CPU and memory at every raw point
+(90 points each, zero partial samples, worst gap 10.074 seconds). Their container
+identities, start times and restart counts remained unchanged. CPU includes
+attributable live/reaped children, not just the daemon's own process.
+
+The initial installed native measurements were **4.868% visible** and
+**1.382% hidden**, including daemon, app and WebKit helpers, over five minutes
+each. These improve the earlier approximately 6.00% / 1.80% samples, but hidden
+still misses this work's stricter closed-plus-0.5-point target. A native-only
+follow-up narrows the tray presentation payload and confines a bounded Go runtime
+policy to its short-lived snapshot child. In 25 reads against the live daemon,
+child CPU fell from 45.65 ms to 34.11 ms, payload from 34,479 to 7,198 bytes,
+and maximum child RSS from 18.84 to 18.35 MiB. Read sources, intervals, tray and
+notification inputs remain unchanged. Installation and repeated native
+acceptance measurements for this final adapter change are pending.
+
+The `a9cffe7478da` hosted main CI, full site CI, security checks and site deploy
+all passed. This includes Linux/Windows/macOS adapters, native packaging, all
+five browser integration flows and seventeen visual cases. The final native-only
+commit still requires its own hosted verification.
 
 ---
 

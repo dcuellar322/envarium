@@ -88,7 +88,7 @@ func newDesktopSnapshotCommand(options *rootOptions) *cobra.Command {
 				return err
 			}
 
-			return writeResult(options, "desktop.snapshot", snapshot, func(writer io.Writer) error {
+			return writeResult(options, "desktop.snapshot", nativePresentation(snapshot), func(writer io.Writer) error {
 				_, err := fmt.Fprintf(
 					writer,
 					"daemon=%s version=%s projects=%d workspaces=%d conflicts=%d warnings=%d\n",

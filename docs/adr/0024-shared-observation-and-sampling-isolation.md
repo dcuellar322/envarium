@@ -229,3 +229,20 @@ restart-count cache: every new sample cycle reads new Engine statistics and
 inspections, stopped containers do no statistics work, partial failures remain
 explicit, and the pre-inventory ownership token still guards reconciliation.
 Direct lifecycle inspection and planning retain their existing fresh paths.
+
+Keep the native tray snapshot a presentation DTO containing the actual menu and
+notification inputs. Do not serialize full runtime service inventories,
+repository paths, workspace recipes or operation details that the native shell
+does not consume. Preserve system/host values, project state and health,
+workspace identities, operation transitions, notification contents, conflicts
+and unavailable observations. This does not change the public HTTP contract or
+ordinary CLI views, nor any observation source or interval.
+
+The short-lived `desktop snapshot` child uses one Go execution thread and skips
+percentage-triggered collection while retaining a 64 MiB soft runtime memory
+limit. A read-only benchmark against sixteen running containers reduced child
+CPU by about 25% and output from 34 KiB to 7 KiB without increasing peak RSS.
+Apply these environment overrides only to that exact leaf command; daemon
+startup, UI initialization and mutations retain their ordinary runtime policy.
+Tests enforce that boundary. The daemon and managed processes never inherit
+these overrides.
