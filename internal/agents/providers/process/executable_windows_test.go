@@ -16,9 +16,18 @@ func TestWindowsNativeExecutableResolution(t *testing.T) {
 	}
 	t.Setenv("PATH", ".;relative;"+directory)
 	t.Setenv("PATHEXT", ".CMD;.EXE;.COM")
+	expected, err := os.Stat(executable)
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, name := range []string{"provider", executable} {
-		if got, err := CanonicalExecutable(name); err != nil || got != executable {
-			t.Fatalf("resolve %q=%q %v", name, got, err)
+		got, err := CanonicalExecutable(name)
+		if err != nil {
+			t.Fatalf("resolve %q: %v", name, err)
+		}
+		actual, statErr := os.Stat(got)
+		if statErr != nil || !filepath.IsAbs(got) || !os.SameFile(expected, actual) {
+			t.Fatalf("resolve %q=%q err=%v; expected file %q", name, got, statErr, executable)
 		}
 	}
 	batch := filepath.Join(directory, "batch.cmd")
