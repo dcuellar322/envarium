@@ -8063,10 +8063,9 @@ reads, notifications and current-trust checks; EOF, cancellation, invalid frames
 failure and timeouts dispose of the bridge. Mutations retain separate sidecars.
 
 Local verification passes full Go tests/race/vet/lint, architecture and repository
-checks, 91 UI tests, all six real browser flows, 17 visual cases, and 20 Rust
-tests. Installed resource measurements and hosted CI are the remaining acceptance
-checks for this follow-up; the preceding worktree measurements remain the prior
-baseline rather than evidence for this new build.
+checks, 93 UI tests, all six real browser flows, 17 visual cases, and 20 Rust
+tests. Installed resource measurements and hosted CI passed as recorded below;
+the preceding worktree measurements remain the comparison baseline.
 
 The subsequent refinement retains actual stale/partial/error warnings without
 using healthy cache expiration to toggle page layout. Persistent chrome uses
@@ -8085,6 +8084,69 @@ activity transitions are reconciled on each read. OS listener annotations share
 one current name lookup per PID within each inventory, with no cache across
 calls. Both changes preserve the existing sampling/presentation intervals and
 have regression coverage for transitions, cancellation and unavailable names.
+
+## Installed acceptance, October 19
+
+The optimized local native app, bundled CLI, installed CLI and inactive development
+bundle use runtime commit `f6fbb7b02d5d` (version 1.0.0, schema 19). Deep
+code-signature checks pass for the local ad-hoc-signed bundles. The daemon stopped
+gracefully and restarted ready; the existing verified offline schema-19 backup
+and app/CLI rollback copies were retained. All 11 catalog projects and the same
+16 running containers retained their identities, start times and restart counts.
+
+Five-minute averages below include daemon CPU, its live/reaped children (Git),
+and the native resource coalition, including exited helper CPU. Memory is the
+median sum of sampled process RSS or macOS physical footprint; these are different
+accounting measures. Transient child memory is sampled and is not a peak bound.
+Docker VM and project workload usage are separate from Envarium overhead.
+
+| Native app state | Total CPU, one core | RSS | Physical footprint |
+| --- | --- | --- | --- |
+| Visible dashboard | 3.95% | 282.4 MiB | 302.9 MiB |
+| Hidden, still running | 1.07% | 283.0 MiB | 183.9 MiB |
+| Closed | 0.82% | 51.1 MiB | 34.4 MiB |
+
+Compared with the preceding installed worktree baseline, total visible CPU fell
+from 4.84% to 3.95% and hidden CPU from 1.26% to 1.07%. Native shell/helper CPU
+fell from about 1.78% to about 1.00% visible and from 0.218% to 0.031% hidden.
+Visible physical footprint fell from 343.5 to 302.9 MiB; hidden footprint was
+183.9 MiB versus 168.4 MiB previously, despite slightly lower RSS. The hidden
+five-minute RSS range was only 282.94–283.06 MiB. These samples demonstrate
+short-run stability, not an unbounded-duration leak guarantee.
+
+All sixteen service series retained CPU/memory availability, zero partial
+samples and at least thirty points in each five-minute window. Worst raw-sample
+gaps were 10.055s visible, 10.044s hidden, 10.065s closed.
+No monitoring, source-trust, Git or presentation refresh interval was lengthened.
+
+The visible acceptance audit recorded only `native:dashboard` requests and
+continuous observation/resource/host polling. Its focus guard made zero focus
+restorations. Hidden and closed audits observed zero native UI requests after
+settling. Independent monitoring continued in both states; the hidden app also
+retained tray notifications.
+The final dashboard screenshot was visually inspected with three running projects
+and sixteen services. An owned snapshot child was deliberately stopped: the app
+reconnected on its normal poll, the replacement remained stable across another
+poll, and quitting removed the bridge while preserving the daemon.
+
+Local checks passed full Go vet/tests/race/lint, architecture/repository checks,
+93 UI tests, typechecking/build/lint, all six real browser flows, 17 visual cases
+without baseline changes, and 20 Rust tests plus clippy. Generated contracts and
+documentation artifacts reproduce cleanly. All hosted workflows for the runtime
+commit passed: [main CI](https://github.com/dcuellar322/envarium/actions/runs/39205253586),
+[security](https://github.com/dcuellar322/envarium/actions/runs/39205253490),
+[full public site CI](https://github.com/dcuellar322/envarium/actions/runs/39205253570)
+and [deployment](https://github.com/dcuellar322/envarium/actions/runs/39205253493).
+Security CI follows the existing advisory policy; passing does not mean every
+dependency advisory is absent.
+
+Private raw measurements, source/binary installation records, request audits,
+per-service accuracy checks and recovery evidence live under the ignored
+`.cache/ui-overhead-20261018` directory and
+`.cache/resource-live-20261016/ui-final-*.json`. Earlier e6eab1b acceptance is
+archived separately; the interrupted first candidate is not acceptance evidence.
+The temporary profiler is not part of the installed binary. After measurement,
+the native app was reopened and left hidden; project services stayed running.
 
 ## Implemented
 

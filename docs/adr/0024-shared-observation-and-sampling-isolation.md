@@ -3,7 +3,7 @@ title: "ADR-0024: Share observations and isolate resource sampling"
 description: Bound presentation-driven work while preserving live monitoring and explicit freshness.
 category: concept
 audience: [contributor, maintainer]
-lastVerified: 2026-10-17
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
