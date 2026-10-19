@@ -11627,6 +11627,25 @@ checks that input focus before typing. Other remaining release, installation,
 upgrade, hosting activation, and screen-reader manual gates in the launch
 checklist are not implied by these results.
 
+
+## Deployment follow-up — 2026-10-19
+
+Commit `095aa96` publishes the site review through the existing production
+workflow. A pre-deployment check of the canonical site's search exposed a
+hosting-only failure: the response CSP blocked Pagefind's WebAssembly module.
+The local Astro preview had not served the Cloudflare `_headers` policy.
+
+Add the WebAssembly-specific `script-src 'wasm-unsafe-eval'` permission while
+keeping JavaScript string evaluation disallowed. The test preview now loads the
+production script and worker CSP from `_headers` for every response. Only the
+HTTPS-upgrade transport directive is omitted on the HTTP loopback preview,
+because WebKit otherwise requests unavailable loopback TLS resources. Cross-browser search tests assert the header and exercise real result
+navigation, preventing preview-only success. This uses the
+[WebAssembly-specific CSP permission](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/script-src#unsafe_webassembly_execution).
+
+Deployment and live verification results are reported with the completed
+workflow run. Signed binary installation remains a separate release gate.
+
 ---
 
 # Public site launch checklist

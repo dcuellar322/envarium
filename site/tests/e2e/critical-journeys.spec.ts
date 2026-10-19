@@ -36,8 +36,11 @@ test('documentation starts at a tested first-project outcome', async ({ page }) 
   await expect(page.getByText('envarium project add')).toBeVisible()
 })
 
-test('documentation search finds the CLI contract', async ({ page }) => {
-  await page.goto('/docs/')
+test('documentation search finds the CLI contract under the production CSP', async ({ page }) => {
+  const response = await page.goto('/docs/')
+  const policy = response?.headers()['content-security-policy'] ?? ''
+  expect(policy).toContain("'wasm-unsafe-eval'")
+  expect(policy).not.toContain("'unsafe-eval'")
   const openSearch = page.getByRole('button', { name: 'Search' })
   await expect(openSearch).toBeEnabled()
   await openSearch.click()
