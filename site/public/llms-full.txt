@@ -3598,6 +3598,10 @@ Source: https://envarium.davidcuellar.tech/docs/desktop-installation/
 
 Install, upgrade, uninstall, or build Envarium for desktop and CLI-only use.
 
+No public stable installers are published yet. Build from source on macOS or
+Linux using the instructions below, or check [downloads](/download/) for package
+availability. **Windows and WSL2 support is coming soon.**
+
 ## macOS desktop
 
 Published desktop releases are expected to provide a signed, notarized DMG.
@@ -3642,7 +3646,7 @@ use a real PTY and do not depend on an external emulator.
 
 ## Windows desktop
 
-Stable releases provide signed MSI and NSIS installers. Verify the publisher
+**Coming soon.** Planned releases will provide signed MSI and NSIS installers. Verify the publisher
 with `Get-AuthenticodeSignature` before installation. The daemon uses an
 owner-only named pipe for privileged local clients, Job Objects for managed
 process trees, and ConPTY for embedded sessions. Windows Terminal (`wt.exe`)
@@ -3656,14 +3660,16 @@ not require administrator privileges.
 
 ## WSL2
 
-Run the Linux binary inside WSL and use the browser UI it prints. Windows and
+**Coming soon.** The planned setup runs the Linux binary inside WSL and use the browser UI it prints. Windows and
 WSL local IPC endpoints are intentionally separate. See
 [platform support](platform-support.md#wsl2-behavior) for Docker, filesystem,
 notification, and autostart behavior.
 
 ## Build from source
 
-Install the pinned Go, Node/pnpm, and Rust toolchains, then run:
+On macOS or Linux, install the Go version from `.go-version`, Node from
+`.node-version`, pnpm from `package.json`, and Rust from `rust-toolchain.toml`.
+Clone the repository, then run:
 
 ```bash
 pnpm install --frozen-lockfile
@@ -3685,6 +3691,7 @@ developers who do not want a native shell:
 
 ```bash
 make build
+mkdir -p "$HOME/.local/bin"
 install -m 0755 bin/envarium "$HOME/.local/bin/envarium"
 envarium doctor
 envarium ui
@@ -5048,8 +5055,9 @@ Source: https://envarium.davidcuellar.tech/docs/getting-started/
 
 Discover, review, approve, and operate a local repository with Envarium.
 
-Install a signed desktop bundle from a stable release or build the headless
-binary from source. Then approve one repository:
+[Build from source on macOS or Linux](/download/cli/#build-from-source)
+until public installers are available. Windows and WSL2 are coming soon.
+Then add one repository:
 
 ```bash
 envarium doctor
@@ -5252,10 +5260,12 @@ Source: https://envarium.davidcuellar.tech/docs/
 
 Install Envarium, bring a project online, connect coding agents, troubleshoot safely, or inspect the complete reference.
 
+Windows and WSL2 support is **coming soon**. Check [installation options](/download/)
+for current package availability and source builds.
+
 ## Start here
 
-- [Choose an installation](/docs/start/install/) for macOS, Windows, Linux,
-  WSL2, or headless use.
+- [Choose an installation](/docs/start/install/) for macOS, Linux, or headless use.
 - [Add your first project](/docs/getting-started/) through deterministic
   discovery and explicit trust.
 - [Run a Compose project](/docs/start/compose/) or
@@ -5538,16 +5548,18 @@ Source: https://envarium.davidcuellar.tech/docs/platform-support/
 
 Supported operating systems, packages, native capabilities, and WSL2 boundaries.
 
-Envarium v1 supports native arm64 and amd64 installations on the following
-platform families. The control plane, CLI, browser UI, and MCP server share the
-same support level; desktop packaging depends on the platform row.
+**Windows and WSL2 support is coming soon.** Adapters exist in the source,
+but public support requires installer and clean-machine validation. The table
+below distinguishes current source-build targets from planned platform baselines.
+Check [downloads](/download/) for published packages; no public stable binaries
+are available yet.
 
 | Platform | Supported baseline | Desktop bundles | Native capabilities |
 |---|---|---|---|
 | macOS | macOS 13 or newer | signed/notarized `.app` and DMG | Unix socket, process groups, PTY, port APIs, Keychain, notifications, launch agent |
 | Linux | Ubuntu 22.04+/Debian 12+ and current Fedora-family desktops | AppImage, deb, rpm | Unix socket, process groups, PTY, portable port APIs, Secret Service, notifications, XDG autostart |
-| Windows | Windows 11 and Windows Server 2022 with Desktop Experience | signed MSI and NSIS | owner-only named pipe, Job Objects, ConPTY, portable port APIs, Credential Manager, notifications, startup task |
-| WSL2 | supported distributions on Windows 11 | use the Linux binary inside WSL | Linux socket/process/PTY behavior inside the distribution; explicit interop limits below |
+| Windows (coming soon) | Planned: Windows 11 and Windows Server 2022 with Desktop Experience | signed MSI and NSIS | owner-only named pipe, Job Objects, ConPTY, portable port APIs, Credential Manager, notifications, startup task |
+| WSL2 (coming soon) | Planned: supported distributions on Windows 11 | use the Linux binary inside WSL | Linux socket/process/PTY behavior inside the distribution; explicit interop limits below |
 
 FreeBSD and other Unix-like systems may compile through conservative adapters
 but are not v1 release targets.
@@ -5567,6 +5579,8 @@ artifacts, and creates attestations. The detailed operator checklist is in
 [release engineering](release.md).
 
 ## WSL2 behavior
+
+The following describes the intended behavior for upcoming WSL2 support.
 
 Install and run the Linux `envarium` binary inside each WSL distribution
 whose repositories it manages. Its data directory, Unix socket, child
@@ -5874,8 +5888,6 @@ Source: https://envarium.davidcuellar.tech/docs/progress/experience-refresh-2026
 
 Execution plan and verification ledger for performance, source control, ports and page usability.
 
-# Operational experience refresh
-
 Requested scope: consistently low monitoring overhead, usable Git and worktree
 inspection/switching, project-oriented port topology, a working Team page, and
 functional and visual verification of every application route.
@@ -6153,8 +6165,6 @@ check for this fixture-only repair.
 Source: https://envarium.davidcuellar.tech/docs/progress/local-catalog-usability/
 
 Real-project import, lifecycle, observation, desktop, and deployment verification.
-
-# Local catalog usability — October 15, 2026
 
 The results below record the October 15 run. The native-startup limitation was
 subsequently resolved: the user confirmed a working native dashboard, and
@@ -11541,6 +11551,82 @@ canonical production smoke remain unchecked until external activation. Follow
 `docs/public-site-launch-checklist.md`; do not infer those results from the
 local build.
 
+## Public site review — 2026-10-19
+
+This is a focused follow-up to public-site Phase 10 and implementation-plan
+Phase 18's documentation/contributor exit criteria. Acceptance requires clear
+product and installation copy, explicit platform availability, working
+navigation and search, verified generated pages and links, accessible desktop
+and mobile layouts, and screenshot evidence. It does not claim completion of
+signed-release or clean-machine platform gates.
+
+Changes:
+
+- Replace repeated slogans, invented workflow counts, contributor placeholders,
+  and implementation jargon with concrete tasks and next steps. Reduce heading
+  sizes and decoration while retaining the approved brand and real product UI.
+- Mark Windows and WSL2 as coming soon across home, selection, platform guides,
+  requirements, roadmap, and the root installation documentation. Keep their
+  download links unavailable even if release metadata includes Windows assets.
+- Render download recommendations from prebuilt templates in the browser so
+  channel, architecture, deep links, and browser history work on static hosting.
+  Retain platform guides without JavaScript. Do not invent release URLs.
+- Open documentation search from desktop and mobile marketing navigation,
+  focusing its input after the search index UI loads. Cover results, no matches,
+  and Escape. Handle clipboard rejection in docs.
+- Add license/conduct links and describe website hosting, local search, theme
+  storage, and third-party navigation in the privacy page.
+- Replace the unavailable GitHub Discussions destination (HTTP 404 observed)
+  with a usage-question issue form and align the support policy.
+- Rewrite source-relative Markdown links to canonical HTML routes during the
+  static build; preserve GitHub source links and fail for missing destinations.
+- Correct duplicate top-level headings in two progress documents and improve
+  status-color contrast in light mode.
+
+Verification uses the full cross-browser journeys, an exhaustive generated-page
+crawl on desktop and mobile, internal route/fragment checks, image checks,
+JavaScript-error and overflow checks, axe, and reviewed screenshot baselines.
+Optional full-page captures and JSON reports are written to
+`output/playwright/site-audit/` by:
+
+```bash
+SITE_AUDIT_SCREENSHOTS=1 pnpm --dir site test:e2e
+```
+
+The production homepage returned HTTP 200 during review. Local changes still
+require the repository's normal deployment. Published binary installation and
+upgrades cannot be tested while no stable release is available.
+
+
+### Verified results
+
+- `make site-quality`: passed, including 127 brand assets, generation, Astro
+  checks (no diagnostics), lint, 34 unit tests, static build, content validation,
+  and build validation. First-party JavaScript remains about 103 KiB.
+- Full Playwright matrix: **86 passed, 18 intentionally skipped**. Chromium,
+  Firefox, WebKit, and mobile Chromium cover the applicable journeys. Axe runs
+  on desktop and mobile Chromium; full crawls run on those two configurations.
+- Exhaustive crawls: **162 HTML pages and 319 internal targets on each viewport**,
+  with no missing fragments, broken images, horizontal overflow, or uncaught
+  browser errors. **324 full-page screenshots** are saved with the two JSON
+  crawl reports under `output/playwright/site-audit/`.
+- Visual regression: **6 passed on macOS and 6 passed in the digest-pinned
+  Playwright 1.62.1 Noble image** after reviewing and refreshing platform-specific
+  references. Existing screenshot thresholds remain unchanged.
+- Production smoke: **7 routes and the updater feed passed** on the canonical
+  hostname. All **20 outbound marketing-site links returned HTTP 200** after
+  replacing the unavailable Discussions route. New issue-form contents will
+  become available when these repository changes are published.
+- `make repository-check`, `make archcheck`, and `make generate-check`: passed;
+  generated OpenAPI clients, SQLite accessors, and manifest JSON Schema stayed
+  clean. No migrations or application runtime code changed.
+
+A final manual keyboard check exposed delayed search-input focus on the
+marketing-to-docs handoff. A targeted four-browser regression additionally
+checks that input focus before typing. Other remaining release, installation,
+upgrade, hosting activation, and screen-reader manual gates in the launch
+checklist are not implied by these results.
+
 ---
 
 # Public site launch checklist
@@ -11739,6 +11825,32 @@ run the full browser and visual suites, and review any changed references.
 Keep overflow assertions and visual thresholds intact. The branding suite
 checks home, brand, and docs routes at both 320 px and 375 px; verify wider
 system fonts as well when changing the header or headline layout.
+
+
+## Copy and availability review
+
+Every public section should answer a user question, explain a task, or lead to
+an actionable next step. Prefer concrete behavior and examples over repeated
+product slogans or implementation terminology. Keep architecture detail in the
+reference documentation. Do not invent usage statistics, endorsements,
+contributors, installation timings, or release availability.
+
+Show the distinction between source implementation and shipped packages.
+Windows and WSL2 are currently coming soon; their guides describe planned
+requirements and must not offer installers. Update that status only alongside
+reviewed release and platform evidence. Support destinations must be checked
+against the actual repository configuration, not assumed to exist.
+
+Keep the license, contribution guide, code of conduct, support route, and
+private vulnerability-reporting route discoverable. This follows the onboarding
+and participation guidance in [Open Source Guides](https://opensource.guide/starting-a-project/).
+
+Source-relative Markdown links remain useful on GitHub. The site's Markdown
+processor rewrites them to canonical HTML routes at build time and rejects
+missing destinations. Do not fork the root documentation to repair site links.
+The exhaustive page journey checks routes, fragments, images, heading counts,
+overflow, and uncaught browser errors; set `SITE_AUDIT_SCREENSHOTS=1` to capture
+every built page on desktop and mobile under `output/playwright/site-audit/`.
 
 ---
 
@@ -12319,6 +12431,10 @@ Then continue with [logs and health](logs-health.md),
 Source: https://envarium.davidcuellar.tech/docs/start/install/
 
 Select desktop or headless use, confirm platform requirements, and verify the authoritative release asset.
+
+**Windows and WSL2 support is coming soon.** Until public installers are
+available, [build the CLI from source on macOS or Linux](/download/cli/#build-from-source)
+or [build the desktop app](../desktop-installation.md#build-from-source).
 
 ## 1. Choose the operating mode
 

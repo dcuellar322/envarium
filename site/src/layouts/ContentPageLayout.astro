@@ -28,11 +28,12 @@ const { title, eyebrow = 'Envarium', description } = Astro.props
   }
 
   .page-hero h1 {
-    max-width: 14ch;
+    max-width: 22ch;
     margin: 0.55rem 0 1rem;
-    font-size: clamp(3rem, 7vw, 6.3rem);
-    letter-spacing: -0.06em;
-    line-height: 0.95;
+    font-size: clamp(2.4rem, 5.2vw, 4.5rem);
+    letter-spacing: -0.045em;
+    overflow-wrap: anywhere;
+    line-height: 1.08;
   }
 
   .page-hero > p:not(.eyebrow) {

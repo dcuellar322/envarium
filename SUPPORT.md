@@ -1,7 +1,8 @@
 # Support
 
-Use GitHub Discussions for usage and integration questions and the issue
-templates for reproducible defects or focused feature proposals. Search first,
+Use the [question template](https://github.com/dcuellar322/envarium/issues/new?template=question.yml)
+for usage and integration questions and the other issue templates for
+reproducible defects or focused feature proposals. Search first,
 include the Envarium version and platform, and keep reports scoped to one
 behavior.
 

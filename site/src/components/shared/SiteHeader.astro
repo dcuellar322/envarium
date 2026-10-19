@@ -29,13 +29,14 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
     </nav>
 
     <div class="header-actions">
-      <a class="search-link" href="/docs/" aria-label="Search documentation">⌕ <span>Search</span></a>
+      <a class="search-link" href="/docs/?search" aria-label="Search documentation">⌕ <span>Search docs</span></a>
       <button class="theme-toggle" type="button" data-theme-toggle aria-label="Change color theme">◐</button>
       <a class="button primary compact" href="/download/">Download</a>
       <details class="mobile-menu">
         <summary aria-label="Open navigation menu">Menu</summary>
         <nav aria-label="Mobile navigation">
           {navigation.map((item) => <a href={item.href}>{item.label}</a>)}
+          <a href="/docs/?search">Search documentation</a>
           <a href={REPOSITORY_URL}>GitHub</a>
         </nav>
       </details>

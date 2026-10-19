@@ -20,10 +20,10 @@ const media = feature.slug === 'projects' ? dashboard : feature.slug === 'ports-
 ---
 
 <ContentPageLayout title={feature.title} eyebrow="Envarium capability" description={feature.description}>
-  <Fragment slot="actions"><div class="hero-actions"><a class="button primary" href="/download/">Download Envarium</a><a class="button" href={feature.docsHref}>Read the architecture</a></div></Fragment>
-  <figure class="product-shot panel"><Image src={media} alt={`Envarium product view demonstrating ${feature.title.toLowerCase()}.`} widths={[640, 960, 1440]} sizes="(max-width: 900px) 94vw, 75vw" /><figcaption>Production product UI captured from a deterministic, sanitized fixture.</figcaption></figure>
-  <section class="proof"><div><p class="eyebrow">What is implemented</p><h2>Operational proof, not a feature label.</h2></div><ul>{feature.proof.map((item) => <li><span aria-hidden="true">✓</span>{item}</li>)}</ul></section>
-  <section class="boundary panel"><div><p class="eyebrow">Product boundary</p><h2>Complements the toolchain.</h2></div><p>Envarium centralizes project intent and safe local operation. It does not replace Docker, Git, terminals, editors, or coding agents, and it does not introduce a cloud control plane.</p></section>
+  <Fragment slot="actions"><div class="hero-actions"><a class="button primary" href="/download/">Download Envarium</a><a class="button" href={feature.docsHref}>Read the documentation</a></div></Fragment>
+  <figure class="product-shot panel"><Image src={media} alt={`Envarium product view demonstrating ${feature.title.toLowerCase()}.`} widths={[640, 960, 1440]} sizes="(max-width: 900px) 94vw, 75vw" /><figcaption>Product screenshot with example projects.</figcaption></figure>
+  <section class="proof"><div><p class="eyebrow">What is implemented</p><h2>What you can do</h2></div><ul>{feature.proof.map((item) => <li><span aria-hidden="true">✓</span>{item}</li>)}</ul></section>
+
 </ContentPageLayout>
 
 <style>
@@ -36,8 +36,5 @@ const media = feature.slug === 'projects' ? dashboard : feature.slug === 'ports-
   ul { display: grid; gap: 0.7rem; margin: 0; padding: 0; list-style: none; }
   li { display: flex; gap: 0.7rem; border-bottom: 1px solid var(--sy-border-subtle); padding: 0.8rem 0; font-weight: 700; }
   li span { color: var(--sy-status-success); }
-  .boundary { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 4rem; padding: 1.5rem; }
-  .boundary h2 { font-size: 1.7rem; }
-  .boundary > p { color: var(--sy-text-muted); }
-  @media (max-width: 700px) { .proof, .boundary { grid-template-columns: 1fr; } }
+  @media (max-width: 700px) { .proof { grid-template-columns: 1fr; } }
 </style>

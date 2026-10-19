@@ -1,0 +1,28 @@
+---
+import Search from '@astrojs/starlight/components/Search.astro'
+---
+
+<Search {...Astro.props} />
+
+<script>
+  // Marketing navigation can open the built-in docs search directly.
+  if (new URLSearchParams(location.search).has('search')) {
+    void customElements.whenDefined('site-search').then(() => {
+      const search = document.querySelector('site-search')
+      search?.querySelector<HTMLButtonElement>('button[data-open-modal]')?.click()
+      if (!search) return
+      const focusInput = () => {
+        const input = search.querySelector<HTMLInputElement>('input')
+        if (!input || !search.querySelector('dialog[open]')) return false
+        input.focus()
+        return true
+      }
+      if (!focusInput()) {
+        const observer = new MutationObserver(() => {
+          if (focusInput() || !search.querySelector('dialog[open]')) observer.disconnect()
+        })
+        observer.observe(search, { childList: true, subtree: true })
+      }
+    })
+  }
+</script>

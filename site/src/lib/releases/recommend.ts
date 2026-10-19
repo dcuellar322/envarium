@@ -18,6 +18,7 @@ export function recommendAsset(
   const candidates = release.assets.filter(
     (asset) =>
       asset.platform === normalizedPlatform &&
+      packagePriority[platform].includes(asset.packageType) &&
       (asset.architecture === architecture || asset.architecture === 'universal'),
   )
   return candidates.sort(

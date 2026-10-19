@@ -8,39 +8,49 @@ import { recommendAsset } from '@/lib/releases/recommend'
 import type { ReleaseArchitecture, ReleaseChannelName, ReleaseManifest } from '@/lib/releases/types'
 
 const manifest = releaseManifest as ReleaseManifest
-const requestedChannel = Astro.url.searchParams.get('channel')
-const channel: ReleaseChannelName = requestedChannel === 'alpha' || requestedChannel === 'beta' || requestedChannel === 'nightly' ? requestedChannel : 'stable'
-const release = manifest.channels[channel]
-const selection = Astro.url.searchParams.get('platform')
-const selectedGuide = platformGuides.find((guide) => guide.slug === selection) ?? platformGuides[0]
-const requestedArchitecture = Astro.url.searchParams.get('architecture')
-const architecture: ReleaseArchitecture = requestedArchitecture === 'amd64' ? 'amd64' : 'arm64'
-const asset = selectedGuide ? recommendAsset(release, selectedGuide.releasePlatform, architecture) : undefined
+const channels: ReleaseChannelName[] = ['stable', 'alpha', 'beta', 'nightly']
+const architectures: ReleaseArchitecture[] = ['arm64', 'amd64']
+const selectedGuide = platformGuides[0]!
+const channel = 'stable'
+const architecture = 'arm64'
+const release = manifest.channels.stable
+const asset = recommendAsset(release, selectedGuide.releasePlatform, architecture)
 ---
 
 <ContentPageLayout
   title="Download Envarium"
-  eyebrow="Trusted downloads"
-  description="Choose the desktop command center or a headless CLI. Every binary link comes directly from GitHub Release metadata, with verification beside the download."
+  eyebrow="Install Envarium"
+  description={`Choose a platform and check package availability. ${release ? 'Published packages are linked below.' : 'No public binaries are published yet; you can build from source on macOS or Linux.'} Windows and WSL2 are coming soon.`}
 >
   <section class="download-grid">
     <aside class="selector panel" aria-label="Download selection">
-      <form method="get">
-        <label>Release channel<select name="channel"><option value="stable" selected={channel === 'stable'}>Stable</option><option value="alpha" selected={channel === 'alpha'}>Alpha</option><option value="beta" selected={channel === 'beta'}>Beta</option><option value="nightly" selected={channel === 'nightly'}>Nightly</option></select></label>
-        <fieldset><legend>Operating system</legend>{platformGuides.map((guide) => <label class="choice"><input type="radio" name="platform" value={guide.slug} checked={selectedGuide?.slug === guide.slug} /> <span><strong>{guide.shortName}</strong><small>{guide.primaryFormat}</small></span></label>)}</fieldset>
-        <fieldset><legend>Architecture</legend><label class="choice"><input type="radio" name="architecture" value="arm64" checked={architecture === 'arm64'} /> <span><strong>arm64</strong><small>Apple silicon and ARM systems</small></span></label><label class="choice"><input type="radio" name="architecture" value="amd64" checked={architecture === 'amd64'} /> <span><strong>amd64</strong><small>Intel and AMD 64-bit systems</small></span></label></fieldset>
+      <form method="get" data-download-selector hidden>
+        <label>Release channel<select name="channel"><option value="stable" selected={channel === 'stable'}>Stable</option><option value="alpha">Alpha</option><option value="beta">Beta</option><option value="nightly">Nightly</option></select></label>
+        <fieldset><legend>Operating system</legend>{platformGuides.map((guide) => <label class="choice"><input type="radio" name="platform" value={guide.slug} checked={selectedGuide?.slug === guide.slug} /> <span><strong>{guide.shortName}{guide.comingSoon && ' · Coming soon'}</strong><small>{guide.primaryFormat}</small></span></label>)}</fieldset>
+        <fieldset><legend>Architecture</legend><label class="choice"><input type="radio" name="architecture" value="arm64" checked={architecture === 'arm64'} /> <span><strong>arm64</strong><small>Apple silicon and ARM systems</small></span></label><label class="choice"><input type="radio" name="architecture" value="amd64" /> <span><strong>amd64</strong><small>Intel and AMD 64-bit systems</small></span></label></fieldset>
         <button class="button" type="submit">Update recommendation</button>
       </form>
-      <p>Platform detection only highlights a choice. It never starts a download or hides another platform.</p>
+      <p>Changing your selection never starts a download.</p>
+      <p data-download-fallback>Choose a platform guide below for installation instructions. The package selector requires JavaScript.</p>
     </aside>
-    <div class="result">
+    <div class="result" data-download-result aria-live="polite" aria-atomic="true">
       <ReleaseDownloadCard release={release} asset={asset} label={`${selectedGuide?.shortName ?? 'Platform'} · ${architecture}`} />
       {selectedGuide && <div class="requirements panel"><p class="eyebrow">Before you install</p><h2>{selectedGuide.primaryFormat}</h2><p>{selectedGuide.requirements}</p><a href={`/download/${selectedGuide.slug}/`}>Platform install guide →</a></div>}
     </div>
   </section>
+  {channels.map((optionChannel) => platformGuides.map((guide) => architectures.map((optionArchitecture) => (
+    <template data-download-option={`${optionChannel}-${guide.slug}-${optionArchitecture}`}>
+      {guide.comingSoon ? (
+        <article class="panel coming-soon"><p class="eyebrow">Coming soon</p><h2>{guide.shortName} support is coming soon.</h2><p>Public {guide.shortName} packages are not available yet. Follow the roadmap for platform progress.</p><a class="button" href={`/download/${guide.slug}/`}>Platform status</a></article>
+      ) : (
+        <ReleaseDownloadCard release={manifest.channels[optionChannel]} asset={recommendAsset(manifest.channels[optionChannel], guide.releasePlatform, optionArchitecture)} label={`${guide.shortName} · ${optionArchitecture} · ${optionChannel}`} channel={optionChannel} />
+      )}
+      <div class="requirements panel"><p class="eyebrow">{guide.comingSoon ? 'Planned requirements' : 'Before you install'}</p><h2>{guide.primaryFormat}</h2><p>{guide.requirements}</p><a href={`/download/${guide.slug}/`}>{guide.comingSoon ? 'Platform status' : 'Platform install guide'} →</a></div>
+    </template>
+  ))))}
   <section class="all-platforms" aria-labelledby="all-platforms-title">
-    <div><p class="eyebrow">Every supported path</p><h2 id="all-platforms-title">All platforms stay visible.</h2></div>
-    <div class="platform-grid">{platformGuides.map((guide) => <a class="panel" href={`/download/${guide.slug}/`}><strong>{guide.shortName}</strong><span>{guide.primaryFormat}</span><b aria-hidden="true">→</b></a>)}<a class="panel" href="/download/cli/"><strong>Headless CLI</strong><span>macOS, Linux, and Windows archives</span><b aria-hidden="true">→</b></a></div>
+    <div><p class="eyebrow">Installation guides</p><h2 id="all-platforms-title">Choose your platform.</h2></div>
+    <div class="platform-grid">{platformGuides.map((guide) => <a class="panel" href={`/download/${guide.slug}/`}><strong>{guide.shortName}</strong><span>{guide.comingSoon ? 'Coming soon' : guide.primaryFormat}</span><b aria-hidden="true">→</b></a>)}<a class="panel" href="/download/cli/"><strong>Headless CLI</strong><span>macOS and Linux · Windows coming soon</span><b aria-hidden="true">→</b></a></div>
   </section>
   <PackageManagerMethods />
   <section class="trust-links panel"><div><strong>Verify before running</strong><span>Checksums, platform signatures, attestations, SBOMs, and updater expectations.</span></div><a class="button" href="/download/verify/">Verification guide</a><a class="button quiet" href="/download/requirements/">System requirements</a><a class="button quiet" href="/download/uninstall/">Uninstall and retained data</a></section>
@@ -49,6 +59,8 @@ const asset = selectedGuide ? recommendAsset(release, selectedGuide.releasePlatf
 <style>
   .download-grid { display: grid; grid-template-columns: 20rem 1fr; align-items: start; gap: 1.2rem; }
   .selector { position: sticky; top: 6rem; padding: 1.2rem; }
+  .coming-soon { padding: 1.5rem; }
+  .coming-soon p:not(.eyebrow) { color: var(--sy-text-muted); }
   form { display: grid; gap: 1.2rem; }
   label { display: grid; gap: 0.35rem; color: var(--sy-text-muted); font-size: 0.78rem; font-weight: 700; }
   select { width: 100%; border: 1px solid var(--sy-border-subtle); border-radius: 0.6rem; background: var(--sy-bg-elevated); color: var(--sy-text-primary); padding: 0.65rem; }
@@ -77,3 +89,38 @@ const asset = selectedGuide ? recommendAsset(release, selectedGuide.releasePlatf
   @media (max-width: 860px) { .download-grid, .all-platforms { grid-template-columns: 1fr; } .selector { position: static; } .trust-links { align-items: stretch; flex-direction: column; } }
   @media (max-width: 540px) { .platform-grid { grid-template-columns: 1fr; } }
 </style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-download-selector]')
+  const result = document.querySelector<HTMLElement>('[data-download-result]')
+  if (form && result) {
+    const render = () => {
+      const params = new URLSearchParams(location.search)
+      const values = { channel: 'stable', platform: 'macos', architecture: 'arm64' }
+      for (const name of ['channel', 'platform', 'architecture'] as const) {
+        const value = params.get(name)
+        const control = form.elements.namedItem(name)
+        if (control instanceof HTMLSelectElement) {
+          control.value = Array.from(control.options).some((option) => option.value === value) ? value! : values[name]
+          values[name] = control.value
+        } else if (control instanceof RadioNodeList) {
+          control.value = Array.from(control).some((input) => input instanceof HTMLInputElement && input.value === value) ? value! : values[name]
+          values[name] = control.value
+        }
+      }
+      const template = document.querySelector<HTMLTemplateElement>(`[data-download-option="${values.channel}-${values.platform}-${values.architecture}"]`)
+      if (template) result.replaceChildren(template.content.cloneNode(true))
+    }
+    document.querySelector<HTMLElement>('[data-download-fallback]')?.setAttribute('hidden', '')
+    form.hidden = false
+    render()
+    form.addEventListener('submit', (event) => {
+      event.preventDefault()
+      const params = new URLSearchParams()
+      for (const [name, value] of new FormData(form)) if (typeof value === 'string') params.set(name, value)
+      history.pushState(null, '', `${location.pathname}?${params}`)
+      render()
+    })
+    window.addEventListener('popstate', render)
+  }
+</script>

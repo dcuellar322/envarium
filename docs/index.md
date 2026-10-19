@@ -4,13 +4,13 @@ description: Install Envarium, bring a project online, connect coding agents, tr
 category: tutorial
 audience: [user, contributor, integrator]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 slug: docs
 template: splash
 hero:
   tagline: Task-oriented guides for the local development command center.
   actions:
-    - text: Start in five minutes
+    - text: First-project guide
       link: /docs/start/
       icon: right-arrow
       variant: primary
@@ -19,10 +19,12 @@ hero:
       icon: download
 ---
 
+Windows and WSL2 support is **coming soon**. Check [installation options](/download/)
+for current package availability and source builds.
+
 ## Start here
 
-- [Choose an installation](/docs/start/install/) for macOS, Windows, Linux,
-  WSL2, or headless use.
+- [Choose an installation](/docs/start/install/) for macOS, Linux, or headless use.
 - [Add your first project](/docs/getting-started/) through deterministic
   discovery and explicit trust.
 - [Run a Compose project](/docs/start/compose/) or

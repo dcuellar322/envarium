@@ -8,7 +8,7 @@ const releases = manifest.releases
 const date = (value: string) => new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(value))
 ---
 
-<ContentPageLayout title="Changelog" eyebrow="Release stories" description="Reviewed Envarium releases, human-readable highlights, integrity links, and upgrade guidance from the authoritative GitHub release record.">
+<ContentPageLayout title="Changelog" eyebrow="Release notes" description="Published releases, changes, and upgrade guidance. Download links and release notes come from GitHub Releases.">
   <section class="release-policy panel">
     <div><p class="eyebrow">Current status</p><h2>{releases.length > 0 ? `${releases.length} published release${releases.length === 1 ? '' : 's'}` : 'No public releases yet'}</h2></div>
     <p>{releases.length > 0 ? 'Each story below is generated from published GitHub Release metadata. Downloads appear only when the required artifact contract passes.' : 'The source repository is public, but no reviewed GitHub Release is available. This archive will populate automatically when one is published.'}</p>
@@ -18,7 +18,7 @@ const date = (value: string) => new Intl.DateTimeFormat('en-US', { dateStyle: 'm
     <ol class="release-list">
       {releases.map((release) => <li class="panel"><div><span class={`channel ${release.channel}`}>{release.channel}</span><time datetime={release.publishedAt}>{date(release.publishedAt)}</time></div><h2><a href={`/changelog/${release.tag}/`}>{release.title}</a></h2><p>{release.summary ?? `Release notes and verified artifacts for ${release.tag}.`}</p><span>{release.tag} · {release.assets.length} downloadable artifacts</span></li>)}
     </ol>
-  ) : <div class="empty panel"><strong>The first release story will appear here.</strong><span>Until then, follow repository progress or build the current source.</span><a href="https://github.com/dcuellar322/envarium">View source on GitHub →</a></div>}
+  ) : <div class="empty panel"><strong>Build from source</strong><span>Install the CLI from source while public packages are being prepared.</span><a href="/download/cli/#build-from-source">Source build instructions →</a></div>}
   <section class="archive-links"><a href="/changelog/rss.xml">Subscribe by RSS</a><a href="/roadmap/">Read the roadmap</a><a href="/docs/migration-v1/">Migration guidance</a><a href="/docs/compatibility/">Compatibility policy</a></section>
 </ContentPageLayout>
 

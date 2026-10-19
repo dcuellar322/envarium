@@ -17,13 +17,13 @@ const { compact = false, class: className = '' } = Astro.props
   let platform = ''
   let label = 'View all downloads'
 
-  if (userAgent.includes('mac')) {
+  if (!/android|iphone|ipad/.test(userAgent) && userAgent.includes('mac')) {
     platform = 'macos'
     label = 'Download for macOS'
   } else if (userAgent.includes('windows')) {
     platform = 'windows'
-    label = 'Download for Windows'
-  } else if (userAgent.includes('linux')) {
+    label = 'Windows · Coming soon'
+  } else if (!userAgent.includes('android') && userAgent.includes('linux')) {
     platform = 'linux'
     label = 'Install on Linux'
   }

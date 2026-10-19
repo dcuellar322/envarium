@@ -4,6 +4,8 @@
   box-sizing: border-box;
 }
 
+[hidden] { display: none !important; }
+
 html {
   scroll-behavior: smooth;
   background: var(--sy-bg-canvas);
@@ -11,10 +13,7 @@ html {
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 78% 7%, rgb(120 166 255 / 11%), transparent 29rem),
-    radial-gradient(circle at 18% 32%, rgb(158 123 255 / 8%), transparent 25rem),
-    var(--sy-bg-canvas);
+  background: var(--sy-bg-canvas);
   color: var(--sy-text-primary);
   font-family: var(--sy-font-sans);
   line-height: 1.6;

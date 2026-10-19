@@ -15,27 +15,29 @@ const { guide } = Astro.props as Props
 const manifest = releaseManifest as ReleaseManifest
 const release = manifest.channels.stable
 const primaryArchitecture = guide.architectures[0] ?? 'amd64'
-const asset = recommendAsset(release, guide.releasePlatform, primaryArchitecture)
-const alternatives = release?.assets.filter((candidate) => {
+const asset = guide.comingSoon ? undefined : recommendAsset(release, guide.releasePlatform, primaryArchitecture)
+const alternatives = !guide.comingSoon && release?.assets.filter((candidate) => {
   const platform = guide.releasePlatform === 'wsl' ? 'linux' : guide.releasePlatform
   return candidate.platform === platform && candidate.name !== asset?.name
-}) ?? []
+}) || []
 ---
 
-<ContentPageLayout title={`Install Envarium on ${guide.shortName}`} eyebrow="Platform install" description={`${guide.requirements} The site recommends a package only when it is present in authoritative GitHub Release metadata.`}>
+<ContentPageLayout title={guide.comingSoon ? `${guide.shortName} is coming soon` : `Install Envarium on ${guide.shortName}`} eyebrow={guide.comingSoon ? 'Planned platform' : 'Platform install'} description={guide.comingSoon ? `Public ${guide.shortName} support and packages are not available yet. The requirements below describe the planned platform baseline.` : `${guide.requirements} Check package availability below, or build from source.`}>
   <div class="platform-layout">
     <div>
-      <ReleaseDownloadCard release={release} asset={asset} label={`${guide.shortName} · ${primaryArchitecture}`} />
+      {guide.comingSoon ? <article class="panel coming-soon"><h2>{guide.shortName} support is coming soon.</h2><p>Installers and platform validation are still pending. Follow the roadmap or contribute to platform testing.</p><a class="button" href="/roadmap/">View roadmap</a><a class="button quiet" href="/contributing/">Contribute</a></article> : <ReleaseDownloadCard release={release} asset={asset} label={`${guide.shortName} · ${primaryArchitecture}`} />}
       {alternatives.length > 0 && <section class="alternatives panel"><h2>Alternative packages</h2><ul>{alternatives.map((alternative) => <li><a href={alternative.downloadUrl}>{alternative.name}</a><span>{alternative.architecture} · {alternative.packageType}</span></li>)}</ul></section>}
     </div>
-    <aside class="panel"><p class="eyebrow">Install path</p><ol>{guide.install.map((step) => <li>{step}</li>)}</ol><h2>Verify first</h2><p>{guide.verify}</p><a href="/download/verify/">Open verification guide →</a></aside>
+    <aside class="panel"><p class="eyebrow">{guide.comingSoon ? 'Planned requirements' : 'Install path'}</p>{guide.comingSoon ? <p>{guide.requirements}</p> : <ol>{guide.install.map((step) => <li>{step}</li>)}</ol>}<h2>Verify first</h2><p>{guide.verify}</p><a href="/download/verify/">Open verification guide →</a></aside>
   </div>
-  <section class="after-install panel"><div><p class="eyebrow">Observable success</p><h2>Confirm the local control plane.</h2><p>After installation, `envarium doctor` reports platform capabilities and `envarium ui` opens the loopback browser surface. No account or cloud connection is required.</p></div><pre><code>envarium doctor
-envarium ui</code></pre></section>
+  {!guide.comingSoon && <section class="after-install panel"><div><p class="eyebrow">After installation</p><h2>Check your installation.</h2><p>After installation, <code>envarium doctor</code> reports platform capabilities and <code>envarium ui</code> opens the loopback browser surface. No account or cloud connection is required.</p></div><pre><code>envarium doctor
+envarium ui</code></pre></section>}
 </ContentPageLayout>
 
 <style>
   .platform-layout { display: grid; grid-template-columns: 1.3fr 0.7fr; align-items: start; gap: 1rem; }
+  .coming-soon { padding: 1.5rem; }
+  .coming-soon p { color: var(--sy-text-muted); }
   aside { padding: 1.4rem; }
   aside ol { display: grid; gap: 1rem; padding-left: 1.2rem; color: var(--sy-text-muted); }
   aside h2 { margin-top: 2rem; font-size: 1.1rem; }
@@ -50,6 +52,6 @@ envarium ui</code></pre></section>
   .after-install { display: grid; grid-template-columns: 1fr 0.8fr; align-items: center; gap: 2rem; margin-top: 3rem; padding: 1.8rem; }
   .after-install h2 { margin: 0.35rem 0; }
   .after-install p:not(.eyebrow) { color: var(--sy-text-muted); }
-  pre { overflow-x: auto; margin: 0; border-radius: 0.7rem; background: var(--brand-canvas); color: var(--sy-status-success); padding: 1rem; }
+  pre { overflow-x: auto; margin: 0; border-radius: 0.7rem; background: var(--brand-canvas); color: var(--brand-green); padding: 1rem; }
   @media (max-width: 780px) { .platform-layout, .after-install { grid-template-columns: 1fr; } }
 </style>

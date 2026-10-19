@@ -2,19 +2,19 @@
 import { REPOSITORY_URL } from '@/config/site'
 
 const proof = [
-  ['Apache-2.0', 'Patent-friendly open-source license'],
-  ['Public source', 'Architecture and progress documented in-repo'],
-  ['Signed releases', 'Checksums, SBOMs, attestations, and updater signatures'],
-  ['Open governance', 'Issues, Discussions, ADRs, and focused pull requests'],
+  ['Apache-2.0', 'Use, modify, and distribute under Apache-2.0'],
+  ['Public source', 'Read the code and build it yourself'],
+  ['Release verification', 'How to check packages before running them'],
+  ['Contributions welcome', 'Bug reports, documentation, and focused code changes'],
 ]
 ---
 
 <section class="open-source" aria-labelledby="open-source-title">
   <div class="container open-grid">
     <div>
-      <p class="eyebrow">Open source is the product model</p>
-      <h2 id="open-source-title">Inspect the control plane you trust.</h2>
-      <p class="intro">Envarium’s architecture, threat model, compatibility promises, implementation evidence, and release pipeline are public. You can use the product without an account and contribute without learning a private platform.</p>
+      <p class="eyebrow">Apache-2.0 licensed</p>
+      <h2 id="open-source-title">Read the code. Help improve it.</h2>
+      <p class="intro">The source, build instructions, and architecture decisions are in the repository. Report a bug, improve a guide, or pick an issue. No account is required to run Envarium.</p>
       <div class="actions">
         <a class="button primary" href={REPOSITORY_URL}>View source <span aria-hidden="true">↗</span></a>
         <a class="button" href="/contributing/">Contribute</a>
@@ -43,9 +43,9 @@ const proof = [
   }
 
   h2 {
-    max-width: 12ch;
+    max-width: 20ch;
     margin: 0.5rem 0 1.2rem;
-    font-size: clamp(2.7rem, 5vw, 4.8rem);
+    font-size: clamp(2rem, 3.3vw, 3.1rem);
     letter-spacing: -0.05em;
     line-height: 1;
   }

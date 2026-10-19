@@ -73,9 +73,13 @@ const verified = route.entry.data.lastVerified
     button.addEventListener('click', async () => {
       const value = button.dataset.canonical
       if (!value) return
-      await navigator.clipboard.writeText(value)
       const status = button.parentElement?.querySelector<HTMLElement>('[data-copy-status]')
-      if (status) status.textContent = 'Canonical link copied.'
+      try {
+        await navigator.clipboard.writeText(value)
+        if (status) status.textContent = 'Canonical link copied.'
+      } catch {
+        if (status) status.textContent = 'Copy was blocked by your browser. Copy the address from the address bar instead.'
+      }
     })
   })
 </script>

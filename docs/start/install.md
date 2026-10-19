@@ -5,10 +5,14 @@ category: tutorial
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 sidebar:
   order: 1
 ---
+
+**Windows and WSL2 support is coming soon.** Until public installers are
+available, [build the CLI from source on macOS or Linux](/download/cli/#build-from-source)
+or [build the desktop app](../desktop-installation.md#build-from-source).
 
 ## 1. Choose the operating mode
 

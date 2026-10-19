@@ -1,14 +1,14 @@
 <section class="trust" aria-labelledby="trust-title">
   <div class="trust-grid container">
     <div class="trust-copy">
-      <p class="eyebrow">Local-first by architecture</p>
-      <h2 id="trust-title">Your source stays where your work happens.</h2>
-      <p>Envarium’s public site is static. The product control plane runs locally, binds to user-scoped IPC and loopback, and requires explicit trust before repository commands can run.</p>
+      <p class="eyebrow">Local operation</p>
+      <h2 id="trust-title">Runs on your machine.</h2>
+      <p>Project state and logs stay on your machine. Envarium requires your approval before running repository commands. Optional AI integrations send only the evidence you review to your chosen provider.</p>
       <ul>
         <li><span>✓</span>No required cloud account</li>
         <li><span>✓</span>Repository trust before execution</li>
         <li><span>✓</span>Permission-scoped agent tools</li>
-        <li><span>✓</span>No generic MCP shell</li>
+        <li><span>✓</span>AI integrations are optional</li>
         <li><span>✓</span>Telemetry disabled by default</li>
       </ul>
       <a class="button" href="/features/security-local-first/">Read the security model</a>
@@ -17,7 +17,7 @@
       <p class="diagram-title">One local control plane</p>
       <div class="clients"><span>Desktop</span><span>CLI</span><span>Browser</span><span>MCP</span></div>
       <div class="connector" aria-hidden="true"><i></i><i></i><i></i></div>
-      <div class="daemon"><img class="mark" src="/brand/marks/envarium-gradient.svg" alt="" width="40" height="40" /><div><strong>local Go daemon</strong><small>user-scoped IPC · loopback browser API</small></div><b>online</b></div>
+      <div class="daemon"><img class="mark" src="/brand/marks/envarium-gradient.svg" alt="" width="40" height="40" /><div><strong>local Go daemon</strong><small>user-scoped IPC · loopback browser API</small></div><b>local</b></div>
       <div class="connector downward" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="adapters"><span>Docker</span><span>Processes</span><span>Git</span><span>Ports</span><span>SQLite</span></div>
       <div class="boundary"><span>LOCAL MACHINE TRUST BOUNDARY</span></div>
@@ -41,7 +41,7 @@
 
   h2 {
     margin: 0.6rem 0 1.2rem;
-    font-size: clamp(2.5rem, 5vw, 4.7rem);
+    font-size: clamp(2rem, 3.3vw, 3.1rem);
     letter-spacing: -0.05em;
     line-height: 1;
   }

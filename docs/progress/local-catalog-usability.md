@@ -6,7 +6,6 @@ audience: [contributor, maintainer]
 lastVerified: 2026-10-17
 ---
 
-# Local catalog usability — October 15, 2026
 
 The results below record the October 15 run. The native-startup limitation was
 subsequently resolved: the user confirmed a working native dashboard, and

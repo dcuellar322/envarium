@@ -7,8 +7,8 @@ const homepageFeatures = features.slice(0, 6)
 
 <section class="features container" aria-labelledby="features-title">
   <div class="section-heading">
-    <div><p class="eyebrow">One operating model</p><h2 id="features-title">Everything around the project.</h2></div>
-    <p>Envarium complements Docker, Git, terminals, editors, and coding agents. It gives them a shared local project model.</p>
+    <div><p class="eyebrow">Project tools</p><h2 id="features-title">See what each project is doing.</h2></div>
+    <p>Check service status, inspect logs, and start related projects without switching between terminal tabs.</p>
   </div>
   <div class="feature-grid">
     {homepageFeatures.map((feature) => (
@@ -16,7 +16,7 @@ const homepageFeatures = features.slice(0, 6)
         <span class="feature-icon" aria-hidden="true"><BrandIcon name={feature.icon} /></span>
         <h3>{feature.title}</h3>
         <p>{feature.summary}</p>
-        <span class="feature-link">Explore capability <b aria-hidden="true">→</b></span>
+        <span class="feature-link">View feature <b aria-hidden="true">→</b></span>
       </a>
     ))}
   </div>
@@ -37,9 +37,9 @@ const homepageFeatures = features.slice(0, 6)
   }
 
   h2 {
-    max-width: 12ch;
+    max-width: 20ch;
     margin: 0.45rem 0 0;
-    font-size: clamp(2.6rem, 5vw, 4.8rem);
+    font-size: clamp(2rem, 3.3vw, 3.1rem);
     letter-spacing: -0.05em;
     line-height: 1;
   }

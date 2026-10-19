@@ -6,7 +6,6 @@ audience: [contributor, maintainer]
 lastVerified: 2026-10-18
 ---
 
-# Operational experience refresh
 
 Requested scope: consistently low monitoring overhead, usable Git and worktree
 inspection/switching, project-oriented port topology, a working Team page, and

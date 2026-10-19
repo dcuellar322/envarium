@@ -5,6 +5,7 @@ export interface PlatformGuide {
   releasePlatform: ReleasePlatform
   name: string
   shortName: string
+  comingSoon?: boolean
   primaryFormat: string
   requirements: string
   install: string[]
@@ -28,6 +29,7 @@ export const platformGuides: PlatformGuide[] = [
     slug: 'windows',
     releasePlatform: 'windows',
     name: 'Windows desktop',
+    comingSoon: true,
     shortName: 'Windows',
     primaryFormat: 'Signed MSI or NSIS installer',
     requirements: 'Windows 11 or Windows Server 2022 with Desktop Experience.',
@@ -50,6 +52,7 @@ export const platformGuides: PlatformGuide[] = [
     slug: 'wsl',
     releasePlatform: 'wsl',
     name: 'WSL2 headless',
+    comingSoon: true,
     shortName: 'WSL2',
     primaryFormat: 'Linux CLI tarball inside WSL',
     requirements: 'A supported WSL2 distribution on Windows 11, with Docker integration configured inside the same distribution when needed.',

@@ -16,14 +16,14 @@ const published = stable
   <div class="panel release-card">
     {stable ? (
       <>
-        <div><strong>{stable.title}</strong><span>Published {published} · {stable.assets.length} verified artifacts</span></div>
+        <div><strong>{stable.title}</strong><span>Published {published} · {stable.assets.length} release artifacts</span></div>
         <p>{stable.summary ?? 'Read the reviewed GitHub release notes for highlights and upgrade guidance.'}</p>
         <nav aria-label="Latest release links"><a href={`/changelog/${stable.tag}/`}>What changed</a><a href="/download/">Download</a><a href="/download/verify/">Verify</a></nav>
       </>
     ) : (
       <>
-        <div><strong>No public GitHub Release has been published.</strong><span>The site will expose direct downloads only after reviewed release metadata and required integrity artifacts exist.</span></div>
-        <nav aria-label="Current availability"><a href="/docs/getting-started/">Build from source</a><a href="/changelog/">Release policy</a></nav>
+        <div><strong>Build from source while installers are being prepared.</strong><span>macOS and Linux source builds are available. Windows and WSL2 are coming soon.</span></div>
+        <nav aria-label="Current availability"><a href="/download/cli/#build-from-source">Build from source</a><a href="/changelog/">Release policy</a></nav>
       </>
     )}
   </div>
@@ -31,7 +31,7 @@ const published = stable
 
 <style>
   .release { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 3rem; padding-block: clamp(4rem, 8vw, 7rem); }
-  h2 { max-width: 12ch; margin: 0.4rem 0; font-size: clamp(2.5rem, 4.8vw, 4.7rem); letter-spacing: -0.055em; line-height: 0.98; }
+  h2 { max-width: 20ch; margin: 0.4rem 0; font-size: clamp(2rem, 3.3vw, 3.1rem); letter-spacing: -0.055em; line-height: 0.98; }
   .release-card { display: grid; align-content: center; gap: 1rem; padding: clamp(1.4rem, 3vw, 2.4rem); }
   .release-card div { display: grid; gap: 0.25rem; }
   .release-card strong { font-size: 1.1rem; }

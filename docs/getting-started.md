@@ -5,14 +5,15 @@ category: tutorial
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 sidebar:
   order: 2
 searchTerms: [getting started, add repository, first project, project discovery]
 ---
 
-Install a signed desktop bundle from a stable release or build the headless
-binary from source. Then approve one repository:
+[Build from source on macOS or Linux](/download/cli/#build-from-source)
+until public installers are available. Windows and WSL2 are coming soon.
+Then add one repository:
 
 ```bash
 envarium doctor

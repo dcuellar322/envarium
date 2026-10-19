@@ -8,7 +8,6 @@ const status = distributionStatus as DistributionStatus
 const stable = (releaseManifest as ReleaseManifest).channels.stable
 const methods = [
   { name: 'Homebrew', platform: 'macOS', ...status.homebrew },
-  { name: 'WinGet', platform: 'Windows', ...status.winget },
 ].filter((method) => method.available && stable && method.verifiedVersion === stable.version)
 ---
 

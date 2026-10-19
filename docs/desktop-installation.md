@@ -5,8 +5,12 @@ category: how-to
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-10-17
+lastVerified: 2026-10-19
 ---
+
+No public stable installers are published yet. Build from source on macOS or
+Linux using the instructions below, or check [downloads](/download/) for package
+availability. **Windows and WSL2 support is coming soon.**
 
 ## macOS desktop
 
@@ -52,7 +56,7 @@ use a real PTY and do not depend on an external emulator.
 
 ## Windows desktop
 
-Stable releases provide signed MSI and NSIS installers. Verify the publisher
+**Coming soon.** Planned releases will provide signed MSI and NSIS installers. Verify the publisher
 with `Get-AuthenticodeSignature` before installation. The daemon uses an
 owner-only named pipe for privileged local clients, Job Objects for managed
 process trees, and ConPTY for embedded sessions. Windows Terminal (`wt.exe`)
@@ -66,14 +70,16 @@ not require administrator privileges.
 
 ## WSL2
 
-Run the Linux binary inside WSL and use the browser UI it prints. Windows and
+**Coming soon.** The planned setup runs the Linux binary inside WSL and use the browser UI it prints. Windows and
 WSL local IPC endpoints are intentionally separate. See
 [platform support](platform-support.md#wsl2-behavior) for Docker, filesystem,
 notification, and autostart behavior.
 
 ## Build from source
 
-Install the pinned Go, Node/pnpm, and Rust toolchains, then run:
+On macOS or Linux, install the Go version from `.go-version`, Node from
+`.node-version`, pnpm from `package.json`, and Rust from `rust-toolchain.toml`.
+Clone the repository, then run:
 
 ```bash
 pnpm install --frozen-lockfile
@@ -95,6 +101,7 @@ developers who do not want a native shell:
 
 ```bash
 make build
+mkdir -p "$HOME/.local/bin"
 install -m 0755 bin/envarium "$HOME/.local/bin/envarium"
 envarium doctor
 envarium ui

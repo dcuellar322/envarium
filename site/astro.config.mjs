@@ -1,10 +1,13 @@
 import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
+import { unified } from '@astrojs/markdown-remark'
+import remarkDocumentationLinks from './src/lib/docs/remark-links.ts'
 import { isPreview, PRODUCT_NAME, REPOSITORY_URL, SITE_DESCRIPTION, siteUrl } from './src/config/site.ts'
 
 export default defineConfig({
   site: siteUrl.href,
   output: 'static',
+  markdown: { processor: unified({ remarkPlugins: [remarkDocumentationLinks] }) },
   integrations: [
     starlight({
       title: PRODUCT_NAME,
@@ -19,6 +22,7 @@ export default defineConfig({
         { icon: 'github', label: 'GitHub', href: REPOSITORY_URL },
       ],
       components: {
+        Search: './src/components/docs/DocsSearch.astro',
         Footer: './src/components/docs/DocsFooter.astro',
         SiteTitle: './src/components/docs/DocsSiteTitle.astro',
       },

@@ -28,6 +28,9 @@ importers:
 
   site:
     dependencies:
+      '@astrojs/markdown-remark':
+        specifier: 7.2.4
+        version: 7.2.4(supports-color@10.2.2)
       '@astrojs/rss':
         specifier: 4.0.19
         version: 4.0.19

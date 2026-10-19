@@ -2,7 +2,7 @@
 import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
 
 const steps = [
-  { number: '01', title: 'Choose a bounded issue', body: 'Start with a confirmed defect, good-first-issue query, or focused proposal. Keep one coherent vertical slice per change.', link: 'https://github.com/dcuellar322/envarium/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22', label: 'Find a starter issue' },
+  { number: '01', title: 'Choose an issue', body: 'Look for a good first issue, reproduce a bug, or suggest a documentation fix. Discuss larger changes in an issue before implementing them.', link: 'https://github.com/dcuellar322/envarium/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22', label: 'Find a starter issue' },
   { number: '02', title: 'Read the architecture rules', body: 'Begin with AGENTS.md, the relevant implementation-plan phase, and accepted ADRs. Create an ADR before reversing an accepted decision.', link: '/docs/architecture/', label: 'Architecture overview' },
   { number: '03', title: 'Bootstrap locally', body: 'Use the pinned Go, Node, pnpm, and Rust toolchains. The repository bootstrap generates all contracts and installs frontend dependencies.' },
   { number: '04', title: 'Implement and verify', body: 'Add behavior and tests together. Cover failure, cancellation, permission, and reconciliation paths when they apply.' },
@@ -10,12 +10,12 @@ const steps = [
 ]
 ---
 
-<ContentPageLayout title="Contribute to Envarium" eyebrow="Small, explicit, reviewable" description="A short path from a bounded problem to a high-quality pull request. The full contributor contract remains authoritative in the repository.">
+<ContentPageLayout title="Contribute to Envarium" eyebrow="Contributing" description="Help with a bug report, a documentation fix, or a code change. Start with an issue, set up the project locally, and run the checks before submitting a pull request.">
   <div class="steps">{steps.map((step) => <section class="step panel"><span>{step.number}</span><div><h2>{step.title}</h2><p>{step.body}</p>{step.number === '03' && <pre><code>git clone https://github.com/dcuellar322/envarium.git
 cd envarium
 make bootstrap
 make repository-check</code></pre>}{step.link && <a href={step.link}>{step.label} →</a>}</div></section>)}</div>
-  <section class="rules"><div><p class="eyebrow">Before requesting review</p><h2>Complete the focused quality gate.</h2></div><div class="panel"><ul><li>Preserve adapter → application → domain dependency direction.</li><li>Keep HTTP, CLI, MCP, UI, Tauri, and provider adapters thin.</li><li>Do not expose unrestricted shell operations or bypass project trust.</li><li>Regenerate API, schema, and agent-readable contracts.</li><li>Update the relevant progress evidence honestly.</li><li>Use a conventional commit with one intent.</li></ul><nav><a href="https://github.com/dcuellar322/envarium/blob/master/CONTRIBUTING.md">Full contributing guide</a><a href="https://github.com/dcuellar322/envarium/blob/master/AGENTS.md">Repository rules</a><a href="/docs/adapter-development/">Adapter guide</a><a href="/docs/adr/">Architecture decisions</a></nav></div></section>
+  <section class="rules"><div><p class="eyebrow">Pull request checklist</p><h2>Before you submit</h2></div><div class="panel"><ul><li>Preserve adapter → application → domain dependency direction.</li><li>Keep HTTP, CLI, MCP, UI, Tauri, and provider adapters thin.</li><li>Do not expose unrestricted shell operations or bypass project trust.</li><li>Regenerate API, schema, and agent-readable contracts.</li><li>Update the relevant progress evidence honestly.</li><li>Use a conventional commit with one intent.</li></ul><nav><a href="https://github.com/dcuellar322/envarium/blob/master/CONTRIBUTING.md">Full contributing guide</a><a href="https://github.com/dcuellar322/envarium/blob/master/AGENTS.md">Repository rules</a><a href="/docs/adapter-development/">Adapter guide</a><a href="/docs/adr/">Architecture decisions</a></nav></div></section>
   <div class="conduct panel"><strong>Community conduct</strong><span>Participation is governed by the Contributor Covenant. Be respectful, specific, and constructive.</span><a href="https://github.com/dcuellar322/envarium/blob/master/CODE_OF_CONDUCT.md">Read the code of conduct →</a></div>
 </ContentPageLayout>
 

@@ -3,12 +3,16 @@ import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
 ---
 
 <ContentPageLayout title="Website and product privacy" eyebrow="Local by default" description="What Envarium stores locally, sends only after an explicit preview, and excludes from diagnostics and optional anonymous metrics.">
+  <section class="website panel"><h2>Visiting this website</h2><p>This site has no behavioral analytics, advertising trackers, or account system. Search runs in your browser. Your color theme is saved in local storage. Cloudflare serves the site and may process request metadata, such as your IP address, for delivery and security. Following a GitHub link takes you to a service with its own privacy policy.</p></section>
   <div class="principles"><section class="panel"><span>01</span><h2>Core workflows stay local.</h2><p>Projects, manifests, operations, audit history, logs, diagnoses, recipes, plugins, and settings remain on your machine unless you explicitly export or send them.</p></section><section class="panel"><span>02</span><h2>AI is optional and previewed.</h2><p>Deterministic workflows do not require a provider. Optional AI sends only the bounded, redacted evidence preview to the provider you select, under that provider's terms.</p></section><section class="panel"><span>03</span><h2>Metrics are off by default.</h2><p>There is no vendor-controlled telemetry destination. Optional anonymous counters require an explicit HTTPS endpoint and contain no project, path, command, log, or error detail.</p></section></div>
   <section class="data panel"><div><p class="eyebrow">Excluded from support bundles</p><h2>Private material is not a diagnostic shortcut.</h2></div><ul><li>Source and database contents</li><li>Resolved secrets and arbitrary environment values</li><li>Terminal output and project application logs</li><li>Machine credentials and runtime-native identifiers</li></ul></section>
   <p class="review">Novel secret formats remain a residual risk. Always inspect a generated preview before sharing it, and use a private route when context could expose people, systems, or proprietary work. <a href="/docs/privacy/">Read the complete product privacy contract →</a></p>
 </ContentPageLayout>
 
 <style>
+  .website { padding: 1.4rem; margin-bottom: 1rem; }
+  .website h2 { margin-top: 0; }
+  .website p { color: var(--sy-text-muted); }
   .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
   .principles section { padding: 1.4rem; }
   .principles span { color: var(--sy-accent-primary); font: 800 0.8rem var(--sy-font-mono); }

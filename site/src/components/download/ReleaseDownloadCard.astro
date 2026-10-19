@@ -1,14 +1,15 @@
 ---
 import { formatBytes } from '@/lib/releases/recommend'
-import type { ReleaseAsset, ReleaseChannel } from '@/lib/releases/types'
+import type { ReleaseAsset, ReleaseChannel, ReleaseChannelName } from '@/lib/releases/types'
 
 interface Props {
   release?: ReleaseChannel
   asset?: ReleaseAsset
   label: string
+  channel?: ReleaseChannelName
 }
 
-const { release, asset, label } = Astro.props
+const { release, asset, label, channel = 'stable' } = Astro.props
 ---
 
 <article class:list={['release-card', 'panel', !asset && 'unavailable']}>
@@ -37,9 +38,9 @@ const { release, asset, label } = Astro.props
     </>
   ) : (
     <div class="unavailable-copy">
-      <strong>No published stable package yet.</strong>
-      <p>The signed release pipeline is implemented, but GitHub Releases does not currently expose a verified asset for this selection. Envarium will not guess a filename or send you to an unverified mirror.</p>
-      <div><a class="button" href="https://github.com/dcuellar322/envarium/releases">Watch GitHub Releases</a><a class="button quiet" href="/docs/desktop-installation/#build-from-source">Build from source</a></div>
+      <strong>{`No published ${channel} package for this selection.`}</strong>
+      <p>Choose another platform, architecture, or release channel, or build from source on macOS or Linux.</p>
+      <div><a class="button" href="https://github.com/dcuellar322/envarium/releases">Watch GitHub Releases</a><a class="button quiet" href="/download/cli/#build-from-source">Build from source</a></div>
     </div>
   )}
 </article>

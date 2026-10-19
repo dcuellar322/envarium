@@ -5,19 +5,21 @@ category: reference
 audience: [user, contributor]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Envarium v1 supports native arm64 and amd64 installations on the following
-platform families. The control plane, CLI, browser UI, and MCP server share the
-same support level; desktop packaging depends on the platform row.
+**Windows and WSL2 support is coming soon.** Adapters exist in the source,
+but public support requires installer and clean-machine validation. The table
+below distinguishes current source-build targets from planned platform baselines.
+Check [downloads](/download/) for published packages; no public stable binaries
+are available yet.
 
 | Platform | Supported baseline | Desktop bundles | Native capabilities |
 |---|---|---|---|
 | macOS | macOS 13 or newer | signed/notarized `.app` and DMG | Unix socket, process groups, PTY, port APIs, Keychain, notifications, launch agent |
 | Linux | Ubuntu 22.04+/Debian 12+ and current Fedora-family desktops | AppImage, deb, rpm | Unix socket, process groups, PTY, portable port APIs, Secret Service, notifications, XDG autostart |
-| Windows | Windows 11 and Windows Server 2022 with Desktop Experience | signed MSI and NSIS | owner-only named pipe, Job Objects, ConPTY, portable port APIs, Credential Manager, notifications, startup task |
-| WSL2 | supported distributions on Windows 11 | use the Linux binary inside WSL | Linux socket/process/PTY behavior inside the distribution; explicit interop limits below |
+| Windows (coming soon) | Planned: Windows 11 and Windows Server 2022 with Desktop Experience | signed MSI and NSIS | owner-only named pipe, Job Objects, ConPTY, portable port APIs, Credential Manager, notifications, startup task |
+| WSL2 (coming soon) | Planned: supported distributions on Windows 11 | use the Linux binary inside WSL | Linux socket/process/PTY behavior inside the distribution; explicit interop limits below |
 
 FreeBSD and other Unix-like systems may compile through conservative adapters
 but are not v1 release targets.
@@ -37,6 +39,8 @@ artifacts, and creates attestations. The detailed operator checklist is in
 [release engineering](release.md).
 
 ## WSL2 behavior
+
+The following describes the intended behavior for upcoming WSL2 support.
 
 Install and run the Linux `envarium` binary inside each WSL distribution
 whose repositories it manages. Its data directory, Unix socket, child

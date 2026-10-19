@@ -4,7 +4,7 @@ description: Canonical identity, domain, audience, privacy, and launch boundarie
 category: contributor
 audience: [maintainer, contributor]
 since: 1.0.0
-lastVerified: 2026-10-17
+lastVerified: 2026-10-19
 ---
 
 Envarium's public identity is **Envarium — Local Development Command
@@ -102,3 +102,29 @@ run the full browser and visual suites, and review any changed references.
 Keep overflow assertions and visual thresholds intact. The branding suite
 checks home, brand, and docs routes at both 320 px and 375 px; verify wider
 system fonts as well when changing the header or headline layout.
+
+
+## Copy and availability review
+
+Every public section should answer a user question, explain a task, or lead to
+an actionable next step. Prefer concrete behavior and examples over repeated
+product slogans or implementation terminology. Keep architecture detail in the
+reference documentation. Do not invent usage statistics, endorsements,
+contributors, installation timings, or release availability.
+
+Show the distinction between source implementation and shipped packages.
+Windows and WSL2 are currently coming soon; their guides describe planned
+requirements and must not offer installers. Update that status only alongside
+reviewed release and platform evidence. Support destinations must be checked
+against the actual repository configuration, not assumed to exist.
+
+Keep the license, contribution guide, code of conduct, support route, and
+private vulnerability-reporting route discoverable. This follows the onboarding
+and participation guidance in [Open Source Guides](https://opensource.guide/starting-a-project/).
+
+Source-relative Markdown links remain useful on GitHub. The site's Markdown
+processor rewrites them to canonical HTML routes at build time and rejects
+missing destinations. Do not fork the root documentation to repair site links.
+The exhaustive page journey checks routes, fragments, images, heading counts,
+overflow, and uncaught browser errors; set `SITE_AUDIT_SCREENSHOTS=1` to capture
+every built page on desktop and mobile under `output/playwright/site-audit/`.

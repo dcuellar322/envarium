@@ -5,12 +5,12 @@ import DownloadButton from '@/components/download/DownloadButton.astro'
 <section class="final-cta container" aria-labelledby="final-cta-title">
   <div class="cta-panel">
     <div>
-      <p class="eyebrow">Ready when your projects are</p>
-      <h2 id="final-cta-title">Bring your local projects into one command center.</h2>
+      <p class="eyebrow">Get started</p>
+      <h2 id="final-cta-title">Try it with one project.</h2>
     </div>
     <div class="actions">
       <DownloadButton />
-      <a class="button" href="/docs/start/">Five-minute quickstart</a>
+      <a class="button" href="/docs/start/">First-project guide</a>
     </div>
   </div>
 </section>
@@ -34,23 +34,10 @@ import DownloadButton from '@/components/download/DownloadButton.astro'
     padding: clamp(1.8rem, 5vw, 4rem);
   }
 
-  .cta-panel::after {
-    position: absolute;
-    right: -8rem;
-    bottom: -11rem;
-    width: 28rem;
-    height: 28rem;
-    border: 1px solid rgb(120 166 255 / 20%);
-    border-radius: 50%;
-    box-shadow: 0 0 0 3rem rgb(120 166 255 / 4%), 0 0 0 7rem rgb(158 123 255 / 4%);
-    content: '';
-    pointer-events: none;
-  }
-
   h2 {
-    max-width: 14ch;
+    max-width: 24ch;
     margin: 0.5rem 0 0;
-    font-size: clamp(2.5rem, 5vw, 4.6rem);
+    font-size: clamp(2rem, 3.3vw, 3.1rem);
     letter-spacing: -0.05em;
     line-height: 1;
   }

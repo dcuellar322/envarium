@@ -1,0 +1,29 @@
+name: Usage question
+description: Ask for help with configuration, workflows, or integrations.
+title: "question: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the documentation and existing issues first. Do not include credentials, private source, bootstrap URLs, or unreviewed diagnostic bundles. Report vulnerabilities privately through Security Advisories.
+  - type: input
+    id: version
+    attributes:
+      label: Envarium version
+      description: Include the version or source commit you are running.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system
+      description: Include the operating system and version.
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: What are you trying to do?
+      description: Describe your goal, what you tried, and what happened. Link to any documentation you followed.
+    validations:
+      required: true

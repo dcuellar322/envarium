@@ -13,10 +13,10 @@ const installCommand = integration.slug === 'codex' ? 'envarium agent install co
 ---
 
 <ContentPageLayout title={`${integration.name} integration`} eyebrow="Integration" description={integration.description}>
-  <section class="setup-grid"><div><p class="eyebrow">Safe setup</p><h2>Connect in three reviewed steps.</h2></div><ol>{integration.setup.map((step) => <li>{step}</li>)}</ol></section>
-  {installCommand && <section class="command panel"><div><h2>Start with observation only.</h2><p>Expand to `develop` after reviewing project scope and the mutation tools that become available.</p></div><pre tabindex="0"><code>{installCommand}</code></pre></section>}
+  <section class="setup-grid"><div><p class="eyebrow">Setup</p><h2>Set up the integration.</h2></div><ol>{integration.setup.map((step) => <li>{step}</li>)}</ol></section>
+  {installCommand && <section class="command panel"><div><h2>Start with observation only.</h2><p>Expand to <code>develop</code> after reviewing project scope and the mutation tools that become available.</p></div><pre tabindex="0"><code>{installCommand}</code></pre></section>}
   {agentIntegration && <div class="agent-grid"><article class="panel"><h2>Permission profiles</h2><p><strong>observe</strong> reads bounded state. <strong>develop</strong> adds lifecycle and approved actions. <strong>maintain</strong> adds rebuild and proposal creation. <strong>admin</strong> is explicit and never the default.</p></article><article class="panel"><h2>Safe workflow</h2><p>List projects, read status, queue one mutation with a stable request ID, wait for the durable operation, then verify health and redacted errors.</p></article><article class="panel"><h2>Authorization failures</h2><p>A missing tool means the profile or project scope does not grant it. Change the reviewed local configuration; prompt text cannot grant capability.</p></article><article class="panel"><h2>Remove the integration</h2><p>Remove the client MCP entry created by the installer. This does not delete Envarium projects, local data, or the daemon.</p></article></div>}
-  <section class="docs-link panel"><div><p class="eyebrow">Canonical contract</p><h2>Read exact behavior and limits.</h2></div><a class="button" href={integration.docsHref}>Open reference</a></section>
+  <section class="docs-link panel"><div><p class="eyebrow">Documentation</p><h2>Commands and configuration</h2></div><a class="button" href={integration.docsHref}>Open reference</a></section>
 </ContentPageLayout>
 
 <style>
@@ -27,7 +27,7 @@ const installCommand = integration.slug === 'codex' ? 'envarium agent install co
   .command { display: grid; grid-template-columns: 0.8fr 1.2fr; align-items: center; gap: 2rem; margin-top: 3rem; padding: 1.5rem; }
   .command h2 { font-size: 1.4rem; }
   .command p, article p { color: var(--sy-text-muted); font-size: 0.88rem; }
-  pre { overflow-x: auto; margin: 0; border-radius: 0.65rem; background: var(--brand-canvas); color: var(--sy-status-success); padding: 1rem; }
+  pre { overflow-x: auto; margin: 0; border-radius: 0.65rem; background: var(--brand-canvas); color: var(--brand-green); padding: 1rem; }
   .agent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
   article { padding: 1.3rem; }
   article h2 { font-size: 1.08rem; }

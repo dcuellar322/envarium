@@ -119,6 +119,12 @@ describe('recommendation', () => {
     expect(formatBytes(10_485_760)).toBe('10.0 MiB')
   })
 
+  it('does not recommend desktop packages for WSL', () => {
+    const manifest = normalizeManifest([release('v1.0.0-beta.1', ['envarium_Linux_x86_64.tar.gz', 'Envarium_1.0.0_amd64.AppImage'])])
+    expect(recommendAsset(manifest.channels.beta, 'wsl', 'amd64')?.packageType).toBe('tar.gz')
+    expect(recommendAsset(manifest.channels.beta, 'wsl', 'arm64')).toBeUndefined()
+  })
+
   it('returns no recommendation without a release', () => {
     expect(recommendAsset(undefined, 'macos', 'arm64')).toBeUndefined()
     expect(formatBytes(1024)).toBe('1 KiB')
