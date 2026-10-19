@@ -14,7 +14,7 @@ pub struct Sidecar<R: Runtime> {
 }
 
 #[derive(Debug)]
-pub struct SidecarError(String);
+pub struct SidecarError(pub(crate) String);
 
 impl fmt::Display for SidecarError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -151,7 +151,7 @@ fn validate_ui_url(value: &str) -> Result<url::Url, SidecarError> {
     Ok(parsed)
 }
 
-fn validate_envelope<T>(
+pub(crate) fn validate_envelope<T>(
     envelope: &Envelope<T>,
     expected_command: &str,
 ) -> Result<(), SidecarError> {

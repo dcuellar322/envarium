@@ -246,3 +246,15 @@ Apply these environment overrides only to that exact leaf command; daemon
 startup, UI initialization and mutations retain their ordinary runtime policy.
 Tests enforce that boundary. The daemon and managed processes never inherit
 these overrides.
+
+The native shell may retain one read-only `desktop snapshot --stream` bridge
+instead of launching a process for each fifteen-second tray refresh. Each exact
+`snapshot` input line requests the same fresh application reads, with a bounded
+deadline and one bounded envelope; no timer or mutation policy moves into Rust.
+EOF/cancellation closes the bridge. Native failure, invalid output or timeout
+discards the owned child and reconnects on the next ordinary poll. Keep normal
+GC and a soft memory limit for this longer-lived adapter. Daemon startup and
+mutations never inherit its resource policy. Shared presentation queries must
+also share their observer/timer, not merely a query cache key. Card rendering
+may skip timestamp-only changes while retaining every displayed value and live
+action inputs. Monitoring and presentation freshness intervals stay unchanged.

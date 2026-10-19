@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"io"
 
@@ -34,56 +35,26 @@ func newDesktopCommand(options *rootOptions) *cobra.Command {
 }
 
 func newDesktopSnapshotCommand(options *rootOptions) *cobra.Command {
-	return &cobra.Command{
+	var stream bool
+	command := &cobra.Command{
 		Use:   "snapshot",
 		Short: "Read one bounded tray and notification snapshot",
 		Args:  cobra.NoArgs,
 		RunE: func(command *cobra.Command, _ []string) error {
+			if stream && (!options.json || !options.compact || options.jsonl) {
+				return usageError("DESKTOP_STREAM_FORMAT", "native snapshot streaming requires --json --compact")
+			}
 			client, err := daemonClient(command.Context(), options)
 			if err != nil {
 				return err
 			}
-			system, err := client.System(command.Context())
-			if err != nil {
-				return err
+			if stream {
+				return streamDesktopSnapshots(command.Context(), command.InOrStdin(), options.stdout, func(ctx context.Context) (desktopPresentation, error) {
+					snapshot, err := readDesktopSnapshot(ctx, client)
+					return nativePresentation(snapshot), err
+				})
 			}
-			projects, err := client.Projects(command.Context())
-			if err != nil {
-				return err
-			}
-
-			snapshot := desktopSnapshot{
-				System: system, Projects: make([]desktopProjectSnapshot, 0, len(projects)),
-				Workspaces: []generated.Workspace{}, Operations: []generated.Operation{},
-				Notifications: []generated.DiagnosticNotification{}, Warnings: []string{},
-			}
-			if host, hostErr := client.Host(command.Context()); hostErr == nil {
-				snapshot.Host = &host
-			} else {
-				snapshot.Warnings = append(snapshot.Warnings, "host observation unavailable")
-			}
-			if workspaces, workspaceErr := client.Workspaces(command.Context()); workspaceErr == nil {
-				snapshot.Workspaces = workspaces
-			} else {
-				snapshot.Warnings = append(snapshot.Warnings, "workspace snapshot unavailable")
-			}
-			if operations, operationErr := client.Operations(command.Context(), "", 25); operationErr == nil {
-				snapshot.Operations = operations
-			} else {
-				snapshot.Warnings = append(snapshot.Warnings, "operation snapshot unavailable")
-			}
-			if notifications, notificationErr := client.DiagnosticNotifications(command.Context(), "", false); notificationErr == nil {
-				snapshot.Notifications = notifications
-			} else {
-				snapshot.Warnings = append(snapshot.Warnings, "diagnostic notification snapshot unavailable")
-			}
-			if ports, portErr := client.PortRegistry(command.Context()); portErr == nil {
-				snapshot.PortConflictCount = len(ports.Conflicts)
-			} else {
-				snapshot.Warnings = append(snapshot.Warnings, "port conflict snapshot unavailable")
-			}
-
-			snapshot.Projects, err = desktopProjects(command.Context(), client, projects)
+			snapshot, err := readDesktopSnapshot(command.Context(), client)
 			if err != nil {
 				return err
 			}
@@ -103,4 +74,7 @@ func newDesktopSnapshotCommand(options *rootOptions) *cobra.Command {
 			})
 		},
 	}
+	command.Flags().BoolVar(&stream, "stream", false, "serve bounded native snapshot requests on standard input")
+	_ = command.Flags().MarkHidden("stream")
+	return command
 }

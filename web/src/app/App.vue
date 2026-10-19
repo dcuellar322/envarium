@@ -4,6 +4,8 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { providePresentationActivity } from '../domains/system/composables/usePresentationActivity'
+import { provideHostObservation } from '../domains/system/composables/useHostObservation'
+import { provideProjectCatalog } from '../domains/projects/composables/useProjectCatalog'
 import { useEventConnection } from '../domains/system/composables/useEventConnection'
 import { loadDaemonSettings } from '../domains/system/settingsApi'
 import AppSidebar from './components/AppSidebar.vue'
@@ -13,6 +15,8 @@ import OperationCenter from './components/OperationCenter.vue'
 
 const queryClient = useQueryClient()
 const presentationActive = providePresentationActivity()
+provideHostObservation(presentationActive)
+provideProjectCatalog(presentationActive)
 const paletteOpen = ref(false)
 const preferences = useQuery({
   queryKey: ['daemon-settings'],

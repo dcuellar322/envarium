@@ -64,16 +64,17 @@ platform or currently installed bundle has been revalidated.
       `switchyard-dcuellar` project with `master` as its production branch, deploy
       the generated site, and register `envarium.davidcuellar.tech` as its custom
       domain.
-- [ ] Update DNS, registrar settings, Cloudflare Pages project/custom domains,
+- [x] Configure the Namecheap CNAME for `envarium.davidcuellar.tech`. The user
+      added it and an October 18 resolver check returns
+      `envarium-dcuellar.pages.dev`.
+- [ ] Update remaining registrar settings, Cloudflare Pages project/custom domains,
       redirects, certificates, canonical origin, CSP allowlists, analytics/search
       console properties, sitemap submission, and uptime monitors. The remaining
-      immediate blocker is a Namecheap Advanced DNS CNAME with Host `envarium`,
-      Value `envarium-dcuellar.pages.dev`, and automatic TTL. An October 17
-      authoritative query confirms `dns1.registrar-servers.com` and
-      `dns2.registrar-servers.com` serve the zone and the subdomain is absent.
-      Keep the existing nameservers; a Cloudflare-proxied record is not required
-      for this externally hosted subdomain. Once the record resolves, confirm
-      the registered Pages custom domain becomes active and HTTPS succeeds.
+      immediate check is Cloudflare custom-hostname/TLS activation. The CNAME
+      resolves correctly, but the October 18 HTTPS check still failed its TLS
+      handshake. Keep the existing nameservers; a Cloudflare-proxied record is
+      not required for this externally hosted subdomain. Confirm the registered
+      Pages custom domain becomes active and HTTPS succeeds.
 - [x] Redirect every former public URL path-for-path where control is retained.
       While canonical DNS/TLS activation is pending, the legacy hostname uses a
       temporary redirect to `envarium-dcuellar.pages.dev/<path>`. Deployment switches

@@ -63,10 +63,38 @@ const memoryAvailable = computed(() =>
 const cpuAvailable = computed(() => props.snapshot.metrics?.every((sample) => sample.cpuAvailable))
 const primaryAction = computed<RuntimeAction>(() => (isActiveState(state.value) ? 'stop' : 'start'))
 const services = computed(() => props.snapshot.runtime?.services.slice(0, 4) ?? [])
+// Observation timestamps and unused metadata must not redraw every card. Keep
+// every rendered value in this dependency list; handlers still read live props.
+const presentation = computed(() => [
+  props.snapshot.project.id,
+  props.snapshot.project.displayName,
+  props.snapshot.project.primaryLocation,
+  props.snapshot.runtime?.driver,
+  state.value,
+  trusted.value,
+  dockerUnavailable.value,
+  props.snapshot.git?.branch,
+  props.snapshot.git?.detached,
+  props.snapshot.git?.repository,
+  changeCount.value,
+  endpointSummary.value,
+  endpointTitle.value,
+  props.snapshot.metrics !== undefined,
+  memoryAvailable.value ? formatBytes(memory.value) : '—',
+  cpuAvailable.value ? cpu.value.toFixed(1) : '—',
+  services.value.map((service) => `${service.id}:${service.state}`).join('\n'),
+  props.snapshot.runtime?.services.length,
+  props.snapshot.warnings.join('. '),
+  props.pending,
+])
 </script>
 
 <template>
-  <article class="project-card" :aria-label="`${snapshot.project.displayName} project`">
+  <article
+    v-memo="presentation"
+    class="project-card"
+    :aria-label="`${snapshot.project.displayName} project`"
+  >
     <div class="project-top">
       <div class="project-title-line">
         <div class="project-avatar" aria-hidden="true">

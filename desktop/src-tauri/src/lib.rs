@@ -5,6 +5,7 @@ mod navigation;
 mod notifications;
 mod preferences;
 mod sidecar;
+mod snapshot_stream;
 mod tray;
 mod tray_presentation;
 mod updater;
@@ -131,12 +132,13 @@ async fn bootstrap<R: Runtime>(app: AppHandle<R>, route: String) -> Result<(), S
 
 async fn poll<R: Runtime>(app: AppHandle<R>, mut tracker: Tracker) {
     let mut disconnected = false;
+    let mut stream = None;
     loop {
         let _ =
             tauri::async_runtime::spawn_blocking(|| std::thread::sleep(Duration::from_secs(15)))
                 .await;
-        let sidecar = Sidecar::new(app.clone());
-        match sidecar.snapshot().await {
+        let result = snapshot_stream::snapshot(&app, &mut stream).await;
+        match result {
             Ok(snapshot) => {
                 if disconnected {
                     let _ = app

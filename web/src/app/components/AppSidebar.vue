@@ -1,19 +1,14 @@
 <script setup lang="ts">
 import { FolderSearch, LayoutDashboard, MonitorCog, Plug, Users } from '@lucide/vue'
-import { useQuery } from '@tanstack/vue-query'
 import { RouterLink } from 'vue-router'
 
-import { loadProjects } from '../../domains/projects/api'
+import { useProjectCatalog } from '../../domains/projects/composables/useProjectCatalog'
 import { useHostObservation } from '../../domains/system/composables/useHostObservation'
 import { useSystemInfo } from '../../domains/system/composables/useSystemInfo'
 import BrandIcon from './BrandIcon.vue'
 
 defineProps<{ connection: 'connecting' | 'connected' | 'disconnected' }>()
-const projects = useQuery({
-  queryKey: ['projects'],
-  queryFn: loadProjects,
-  refetchInterval: 15_000,
-})
+const projects = useProjectCatalog()
 const host = useHostObservation()
 const system = useSystemInfo()
 

@@ -5,7 +5,8 @@ import type { RuntimeAction } from '../../../api/generated/types.gen'
 import { isActiveState } from '../../../lib/format'
 import { trackOperation } from '../../operations/store'
 import { loadPortRegistry } from '../../ports/api'
-import { loadProjects, runRuntimeAction } from '../../projects/api'
+import { runRuntimeAction } from '../../projects/api'
+import { useProjectCatalog } from '../../projects/composables/useProjectCatalog'
 import { loadRecentProjects, markProjectAccess } from '../../projects/recent'
 import { usePresentationActivity } from '../../system/composables/usePresentationActivity'
 import { useHostObservation } from '../../system/composables/useHostObservation'
@@ -14,13 +15,7 @@ import { useDashboardObservations } from './useDashboardObservations'
 
 export function useDashboard() {
   const active = usePresentationActivity()
-  const projects = useQuery({
-    shallow: true,
-    enabled: active,
-    queryKey: ['projects'],
-    queryFn: loadProjects,
-    refetchInterval: 15_000,
-  })
+  const projects = useProjectCatalog()
   const projectList = computed(() => projects.data.value ?? [])
   const snapshots = useDashboardObservations(projectList)
   const ports = useQuery({

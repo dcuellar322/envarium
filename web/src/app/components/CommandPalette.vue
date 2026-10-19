@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { useMutation, useQuery } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { loadProjects, runProjectAction, runRuntimeAction } from '../../domains/projects/api'
+import { runProjectAction, runRuntimeAction } from '../../domains/projects/api'
+import { useProjectCatalog } from '../../domains/projects/composables/useProjectCatalog'
 import { trackOperation } from '../../domains/operations/store'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 const router = useRouter()
-const projects = useQuery({ queryKey: ['projects'], queryFn: loadProjects })
+const projects = useProjectCatalog()
 const query = ref('')
 const selected = ref(0)
 const input = ref<HTMLInputElement>()

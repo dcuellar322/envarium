@@ -6,6 +6,23 @@ audience: [contributor, maintainer]
 lastVerified: 2026-10-18
 ---
 
+## Native presentation follow-up, October 18
+
+ADR-0024 now shares one host/catalog query observer across the native shell's
+Vue consumers, avoiding duplicate polling timers while retaining the existing
+freshness intervals. Dashboard cards memoize only displayed facts; observation
+timestamps do not redraw unchanged controls, and actions read the latest props.
+The native tray retains one bounded read-only snapshot bridge instead of
+spawning a CLI per fifteen-second refresh. It preserves the same application
+reads, notifications and current-trust checks; EOF, cancellation, invalid frames,
+failure and timeouts dispose of the bridge. Mutations retain separate sidecars.
+
+Local verification passes full Go tests/race/vet/lint, architecture and repository
+checks, 91 UI tests, all six real browser flows, 17 visual cases, and 20 Rust
+tests. Installed resource measurements and hosted CI are the remaining acceptance
+checks for this follow-up; the preceding worktree measurements remain the prior
+baseline rather than evidence for this new build.
+
 ## Implemented
 
 - Added one process-wide, cancellable resource sampler with a four-project
