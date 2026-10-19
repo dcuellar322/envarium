@@ -4,7 +4,7 @@ description: Process topology, bounded contexts, dependency direction, and accep
 category: concept
 audience: [contributor, integrator, maintainer]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 slug: docs/architecture
 ---
 
@@ -13,55 +13,37 @@ binary. The process hosts a daemon, CLI commands, local HTTP/WebSocket and IPC
 transports, and an MCP façade. A Vue application and thin Tauri desktop shell
 consume the same application behavior.
 
-The [durable operations and local transport](operations-kernel.md) note defines
-the command state machine, restart behavior, event replay, Unix IPC, and browser
-session handshake introduced by Phase 2.
+Use the focused architecture guide for the boundary you are changing:
 
-The [project onboarding and manifest resolution](project-onboarding.md) note
-defines the Phase 3 repository trust boundary, evidence pipeline, approval
-transaction, generated schema, and configuration precedence.
+- [Durable operations and local transport](operations-kernel.md): state
+  transitions, recovery, replay, IPC, and browser authentication.
+- [Project onboarding](project-onboarding.md): discovery, repository trust,
+  manifest validation, and configuration provenance.
+- [Docker Compose](docker-compose-runtime.md) and [native processes](native-process-runtime.md):
+  lifecycle drivers, identity evidence, and ownership limits.
+- [Observability](observability.md): redaction, log retention, health, metrics,
+  history, and storage attribution.
+- [Ports, source control, and actions](developer-workflows.md): port evidence,
+  Git observation, reviewed commands, and audit recovery.
+- [Dashboard and product UI](dashboard-alpha.md): routes, server-state ownership,
+  command boundaries, accessibility, and degraded states.
+- [Agent integration](agent-integration.md) and [AI-assisted onboarding](ai-assisted-onboarding.md):
+  scoped MCP tools, isolated providers, bounded evidence, and human approval.
+- [Workspaces and worktrees](workspaces.md): dependency execution, checkout
+  isolation, exact ports, routing, and recovery.
+- [Terminal sessions](terminal-sessions.md): PTY ownership, authenticated streams,
+  detach behavior, scrollback, and agent metadata.
+- [Desktop shell](desktop-shell.md): sidecar compatibility, native presentation,
+  notifications, and signed updates.
+- [Plugin architecture](plugins.md) and [SDK](../plugin-sdk.md): executable trust,
+  protocol negotiation, capabilities, supervision, and authoring.
+- [Diagnostics and automation](intelligent-diagnostics.md): evidence validation,
+  deterministic rules, reviewed actions, recipes, and local feedback.
+- [Federation](../federation.md) and [team configuration](../team-configuration.md):
+  optional peer identity, mutual TLS, signed bundles, encrypted sync, and policy.
 
-The [Docker Compose runtime](docker-compose-runtime.md) and
-[native process runtime](native-process-runtime.md) notes describe the two
-initial lifecycle drivers, their evidence models, and their ownership limits.
-The [health, log, and resource observability](observability.md) note defines the
-redaction boundary, rotating storage, cursor replay, health scheduling,
-degraded-state derivation, metric tiers, and storage-attribution boundary
-introduced by Phases 7 and 12.
-The [ports, source control, and trusted actions](developer-workflows.md) note
-defines Phase 8 port provenance and reservations, read-only Git observation,
-action authorization, working-directory containment, and audit recovery.
-The [dashboard alpha](dashboard-alpha.md) note defines Phase 9 routes, server
-state ownership, command boundaries, degraded behavior, and browser evidence.
-The [agent integration](agent-integration.md) note defines Phase 10 MCP
-topology, least-privilege discovery, audit identity, provider installers, and
-failure isolation.
-The [AI-assisted onboarding](ai-assisted-onboarding.md) note defines Phase 11
-evidence consent, provider isolation, schema-constrained output, deterministic
-merge authority, dry-run review, and human-only trust transitions.
-The [workspace and worktree orchestration](workspaces.md) note defines Phase 13
-dependency execution, failure policy, environment isolation, optional local
-routing, launch recipes, and restart reconciliation.
-The [embedded terminal and agent sessions](terminal-sessions.md) note defines
-Phase 14 PTY ownership, typed launch resolution, authenticated binary streams,
-detach persistence, bounded scrollback, and the user-visible agent metadata
-boundary.
-The [native desktop shell](desktop-shell.md) note defines Phase 15 sidecar
-attachment, compatibility gates, native adapter ownership, capability
-isolation, notification transitions, and signed update behavior.
-The [out-of-process plugin architecture](plugins.md) note defines Phase 16
-discovery, executable trust, JSON-RPC negotiation, capability enforcement,
-supervision, and local-user security boundaries. The public
-[plugin SDK guide](../plugin-sdk.md) documents authoring and compatibility.
-The [intelligent diagnostics and safe automation](intelligent-diagnostics.md)
-note defines Phase 17 bounded evidence, deterministic-first evaluation,
-provider validation, prompt-injection resistance, action authorization,
-rate-limited recipes, local feedback, and notification retention.
-The [optional federation guide](../federation.md),
-[signed team configuration guide](../team-configuration.md), and ADR-0016 define
-Phase 19's separate peer identity, mutual-TLS authorization, bounded inventory,
-signed portable policy, encrypted sync, curated metadata, and explicit
-anonymous-counter consent boundaries.
+These guides describe the current source. Check [platform support](../platform-support.md)
+and [downloads](/download/) for released packages and supported platforms.
 
 ## Process topology
 

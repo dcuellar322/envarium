@@ -42,7 +42,8 @@ opens the corresponding local route, and focuses the existing window.
 
 ## Linux desktop
 
-Stable releases provide AppImage, deb, and rpm bundles. Use the native package
+The release workflow builds AppImage, deb, and rpm bundles; public stable
+packages are not available yet. Use the native package
 for integration with the desktop application menu and updater; make an
 AppImage executable before launching it. WebKitGTK 4.1 and a supported Secret
 Service implementation must be available. Native notifications and autostart
@@ -70,7 +71,7 @@ not require administrator privileges.
 
 ## WSL2
 
-**Coming soon.** The planned setup runs the Linux binary inside WSL and use the browser UI it prints. Windows and
+**Coming soon.** The planned setup runs the Linux binary inside WSL and uses the browser UI it prints. Windows and
 WSL local IPC endpoints are intentionally separate. See
 [platform support](platform-support.md#wsl2-behavior) for Docker, filesystem,
 notification, and autostart behavior.
@@ -107,8 +108,9 @@ envarium doctor
 envarium ui
 ```
 
-`envarium doctor` and all other client commands start the per-user daemon on
-demand. No Tauri or Rust runtime is required by the built Go binary.
+`envarium doctor`, `envarium ui`, and ordinary project commands start the
+per-user daemon on demand. Offline `data` commands and commands such as
+`version`, `schema`, and shell completion do not start it. No Tauri or Rust runtime is required by the built Go binary.
 
 ## Uninstall and data choices
 
@@ -128,7 +130,8 @@ Desktop-only preferences are under the per-application Tauri config directory
 for `dev.envarium.desktop`. Launch-at-login can be disabled from the tray
 before uninstalling; macOS Login Items can also remove it afterward.
 
-The generated Homebrew cask uses that same bundle identifier for preferences,
+Homebrew cask drafts are generated for maintainer review; no published cask is
+currently offered. If installed from a reviewed cask, its uninstall definition uses that same bundle identifier for preferences,
 WebKit data, caches, and saved window state. Ordinary uninstall retains data;
 `brew uninstall --cask --zap envarium` additionally removes those files and the
 `Envarium` control-plane data directory. Review backups and stop the daemon
@@ -159,8 +162,7 @@ Downgrade is restore-based: keep the current database, copy a pre-migration
 backup to a separate data directory, and run the matching old binary against
 that copy. Reinstalling the same or newer compatible v1 bundle attaches to the
 retained daemon data. See [v1 migration](migration-v1.md) for the exact safe
-procedure and [release engineering](release.md) for the tested matrix.
+procedure and [release engineering](release.md) for the required release checks.
 
-Envarium is pre-launch and has no former Switchyard user base to migrate. It
-uses its own application identity, data directory, and `envarium://` links;
-there is no supported Switchyard importer or former-scheme handler.
+Envarium uses its own application identity, data directory, and `envarium://`
+links. Importing data or deep links from another application is not supported.

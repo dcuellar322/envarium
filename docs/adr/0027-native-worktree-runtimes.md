@@ -3,7 +3,7 @@ title: "ADR-0027: Native worktree ownership and reviewed transitions"
 description: Isolate native runtime ownership and exact ports across trusted checkouts.
 category: concept
 audience: [contributor, maintainer]
-lastVerified: 2026-10-18
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -51,12 +51,10 @@ Native friendly HTTP routes require a currently observed, ownership-verified TCP
 binding at an exact leased port. Declarations and a live PID alone cannot publish
 a route. Existing Compose isolation remains unchanged.
 
-## Acceptance evidence required
+## Verification requirements
 
-Exercise two native worktrees simultaneously with SQLite persistence, distinct
-ports, branch-specific responses, scoped restart/stop/logs/metrics and daemon
-reconciliation. Verify stale reviews, trust revocation, unknown/fixed ports,
-occupied ports, cancellation and failed transitions. Test the complete reviewed
-browser workflow on owned repositories; preserve the user's running projects.
-Run migrations, generated-artifact checks, full quality suites, rebuild/install,
-and exact-master hosted CI before handoff. Record evidence in Phase 13.
+Tests must cover concurrent worktrees with independent persisted ownership,
+ports, logs, metrics, health, and restart reconciliation. Stale reviews, revoked
+trust, fixed or occupied ports, cancellation, and failed checkout transitions
+must remain explicit failures. Browser tests use owned fixture repositories;
+verification must preserve unrelated running projects.

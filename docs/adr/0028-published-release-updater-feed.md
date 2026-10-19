@@ -22,8 +22,9 @@ their names before matrix artifacts are merged.
 Keep release discovery and signature validation at build time. Embed the latest
 published stable release's bounded, complete updater catalog in a small Pages
 Worker handling only `/updates/stable.json`. It returns HTTP 204 before the
-first stable release and HTTP 200 for a complete catalog. All other requests
-continue through static Pages assets. Limit Worker invocation with `_routes.json`.
+first stable release and HTTP 200 for a complete catalog. Public pages use
+static Pages assets; [ADR-0029](0029-retired-documentation-routes.md) extends
+the Worker with explicit 404s for retired documentation routes. Limit Worker invocation with `_routes.json`.
 The Worker has no secrets, storage, user input mutations, binary proxy, or live
 GitHub calls. This is a narrow exception to ADR-0017's no-runtime-backend rule.
 

@@ -5,7 +5,7 @@ category: reference
 audience: [user, integrator]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 searchTerms: [Codex MCP, Claude Code MCP, envarium_project_start, permission profile]
 ---
 
@@ -51,7 +51,9 @@ MCP owns stdout while running. Diagnostics go to stderr.
 
 ## Tools
 
-All tool names are stable and prefixed with `envarium_`. Inputs reject
+The [generated tool catalog](generated/mcp-tools.md) lists the full surface,
+including workspace and environment tools. The tables below summarize common
+project workflows. All tool names are prefixed with `envarium_`. Inputs reject
 unknown fields through SDK-generated JSON Schemas. Identifiers are opaque;
 obtain project, service, action, proposal, and operation IDs from read tools.
 
@@ -110,6 +112,8 @@ Admin adds `envarium_manifest_proposal_accept` and
 `envarium_project_teardown`. Teardown accepts `removeVolumes`; the boolean
 must be explicit and the tool is annotated destructive. Accepting a proposal
 is an explicit trust transition and never happens during proposal creation.
+AI-assisted proposal revisions require human approval and cannot be accepted
+by an agent identity, including an admin MCP server.
 
 ## Resources and prompts
 

@@ -17,8 +17,8 @@ or [build the desktop app](../desktop-installation.md#build-from-source).
 ## 1. Choose the operating mode
 
 Use the **desktop command center** for the native window, tray, notifications,
-autostart, and signed updater. Use the **headless CLI** for SSH hosts, CI,
-WSL2, or a browser-only workflow.
+autostart, and signed updater in published release builds. Use the **headless
+CLI** for SSH hosts, CI, or a browser-only workflow. WSL2 remains coming soon.
 
 The [download page](/download/) shows only assets returned by the GitHub
 Releases API. If a verified stable package is unavailable, it says so instead

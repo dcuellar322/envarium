@@ -50,10 +50,9 @@ window must refresh authoritative state. Audit records and resource history
 have separate ownership and are not pruned by this policy. Freed SQLite pages
 are reused; no blocking full-database VACUUM runs in monitoring paths.
 
-The prelaunch alpha manifest reader/migrator and old-daemon status fallback
-are retired. Only the stable manifest contract is accepted. Ordered database
-migrations remain intact for the active installation. This supersedes the
-earlier phase-18 prelaunch compatibility policy.
+Accept only the current stable manifest contract, without an obsolete-format
+normalizer or an old-daemon status fallback. Ordered database migrations remain
+supported; accepting an old manifest format is a separate compatibility decision.
 
 Signed configuration is mandatory for all team bundles, so there is no optional
 `requireSignedConfiguration` switch. The registry publisher allowlist is named

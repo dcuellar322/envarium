@@ -3,7 +3,7 @@ title: "ADR-0020: Background configuration resolution without CLI polling"
 description: Resolve observation metadata in-process while preserving installed-CLI lifecycle validation.
 category: concept
 audience: [contributor, maintainer]
-lastVerified: 2026-10-17
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -12,10 +12,9 @@ lastVerified: 2026-10-17
 
 ## Context
 
-With eleven registered projects and the native app quit, repeated Compose CLI
-normalization consumed 6.46% of a CPU core in child processes, in addition to
-3.18% daemon CPU. Unchanged manifests were also repeatedly decoded, merged,
-and schema-validated by independent observers. Longer polling intervals would
+Repeated Compose CLI normalization creates child-process overhead while
+independent observers duplicate decoding, merging, and validation of unchanged
+manifests. Longer polling intervals would
 trade freshness for overhead rather than remove the repeated work.
 
 ## Decision
@@ -27,7 +26,7 @@ execution. Preserve the existing bounded observation refresh window; parsing
 errors remain visible and never become a successful empty runtime. Observation
 uses local files only, never downloads remote includes or invokes repository
 commands. Compare loader metadata with the installed CLI on supported fixtures
-and the user's actual projects before deployment.
+and representative local projects before changing the observation loader.
 
 Read Docker's active context selection and non-secret endpoint metadata from
 its local configuration/context store for SDK observation. Preserve context and

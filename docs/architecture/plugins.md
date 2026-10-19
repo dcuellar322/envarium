@@ -4,10 +4,11 @@ description: Versioned protocol, trust, capabilities, supervision, and conforman
 category: concept
 audience: [integrator, contributor]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Phase 16 applies ADR-0012 with a public Go SDK under `sdk/plugin` and an exact,
+Plugins follow [ADR-0012](../adr/0012-out-of-process-plugins.md), with a public
+Go SDK under `sdk/plugin` and an exact,
 versioned JSON-RPC 2.0 protocol over stdin/stdout. A plugin is always a separate
 supervised process. The daemon never loads a shared library, calls a shell, or
 lets plugin-specific types enter a core product domain.

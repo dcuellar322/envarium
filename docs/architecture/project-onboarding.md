@@ -4,11 +4,10 @@ description: Safe discovery, evidence aggregation, trust, validation, precedence
 category: concept
 audience: [user, contributor, integrator]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Phase 3 introduces the catalog, deterministic discovery, and canonical project
-manifest. Repository content remains untrusted until a person accepts a
+The catalog combines deterministic discovery with a canonical project manifest. Repository content remains untrusted until a person accepts a
 proposal.
 
 ## Trust boundary

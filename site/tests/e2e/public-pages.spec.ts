@@ -32,12 +32,14 @@ test('every built page renders, fits, and has working internal links', async ({ 
     for (const image of await page.locator('img[loading="lazy"]').all()) await image.scrollIntoViewIfNeeded()
     await page.evaluate(() => Promise.all(Array.from(document.images).map((img) => img.decode().catch(() => undefined))))
     const facts = await page.evaluate(() => ({
+      text: document.body.innerText,
       width: document.documentElement.scrollWidth,
       viewport: innerWidth,
       images: Array.from(document.images).filter((img) => !img.complete || img.naturalWidth === 0).map((img) => img.src),
       ids: Array.from(document.querySelectorAll('[id]')).map((element) => element.id),
       links: Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href]')).map((link) => link.href),
     }))
+    if (/\bphases?\b/i.test(facts.text)) problems.push(`${route}: internal phase wording in published copy`)
     pages.set(route, new Set(facts.ids))
     if (facts.width > facts.viewport) problems.push(`${route}: overflows ${facts.width - facts.viewport}px`)
     for (const image of facts.images) problems.push(`${route}: broken image ${image}`)
@@ -56,6 +58,9 @@ test('every built page renders, fits, and has working internal links', async ({ 
     if (!checked.has(url.pathname)) {
       const response = await request.get(url.pathname)
       if (!response.ok() && url.pathname !== '/404.html') problems.push(`${source}: ${url.pathname} returns ${response.status()}`)
+      if (url.pathname.startsWith('/docs/') && url.pathname.endsWith('.md') && /\bphases?\b/i.test(await response.text())) {
+        problems.push(`${source}: internal phase wording in ${url.pathname}`)
+      }
       checked.add(url.pathname)
     }
     if (url.hash && pages.has(url.pathname) && !pages.get(url.pathname)!.has(decodeURIComponent(url.hash.slice(1)))) {

@@ -14,7 +14,7 @@ below distinguishes current source-build targets from planned platform baselines
 Check [downloads](/download/) for published packages; no public stable binaries
 are available yet.
 
-| Platform | Supported baseline | Desktop bundles | Native capabilities |
+| Platform | Source-build baseline or planned target | Release bundle targets | Source adapter capabilities |
 |---|---|---|---|
 | macOS | macOS 13 or newer | signed/notarized `.app` and DMG | Unix socket, process groups, PTY, port APIs, Keychain, notifications, launch agent |
 | Linux | Ubuntu 22.04+/Debian 12+ and current Fedora-family desktops | AppImage, deb, rpm | Unix socket, process groups, PTY, portable port APIs, Secret Service, notifications, XDG autostart |

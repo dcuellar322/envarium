@@ -4,11 +4,11 @@ description: Project port evidence, Git observation, and risk-classified develop
 category: concept
 audience: [user, contributor, integrator]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Phase 8 adds three independent application boundaries for common local
-development work. They share catalog identity and the durable operation kernel,
+Ports, source control, and actions are independent application boundaries for
+local development work. They share catalog identity and the durable operation kernel,
 but they do not read each other's storage or move policy into transport code.
 
 ## Port evidence and reservations
@@ -22,8 +22,8 @@ The port registry keeps three kinds of fact distinct:
   accepted declarations. It protects stopped projects and is removed when the
   accepted manifest no longer declares the port.
 - A `binding` is current runtime or operating-system evidence. Runtime bindings
-  are attributed to a trusted project; unmatched `lsof` TCP/UDP listeners are
-  intentionally labeled as unknown processes.
+  are attributed only with ownership evidence. OS listeners include a process
+  name when available; unmatched listeners remain unattributed to a project.
 
 Each fact carries its source, evidence text, host, protocol, project/service
 identity when known, and observation time. Runtime and OS observation failures
@@ -108,8 +108,9 @@ exactly one command string. Both array and shell forms reject `sudo` and
 On macOS, terminal and editor launch use native `open` behavior. Agent launch
 uses a quoted AppleScript command whose first operation changes to the exact
 resolved working directory. Browser actions accept only HTTP and HTTPS URLs.
-Unsupported platforms return an honest capability error until their later
-platform phase.
+Linux and Windows have separate typed launcher adapters. Missing executables
+or unsupported desktop sessions return a capability error. **Windows and WSL2
+support is coming soon**; source adapters do not establish release support.
 
 ## Persistence and recovery
 
@@ -121,5 +122,5 @@ marks an audit left in `running` as failed with `DAEMON_RESTARTED`, while the
 ordinary operation recovery path handles the corresponding durable operation.
 
 The generated OpenAPI clients, CLI, and Vue slices all use these application
-boundaries. No UI component builds a Git, `lsof`, terminal, editor, or action
+boundaries. No UI component builds a Git, socket-inspection, terminal, editor, or action
 command.

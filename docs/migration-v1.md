@@ -1,14 +1,14 @@
 ---
-title: Migrating alpha and beta data to v1
-description: Preview, back up, migrate, verify, and safely roll back pre-v1 local data.
+title: Back up and migrate the local database
+description: Inspect schema changes, verify private backups, and restore local data safely.
 category: how-to
 audience: [user, maintainer]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Normal v1 startup migrates an older Envarium database automatically while
+Daemon startup migrates an older supported Envarium database automatically while
 holding the single-daemon lock. Before the first schema change, it runs SQLite
 `quick_check`, creates a consistent private backup named
 `envarium.db.v<old>.pre-v<new>.bak`, verifies that backup, and only then

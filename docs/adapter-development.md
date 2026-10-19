@@ -4,7 +4,7 @@ description: Add a platform or runtime adapter without crossing Envarium domain 
 category: contributor
 audience: [contributor, maintainer]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 Add operating-system or external-tool behavior behind an application-owned
@@ -29,6 +29,6 @@ Plugin adapters belong out of process and use the public `sdk/plugin` protocol
 plus conformance kit. Provider-specific AI code stays under
 `internal/agents/providers`; provider output remains untrusted schema input.
 
-Update an ADR before changing an accepted boundary, generate contracts rather
-than editing generated files, document the platform matrix, and attach progress
-evidence for the phase or vertical slice.
+Create a superseding ADR before changing an accepted boundary. Generate
+contracts rather than editing generated files, document platform availability,
+and include validation evidence and known limits in the pull request.

@@ -1,6 +1,7 @@
 import { readdir, readFile, stat } from 'node:fs/promises'
 import { dirname, relative, resolve } from 'node:path'
 import { docsRoot, repositoryRoot, siteRoot } from './paths'
+import { isPublicDocumentation } from '../src/lib/docs/publication'
 
 async function filesUnder(directory: string): Promise<string[]> {
   const entries = await readdir(directory, { withFileTypes: true })
@@ -23,6 +24,9 @@ for (const path of markdown) {
   if (!frontmatter) {
     problems.push(`${label}: missing frontmatter`)
     continue
+  }
+  if (isPublicDocumentation(relative(docsRoot, path)) && /\bphases?\b/i.test(source)) {
+    problems.push(`${label}: public documentation must describe behavior without internal implementation phases`)
   }
   for (const field of ['title', 'description', 'category', 'audience', 'lastVerified']) {
     if (!new RegExp(`^${field}:`, 'm').test(frontmatter)) problems.push(`${label}: missing ${field}`)

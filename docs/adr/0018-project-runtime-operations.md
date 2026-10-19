@@ -3,7 +3,7 @@ title: 'ADR-0018: Project-first runtime operations'
 description: Add deploy, force-stop, service controls, plan confirmation, and operational log tooling without becoming a raw Docker administrator.
 category: concept
 audience: [contributor, maintainer, integrator]
-lastVerified: 2026-09-22
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -53,6 +53,5 @@ require a separate product decision and threat model.
 Users get the operational controls and evidence needed during local development
 across both supported runtime drivers. CLI, HTTP, UI, MCP, and remote-machine
 adapters share one action contract. Every command remains previewable, bounded,
-and auditable. Some Arcane capabilities intentionally map to safer Envarium
-equivalents rather than identical Docker resource screens; the complete mapping
-is recorded in the Arcane capability review.
+and auditable. Service controls remain project-oriented; they do not expose
+arbitrary Docker resource administration.

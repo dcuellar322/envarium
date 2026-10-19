@@ -32,6 +32,7 @@ test('maintainer records have no published routes, sitemap entries, or AI export
     expect(response.ok()).toBe(true)
     const content = await response.text()
     expect(content).toContain('Envarium CLI contract')
+    expect(content, name).not.toMatch(/\bphases?\b/i)
     for (const route of internalRoutes) expect(content, name).not.toContain(route)
   }
   for (const route of internalRoutes) expect(sitemaps.join('\n')).not.toContain(`${route}/`)

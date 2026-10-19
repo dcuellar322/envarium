@@ -3,7 +3,7 @@ title: Architecture decision records
 description: Accepted technical decisions and the process for superseding them.
 category: contributor
 audience: [contributor, maintainer, integrator]
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 slug: docs/adr
 ---
 
@@ -11,12 +11,7 @@ ADRs use the status values `Proposed`, `Accepted`, `Superseded`, or `Rejected`.
 Changing an accepted decision requires a new ADR that links to and supersedes
 the old one.
 
-Section 22's Phase 0 shorthand numbers six foundational decisions differently
-from the canonical list in Section 26 of the implementation plan. This index
-uses Section 26 numbering because it is the complete, collision-free list. The
-Phase 0 subjects remain covered by the accepted records below.
-
-## Accepted foundational decisions
+## Accepted decisions
 
 - [ADR-0001: Modular monolith and dependency direction](0001-modular-monolith.md)
 - [ADR-0002: Go control plane](0002-go-control-plane.md)
@@ -50,6 +45,10 @@ Phase 0 subjects remain covered by the accepted records below.
 - [ADR-0024: Shared observations and sampling isolation](0024-shared-observation-and-sampling-isolation.md)
 
 - [ADR-0025: Origin proof and immutable reviewed inputs](0025-origin-proof-and-reviewed-inputs.md)
+
+- [ADR-0026: Reviewed checkout transitions](0026-reviewed-checkout-transitions.md)
+
+- [ADR-0027: Native worktree ownership and reviewed transitions](0027-native-worktree-runtimes.md)
 
 - [ADR-0028: Published release updater feed](0028-published-release-updater-feed.md)
 

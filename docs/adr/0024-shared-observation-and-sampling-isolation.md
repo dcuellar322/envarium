@@ -12,12 +12,10 @@ lastVerified: 2026-10-19
 
 ## Context
 
-With sixteen real containers running, the installed native dashboard consumes
-about 67% of one core whether visible or hidden. Most CPU is charged to Git
-children. Runtime event invalidations refetch unrelated Git/actions across all
-projects and bypass background polling suppression. Metric sampling blocks on
-storage scans and reads container statistics sequentially inside a four-second
-project deadline; raw history has gaps of up to 39 seconds and unavailable values.
+Presentation-driven refetches can duplicate Git, runtime, and configuration
+reads across projects. Storage scans and sequential container statistics can
+also delay metric collection. The design must bound this work without pausing
+monitoring, hiding stale data, or weakening current trust and ownership checks.
 
 ## Decision
 
@@ -59,18 +57,14 @@ one slow container cannot consume the deadline for every later service. Preserve
 partial/error reporting and resource intervals. Test freshness, cancellation,
 concurrency, failure, scheduling and client isolation.
 
-## Acceptance evidence
+## Performance and freshness constraints
 
-Measure the normal installed CLI and native bundle with the same sixteen
-containers, counting child CPU and attributable WebKit helpers. Aim for under
-1% closed CPU, hidden overhead within 0.5 percentage points of closed, and under
-5% visible CPU. Require complete current service metrics and approximately
-ten-second raw cadence, including storage refresh and scheduled diagnostics.
-Longer memory observations must distinguish RSS from charged footprint and
-include sampled transient children. Record achieved values and remaining limits
-in the Phase 12 progress log; targets are not hard CPU limits.
+Validate visible, hidden, and closed-window behavior against the same workload,
+including child processes and native webview helpers. Distinguish resident memory
+from charged footprint and transient children. Resource and health cadence must
+remain independent of presentation activity; measured CPU depends on the workload
+and is not a product-wide guarantee.
 
-The first live candidate still reconciles every Docker health-check exec event.
 Ignore only known exec lifecycle chatter in the Compose watcher: it changes
 neither container identity nor lifecycle/health state. Continue forwarding actual
 health-status, lifecycle, metadata and unknown future events. Resource sampling
@@ -91,8 +85,7 @@ and canceled requests do not poison later reads, and the database owns statement
 closure. Prepare metric inserts/upserts once per transaction rather than once
 per point. Keep transaction atomicity, live query semantics and current schema.
 
-The next native probe still spends substantial CPU in per-project HTTP traffic
-and the Apple Git launcher. Batch presentation reads by kind (runtime, Git
+Batch presentation reads by kind (runtime, Git
 status, or actions), with at most 64 unique IDs, four application-service calls
 in flight, ordered results, explicit per-project warnings and cancellation.
 Each owning service retains current permission/freshness checks. Separate
@@ -141,8 +134,9 @@ runtime and health facts, rather than two HTTP requests per project. Health
 reconciliation of degraded/starting runtime states belongs to the shared
 application read used by both single-project HTTP and batched readers. Preserve
 per-project partial warnings, current trust checks, notification inputs and the
-fifteen-second native polling interval. Older daemons may use the existing
-single-project fallback when the additive batch kind is unsupported.
+fifteen-second native polling interval. Unsupported batch reads report
+unavailable observations; an old-daemon single-project fallback is not used
+([ADR-0025](0025-origin-proof-and-reviewed-inputs.md)).
 
 Reuse at most eight idle Docker SDK clients for explicit local Unix endpoints,
 owned by the Compose driver and closed on shutdown. Each active lease has its
@@ -165,7 +159,7 @@ estimate segment rotation.
 
 Contain dashboard-card layout and painting within each card, preserving its
 intrinsic sizing, keyboard controls and existing visual hierarchy. Validate
-desktop/narrow/hover rendering and actual native performance before accepting.
+desktop/narrow/hover rendering and native performance when changing containment.
 
 Resolve sibling optional manifests through one confined, identity-checked
 directory handle per resolution. Read each current file and validate its opened
@@ -197,7 +191,7 @@ opens, opened-descriptor identity checks and post-read byte caps. Synchronize
 close against opens to prevent descriptor reuse from changing the capability.
 Other platforms retain the rooted Go filesystem implementation. Retain no
 handles or bytes between observations, and verify symlink, FIFO, replacement,
-close/cancellation and cross-platform behavior before accepting the change.
+close/cancellation and cross-platform behavior when changing this boundary.
 
 Native process watchers retain their two-second reconciliation cadence and
 immediate lifecycle events, but share one fresh batch of durable run records per
@@ -240,9 +234,7 @@ ordinary CLI views, nor any observation source or interval.
 
 The short-lived `desktop snapshot` child limits Go parallelism to one and skips
 percentage-triggered collection while retaining a 64 MiB soft runtime memory
-limit. A read-only benchmark against sixteen running containers reduced child
-CPU by about 25% and output from 34 KiB to 7 KiB without increasing peak RSS.
-Apply these environment overrides only to that exact leaf command; daemon
+limit. Apply these environment overrides only to that exact leaf command; daemon
 startup, UI initialization and mutations retain their ordinary runtime policy.
 Tests enforce that boundary. The daemon and managed processes never inherit
 these overrides.
@@ -266,8 +258,8 @@ Reapply the native presentation fact after navigation finishes, so an old
 page's focus signal cannot be lost on reload. Performance verification may tag
 local UI requests with a bounded client/page-category label, validated against a
 fixed allowlist before logging. This label grants no authority and contains no
-URL query, repository path, credential or stable user identifier. Acceptance
-must verify actual dashboard polling and page stability, not window visibility
+URL query, repository path, credential or stable user identifier. Verification
+must check actual dashboard polling and page stability, not window visibility
 alone.
 Use opaque token-based surfaces for the persistent sidebar and top bar rather
 than continuously compositing blurred content behind them. Preserve their

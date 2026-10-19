@@ -5,7 +5,7 @@ category: concept
 audience: [user, contributor, integrator]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 The Compose runtime implements [ADR-0006](../adr/0006-docker-compose-runtime.md):
@@ -82,9 +82,9 @@ ports. Engine API negotiation is enabled and server/API versions are reported.
 
 Docker logs preserve stdout/stderr, the original line, timestamp, project ID,
 service ID, and a container-derived run identity. Current metrics expose CPU,
-memory, and aggregate network counters. Persistence, redaction, retention, and
-WebSocket follow behavior belong to Phase 7; Phase 5 intentionally supplies the
-bounded live driver streams they will consume.
+memory, and aggregate network counters. The [observability service](observability.md)
+redacts these streams before persistence, retention, export, and WebSocket
+delivery.
 
 The integration fixture builds a small static Go server into a `FROM scratch`
 image. It does not require registry credentials or network access and always

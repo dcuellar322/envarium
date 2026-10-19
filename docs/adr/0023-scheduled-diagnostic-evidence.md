@@ -8,7 +8,7 @@ lastVerified: 2026-10-17
 
 - Status: Accepted
 - Date: 2026-10-17
-- Refines: Phase 17 diagnostic collection
+- Refines: Diagnostic evidence collection described in [ADR-0010](0010-mcp-first-agents.md)
 
 ## Context
 

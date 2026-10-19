@@ -59,7 +59,7 @@ Source: https://github.com/dcuellar322/envarium
 - [Contributor documentation](https://envarium.davidcuellar.tech/docs/contributing/): Architecture rules, accepted decisions, adapter boundaries, release evidence, and the focused contribution path.
 - [Engineering conventions](https://envarium.davidcuellar.tech/docs/conventions/): Naming, error, logging, testing, migration, API, and generation rules for contributors.
 - [Desktop and headless installation](https://envarium.davidcuellar.tech/docs/desktop-installation/): Install, upgrade, uninstall, or build Envarium for desktop and CLI-only use.
-- [Optional peer federation](https://envarium.davidcuellar.tech/docs/federation/): Configure explicit post-v1 peer inventory and reviewed remote lifecycle operations.
+- [Optional peer federation](https://envarium.davidcuellar.tech/docs/federation/): Configure optional peer inventory and reviewed remote lifecycle operations.
 - [Generated CLI envelope schemas](https://envarium.davidcuellar.tech/docs/generated/cli-schemas/): Versioned command output schemas emitted by the production Envarium binary.
 - [Generated project manifest schema index](https://envarium.davidcuellar.tech/docs/generated/manifest-schema/): Top-level project manifest fields generated from the committed canonical JSON Schema.
 - [Generated MCP tool index](https://envarium.davidcuellar.tech/docs/generated/mcp-tools/): Tool names, profiles, risks, and descriptions generated from the MCP server registration.
@@ -73,16 +73,16 @@ Source: https://github.com/dcuellar322/envarium
 - [Envarium documentation](https://envarium.davidcuellar.tech/docs/): Install Envarium, bring a project online, connect coding agents, troubleshoot safely, or inspect the complete reference.
 - [Project manifest v1 reference](https://envarium.davidcuellar.tech/docs/manifest-reference/): Schema, precedence, provenance, services, actions, health, ports, and validation rules.
 - [MCP tools, resources, and permission profiles](https://envarium.davidcuellar.tech/docs/mcp/): Bounded Envarium MCP tools, resources, prompts, permissions, and agent workflows.
-- [Migrating alpha and beta data to v1](https://envarium.davidcuellar.tech/docs/migration-v1/): Preview, back up, migrate, verify, and safely roll back pre-v1 local data.
+- [Back up and migrate the local database](https://envarium.davidcuellar.tech/docs/migration-v1/): Inspect schema changes, verify private backups, and restore local data safely.
 - [Platform support](https://envarium.davidcuellar.tech/docs/platform-support/): Supported operating systems, packages, native capabilities, and WSL2 boundaries.
 - [Plugin SDK and compatibility policy](https://envarium.davidcuellar.tech/docs/plugin-sdk/): Build and test capability-scoped out-of-process Envarium plugins.
 - [Privacy](https://envarium.davidcuellar.tech/docs/privacy/): What Envarium stores locally, sends only by choice, and excludes from telemetry.
 - [Reference](https://envarium.davidcuellar.tech/docs/reference/): Exact Envarium commands, schemas, API operations, settings, tools, compatibility, and platform contracts.
 - [Release engineering](https://envarium.davidcuellar.tech/docs/release/): Channels, signing, artifacts, attestations, SBOMs, and the reviewed release process.
-- [Threat model and v1 security review](https://envarium.davidcuellar.tech/docs/security/threat-model/): Assets, trust boundaries, mitigations, residual risks, and release security review.
+- [Security model and trust boundaries](https://envarium.davidcuellar.tech/docs/security/threat-model/): Local assets, authorization boundaries, mitigations, residual risks, and release verification.
 - [Durable local settings](https://envarium.davidcuellar.tech/docs/settings/): Project roots, ports, retention, tools, AI providers, permissions, and appearance.
 - [Start your first Docker Compose project](https://envarium.davidcuellar.tech/docs/start/compose/): Review a discovered Compose topology, preview lifecycle, start it, and verify service health.
-- [Five-minute first-project path](https://envarium.davidcuellar.tech/docs/start/): Go from a supported installation to one trusted, observable local project.
+- [First-project guide](https://envarium.davidcuellar.tech/docs/start/): Go from a supported installation to one trusted, observable local project.
 - [Choose and verify an installation](https://envarium.davidcuellar.tech/docs/start/install/): Select desktop or headless use, confirm platform requirements, and verify the authoritative release asset.
 - [Follow logs and verify project health](https://envarium.davidcuellar.tech/docs/start/logs-health/): Separate process state from readiness and collect bounded redacted evidence.
 - [Start your first native-process project](https://envarium.davidcuellar.tech/docs/start/native-process/): Review an argument-array command, start its process tree, follow output, and stop without orphans.

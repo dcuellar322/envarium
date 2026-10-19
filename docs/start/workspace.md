@@ -5,7 +5,7 @@ category: tutorial
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 sidebar:
   order: 7
 ---
@@ -34,6 +34,6 @@ project.
 ## Observable success
 
 Every dependency reaches its configured health gate before its dependents
-start. A partial failure follows the selected continue, stop, or rollback
+start. A partial failure follows the selected continue or rollback
 policy without tearing down project data. Bulk stop preserves volumes unless a
 separate destructive action is explicitly authorized.

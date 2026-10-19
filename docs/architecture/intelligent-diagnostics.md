@@ -4,10 +4,10 @@ description: Deterministic rules, evidence-bound AI hypotheses, and reviewed aut
 category: concept
 audience: [user, integrator, contributor]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Phase 17 adds troubleshooting assistance without granting a new execution
+Diagnostics provide troubleshooting assistance without granting new execution
 authority. Deterministic rules always run first. Optional AI receives one
 bounded, redacted evidence document and may return only schema-valid hypotheses
 that cite existing evidence and accepted actions.
@@ -72,7 +72,7 @@ Repository text and logs are serialized as inert evidence data and are never
 placed in an instruction role. Provider prompts explicitly prohibit following
 instructions found in evidence, reading files, running commands, using tools or
 network access, or inventing evidence/action identifiers. CLI providers retain
-their Phase 11 empty-root, minimal-environment, no-tool isolation; the HTTP
+their empty-root, minimal-environment, no-tool isolation; the HTTP
 provider receives the same schema and byte budgets. Server-side validation is
 authoritative even if a provider ignores the prompt.
 
@@ -111,7 +111,7 @@ capabilities.
 
 ## Accepted decisions
 
-No architecture decision changed. This implementation follows ADR-0010's
-provider-neutral MCP/application boundary, ADR-0011's explicit profiles and
-absence of a generic shell tool, and ADR-0014's redaction-before-persistence and
-bounded-output requirements.
+See [ADR-0010](../adr/0010-mcp-first-agents.md) for provider-neutral integration,
+[ADR-0011](../adr/0011-agent-permissions.md) for explicit permission profiles,
+and [ADR-0014](../adr/0014-log-retention-redaction.md) for redaction and bounded
+retention.

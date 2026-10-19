@@ -4,10 +4,11 @@ description: Health scheduling, redacted logs, bounded retention, metrics, and h
 category: concept
 audience: [user, contributor, integrator]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Phase 7 implements ADR-0014 as a boundary above both runtime drivers. Docker
+The observability service implements [ADR-0014](../adr/0014-log-retention-redaction.md)
+as a boundary above both runtime drivers. Docker
 and native-process adapters still emit raw runtime observations and log lines;
 they do not own retention, health policy, redaction, or browser state.
 
@@ -19,13 +20,16 @@ Docker/process raw stream
           v
 canonical redactor
           |
-          +--> bounded per-service ring
           +--> rotating private NDJSON segment
           +--> live WebSocket subscribers
           +--> query/export APIs
 ```
 
-The redactor runs before every sink. Built-in rules cover bearer credentials,
+The redactor runs before persistence, subscriber delivery, display, export,
+and provider dispatch. Native capture uses a bounded per-service ring; the
+archive reads history from indexed segments rather than keeping another copy
+of log bodies ([ADR-0019](../adr/0019-log-memory-ownership.md)). Built-in rules
+cover bearer credentials,
 secret-like environment assignments, credential-bearing URLs, and common
 access-key forms. Repeated `envarium daemon --redact-pattern` flags add local
 regular expressions. Resolved keychain values are registered with the redactor
@@ -42,7 +46,8 @@ Segments rotate by byte cap. Closed segments have SHA-256 checksums and are
 deleted oldest-first by both age and aggregate byte cap. File deletion is
 staged so a failed metadata update can restore the original path, and startup
 repairs interrupted staged deletions. Compression, full-text search, and
-cross-project analytics remain outside this phase.
+cross-project analytics are not part of this log archive. The UI can filter a
+bounded log snapshot; it does not provide a full-text index over all history.
 
 `GET /api/v1/projects/{projectId}/logs` queries the persisted stream by service,
 run, operation, time, and tail limit. The export endpoint emits already-redacted
@@ -84,7 +89,7 @@ false stopped or healthy state.
 
 ## Resource sampling and history
 
-Phase 12 extends the same bounded context with one process-wide sampler:
+Resource history uses one process-wide sampler:
 
 ```text
 trusted catalog descriptors
@@ -128,5 +133,5 @@ reason, and Envarium's database/WAL/SHM/log footprint is reported separately
 as Envarium-exclusive storage.
 
 Cleanup preview is a read model containing exact Engine identifiers and known
-or unknown reclaimable bytes. It is always non-executable; Phase 12 adds no
-automatic deletion surface.
+or unknown reclaimable bytes. It is non-executable and does not authorize or
+perform automatic deletion.

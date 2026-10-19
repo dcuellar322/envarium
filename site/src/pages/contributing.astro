@@ -3,7 +3,7 @@ import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
 
 const steps = [
   { number: '01', title: 'Choose an issue', body: 'Look for a good first issue, reproduce a bug, or suggest a documentation fix. Discuss larger changes in an issue before implementing them.', link: 'https://github.com/dcuellar322/envarium/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22', label: 'Find a starter issue' },
-  { number: '02', title: 'Read the architecture rules', body: 'Begin with AGENTS.md, the relevant implementation-plan phase, and accepted ADRs. Create an ADR before reversing an accepted decision.', link: '/docs/architecture/', label: 'Architecture overview' },
+  { number: '02', title: 'Read the architecture rules', body: 'Begin with AGENTS.md and the accepted ADRs relevant to your change. Create an ADR before reversing an accepted decision.', link: '/docs/architecture/', label: 'Architecture overview' },
   { number: '03', title: 'Bootstrap locally', body: 'Use the pinned Go, Node, pnpm, and Rust toolchains. The repository bootstrap generates all contracts and installs frontend dependencies.' },
   { number: '04', title: 'Implement and verify', body: 'Add behavior and tests together. Cover failure, cancellation, permission, and reconciliation paths when they apply.' },
   { number: '05', title: 'Submit a small pull request', body: 'Explain the user-visible outcome and architecture impact, include validation evidence, and complete the repository checklist.', link: 'https://github.com/dcuellar322/envarium/compare', label: 'Open a pull request' },

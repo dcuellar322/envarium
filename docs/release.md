@@ -20,21 +20,11 @@ Before that draft is created, the public-site release contract validates the
 complete stable platform matrix and replaces build-specific digest files with
 one aggregate `checksums.txt` covering every uploaded artifact.
 
-These are workflow capabilities, not evidence of a published signed release.
-On October 17, 2026, the repository had no published releases and no configured
-`desktop-release` environment. Only the two Cloudflare repository secrets were
-present. Passing ordinary CI does not exercise protected release credentials.
-
-On October 19, the `desktop-release` environment was configured with the
-repository owner's required review and a `v*`-tags-only deployment policy. The
-existing Apple API key authenticated successfully with the notarization service;
-the private API key and exported certificate were installed as encrypted
-environment secrets, and the owner added the certificate export password in
-GitHub. Updater signing and Linux GPG signing were subsequently configured with
-Envarium-specific keys and restricted local backups. The stable feed is
-`https://envarium.davidcuellar.tech/updates/stable.json`. No public stable
-release has been published. Windows direct-download signing remains a separate
-credential gate: LeagueSaga has no Windows signing secrets configured.
+The workflow defines release requirements; it is not evidence that a signed
+release has been published. No public stable release is available yet. Check
+[downloads](/download/) for current availability. **Windows and WSL2 support is
+coming soon.** A successful development build or ordinary CI run does not
+establish installer, signing, or clean-machine support.
 
 ## Release account setup
 
@@ -47,7 +37,7 @@ Before tagging the first release, a repository administrator needs to:
    `dev.envarium.desktop` and a Developer ID Application identity; supply a
    Windows Authenticode certificate matching the intended publisher; supply a
    Linux artifact-signing GPG key with a verified fingerprint.
-3. Retain the existing encrypted Envarium updater key and its password in secure
+3. Retain the Envarium updater key and its password in secure
    backups. The reviewed public key and canonical stable endpoint live in
    `desktop/src-tauri/tauri.release.conf.json`; native release builds and feed
    verification share that configuration. Do not regenerate the key for a new
@@ -119,7 +109,7 @@ and [Apple's Notary API authentication guidance](https://developer.apple.com/doc
 ## Reusing an existing Apple signing identity
 
 A valid **Developer ID Application** certificate and its private key from the
-same Apple Developer team can sign both LeagueSaga Import Helper and Envarium.
+same Apple Developer team can sign multiple applications, including Envarium.
 The certificate identifies the publisher, rather than one bundle ID. An
 **Apple Development** or Mac App Store distribution identity is not a substitute
 for Developer ID distribution. Envarium retains its own bundle identifier
@@ -151,8 +141,9 @@ and installed native updater additionally verify the complete payload bytes.
 A small, immutable Pages Worker serves `/updates/stable.json`: HTTP 204 before
 the first published stable release, otherwise Tauri's static JSON catalog.
 It has no runtime credentials, database, user mutations, or GitHub requests.
-Only this route invokes the Worker; the website remains static. Preview feeds
-always return 204. Publishing, editing, withdrawing, or deleting a GitHub release
+The Worker also returns explicit 404 responses for retired documentation
+paths ([ADR-0029](adr/0029-retired-documentation-routes.md)). Other pages use
+static asset delivery. Preview feeds always return 204. Publishing, editing, withdrawing, or deleting a GitHub release
 rebuilds the production site from master. A failed build retains the previously
 deployed feed. Binaries remain hosted by GitHub, and drafts are never offered.
 See [ADR-0028](adr/0028-published-release-updater-feed.md).
@@ -189,12 +180,10 @@ and mandatory for automated updates.
 
 ## Windows signing availability
 
-A trusted Windows code-signing identity for the same publisher may sign multiple
-applications if its provider permits it. LeagueSaga currently has no
-`WINDOWS_CSC_LINK` or `WINDOWS_CSC_KEY_PASSWORD` secret, and its documented Store
-route receives Microsoft signing after app certification. That service does not
-supply a reusable private certificate for Envarium's direct MSI/NSIS downloads.
-A new Envarium Store listing would also need its own package identity and review.
+**Windows and WSL2 support is coming soon.** Direct MSI/NSIS downloads require a
+trusted publisher signing identity and verified installers. Microsoft Store
+certification does not supply a reusable private certificate for direct
+downloads; a Store distribution would need its own package identity and review.
 
 For the existing direct-download workflow, provide a trusted Authenticode
 certificate/private key and password through `WINDOWS_CERTIFICATE` (base64 PFX)

@@ -5,7 +5,7 @@ category: reference
 audience: [user, integrator]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 searchTerms: [envarium command, jsonl, exit code, shell completion]
 ---
 
@@ -329,7 +329,7 @@ All query and mutation commands accept global flags after or before the command:
 ```
 
 Envarium currently emits no ANSI sequences when output is redirected, and
-all Phase 4 commands are prompt-free. JSON has this top-level shape:
+commands require explicit confirmation flags rather than interactive prompts. JSON has this top-level shape:
 
 ```json
 {

@@ -1,13 +1,14 @@
 ---
-title: Threat model and v1 security review
-description: Assets, trust boundaries, mitigations, residual risks, and release security review.
+title: Security model and trust boundaries
+description: Local assets, authorization boundaries, mitigations, residual risks, and release verification.
 category: concept
 audience: [user, integrator, contributor, maintainer]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-This document records the v1 review of Envarium's local trust boundaries.
+This document describes Envarium's security design and its limits. It is not
+a security certification or a statement that a release has no vulnerabilities.
 The secure default is a single user operating approved local repositories;
 repository content, browser pages, processes, containers, plugins, agents, and
 AI output are not trusted merely because they are local.
@@ -41,22 +42,25 @@ AI output are not trusted merely because they are local.
 | Update or artifact tampering | protected release environment, platform signing, updater signatures, SHA-256 checksums, keyless Sigstore bundle, SBOM, GitHub artifact attestation | signing-account compromise requires key rotation and release revocation |
 | Migration corrupts or strands data | single-daemon lock, compatibility preflight, quick-check, non-overwriting consistent backup, post-backup verification, newer-schema refusal | disk loss affecting both source and same-disk backup requires external backups |
 
-## Review findings
+## Limits and release verification
 
-The v1 review found and closed four release-blocking gaps: Windows IPC had no
-implementation, Windows child ownership lacked Job Objects, Windows terminals
-lacked ConPTY, and OS port inspection depended on macOS-oriented `lsof`. The v1
-adapters now use an owner-only named pipe, Job Objects, ConPTY, and portable OS
-connection APIs. Browser URL launchers reject non-HTTP(S) targets, and migration
-now fails closed around verified backups.
+Trusted plugins and actions execute with the local user's authority. Envarium
+cannot protect against a compromised account with equivalent OS access, and
+redaction cannot recognize every novel secret format. Optional providers receive
+only reviewed evidence, but their own retention terms apply after dispatch.
 
-No unresolved critical or high-severity finding remains in the reviewed v1
-scope. Accepted medium residual risks are explicit user grants to trusted
-plugins/actions, same-user host compromise, and optional provider disclosure
-of a previewed redacted evidence bundle. They are product trust decisions, not
-hidden defaults.
+The source includes Windows named-pipe permissions, Job Objects, and ConPTY;
+**Windows and WSL2 support is coming soon**. Source implementation does not
+establish installer support or clean-machine validation. See
+[platform support](../platform-support.md).
 
-CI runs CodeQL, dependency review, secret scanning, `govulncheck`, lint,
-architecture checks, race tests, strict contract generation, plugin
-conformance, browser security tests, and platform adapter tests. A release is
-blocked when any required check or signing/attestation step fails.
+CI includes CodeQL, dependency review, secret scanning, vulnerability checks,
+lint, architecture checks, race tests, contract generation, and adapter tests.
+Release review must check current results, dependency advisories, signatures,
+attestations, and platform installation behavior for the exact release commit.
+A passing check is evidence for its tested scope, not a blanket assurance about
+all dependencies or deployments. See [release engineering](../release.md).
+
+Report suspected vulnerabilities through the repository's
+[private security reporting route](https://github.com/dcuellar322/envarium/security/advisories/new).
+Do not put secrets or exploit details in a public issue.

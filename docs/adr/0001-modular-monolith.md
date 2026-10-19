@@ -3,7 +3,7 @@ title: "ADR-0001: Modular monolith and domain dependency direction"
 description: Keep Envarium cohesive while enforcing bounded-context dependency rules.
 category: concept
 audience: [contributor, maintainer]
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -27,4 +27,4 @@ interfaces or typed events. Composition uses manual constructor injection.
 
 The product remains easy to build and operate while package boundaries stay
 enforceable. Cross-domain features require explicit contracts. Architecture
-checks will reject forbidden imports and miscellaneous shared packages.
+checks reject forbidden imports and miscellaneous shared packages.

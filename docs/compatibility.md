@@ -4,10 +4,12 @@ description: Stability promises for manifests, APIs, CLI output, MCP, plugins, a
 category: reference
 audience: [user, integrator, contributor]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Envarium follows semantic versioning for the product and publishes every
+This is the compatibility policy for stable releases. No public stable release
+has been published yet; development builds may change before that release.
+Envarium uses semantic versioning for the product and marks every
 machine-consumed contract with an independent version marker. SQLite remains
 an internal storage format and is not an integration API.
 
@@ -40,14 +42,13 @@ plugin, manifest, or database versions fail before mutation with an actionable
 error. A major-version migration must be previewable and create a verified
 backup before changing durable data.
 
-## Prelaunch compatibility
+## Unsupported manifest versions
 
-Only `envarium.dev/v1` manifests are accepted. The unused prelaunch alpha
-normalizer and file-migration command were retired before public launch
-(ADR-0025). Generate a fresh stable manifest through deterministic onboarding
-for an obsolete prelaunch fixture. Incompatible plugin executables must be
+Only `envarium.dev/v1` manifests are accepted. There is no manifest-version
+conversion command. Use deterministic onboarding to review a new manifest
+when an older document uses an unsupported schema. Incompatible plugin executables must be
 rebuilt against the stable SDK; the host never runs an incompatible plugin.
 
 Ordered embedded database migrations remain supported for the active local
 installation, including verified pre-migration backups. See
-[v1 data migration](migration-v1.md).
+[database backup and migration](migration-v1.md).

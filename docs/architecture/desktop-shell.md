@@ -5,10 +5,10 @@ category: concept
 audience: [user, contributor]
 platforms: [macos, linux, windows]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Phase 15 packages Envarium as a Tauri 2 application while preserving
+The desktop shell packages Envarium as a Tauri 2 application while preserving
 ADR-0009: Rust is a native adapter, not a second control plane. The bundled Go
 sidecar still owns daemon startup, local IPC, authentication, projects,
 workspaces, operations, resources, persistence, and every mutation policy.
@@ -85,7 +85,7 @@ installation; the shell restarts only after successful installation. Release
 artifacts are drafted rather than published automatically so maintainers can
 review signatures, notarization, changelog, and compatibility.
 
-Desktop support followed the ADR-0015 order: macOS first, followed by the
-Phase 18 Linux and Windows bundles. Interactive Windows sessions use the native
-ConPTY adapter; WSL remains a separate Linux-daemon boundary as documented in
-the platform support matrix.
+The source includes macOS, Linux, and Windows shell adapters. This describes
+source behavior, not published installer availability. **Windows and WSL2
+support is coming soon**. Windows interactive sessions use ConPTY; WSL runs a
+separate Linux daemon. See [platform support](../platform-support.md).

@@ -165,3 +165,40 @@ checks verify 404/no-store/noindex, bodyless HEAD, public HTTP 200, and the
 unchanged empty updater HTTP 204. The pinned local runtime supports compatibility
 date 2026-08-27; that date was used for the local edge check. Generated Wrangler
 state is excluded from lint and type checks.
+
+## Public documentation editorial review — 2026-10-19
+
+This documentation slice maps to Phase 18's public documentation and contributor
+onboarding criteria. Review remaining published sources for internal planning
+language, milestone references, account/workstation history, outdated capability
+claims, and unsupported release/security assurances. Preserve versioned contracts,
+accepted architecture decisions, stable URLs, and the existing 42-document
+publication exclusion.
+
+Changes replace phase-based explanations with current architecture and tasks;
+correct Windows Job Object/ConPTY/IPC descriptions while retaining coming-soon
+availability; replace placeholder-route claims with current routes; add native
+worktree isolation and the human-only AI-assisted approval limit; clarify log
+buffer ownership; surface superseding ADRs; remove personal credential-setup
+history and old CPU measurements; scope compatibility promises to stable releases;
+and remove stale hosting launch tasks. Release availability was checked against
+GitHub (no releases). Source adapters, router, authorization, release workflow,
+and data contracts are the evidence for current behavior. Content validation now
+rejects implementation-phase wording in published Markdown only.
+
+Acceptance requires generation and static validation, no phase references in
+published HTML/raw Markdown/AI exports, functional search and links, retained
+404s for internal reports, appropriate browser/visual checks, and a verified
+production deployment. Signed installers and clean-machine platform support are
+not inferred from a documentation review.
+
+Verified locally: `make site-quality` passed (39 unit tests, no Astro diagnostics,
+121 HTML pages), final type/lint/content/build checks passed, and the full browser
+suite passed 91 tests with 21 intentional skips. Six macOS visual references
+passed unchanged. Desktop/mobile exhaustive crawls check visible copy and linked
+raw Markdown for phase wording; AI export checks cover the same editorial rule.
+Search checks inspect destinations and real result navigation: Pagefind may
+fuzzily match unrelated tokens, so an empty result set is not used as a content
+assertion. Repository, architecture, and generated-contract checks passed.
+Production verification follows deployment and is saved under ignored
+`output/playwright/docs-editorial/live/` artifacts.

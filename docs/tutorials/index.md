@@ -5,10 +5,10 @@ slug: docs/tutorials
 category: tutorial
 audience: [user]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Start with the [five-minute first-project path](../start/index.md). It links the
+Start with the [first-project guide](../start/index.md). It links the
 supported installation decision, one explicitly trusted project, runtime
 selection, start preview, live health, and the local UI.
 

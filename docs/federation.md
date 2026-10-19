@@ -1,10 +1,10 @@
 ---
 title: Optional peer federation
-description: Configure explicit post-v1 peer inventory and reviewed remote lifecycle operations.
+description: Configure optional peer inventory and reviewed remote lifecycle operations.
 category: concept
 audience: [user, integrator, maintainer]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 Envarium can connect directly to another Envarium daemon for bounded

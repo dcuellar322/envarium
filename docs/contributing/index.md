@@ -5,12 +5,12 @@ slug: docs/contributing
 category: contributor
 audience: [contributor, maintainer]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 Begin with the concise [public contribution path](/contributing/), then read
-the repository `AGENTS.md` and the target implementation-plan phase before
-editing code.
+the repository `AGENTS.md` and the accepted decisions relevant to your change
+before editing code.
 
 - [Architecture overview](../architecture/README.md)
 - [Accepted ADRs](../adr/README.md)
@@ -18,5 +18,5 @@ editing code.
 - [Adapter development](../adapter-development.md)
 - [Release engineering](../release.md)
 
-One pull request should implement one roadmap phase or one coherent vertical
-slice, add tests with the behavior, and report unverified criteria honestly.
+Keep each pull request focused on one user outcome or cohesive technical
+change. Add tests with the behavior and report validation and known limits.

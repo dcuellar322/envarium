@@ -3,7 +3,7 @@ title: "ADR-0022: Bound default daemon CPU execution parallelism"
 description: Reduce Go scheduler wakeups for the local I/O-oriented control plane.
 category: concept
 audience: [contributor, maintainer]
-lastVerified: 2026-10-17
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -12,13 +12,10 @@ lastVerified: 2026-10-17
 
 ## Context
 
-After eliminating recurring scan subprocesses and redundant configuration/query
-work, the actual eleven-project workload still spends a substantial part of CPU
-samples waking Go execution threads. The host has twelve logical CPUs; the Go
-default chooses twelve execution slots. The user requires under 1% combined
-background CPU without weakening monitoring accuracy. A two-slot candidate still
-measured 1.09%. The control plane's work is primarily concurrent I/O and short
-in-memory computations, not sustained parallel CPU computation.
+An I/O-oriented local daemon can spend unnecessary CPU waking multiple Go
+execution threads during small periodic reads. The control plane primarily
+performs concurrent I/O and short in-memory computations rather than sustained
+parallel CPU computation.
 
 ## Decision
 
@@ -26,7 +23,9 @@ At the CLI daemon composition boundary, default Go CPU execution parallelism to
 one slot when GOMAXPROCS has not been explicitly configured. Respect a nonempty
 GOMAXPROCS environment override. Restore the previous setting when the daemon
 command returns, including startup failure, to isolate embedded CLI/test use.
-No other CLI command changes its runtime setting.
+Current refinement: [ADR-0024](0024-shared-observation-and-sampling-isolation.md)
+also applies the entry-point execution budget to CLI reads and defines separate,
+bounded desktop snapshot bridge settings.
 
 This limits simultaneous Go CPU execution, not goroutine concurrency or operating
 system threads. Network waits, native process supervision, probe worker limits,

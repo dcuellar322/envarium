@@ -4,10 +4,10 @@ description: Bounded evidence, schema-constrained proposals, validation, and hum
 category: concept
 audience: [user, integrator, contributor]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Phase 11 adds an optional provider step after deterministic discovery. AI is a
+AI assistance is an optional provider step after deterministic discovery. AI is a
 proposal source, not an authority: the deterministic scanner remains usable
 with every provider disabled, and only the catalog's ordinary human approval
 transaction can create a trusted manifest snapshot.
@@ -68,6 +68,10 @@ CLI subprocesses inherit an allowlist rather than the daemon environment. A
 repository cannot select or shadow the executable: bare command names resolve
 only through absolute `PATH` entries, and configured paths must be absolute.
 Provider stderr and HTTP errors are bounded and redacted.
+
+These daemon flags seed provider configuration for a new data directory.
+Existing installations use the durable [settings service](../settings.md);
+restart-bound settings take effect on the next daemon start.
 
 The daemon flags are:
 

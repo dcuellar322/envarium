@@ -5,11 +5,12 @@ category: concept
 audience: [user, contributor, integrator]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Phase 6 implements accepted ADR-0007 behind the driver-neutral runtime
-application boundary. The process driver owns command construction,
+The native process driver implements [ADR-0007](../adr/0007-process-ownership.md)
+behind the driver-neutral runtime application boundary. It owns command
+construction,
 supervision, identity reconciliation, output capture, metrics, and external
 listener classification. HTTP, CLI, catalog, and operation handlers do not
 call operating-system process APIs.
@@ -49,7 +50,8 @@ Project environment is overlaid on the daemon environment, then the process
 overlay wins. A secret reference wins over a plain value at the same layer and
 is resolved only at launch. Secret values are never included in plans,
 manifests, run records, or process metadata. macOS uses the login Keychain via
-`security`; Linux uses Secret Service via `secret-tool`.
+`security`; Linux uses Secret Service via `secret-tool`; the Windows adapter
+uses Credential Manager.
 
 Argument arrays execute without a shell. Known shell executables, whitespace
 in the executable field, and shell-control syntax in that field are rejected
@@ -76,7 +78,9 @@ service becomes `running`.
 Child members of the OS process group are discovered continuously and stored.
 If the original parent exits, a verified child keeps the run active. This lets
 a restarted Envarium daemon reconcile, measure, and stop a process tree that
-survived the previous daemon without claiming unrelated processes.
+survived the previous daemon on Unix without claiming unrelated processes.
+Windows Job Objects instead terminate owned children when their owning handle
+closes.
 
 ## Lifecycle and restart
 
@@ -112,7 +116,8 @@ insufficient evidence produce `unknown` or `stopped`, never managed ownership.
 
 ## Platform boundary
 
-macOS and Linux create and signal real process groups. Windows builds retain a
-bounded single-process fallback; Job Object ownership, tree termination, and
-full Windows acceptance coverage remain part of Phase 18 cross-platform
-hardening. Interactive PTYs remain Phase 14 work.
+macOS and Linux use process groups. The Windows adapter uses Job Objects for
+managed process-tree ownership and termination; embedded Windows terminals use
+ConPTY. These adapters are present in source, but **Windows and WSL2 support is
+coming soon**. See [platform support](../platform-support.md) for availability
+and the [terminal architecture](terminal-sessions.md) for interactive sessions.

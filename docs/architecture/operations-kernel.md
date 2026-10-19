@@ -4,10 +4,10 @@ description: Operation state, idempotency, cancellation, local IPC, browser sess
 category: concept
 audience: [contributor, integrator]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Phase 2 establishes the command foundation used by later project, runtime,
+The operations service coordinates durable mutations for project, runtime,
 workspace, UI, CLI, and agent adapters.
 
 ## Operation lifecycle
@@ -54,7 +54,7 @@ Recovery is deterministic:
 | `running` | Mark `failed` with `DAEMON_RESTARTED`; never guess whether an external side effect completed. |
 | terminal | Leave unchanged. |
 
-Later runtime executors reconcile observed external state before a user retries
+Runtime executors reconcile observed external state before a user retries
 an interrupted operation.
 
 ## Events and replay
@@ -68,9 +68,10 @@ is exceeded. Slow live subscribers are disconnected and recover through replay.
 ## Local transport and browser sessions
 
 CLI traffic uses HTTP semantics over a user-permissioned Unix-domain socket on
-macOS and Linux. The platform adapter reserves the Windows named-pipe identity;
-the Windows implementation is completed in Phase 18. The socket and database
-are mode `0600`, and the data directory is `0700`.
+macOS and Linux. Their socket and database use mode `0600`, and the data
+directory uses `0700`. The Windows source adapter uses a named pipe with a
+protected DACL granting access to LocalSystem and the daemon owner.
+**Windows support is coming soon**; see [platform support](../platform-support.md).
 
 The loopback browser API is a separate router:
 

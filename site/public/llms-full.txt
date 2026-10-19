@@ -28,9 +28,9 @@ Plugin adapters belong out of process and use the public `sdk/plugin` protocol
 plus conformance kit. Provider-specific AI code stays under
 `internal/agents/providers`; provider output remains untrusted schema input.
 
-Update an ADR before changing an accepted boundary, generate contracts rather
-than editing generated files, document the platform matrix, and attach progress
-evidence for the phase or vertical slice.
+Create a superseding ADR before changing an accepted boundary. Generate
+contracts rather than editing generated files, document platform availability,
+and include validation evidence and known limits in the pull request.
 
 ---
 
@@ -61,7 +61,7 @@ interfaces or typed events. Composition uses manual constructor injection.
 
 The product remains easy to build and operate while package boundaries stay
 enforceable. Cross-domain features require explicit contracts. Architecture
-checks will reject forbidden imports and miscellaneous shared packages.
+checks reject forbidden imports and miscellaneous shared packages.
 
 ---
 
@@ -193,6 +193,10 @@ Observe Docker through its API and execute lifecycle through the installed Compo
 The Docker Engine API is strong for inspection, events, logs, and metrics, but
 Compose lifecycle semantics also depend on the user's installed plugin,
 contexts, credential helpers, and configuration.
+
+Current refinement: [ADR-0020](0020-background-configuration-resolution.md)
+uses an in-process loader for background observation. The installed Compose CLI
+remains authoritative for lifecycle planning and execution.
 
 ## Decision
 
@@ -409,6 +413,11 @@ CLI, desktop, MCP, and browser clients need local access to privileged
 capabilities. Loopback binding alone does not prevent cross-origin requests or
 access by other local users.
 
+The original cookie-based browser authentication below is superseded by
+[ADR-0025](0025-origin-proof-and-reviewed-inputs.md). Current browser clients
+use origin-scoped session proof for every HTTP and WebSocket request; bearer
+cookies carry no authority. Privileged IPC remains unchanged.
+
 ## Decision
 
 Use user-permissioned Unix sockets on macOS/Linux and named pipes on Windows for
@@ -444,6 +453,9 @@ Runtime logs are high-volume, may contain credentials, and are consumed live,
 persisted, exported, searched, and sent in optional diagnostics or provider
 evidence.
 
+Current refinement: [ADR-0019](0019-log-memory-ownership.md) removes the
+archive's duplicate ring while keeping bounded native capture and durable replay.
+
 ## Decision
 
 Keep a bounded in-memory ring per active service and rotating NDJSON files per
@@ -458,9 +470,8 @@ Log memory and disk use stay predictable. Redaction correctness is a security
 quality gate across every sink. Full-text indexing and compression may be added
 without changing the canonical event model.
 
-Current refinements: [ADR-0025](0025-origin-proof-and-reviewed-inputs.md)
-supersedes the browser cookie, replay retention and prelaunch compatibility
-exceptions where applicable.
+See [ADR-0025](0025-origin-proof-and-reviewed-inputs.md) for reviewed-input
+digests and the separately bounded event replay journal.
 
 ---
 
@@ -505,11 +516,11 @@ Extend beyond one machine without weakening local-only defaults or ambient autho
 
 ## Context
 
-Envarium v1 deliberately trusts one local user and one local control plane.
-Post-v1 demand adds remote development machines, encrypted configuration sync,
-team templates, curated plugin metadata, and enterprise policy. Extending the
+The local control plane trusts one local user. Optional federation and shared
+configuration add remote development machines, encrypted sync, team templates,
+curated plugin metadata, and enterprise policy. Extending the
 loopback API over a network would leak ambient local authority, while requiring
-a Envarium cloud service would break the local-only product and deployment
+an Envarium cloud service would break the local-only product and deployment
 model.
 
 ## Decision
@@ -558,9 +569,8 @@ identity, organization billing, or fleet-wide secret distribution. Those
 would be separate products and require new decisions. Remote terminal access
 and arbitrary command execution remain intentionally absent.
 
-Current refinements: [ADR-0025](0025-origin-proof-and-reviewed-inputs.md)
-supersedes the browser cookie, replay retention and prelaunch compatibility
-exceptions where applicable.
+See [ADR-0025](0025-origin-proof-and-reviewed-inputs.md) for immutable
+reviewed-input digests, current authorization checks, and compatibility limits.
 
 ---
 
@@ -581,6 +591,10 @@ authenticated adapter over privileged daemon capabilities and has a different
 deployment, navigation, content, and trust lifecycle from a public website.
 The root `docs/` tree already owns product documentation and must not gain a
 divergent website copy.
+
+Current refinements: [ADR-0028](0028-published-release-updater-feed.md) and
+[ADR-0029](0029-retired-documentation-routes.md) define the bounded updater and
+retired-document response exceptions. Ordinary content remains statically built.
 
 ## Decision
 
@@ -671,9 +685,8 @@ require a separate product decision and threat model.
 Users get the operational controls and evidence needed during local development
 across both supported runtime drivers. CLI, HTTP, UI, MCP, and remote-machine
 adapters share one action contract. Every command remains previewable, bounded,
-and auditable. Some Arcane capabilities intentionally map to safer Envarium
-equivalents rather than identical Docker resource screens; the complete mapping
-is recorded in the Arcane capability review.
+and auditable. Service controls remain project-oriented; they do not expose
+arbitrary Docker resource administration.
 
 ---
 
@@ -734,10 +747,9 @@ Resolve observation metadata in-process while preserving installed-CLI lifecycle
 
 ## Context
 
-With eleven registered projects and the native app quit, repeated Compose CLI
-normalization consumed 6.46% of a CPU core in child processes, in addition to
-3.18% daemon CPU. Unchanged manifests were also repeatedly decoded, merged,
-and schema-validated by independent observers. Longer polling intervals would
+Repeated Compose CLI normalization creates child-process overhead while
+independent observers duplicate decoding, merging, and validation of unchanged
+manifests. Longer polling intervals would
 trade freshness for overhead rather than remove the repeated work.
 
 ## Decision
@@ -749,7 +761,7 @@ execution. Preserve the existing bounded observation refresh window; parsing
 errors remain visible and never become a successful empty runtime. Observation
 uses local files only, never downloads remote includes or invokes repository
 commands. Compare loader metadata with the installed CLI on supported fixtures
-and the user's actual projects before deployment.
+and representative local projects before changing the observation loader.
 
 Read Docker's active context selection and non-secret endpoint metadata from
 its local configuration/context store for SDK observation. Preserve context and
@@ -802,9 +814,9 @@ Avoid recurring scan subprocesses while retaining kernel port and PID evidence.
 
 ## Context
 
-After removing lsof, repeated netstat subprocesses still consume approximately
-0.32% of a CPU core plus parent process creation and output parsing. The user
-requires under 1% combined overhead without reducing monitoring accuracy.
+Repeated socket-inventory subprocesses add process creation and output-parsing
+overhead. The adapter must reduce that work without weakening socket evidence
+or reducing monitoring accuracy.
 
 ## Decision
 
@@ -848,13 +860,10 @@ Reduce Go scheduler wakeups for the local I/O-oriented control plane.
 
 ## Context
 
-After eliminating recurring scan subprocesses and redundant configuration/query
-work, the actual eleven-project workload still spends a substantial part of CPU
-samples waking Go execution threads. The host has twelve logical CPUs; the Go
-default chooses twelve execution slots. The user requires under 1% combined
-background CPU without weakening monitoring accuracy. A two-slot candidate still
-measured 1.09%. The control plane's work is primarily concurrent I/O and short
-in-memory computations, not sustained parallel CPU computation.
+An I/O-oriented local daemon can spend unnecessary CPU waking multiple Go
+execution threads during small periodic reads. The control plane primarily
+performs concurrent I/O and short in-memory computations rather than sustained
+parallel CPU computation.
 
 ## Decision
 
@@ -862,7 +871,9 @@ At the CLI daemon composition boundary, default Go CPU execution parallelism to
 one slot when GOMAXPROCS has not been explicitly configured. Respect a nonempty
 GOMAXPROCS environment override. Restore the previous setting when the daemon
 command returns, including startup failure, to isolate embedded CLI/test use.
-No other CLI command changes its runtime setting.
+Current refinement: [ADR-0024](0024-shared-observation-and-sampling-isolation.md)
+also applies the entry-point execution budget to CLI reads and defines separate,
+bounded desktop snapshot bridge settings.
 
 This limits simultaneous Go CPU execution, not goroutine concurrency or operating
 system threads. Network waits, native process supervision, probe worker limits,
@@ -894,7 +905,7 @@ Preserve automatic alerts without repeatedly gathering unrelated Git and cleanup
 
 - Status: Accepted
 - Date: 2026-10-17
-- Refines: Phase 17 diagnostic collection
+- Refines: Diagnostic evidence collection described in [ADR-0010](0010-mcp-first-agents.md)
 
 ## Context
 
@@ -945,12 +956,10 @@ Bound presentation-driven work while preserving live monitoring and explicit fre
 
 ## Context
 
-With sixteen real containers running, the installed native dashboard consumes
-about 67% of one core whether visible or hidden. Most CPU is charged to Git
-children. Runtime event invalidations refetch unrelated Git/actions across all
-projects and bypass background polling suppression. Metric sampling blocks on
-storage scans and reads container statistics sequentially inside a four-second
-project deadline; raw history has gaps of up to 39 seconds and unavailable values.
+Presentation-driven refetches can duplicate Git, runtime, and configuration
+reads across projects. Storage scans and sequential container statistics can
+also delay metric collection. The design must bound this work without pausing
+monitoring, hiding stale data, or weakening current trust and ownership checks.
 
 ## Decision
 
@@ -992,18 +1001,14 @@ one slow container cannot consume the deadline for every later service. Preserve
 partial/error reporting and resource intervals. Test freshness, cancellation,
 concurrency, failure, scheduling and client isolation.
 
-## Acceptance evidence
+## Performance and freshness constraints
 
-Measure the normal installed CLI and native bundle with the same sixteen
-containers, counting child CPU and attributable WebKit helpers. Aim for under
-1% closed CPU, hidden overhead within 0.5 percentage points of closed, and under
-5% visible CPU. Require complete current service metrics and approximately
-ten-second raw cadence, including storage refresh and scheduled diagnostics.
-Longer memory observations must distinguish RSS from charged footprint and
-include sampled transient children. Record achieved values and remaining limits
-in the Phase 12 progress log; targets are not hard CPU limits.
+Validate visible, hidden, and closed-window behavior against the same workload,
+including child processes and native webview helpers. Distinguish resident memory
+from charged footprint and transient children. Resource and health cadence must
+remain independent of presentation activity; measured CPU depends on the workload
+and is not a product-wide guarantee.
 
-The first live candidate still reconciles every Docker health-check exec event.
 Ignore only known exec lifecycle chatter in the Compose watcher: it changes
 neither container identity nor lifecycle/health state. Continue forwarding actual
 health-status, lifecycle, metadata and unknown future events. Resource sampling
@@ -1024,8 +1029,7 @@ and canceled requests do not poison later reads, and the database owns statement
 closure. Prepare metric inserts/upserts once per transaction rather than once
 per point. Keep transaction atomicity, live query semantics and current schema.
 
-The next native probe still spends substantial CPU in per-project HTTP traffic
-and the Apple Git launcher. Batch presentation reads by kind (runtime, Git
+Batch presentation reads by kind (runtime, Git
 status, or actions), with at most 64 unique IDs, four application-service calls
 in flight, ordered results, explicit per-project warnings and cancellation.
 Each owning service retains current permission/freshness checks. Separate
@@ -1074,8 +1078,9 @@ runtime and health facts, rather than two HTTP requests per project. Health
 reconciliation of degraded/starting runtime states belongs to the shared
 application read used by both single-project HTTP and batched readers. Preserve
 per-project partial warnings, current trust checks, notification inputs and the
-fifteen-second native polling interval. Older daemons may use the existing
-single-project fallback when the additive batch kind is unsupported.
+fifteen-second native polling interval. Unsupported batch reads report
+unavailable observations; an old-daemon single-project fallback is not used
+([ADR-0025](0025-origin-proof-and-reviewed-inputs.md)).
 
 Reuse at most eight idle Docker SDK clients for explicit local Unix endpoints,
 owned by the Compose driver and closed on shutdown. Each active lease has its
@@ -1098,7 +1103,7 @@ estimate segment rotation.
 
 Contain dashboard-card layout and painting within each card, preserving its
 intrinsic sizing, keyboard controls and existing visual hierarchy. Validate
-desktop/narrow/hover rendering and actual native performance before accepting.
+desktop/narrow/hover rendering and native performance when changing containment.
 
 Resolve sibling optional manifests through one confined, identity-checked
 directory handle per resolution. Read each current file and validate its opened
@@ -1130,7 +1135,7 @@ opens, opened-descriptor identity checks and post-read byte caps. Synchronize
 close against opens to prevent descriptor reuse from changing the capability.
 Other platforms retain the rooted Go filesystem implementation. Retain no
 handles or bytes between observations, and verify symlink, FIFO, replacement,
-close/cancellation and cross-platform behavior before accepting the change.
+close/cancellation and cross-platform behavior when changing this boundary.
 
 Native process watchers retain their two-second reconciliation cadence and
 immediate lifecycle events, but share one fresh batch of durable run records per
@@ -1173,9 +1178,7 @@ ordinary CLI views, nor any observation source or interval.
 
 The short-lived `desktop snapshot` child limits Go parallelism to one and skips
 percentage-triggered collection while retaining a 64 MiB soft runtime memory
-limit. A read-only benchmark against sixteen running containers reduced child
-CPU by about 25% and output from 34 KiB to 7 KiB without increasing peak RSS.
-Apply these environment overrides only to that exact leaf command; daemon
+limit. Apply these environment overrides only to that exact leaf command; daemon
 startup, UI initialization and mutations retain their ordinary runtime policy.
 Tests enforce that boundary. The daemon and managed processes never inherit
 these overrides.
@@ -1199,8 +1202,8 @@ Reapply the native presentation fact after navigation finishes, so an old
 page's focus signal cannot be lost on reload. Performance verification may tag
 local UI requests with a bounded client/page-category label, validated against a
 fixed allowlist before logging. This label grants no authority and contains no
-URL query, repository path, credential or stable user identifier. Acceptance
-must verify actual dashboard polling and page stability, not window visibility
+URL query, repository path, credential or stable user identifier. Verification
+must check actual dashboard polling and page stability, not window visibility
 alone.
 Use opaque token-based surfaces for the persistent sidebar and top bar rather
 than continuously compositing blurred content behind them. Preserve their
@@ -1266,10 +1269,9 @@ window must refresh authoritative state. Audit records and resource history
 have separate ownership and are not pruned by this policy. Freed SQLite pages
 are reused; no blocking full-database VACUUM runs in monitoring paths.
 
-The prelaunch alpha manifest reader/migrator and old-daemon status fallback
-are retired. Only the stable manifest contract is accepted. Ordered database
-migrations remain intact for the active installation. This supersedes the
-earlier phase-18 prelaunch compatibility policy.
+Accept only the current stable manifest contract, without an obsolete-format
+normalizer or an old-daemon status fallback. Ordered database migrations remain
+supported; accepting an old manifest format is a separate compatibility decision.
 
 Signed configuration is mandatory for all team bundles, so there is no optional
 `requireSignedConfiguration` switch. The registry publisher allowlist is named
@@ -1387,15 +1389,13 @@ Native friendly HTTP routes require a currently observed, ownership-verified TCP
 binding at an exact leased port. Declarations and a live PID alone cannot publish
 a route. Existing Compose isolation remains unchanged.
 
-## Acceptance evidence required
+## Verification requirements
 
-Exercise two native worktrees simultaneously with SQLite persistence, distinct
-ports, branch-specific responses, scoped restart/stop/logs/metrics and daemon
-reconciliation. Verify stale reviews, trust revocation, unknown/fixed ports,
-occupied ports, cancellation and failed transitions. Test the complete reviewed
-browser workflow on owned repositories; preserve the user's running projects.
-Run migrations, generated-artifact checks, full quality suites, rebuild/install,
-and exact-master hosted CI before handoff. Record evidence in Phase 13.
+Tests must cover concurrent worktrees with independent persisted ownership,
+ports, logs, metrics, health, and restart reconciliation. Stale reviews, revoked
+trust, fixed or occupied ports, cancellation, and failed checkout transitions
+must remain explicit failures. Browser tests use owned fixture repositories;
+verification must preserve unrelated running projects.
 
 ---
 
@@ -1421,8 +1421,9 @@ their names before matrix artifacts are merged.
 Keep release discovery and signature validation at build time. Embed the latest
 published stable release's bounded, complete updater catalog in a small Pages
 Worker handling only `/updates/stable.json`. It returns HTTP 204 before the
-first stable release and HTTP 200 for a complete catalog. All other requests
-continue through static Pages assets. Limit Worker invocation with `_routes.json`.
+first stable release and HTTP 200 for a complete catalog. Public pages use
+static Pages assets; [ADR-0029](0029-retired-documentation-routes.md) extends
+the Worker with explicit 404s for retired documentation routes. Limit Worker invocation with `_routes.json`.
 The Worker has no secrets, storage, user input mutations, binary proxy, or live
 GitHub calls. This is a narrow exception to ADR-0017's no-runtime-backend rule.
 
@@ -1500,12 +1501,7 @@ ADRs use the status values `Proposed`, `Accepted`, `Superseded`, or `Rejected`.
 Changing an accepted decision requires a new ADR that links to and supersedes
 the old one.
 
-Section 22's Phase 0 shorthand numbers six foundational decisions differently
-from the canonical list in Section 26 of the implementation plan. This index
-uses Section 26 numbering because it is the complete, collision-free list. The
-Phase 0 subjects remain covered by the accepted records below.
-
-## Accepted foundational decisions
+## Accepted decisions
 
 - [ADR-0001: Modular monolith and dependency direction](0001-modular-monolith.md)
 - [ADR-0002: Go control plane](0002-go-control-plane.md)
@@ -1540,6 +1536,10 @@ Phase 0 subjects remain covered by the accepted records below.
 
 - [ADR-0025: Origin proof and immutable reviewed inputs](0025-origin-proof-and-reviewed-inputs.md)
 
+- [ADR-0026: Reviewed checkout transitions](0026-reviewed-checkout-transitions.md)
+
+- [ADR-0027: Native worktree ownership and reviewed transitions](0027-native-worktree-runtimes.md)
+
 - [ADR-0028: Published release updater feed](0028-published-release-updater-feed.md)
 
 - [ADR-0029: Retired documentation routes](0029-retired-documentation-routes.md)
@@ -1557,55 +1557,37 @@ binary. The process hosts a daemon, CLI commands, local HTTP/WebSocket and IPC
 transports, and an MCP façade. A Vue application and thin Tauri desktop shell
 consume the same application behavior.
 
-The [durable operations and local transport](operations-kernel.md) note defines
-the command state machine, restart behavior, event replay, Unix IPC, and browser
-session handshake introduced by Phase 2.
+Use the focused architecture guide for the boundary you are changing:
 
-The [project onboarding and manifest resolution](project-onboarding.md) note
-defines the Phase 3 repository trust boundary, evidence pipeline, approval
-transaction, generated schema, and configuration precedence.
+- [Durable operations and local transport](operations-kernel.md): state
+  transitions, recovery, replay, IPC, and browser authentication.
+- [Project onboarding](project-onboarding.md): discovery, repository trust,
+  manifest validation, and configuration provenance.
+- [Docker Compose](docker-compose-runtime.md) and [native processes](native-process-runtime.md):
+  lifecycle drivers, identity evidence, and ownership limits.
+- [Observability](observability.md): redaction, log retention, health, metrics,
+  history, and storage attribution.
+- [Ports, source control, and actions](developer-workflows.md): port evidence,
+  Git observation, reviewed commands, and audit recovery.
+- [Dashboard and product UI](dashboard-alpha.md): routes, server-state ownership,
+  command boundaries, accessibility, and degraded states.
+- [Agent integration](agent-integration.md) and [AI-assisted onboarding](ai-assisted-onboarding.md):
+  scoped MCP tools, isolated providers, bounded evidence, and human approval.
+- [Workspaces and worktrees](workspaces.md): dependency execution, checkout
+  isolation, exact ports, routing, and recovery.
+- [Terminal sessions](terminal-sessions.md): PTY ownership, authenticated streams,
+  detach behavior, scrollback, and agent metadata.
+- [Desktop shell](desktop-shell.md): sidecar compatibility, native presentation,
+  notifications, and signed updates.
+- [Plugin architecture](plugins.md) and [SDK](../plugin-sdk.md): executable trust,
+  protocol negotiation, capabilities, supervision, and authoring.
+- [Diagnostics and automation](intelligent-diagnostics.md): evidence validation,
+  deterministic rules, reviewed actions, recipes, and local feedback.
+- [Federation](../federation.md) and [team configuration](../team-configuration.md):
+  optional peer identity, mutual TLS, signed bundles, encrypted sync, and policy.
 
-The [Docker Compose runtime](docker-compose-runtime.md) and
-[native process runtime](native-process-runtime.md) notes describe the two
-initial lifecycle drivers, their evidence models, and their ownership limits.
-The [health, log, and resource observability](observability.md) note defines the
-redaction boundary, rotating storage, cursor replay, health scheduling,
-degraded-state derivation, metric tiers, and storage-attribution boundary
-introduced by Phases 7 and 12.
-The [ports, source control, and trusted actions](developer-workflows.md) note
-defines Phase 8 port provenance and reservations, read-only Git observation,
-action authorization, working-directory containment, and audit recovery.
-The [dashboard alpha](dashboard-alpha.md) note defines Phase 9 routes, server
-state ownership, command boundaries, degraded behavior, and browser evidence.
-The [agent integration](agent-integration.md) note defines Phase 10 MCP
-topology, least-privilege discovery, audit identity, provider installers, and
-failure isolation.
-The [AI-assisted onboarding](ai-assisted-onboarding.md) note defines Phase 11
-evidence consent, provider isolation, schema-constrained output, deterministic
-merge authority, dry-run review, and human-only trust transitions.
-The [workspace and worktree orchestration](workspaces.md) note defines Phase 13
-dependency execution, failure policy, environment isolation, optional local
-routing, launch recipes, and restart reconciliation.
-The [embedded terminal and agent sessions](terminal-sessions.md) note defines
-Phase 14 PTY ownership, typed launch resolution, authenticated binary streams,
-detach persistence, bounded scrollback, and the user-visible agent metadata
-boundary.
-The [native desktop shell](desktop-shell.md) note defines Phase 15 sidecar
-attachment, compatibility gates, native adapter ownership, capability
-isolation, notification transitions, and signed update behavior.
-The [out-of-process plugin architecture](plugins.md) note defines Phase 16
-discovery, executable trust, JSON-RPC negotiation, capability enforcement,
-supervision, and local-user security boundaries. The public
-[plugin SDK guide](../plugin-sdk.md) documents authoring and compatibility.
-The [intelligent diagnostics and safe automation](intelligent-diagnostics.md)
-note defines Phase 17 bounded evidence, deterministic-first evaluation,
-provider validation, prompt-injection resistance, action authorization,
-rate-limited recipes, local feedback, and notification retention.
-The [optional federation guide](../federation.md),
-[signed team configuration guide](../team-configuration.md), and ADR-0016 define
-Phase 19's separate peer identity, mutual-TLS authorization, bounded inventory,
-signed portable policy, encrypted sync, curated metadata, and explicit
-anonymous-counter consent boundaries.
+These guides describe the current source. Check [platform support](../platform-support.md)
+and [downloads](/download/) for released packages and supported platforms.
 
 ## Process topology
 
@@ -1727,7 +1709,8 @@ The default is `observe`. Destructive tools are therefore absent unless the
 MCP server is explicitly configured with `admin`. Project allowlists apply to
 reads, port-conflict evidence, and mutations. A project-scoped server cannot
 register another project, and proposal IDs are resolved to their owning project
-before trust authorization. Every mutation uses a caller-supplied idempotency key and
+before trust authorization. AI-assisted revisions require human approval even
+with an admin MCP profile. Every mutation uses a caller-supplied idempotency key and
 reaches the daemon over local IPC with `agent` and `provider/agent` identity
 headers. Operation and catalog audit records persist that non-secret origin.
 
@@ -1780,7 +1763,7 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/ai-assisted-onboard
 
 Bounded evidence, schema-constrained proposals, validation, and human approval.
 
-Phase 11 adds an optional provider step after deterministic discovery. AI is a
+AI assistance is an optional provider step after deterministic discovery. AI is a
 proposal source, not an authority: the deterministic scanner remains usable
 with every provider disabled, and only the catalog's ordinary human approval
 transaction can create a trusted manifest snapshot.
@@ -1842,6 +1825,10 @@ repository cannot select or shadow the executable: bare command names resolve
 only through absolute `PATH` entries, and configured paths must be absolute.
 Provider stderr and HTTP errors are bounded and redacted.
 
+These daemon flags seed provider configuration for a new data directory.
+Existing installations use the durable [settings service](../settings.md);
+restart-bound settings take effect on the next daemon start.
+
 The daemon flags are:
 
 ```text
@@ -1892,8 +1879,7 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/dashboard-alpha/
 
 Visual hierarchy, server-state ownership, routes, accessibility, and production UI states.
 
-Phase 9 turns the browser client into the primary visual adapter over the
-Envarium control plane. The dashboard does not own runtime policy: it reads
+The browser client is the visual adapter over the Envarium control plane. The dashboard does not own runtime policy: it reads
 generated OpenAPI contracts, submits typed operations, and follows the same
 durable event and log streams used by other clients.
 
@@ -1907,11 +1893,16 @@ durable event and log streams used by other clients.
 | `/resources` | Current and retained project/service metrics, budgets, storage attribution, cleanup preview, and Envarium footprint |
 | `/logs` | Bounded cross-project log search and filtering |
 | `/discovery` | Deterministic scan, evidence review, validation, and trust approval |
-| `/settings` | Daemon identity, host capabilities, and browser-local display preferences |
+| `/settings` | Revisioned daemon settings, approved roots, retention, tools, provider configuration, and appearance |
+| `/workspaces` | Dependency graphs, coordinated lifecycle, and member progress |
+| `/agents` | Diagnoses, reviewed actions, automation recipes, and agent sessions |
+| `/plugins` | Package discovery, fingerprint trust, scopes, health, and supervision |
+| `/fleet` and `/companion` | Optional peer inventory and a read-only companion view |
+| `/team` | Trusted publishers, signed bundles, policy, registry metadata, and sync |
 
-Workspace and agent routes deliberately remain honest feature shells until
-their roadmap phases. The browser UI is stable before the thin Tauri shell is
-introduced.
+These routes share the same Go application services in the browser and the
+Tauri desktop webview. Optional integrations show setup or unavailable states
+until their prerequisites are configured.
 
 ## State ownership
 
@@ -1922,9 +1913,10 @@ polling remains as a fallback when WebSocket events are delayed or unavailable.
 The browser bounds dashboard fan-out, log history, and concurrent project
 requests to avoid unbounded work in large catalogs.
 
-Browser-only preferences and recent project access use guarded local storage.
-They degrade to in-memory defaults when storage is denied. No browser state is
-treated as daemon authority.
+Recent project access and browser-local fallback preferences use guarded local
+storage and degrade to in-memory defaults when storage is denied. Durable
+product settings use the revisioned [settings service](../settings.md). No
+browser cache is treated as daemon authority.
 
 ## Command and operation boundary
 
@@ -1973,7 +1965,7 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/desktop-shell/
 
 Thin Tauri adapter, sidecar lifecycle, tray, updater, and deep-link boundaries.
 
-Phase 15 packages Envarium as a Tauri 2 application while preserving
+The desktop shell packages Envarium as a Tauri 2 application while preserving
 ADR-0009: Rust is a native adapter, not a second control plane. The bundled Go
 sidecar still owns daemon startup, local IPC, authentication, projects,
 workspaces, operations, resources, persistence, and every mutation policy.
@@ -2050,10 +2042,10 @@ installation; the shell restarts only after successful installation. Release
 artifacts are drafted rather than published automatically so maintainers can
 review signatures, notarization, changelog, and compatibility.
 
-Desktop support followed the ADR-0015 order: macOS first, followed by the
-Phase 18 Linux and Windows bundles. Interactive Windows sessions use the native
-ConPTY adapter; WSL remains a separate Linux-daemon boundary as documented in
-the platform support matrix.
+The source includes macOS, Linux, and Windows shell adapters. This describes
+source behavior, not published installer availability. **Windows and WSL2
+support is coming soon**. Windows interactive sessions use ConPTY; WSL runs a
+separate Linux daemon. See [platform support](../platform-support.md).
 
 ---
 
@@ -2063,8 +2055,8 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/developer-workflows
 
 Project port evidence, Git observation, and risk-classified developer actions.
 
-Phase 8 adds three independent application boundaries for common local
-development work. They share catalog identity and the durable operation kernel,
+Ports, source control, and actions are independent application boundaries for
+local development work. They share catalog identity and the durable operation kernel,
 but they do not read each other's storage or move policy into transport code.
 
 ## Port evidence and reservations
@@ -2078,8 +2070,8 @@ The port registry keeps three kinds of fact distinct:
   accepted declarations. It protects stopped projects and is removed when the
   accepted manifest no longer declares the port.
 - A `binding` is current runtime or operating-system evidence. Runtime bindings
-  are attributed to a trusted project; unmatched `lsof` TCP/UDP listeners are
-  intentionally labeled as unknown processes.
+  are attributed only with ownership evidence. OS listeners include a process
+  name when available; unmatched listeners remain unattributed to a project.
 
 Each fact carries its source, evidence text, host, protocol, project/service
 identity when known, and observation time. Runtime and OS observation failures
@@ -2164,8 +2156,9 @@ exactly one command string. Both array and shell forms reject `sudo` and
 On macOS, terminal and editor launch use native `open` behavior. Agent launch
 uses a quoted AppleScript command whose first operation changes to the exact
 resolved working directory. Browser actions accept only HTTP and HTTPS URLs.
-Unsupported platforms return an honest capability error until their later
-platform phase.
+Linux and Windows have separate typed launcher adapters. Missing executables
+or unsupported desktop sessions return a capability error. **Windows and WSL2
+support is coming soon**; source adapters do not establish release support.
 
 ## Persistence and recovery
 
@@ -2177,7 +2170,7 @@ marks an audit left in `running` as failed with `DAEMON_RESTARTED`, while the
 ordinary operation recovery path handles the corresponding durable operation.
 
 The generated OpenAPI clients, CLI, and Vue slices all use these application
-boundaries. No UI component builds a Git, `lsof`, terminal, editor, or action
+boundaries. No UI component builds a Git, socket-inspection, terminal, editor, or action
 command.
 
 ---
@@ -2262,9 +2255,9 @@ ports. Engine API negotiation is enabled and server/API versions are reported.
 
 Docker logs preserve stdout/stderr, the original line, timestamp, project ID,
 service ID, and a container-derived run identity. Current metrics expose CPU,
-memory, and aggregate network counters. Persistence, redaction, retention, and
-WebSocket follow behavior belong to Phase 7; Phase 5 intentionally supplies the
-bounded live driver streams they will consume.
+memory, and aggregate network counters. The [observability service](observability.md)
+redacts these streams before persistence, retention, export, and WebSocket
+delivery.
 
 The integration fixture builds a small static Go server into a `FROM scratch`
 image. It does not require registry credentials or network access and always
@@ -2278,7 +2271,7 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/intelligent-diagnos
 
 Deterministic rules, evidence-bound AI hypotheses, and reviewed automation recipes.
 
-Phase 17 adds troubleshooting assistance without granting a new execution
+Diagnostics provide troubleshooting assistance without granting new execution
 authority. Deterministic rules always run first. Optional AI receives one
 bounded, redacted evidence document and may return only schema-valid hypotheses
 that cite existing evidence and accepted actions.
@@ -2343,7 +2336,7 @@ Repository text and logs are serialized as inert evidence data and are never
 placed in an instruction role. Provider prompts explicitly prohibit following
 instructions found in evidence, reading files, running commands, using tools or
 network access, or inventing evidence/action identifiers. CLI providers retain
-their Phase 11 empty-root, minimal-environment, no-tool isolation; the HTTP
+their empty-root, minimal-environment, no-tool isolation; the HTTP
 provider receives the same schema and byte budgets. Server-side validation is
 authoritative even if a provider ignores the prompt.
 
@@ -2382,10 +2375,10 @@ capabilities.
 
 ## Accepted decisions
 
-No architecture decision changed. This implementation follows ADR-0010's
-provider-neutral MCP/application boundary, ADR-0011's explicit profiles and
-absence of a generic shell tool, and ADR-0014's redaction-before-persistence and
-bounded-output requirements.
+See [ADR-0010](../adr/0010-mcp-first-agents.md) for provider-neutral integration,
+[ADR-0011](../adr/0011-agent-permissions.md) for explicit permission profiles,
+and [ADR-0014](../adr/0014-log-retention-redaction.md) for redaction and bounded
+retention.
 
 ---
 
@@ -2395,8 +2388,9 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/native-process-runt
 
 Process identity, ownership, cancellation, log capture, and external observation.
 
-Phase 6 implements accepted ADR-0007 behind the driver-neutral runtime
-application boundary. The process driver owns command construction,
+The native process driver implements [ADR-0007](../adr/0007-process-ownership.md)
+behind the driver-neutral runtime application boundary. It owns command
+construction,
 supervision, identity reconciliation, output capture, metrics, and external
 listener classification. HTTP, CLI, catalog, and operation handlers do not
 call operating-system process APIs.
@@ -2436,7 +2430,8 @@ Project environment is overlaid on the daemon environment, then the process
 overlay wins. A secret reference wins over a plain value at the same layer and
 is resolved only at launch. Secret values are never included in plans,
 manifests, run records, or process metadata. macOS uses the login Keychain via
-`security`; Linux uses Secret Service via `secret-tool`.
+`security`; Linux uses Secret Service via `secret-tool`; the Windows adapter
+uses Credential Manager.
 
 Argument arrays execute without a shell. Known shell executables, whitespace
 in the executable field, and shell-control syntax in that field are rejected
@@ -2463,7 +2458,9 @@ service becomes `running`.
 Child members of the OS process group are discovered continuously and stored.
 If the original parent exits, a verified child keeps the run active. This lets
 a restarted Envarium daemon reconcile, measure, and stop a process tree that
-survived the previous daemon without claiming unrelated processes.
+survived the previous daemon on Unix without claiming unrelated processes.
+Windows Job Objects instead terminate owned children when their owning handle
+closes.
 
 ## Lifecycle and restart
 
@@ -2499,10 +2496,11 @@ insufficient evidence produce `unknown` or `stopped`, never managed ownership.
 
 ## Platform boundary
 
-macOS and Linux create and signal real process groups. Windows builds retain a
-bounded single-process fallback; Job Object ownership, tree termination, and
-full Windows acceptance coverage remain part of Phase 18 cross-platform
-hardening. Interactive PTYs remain Phase 14 work.
+macOS and Linux use process groups. The Windows adapter uses Job Objects for
+managed process-tree ownership and termination; embedded Windows terminals use
+ConPTY. These adapters are present in source, but **Windows and WSL2 support is
+coming soon**. See [platform support](../platform-support.md) for availability
+and the [terminal architecture](terminal-sessions.md) for interactive sessions.
 
 ---
 
@@ -2512,7 +2510,8 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/observability/
 
 Health scheduling, redacted logs, bounded retention, metrics, and honest attribution.
 
-Phase 7 implements ADR-0014 as a boundary above both runtime drivers. Docker
+The observability service implements [ADR-0014](../adr/0014-log-retention-redaction.md)
+as a boundary above both runtime drivers. Docker
 and native-process adapters still emit raw runtime observations and log lines;
 they do not own retention, health policy, redaction, or browser state.
 
@@ -2524,13 +2523,16 @@ Docker/process raw stream
           v
 canonical redactor
           |
-          +--> bounded per-service ring
           +--> rotating private NDJSON segment
           +--> live WebSocket subscribers
           +--> query/export APIs
 ```
 
-The redactor runs before every sink. Built-in rules cover bearer credentials,
+The redactor runs before persistence, subscriber delivery, display, export,
+and provider dispatch. Native capture uses a bounded per-service ring; the
+archive reads history from indexed segments rather than keeping another copy
+of log bodies ([ADR-0019](../adr/0019-log-memory-ownership.md)). Built-in rules
+cover bearer credentials,
 secret-like environment assignments, credential-bearing URLs, and common
 access-key forms. Repeated `envarium daemon --redact-pattern` flags add local
 regular expressions. Resolved keychain values are registered with the redactor
@@ -2547,7 +2549,8 @@ Segments rotate by byte cap. Closed segments have SHA-256 checksums and are
 deleted oldest-first by both age and aggregate byte cap. File deletion is
 staged so a failed metadata update can restore the original path, and startup
 repairs interrupted staged deletions. Compression, full-text search, and
-cross-project analytics remain outside this phase.
+cross-project analytics are not part of this log archive. The UI can filter a
+bounded log snapshot; it does not provide a full-text index over all history.
 
 `GET /api/v1/projects/{projectId}/logs` queries the persisted stream by service,
 run, operation, time, and tail limit. The export endpoint emits already-redacted
@@ -2589,7 +2592,7 @@ false stopped or healthy state.
 
 ## Resource sampling and history
 
-Phase 12 extends the same bounded context with one process-wide sampler:
+Resource history uses one process-wide sampler:
 
 ```text
 trusted catalog descriptors
@@ -2633,8 +2636,8 @@ reason, and Envarium's database/WAL/SHM/log footprint is reported separately
 as Envarium-exclusive storage.
 
 Cleanup preview is a read model containing exact Engine identifiers and known
-or unknown reclaimable bytes. It is always non-executable; Phase 12 adds no
-automatic deletion surface.
+or unknown reclaimable bytes. It is non-executable and does not authorize or
+perform automatic deletion.
 
 ---
 
@@ -2644,7 +2647,7 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/operations-kernel/
 
 Operation state, idempotency, cancellation, local IPC, browser sessions, and audit.
 
-Phase 2 establishes the command foundation used by later project, runtime,
+The operations service coordinates durable mutations for project, runtime,
 workspace, UI, CLI, and agent adapters.
 
 ## Operation lifecycle
@@ -2691,7 +2694,7 @@ Recovery is deterministic:
 | `running` | Mark `failed` with `DAEMON_RESTARTED`; never guess whether an external side effect completed. |
 | terminal | Leave unchanged. |
 
-Later runtime executors reconcile observed external state before a user retries
+Runtime executors reconcile observed external state before a user retries
 an interrupted operation.
 
 ## Events and replay
@@ -2705,9 +2708,10 @@ is exceeded. Slow live subscribers are disconnected and recover through replay.
 ## Local transport and browser sessions
 
 CLI traffic uses HTTP semantics over a user-permissioned Unix-domain socket on
-macOS and Linux. The platform adapter reserves the Windows named-pipe identity;
-the Windows implementation is completed in Phase 18. The socket and database
-are mode `0600`, and the data directory is `0700`.
+macOS and Linux. Their socket and database use mode `0600`, and the data
+directory uses `0700`. The Windows source adapter uses a named pipe with a
+protected DACL granting access to LocalSystem and the daemon owner.
+**Windows support is coming soon**; see [platform support](../platform-support.md).
 
 The loopback browser API is a separate router:
 
@@ -2739,7 +2743,8 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/plugins/
 
 Versioned protocol, trust, capabilities, supervision, and conformance boundaries.
 
-Phase 16 applies ADR-0012 with a public Go SDK under `sdk/plugin` and an exact,
+Plugins follow [ADR-0012](../adr/0012-out-of-process-plugins.md), with a public
+Go SDK under `sdk/plugin` and an exact,
 versioned JSON-RPC 2.0 protocol over stdin/stdout. A plugin is always a separate
 supervised process. The daemon never loads a shared library, calls a shell, or
 lets plugin-specific types enter a core product domain.
@@ -2802,8 +2807,7 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/project-onboarding/
 
 Safe discovery, evidence aggregation, trust, validation, precedence, and provenance.
 
-Phase 3 introduces the catalog, deterministic discovery, and canonical project
-manifest. Repository content remains untrusted until a person accepts a
+The catalog combines deterministic discovery with a canonical project manifest. Repository content remains untrusted until a person accepts a
 proposal.
 
 ## Trust boundary
@@ -2974,7 +2978,7 @@ Source: https://envarium.davidcuellar.tech/docs/architecture/workspaces/
 
 Dependency graphs, coordinated lifecycle, port leases, environments, and local routing.
 
-Phase 13 adds coordination without turning the workspace domain into a second
+Workspace coordination uses the existing runtime drivers rather than a second
 runtime engine. The workspace application service validates and schedules a
 graph; each member lifecycle still enters the durable operation coordinator and
 the existing runtime application boundary.
@@ -3035,6 +3039,12 @@ Compose starts use a private mode-`0600` override with exact loopback host-port
 bindings. The override is validated with `docker compose config` before use.
 Logical offsets are never treated as proof that a concrete port is free.
 
+Native worktrees resolve explicit `${ports.ID}` references to their exact
+allocated ports. Each checkout has independent process ownership, logs, health,
+and metrics. Hard-coded command arguments are never rewritten. See the
+[native worktree guide](../how-to/native-worktrees.md) for configuration and
+reviewed checkout transitions.
+
 An environment is marked active only after its expected exact TCP binding is
 observed. Stop clears its route target but preserves registration and leases.
 Removed or bare worktrees remain explicit unavailable facts rather than fake
@@ -3049,7 +3059,7 @@ and never exposes a general forward proxy.
 
 The route registry distinguishes active, unavailable, conflicting, and
 disabled states. Unknown or inactive hostnames return `503`. HTTPS and local
-certificate management are outside this phase.
+certificate management are not provided by the local routing adapter.
 
 ## Recipes and destructive actions
 
@@ -3397,7 +3407,7 @@ All query and mutation commands accept global flags after or before the command:
 ```
 
 Envarium currently emits no ANSI sequences when output is redirected, and
-all Phase 4 commands are prompt-free. JSON has this top-level shape:
+commands require explicit confirmation flags rather than interactive prompts. JSON has this top-level shape:
 
 ```json
 {
@@ -3458,7 +3468,9 @@ Source: https://envarium.davidcuellar.tech/docs/compatibility/
 
 Stability promises for manifests, APIs, CLI output, MCP, plugins, and local data.
 
-Envarium follows semantic versioning for the product and publishes every
+This is the compatibility policy for stable releases. No public stable release
+has been published yet; development builds may change before that release.
+Envarium uses semantic versioning for the product and marks every
 machine-consumed contract with an independent version marker. SQLite remains
 an internal storage format and is not an integration API.
 
@@ -3491,17 +3503,16 @@ plugin, manifest, or database versions fail before mutation with an actionable
 error. A major-version migration must be previewable and create a verified
 backup before changing durable data.
 
-## Prelaunch compatibility
+## Unsupported manifest versions
 
-Only `envarium.dev/v1` manifests are accepted. The unused prelaunch alpha
-normalizer and file-migration command were retired before public launch
-(ADR-0025). Generate a fresh stable manifest through deterministic onboarding
-for an obsolete prelaunch fixture. Incompatible plugin executables must be
+Only `envarium.dev/v1` manifests are accepted. There is no manifest-version
+conversion command. Use deterministic onboarding to review a new manifest
+when an older document uses an unsupported schema. Incompatible plugin executables must be
 rebuilt against the stable SDK; the host never runs an incompatible plugin.
 
 Ordered embedded database migrations remain supported for the active local
 installation, including verified pre-migration backups. See
-[v1 data migration](migration-v1.md).
+[database backup and migration](migration-v1.md).
 
 ---
 
@@ -3536,8 +3547,8 @@ Source: https://envarium.davidcuellar.tech/docs/contributing/
 Architecture rules, accepted decisions, adapter boundaries, release evidence, and the focused contribution path.
 
 Begin with the concise [public contribution path](/contributing/), then read
-the repository `AGENTS.md` and the target implementation-plan phase before
-editing code.
+the repository `AGENTS.md` and the accepted decisions relevant to your change
+before editing code.
 
 - [Architecture overview](../architecture/README.md)
 - [Accepted ADRs](../adr/README.md)
@@ -3545,8 +3556,8 @@ editing code.
 - [Adapter development](../adapter-development.md)
 - [Release engineering](../release.md)
 
-One pull request should implement one roadmap phase or one coherent vertical
-slice, add tests with the behavior, and report unverified criteria honestly.
+Keep each pull request focused on one user outcome or cohesive technical
+change. Add tests with the behavior and report validation and known limits.
 
 ---
 
@@ -3674,7 +3685,8 @@ opens the corresponding local route, and focuses the existing window.
 
 ## Linux desktop
 
-Stable releases provide AppImage, deb, and rpm bundles. Use the native package
+The release workflow builds AppImage, deb, and rpm bundles; public stable
+packages are not available yet. Use the native package
 for integration with the desktop application menu and updater; make an
 AppImage executable before launching it. WebKitGTK 4.1 and a supported Secret
 Service implementation must be available. Native notifications and autostart
@@ -3702,7 +3714,7 @@ not require administrator privileges.
 
 ## WSL2
 
-**Coming soon.** The planned setup runs the Linux binary inside WSL and use the browser UI it prints. Windows and
+**Coming soon.** The planned setup runs the Linux binary inside WSL and uses the browser UI it prints. Windows and
 WSL local IPC endpoints are intentionally separate. See
 [platform support](platform-support.md#wsl2-behavior) for Docker, filesystem,
 notification, and autostart behavior.
@@ -3739,8 +3751,9 @@ envarium doctor
 envarium ui
 ```
 
-`envarium doctor` and all other client commands start the per-user daemon on
-demand. No Tauri or Rust runtime is required by the built Go binary.
+`envarium doctor`, `envarium ui`, and ordinary project commands start the
+per-user daemon on demand. Offline `data` commands and commands such as
+`version`, `schema`, and shell completion do not start it. No Tauri or Rust runtime is required by the built Go binary.
 
 ## Uninstall and data choices
 
@@ -3760,7 +3773,8 @@ Desktop-only preferences are under the per-application Tauri config directory
 for `dev.envarium.desktop`. Launch-at-login can be disabled from the tray
 before uninstalling; macOS Login Items can also remove it afterward.
 
-The generated Homebrew cask uses that same bundle identifier for preferences,
+Homebrew cask drafts are generated for maintainer review; no published cask is
+currently offered. If installed from a reviewed cask, its uninstall definition uses that same bundle identifier for preferences,
 WebKit data, caches, and saved window state. Ordinary uninstall retains data;
 `brew uninstall --cask --zap envarium` additionally removes those files and the
 `Envarium` control-plane data directory. Review backups and stop the daemon
@@ -3791,11 +3805,10 @@ Downgrade is restore-based: keep the current database, copy a pre-migration
 backup to a separate data directory, and run the matching old binary against
 that copy. Reinstalling the same or newer compatible v1 bundle attaches to the
 retained daemon data. See [v1 migration](migration-v1.md) for the exact safe
-procedure and [release engineering](release.md) for the tested matrix.
+procedure and [release engineering](release.md) for the required release checks.
 
-Envarium is pre-launch and has no former Switchyard user base to migrate. It
-uses its own application identity, data directory, and `envarium://` links;
-there is no supported Switchyard importer or former-scheme handler.
+Envarium uses its own application identity, data directory, and `envarium://`
+links. Importing data or deep links from another application is not supported.
 
 ---
 
@@ -3803,7 +3816,7 @@ there is no supported Switchyard importer or former-scheme handler.
 
 Source: https://envarium.davidcuellar.tech/docs/federation/
 
-Configure explicit post-v1 peer inventory and reviewed remote lifecycle operations.
+Configure optional peer inventory and reviewed remote lifecycle operations.
 
 Envarium can connect directly to another Envarium daemon for bounded
 machine inventory and typed lifecycle operations. Federation is disabled by
@@ -5012,7 +5025,7 @@ procedure:
 - [Create and review a support bundle](../support-bundles.md)
 - [Author or install an out-of-process plugin](../plugin-sdk.md)
 - [Apply signed team configuration](../team-configuration.md)
-- [Migrate to the v1 contract](../migration-v1.md)
+- [Back up and migrate the local database](../migration-v1.md)
 - [Develop a transport or platform adapter](../adapter-development.md)
 
 For a first project, use the [tutorial index](../tutorials/index.md) instead.
@@ -5264,7 +5277,9 @@ MCP owns stdout while running. Diagnostics go to stderr.
 
 ## Tools
 
-All tool names are stable and prefixed with `envarium_`. Inputs reject
+The [generated tool catalog](generated/mcp-tools.md) lists the full surface,
+including workspace and environment tools. The tables below summarize common
+project workflows. All tool names are prefixed with `envarium_`. Inputs reject
 unknown fields through SDK-generated JSON Schemas. Identifiers are opaque;
 obtain project, service, action, proposal, and operation IDs from read tools.
 
@@ -5323,6 +5338,8 @@ Admin adds `envarium_manifest_proposal_accept` and
 `envarium_project_teardown`. Teardown accepts `removeVolumes`; the boolean
 must be explicit and the tool is annotated destructive. Accepting a proposal
 is an explicit trust transition and never happens during proposal creation.
+AI-assisted proposal revisions require human approval and cannot be accepted
+by an agent identity, including an admin MCP server.
 
 ## Resources and prompts
 
@@ -5369,13 +5386,13 @@ tool omission.
 
 ---
 
-# Migrating alpha and beta data to v1
+# Back up and migrate the local database
 
 Source: https://envarium.davidcuellar.tech/docs/migration-v1/
 
-Preview, back up, migrate, verify, and safely roll back pre-v1 local data.
+Inspect schema changes, verify private backups, and restore local data safely.
 
-Normal v1 startup migrates an older Envarium database automatically while
+Daemon startup migrates an older supported Envarium database automatically while
 holding the single-daemon lock. Before the first schema change, it runs SQLite
 `quick_check`, creates a consistent private backup named
 `envarium.db.v<old>.pre-v<new>.bak`, verifies that backup, and only then
@@ -5422,7 +5439,7 @@ below distinguishes current source-build targets from planned platform baselines
 Check [downloads](/download/) for published packages; no public stable binaries
 are available yet.
 
-| Platform | Supported baseline | Desktop bundles | Native capabilities |
+| Platform | Source-build baseline or planned target | Release bundle targets | Source adapter capabilities |
 |---|---|---|---|
 | macOS | macOS 13 or newer | signed/notarized `.app` and DMG | Unix socket, process groups, PTY, port APIs, Keychain, notifications, launch agent |
 | Linux | Ubuntu 22.04+/Debian 12+ and current Fedora-family desktops | AppImage, deb, rpm | Unix socket, process groups, PTY, portable port APIs, Secret Service, notifications, XDG autostart |
@@ -5529,7 +5546,8 @@ guessing or fallback execution. A mismatch remains discoverable as an
 actionable error and is never enabled.
 
 Alpha protocol identifiers are unsupported by the v1 host and must be rebuilt
-with the stable SDK. For the stable plugin protocol:
+with the current SDK. These compatibility promises apply to published stable
+releases; development builds may change before the first stable release:
 
 - fields may be added only when older peers can safely ignore or default them;
 - methods, required fields, capabilities, and scopes are not repurposed;
@@ -5637,21 +5655,11 @@ Before that draft is created, the public-site release contract validates the
 complete stable platform matrix and replaces build-specific digest files with
 one aggregate `checksums.txt` covering every uploaded artifact.
 
-These are workflow capabilities, not evidence of a published signed release.
-On October 17, 2026, the repository had no published releases and no configured
-`desktop-release` environment. Only the two Cloudflare repository secrets were
-present. Passing ordinary CI does not exercise protected release credentials.
-
-On October 19, the `desktop-release` environment was configured with the
-repository owner's required review and a `v*`-tags-only deployment policy. The
-existing Apple API key authenticated successfully with the notarization service;
-the private API key and exported certificate were installed as encrypted
-environment secrets, and the owner added the certificate export password in
-GitHub. Updater signing and Linux GPG signing were subsequently configured with
-Envarium-specific keys and restricted local backups. The stable feed is
-`https://envarium.davidcuellar.tech/updates/stable.json`. No public stable
-release has been published. Windows direct-download signing remains a separate
-credential gate: LeagueSaga has no Windows signing secrets configured.
+The workflow defines release requirements; it is not evidence that a signed
+release has been published. No public stable release is available yet. Check
+[downloads](/download/) for current availability. **Windows and WSL2 support is
+coming soon.** A successful development build or ordinary CI run does not
+establish installer, signing, or clean-machine support.
 
 ## Release account setup
 
@@ -5664,7 +5672,7 @@ Before tagging the first release, a repository administrator needs to:
    `dev.envarium.desktop` and a Developer ID Application identity; supply a
    Windows Authenticode certificate matching the intended publisher; supply a
    Linux artifact-signing GPG key with a verified fingerprint.
-3. Retain the existing encrypted Envarium updater key and its password in secure
+3. Retain the Envarium updater key and its password in secure
    backups. The reviewed public key and canonical stable endpoint live in
    `desktop/src-tauri/tauri.release.conf.json`; native release builds and feed
    verification share that configuration. Do not regenerate the key for a new
@@ -5736,7 +5744,7 @@ and [Apple's Notary API authentication guidance](https://developer.apple.com/doc
 ## Reusing an existing Apple signing identity
 
 A valid **Developer ID Application** certificate and its private key from the
-same Apple Developer team can sign both LeagueSaga Import Helper and Envarium.
+same Apple Developer team can sign multiple applications, including Envarium.
 The certificate identifies the publisher, rather than one bundle ID. An
 **Apple Development** or Mac App Store distribution identity is not a substitute
 for Developer ID distribution. Envarium retains its own bundle identifier
@@ -5768,8 +5776,9 @@ and installed native updater additionally verify the complete payload bytes.
 A small, immutable Pages Worker serves `/updates/stable.json`: HTTP 204 before
 the first published stable release, otherwise Tauri's static JSON catalog.
 It has no runtime credentials, database, user mutations, or GitHub requests.
-Only this route invokes the Worker; the website remains static. Preview feeds
-always return 204. Publishing, editing, withdrawing, or deleting a GitHub release
+The Worker also returns explicit 404 responses for retired documentation
+paths ([ADR-0029](adr/0029-retired-documentation-routes.md)). Other pages use
+static asset delivery. Preview feeds always return 204. Publishing, editing, withdrawing, or deleting a GitHub release
 rebuilds the production site from master. A failed build retains the previously
 deployed feed. Binaries remain hosted by GitHub, and drafts are never offered.
 See [ADR-0028](adr/0028-published-release-updater-feed.md).
@@ -5806,12 +5815,10 @@ and mandatory for automated updates.
 
 ## Windows signing availability
 
-A trusted Windows code-signing identity for the same publisher may sign multiple
-applications if its provider permits it. LeagueSaga currently has no
-`WINDOWS_CSC_LINK` or `WINDOWS_CSC_KEY_PASSWORD` secret, and its documented Store
-route receives Microsoft signing after app certification. That service does not
-supply a reusable private certificate for Envarium's direct MSI/NSIS downloads.
-A new Envarium Store listing would also need its own package identity and review.
+**Windows and WSL2 support is coming soon.** Direct MSI/NSIS downloads require a
+trusted publisher signing identity and verified installers. Microsoft Store
+certification does not supply a reusable private certificate for direct
+downloads; a Store distribution would need its own package identity and review.
 
 For the existing direct-download workflow, provide a trusted Authenticode
 certificate/private key and password through `WINDOWS_CERTIFICATE` (base64 PFX)
@@ -5867,13 +5874,14 @@ runs.
 
 ---
 
-# Threat model and v1 security review
+# Security model and trust boundaries
 
 Source: https://envarium.davidcuellar.tech/docs/security/threat-model/
 
-Assets, trust boundaries, mitigations, residual risks, and release security review.
+Local assets, authorization boundaries, mitigations, residual risks, and release verification.
 
-This document records the v1 review of Envarium's local trust boundaries.
+This document describes Envarium's security design and its limits. It is not
+a security certification or a statement that a release has no vulnerabilities.
 The secure default is a single user operating approved local repositories;
 repository content, browser pages, processes, containers, plugins, agents, and
 AI output are not trusted merely because they are local.
@@ -5907,25 +5915,28 @@ AI output are not trusted merely because they are local.
 | Update or artifact tampering | protected release environment, platform signing, updater signatures, SHA-256 checksums, keyless Sigstore bundle, SBOM, GitHub artifact attestation | signing-account compromise requires key rotation and release revocation |
 | Migration corrupts or strands data | single-daemon lock, compatibility preflight, quick-check, non-overwriting consistent backup, post-backup verification, newer-schema refusal | disk loss affecting both source and same-disk backup requires external backups |
 
-## Review findings
+## Limits and release verification
 
-The v1 review found and closed four release-blocking gaps: Windows IPC had no
-implementation, Windows child ownership lacked Job Objects, Windows terminals
-lacked ConPTY, and OS port inspection depended on macOS-oriented `lsof`. The v1
-adapters now use an owner-only named pipe, Job Objects, ConPTY, and portable OS
-connection APIs. Browser URL launchers reject non-HTTP(S) targets, and migration
-now fails closed around verified backups.
+Trusted plugins and actions execute with the local user's authority. Envarium
+cannot protect against a compromised account with equivalent OS access, and
+redaction cannot recognize every novel secret format. Optional providers receive
+only reviewed evidence, but their own retention terms apply after dispatch.
 
-No unresolved critical or high-severity finding remains in the reviewed v1
-scope. Accepted medium residual risks are explicit user grants to trusted
-plugins/actions, same-user host compromise, and optional provider disclosure
-of a previewed redacted evidence bundle. They are product trust decisions, not
-hidden defaults.
+The source includes Windows named-pipe permissions, Job Objects, and ConPTY;
+**Windows and WSL2 support is coming soon**. Source implementation does not
+establish installer support or clean-machine validation. See
+[platform support](../platform-support.md).
 
-CI runs CodeQL, dependency review, secret scanning, `govulncheck`, lint,
-architecture checks, race tests, strict contract generation, plugin
-conformance, browser security tests, and platform adapter tests. A release is
-blocked when any required check or signing/attestation step fails.
+CI includes CodeQL, dependency review, secret scanning, vulnerability checks,
+lint, architecture checks, race tests, contract generation, and adapter tests.
+Release review must check current results, dependency advisories, signatures,
+attestations, and platform installation behavior for the exact release commit.
+A passing check is evidence for its tested scope, not a blanket assurance about
+all dependencies or deployments. See [release engineering](../release.md).
+
+Report suspected vulnerabilities through the repository's
+[private security reporting route](https://github.com/dcuellar322/envarium/security/advisories/new).
+Do not put secrets or exploit details in a public issue.
 
 ---
 
@@ -6056,7 +6067,7 @@ previewed destructive operation.
 
 ---
 
-# Five-minute first-project path
+# First-project guide
 
 Source: https://envarium.davidcuellar.tech/docs/start/
 
@@ -6094,8 +6105,8 @@ or [build the desktop app](../desktop-installation.md#build-from-source).
 ## 1. Choose the operating mode
 
 Use the **desktop command center** for the native window, tray, notifications,
-autostart, and signed updater. Use the **headless CLI** for SSH hosts, CI,
-WSL2, or a browser-only workflow.
+autostart, and signed updater in published release builds. Use the **headless
+CLI** for SSH hosts, CI, or a browser-only workflow. WSL2 remains coming soon.
 
 The [download page](/download/) shows only assets returned by the GitHub
 Releases API. If a verified stable package is unavailable, it says so instead
@@ -6298,7 +6309,7 @@ project.
 ## Observable success
 
 Every dependency reaches its configured health gate before its dependents
-start. A partial failure follows the selected continue, stop, or rollback
+start. A partial failure follows the selected continue or rollback
 policy without tearing down project data. Bulk stop preserves volumes unless a
 separate destructive action is explicitly authorized.
 
@@ -6525,7 +6536,7 @@ Source: https://envarium.davidcuellar.tech/docs/tutorials/
 
 Outcome-oriented paths from installation through a healthy project, resolved conflict, and coordinated workspace.
 
-Start with the [five-minute first-project path](../start/index.md). It links the
+Start with the [first-project guide](../start/index.md). It links the
 supported installation decision, one explicitly trusted project, runtime
 selection, start preview, live health, and the local UI.
 

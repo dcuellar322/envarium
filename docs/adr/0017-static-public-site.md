@@ -3,7 +3,7 @@ title: "ADR-0017: Static public site and documentation portal"
 description: Keep the public website static, bounded, canonical, and backed by root documentation.
 category: concept
 audience: [contributor, maintainer]
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -17,6 +17,10 @@ authenticated adapter over privileged daemon capabilities and has a different
 deployment, navigation, content, and trust lifecycle from a public website.
 The root `docs/` tree already owns product documentation and must not gain a
 divergent website copy.
+
+Current refinements: [ADR-0028](0028-published-release-updater-feed.md) and
+[ADR-0029](0029-retired-documentation-routes.md) define the bounded updater and
+retired-document response exceptions. Ordinary content remains statically built.
 
 ## Decision
 

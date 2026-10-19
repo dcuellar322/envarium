@@ -4,7 +4,7 @@ description: Build and test capability-scoped out-of-process Envarium plugins.
 category: reference
 audience: [integrator, contributor]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 The public Go package `envarium.dev/envarium/sdk/plugin` contains the wire
@@ -59,7 +59,8 @@ guessing or fallback execution. A mismatch remains discoverable as an
 actionable error and is never enabled.
 
 Alpha protocol identifiers are unsupported by the v1 host and must be rebuilt
-with the stable SDK. For the stable plugin protocol:
+with the current SDK. These compatibility promises apply to published stable
+releases; development builds may change before the first stable release:
 
 - fields may be added only when older peers can safely ignore or default them;
 - methods, required fields, capabilities, and scopes are not repurposed;

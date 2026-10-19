@@ -3,7 +3,7 @@ title: "ADR-0021: Direct macOS socket inventory with compatibility fallback"
 description: Avoid recurring scan subprocesses while retaining kernel port and PID evidence.
 category: concept
 audience: [contributor, maintainer]
-lastVerified: 2026-10-17
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -12,9 +12,9 @@ lastVerified: 2026-10-17
 
 ## Context
 
-After removing lsof, repeated netstat subprocesses still consume approximately
-0.32% of a CPU core plus parent process creation and output parsing. The user
-requires under 1% combined overhead without reducing monitoring accuracy.
+Repeated socket-inventory subprocesses add process creation and output-parsing
+overhead. The adapter must reduce that work without weakening socket evidence
+or reducing monitoring accuracy.
 
 ## Decision
 

@@ -4,10 +4,10 @@ description: Dependency graphs, coordinated lifecycle, port leases, environments
 category: concept
 audience: [user, contributor, integrator]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
-Phase 13 adds coordination without turning the workspace domain into a second
+Workspace coordination uses the existing runtime drivers rather than a second
 runtime engine. The workspace application service validates and schedules a
 graph; each member lifecycle still enters the durable operation coordinator and
 the existing runtime application boundary.
@@ -68,6 +68,12 @@ Compose starts use a private mode-`0600` override with exact loopback host-port
 bindings. The override is validated with `docker compose config` before use.
 Logical offsets are never treated as proof that a concrete port is free.
 
+Native worktrees resolve explicit `${ports.ID}` references to their exact
+allocated ports. Each checkout has independent process ownership, logs, health,
+and metrics. Hard-coded command arguments are never rewritten. See the
+[native worktree guide](../how-to/native-worktrees.md) for configuration and
+reviewed checkout transitions.
+
 An environment is marked active only after its expected exact TCP binding is
 observed. Stop clears its route target but preserves registration and leases.
 Removed or bare worktrees remain explicit unavailable facts rather than fake
@@ -82,7 +88,7 @@ and never exposes a general forward proxy.
 
 The route registry distinguishes active, unavailable, conflicting, and
 disabled states. Unknown or inactive hostnames return `503`. HTTPS and local
-certificate management are outside this phase.
+certificate management are not provided by the local routing adapter.
 
 ## Recipes and destructive actions
 

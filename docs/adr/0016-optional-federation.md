@@ -3,7 +3,7 @@ title: "ADR-0016: Optional peer federation and signed shared configuration"
 description: Extend beyond one machine without weakening local-only defaults or ambient authority.
 category: concept
 audience: [integrator, contributor, maintainer]
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -11,11 +11,11 @@ lastVerified: 2026-07-17
 
 ## Context
 
-Envarium v1 deliberately trusts one local user and one local control plane.
-Post-v1 demand adds remote development machines, encrypted configuration sync,
-team templates, curated plugin metadata, and enterprise policy. Extending the
+The local control plane trusts one local user. Optional federation and shared
+configuration add remote development machines, encrypted sync, team templates,
+curated plugin metadata, and enterprise policy. Extending the
 loopback API over a network would leak ambient local authority, while requiring
-a Envarium cloud service would break the local-only product and deployment
+an Envarium cloud service would break the local-only product and deployment
 model.
 
 ## Decision
@@ -64,6 +64,5 @@ identity, organization billing, or fleet-wide secret distribution. Those
 would be separate products and require new decisions. Remote terminal access
 and arbitrary command execution remain intentionally absent.
 
-Current refinements: [ADR-0025](0025-origin-proof-and-reviewed-inputs.md)
-supersedes the browser cookie, replay retention and prelaunch compatibility
-exceptions where applicable.
+See [ADR-0025](0025-origin-proof-and-reviewed-inputs.md) for immutable
+reviewed-input digests, current authorization checks, and compatibility limits.

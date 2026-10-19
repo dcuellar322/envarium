@@ -4,7 +4,7 @@ description: Provider-neutral MCP, permission, audit, guidance, and agent-sessio
 category: concept
 audience: [user, integrator, contributor]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 Envarium exposes the same application use cases used by its CLI and browser
@@ -47,7 +47,8 @@ The default is `observe`. Destructive tools are therefore absent unless the
 MCP server is explicitly configured with `admin`. Project allowlists apply to
 reads, port-conflict evidence, and mutations. A project-scoped server cannot
 register another project, and proposal IDs are resolved to their owning project
-before trust authorization. Every mutation uses a caller-supplied idempotency key and
+before trust authorization. AI-assisted revisions require human approval even
+with an admin MCP profile. Every mutation uses a caller-supplied idempotency key and
 reaches the daemon over local IPC with `agent` and `provider/agent` identity
 headers. Operation and catalog audit records persist that non-secret origin.
 

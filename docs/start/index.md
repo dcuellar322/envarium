@@ -1,11 +1,11 @@
 ---
-title: Five-minute first-project path
+title: First-project guide
 description: Go from a supported installation to one trusted, observable local project.
 category: tutorial
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 slug: docs/start
 sidebar:
   order: 1

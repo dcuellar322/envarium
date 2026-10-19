@@ -3,7 +3,7 @@ title: "ADR-0014: Bounded log retention and redaction"
 description: Keep log memory and disk bounded while applying one redaction policy to every sink.
 category: concept
 audience: [contributor, integrator]
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -14,6 +14,9 @@ lastVerified: 2026-07-17
 Runtime logs are high-volume, may contain credentials, and are consumed live,
 persisted, exported, searched, and sent in optional diagnostics or provider
 evidence.
+
+Current refinement: [ADR-0019](0019-log-memory-ownership.md) removes the
+archive's duplicate ring while keeping bounded native capture and durable replay.
 
 ## Decision
 
@@ -29,6 +32,5 @@ Log memory and disk use stay predictable. Redaction correctness is a security
 quality gate across every sink. Full-text indexing and compression may be added
 without changing the canonical event model.
 
-Current refinements: [ADR-0025](0025-origin-proof-and-reviewed-inputs.md)
-supersedes the browser cookie, replay retention and prelaunch compatibility
-exceptions where applicable.
+See [ADR-0025](0025-origin-proof-and-reviewed-inputs.md) for reviewed-input
+digests and the separately bounded event replay journal.

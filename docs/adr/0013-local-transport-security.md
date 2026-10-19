@@ -3,7 +3,7 @@ title: "ADR-0013: Local IPC and browser session security"
 description: Protect privileged local clients and loopback browser mutations.
 category: concept
 audience: [contributor, integrator]
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -14,6 +14,11 @@ lastVerified: 2026-07-17
 CLI, desktop, MCP, and browser clients need local access to privileged
 capabilities. Loopback binding alone does not prevent cross-origin requests or
 access by other local users.
+
+The original cookie-based browser authentication below is superseded by
+[ADR-0025](0025-origin-proof-and-reviewed-inputs.md). Current browser clients
+use origin-scoped session proof for every HTTP and WebSocket request; bearer
+cookies carry no authority. Privileged IPC remains unchanged.
 
 ## Decision
 
