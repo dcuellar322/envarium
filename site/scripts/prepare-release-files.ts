@@ -1,7 +1,10 @@
+import { updaterPublicKey } from '../src/lib/releases/updaterConfig'
 import { createHash } from 'node:crypto'
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 import { validateReleaseFileSet } from '../src/lib/releases/releaseFiles'
+import { updaterAssetTarget, updaterTargets } from '../src/lib/releases/updater'
+import { verifyUpdaterPayload } from '../src/lib/releases/updaterSignature'
 import type { ReleaseChannelName } from '../src/lib/releases/types'
 import { repositoryRoot } from './paths'
 
@@ -43,6 +46,21 @@ const checksumEntries = await Promise.all(
   files.map(async (path) => `${await sha256(path)}  ${basename(path)}`),
 )
 const checksummedNames = new Set(fileNames)
+
+// Recheck signed payloads after matrix collection, before attestation or a draft.
+const publicKey = updaterPublicKey
+const targets = new Set<string>()
+for (const path of files) {
+  const target = updaterAssetTarget(basename(path))
+  if (!target) continue
+  if (targets.has(target)) throw new Error(`Duplicate updater payload for ${target}`)
+  targets.add(target)
+  verifyUpdaterPayload(await readFile(path), await readFile(`${path}.sig`, 'utf8'), publicKey)
+}
+if (channelArgument === 'stable') {
+  for (const target of updaterTargets)
+    if (!targets.has(target)) throw new Error(`Stable release is missing updater payload: ${target}`)
+}
 
 validateReleaseFileSet({
   channel: channelArgument as ReleaseChannelName,

@@ -50,3 +50,5 @@ Phase 0 subjects remain covered by the accepted records below.
 - [ADR-0024: Shared observations and sampling isolation](0024-shared-observation-and-sampling-isolation.md)
 
 - [ADR-0025: Origin proof and immutable reviewed inputs](0025-origin-proof-and-reviewed-inputs.md)
+
+- [ADR-0028: Published release updater feed](0028-published-release-updater-feed.md)

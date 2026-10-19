@@ -3,12 +3,7 @@ use tauri::plugin::TauriPlugin;
 use tauri::{AppHandle, Runtime};
 use tauri_plugin_notification::NotificationExt;
 
-#[cfg(not(debug_assertions))]
-const PUBLIC_KEY: &str = env!("ENVARIUM_UPDATER_PUBLIC_KEY");
-#[cfg(not(debug_assertions))]
-const ENDPOINT: &str = env!("ENVARIUM_UPDATER_ENDPOINT");
-
-#[cfg(any(not(debug_assertions), test))]
+#[cfg(test)]
 fn validate_endpoint(value: &str) -> Result<url::Url, String> {
     let endpoint = url::Url::parse(value)
         .map_err(|_| "the configured update endpoint is invalid".to_owned())?;
@@ -28,9 +23,7 @@ fn validate_endpoint(value: &str) -> Result<url::Url, String> {
 
 #[cfg(not(debug_assertions))]
 pub fn plugin<R: Runtime>() -> TauriPlugin<R, tauri_plugin_updater::Config> {
-    tauri_plugin_updater::Builder::new()
-        .pubkey(PUBLIC_KEY)
-        .build()
+    tauri_plugin_updater::Builder::new().build()
 }
 
 pub async fn check_and_install<R: Runtime>(app: AppHandle<R>) {
@@ -49,13 +42,7 @@ pub async fn check_and_install<R: Runtime>(app: AppHandle<R>) {
         use tauri_plugin_updater::UpdaterExt;
 
         let result = async {
-            let endpoint = validate_endpoint(ENDPOINT)?;
-            let updater = app
-                .updater_builder()
-                .endpoints(vec![endpoint])
-                .map_err(|error| error.to_string())?
-                .build()
-                .map_err(|error| error.to_string())?;
+            let updater = app.updater().map_err(|error| error.to_string())?;
             let Some(update) = updater.check().await.map_err(|error| error.to_string())? else {
                 return Ok::<_, String>(false);
             };
@@ -106,6 +93,22 @@ mod tests {
         )
         .unwrap();
         assert_eq!(endpoint.scheme(), "https");
+    }
+
+    #[test]
+    fn release_configuration_has_canonical_feed_and_public_trust() {
+        let config: serde_json::Value =
+            serde_json::from_str(include_str!("../tauri.release.conf.json")).unwrap();
+        let updater = &config["plugins"]["updater"];
+        let endpoints = updater["endpoints"].as_array().unwrap();
+        assert_eq!(endpoints.len(), 1);
+        let endpoint = validate_endpoint(endpoints[0].as_str().unwrap()).unwrap();
+        assert_eq!(
+            endpoint.as_str(),
+            "https://envarium.davidcuellar.tech/updates/stable.json"
+        );
+        assert!(!updater["pubkey"].as_str().unwrap().is_empty());
+        assert_eq!(config["bundle"]["createUpdaterArtifacts"], true);
     }
 
     #[test]

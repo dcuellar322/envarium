@@ -1,6 +1,7 @@
 # Go
 /bin/
 /dist/
+/desktop-artifacts/
 /coverage/
 /.cache/
 *.test

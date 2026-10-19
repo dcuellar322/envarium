@@ -30,9 +30,11 @@ repository owner's required review and a `v*`-tags-only deployment policy. The
 existing Apple API key authenticated successfully with the notarization service;
 the private API key and exported certificate were installed as encrypted
 environment secrets, and the owner added the certificate export password in
-GitHub. Updater configuration and other-platform signing credentials remain
-separate setup gates. No signed
-release has been built or published by this setup work.
+GitHub. Updater signing and Linux GPG signing were subsequently configured with
+Envarium-specific keys and restricted local backups. The stable feed is
+`https://envarium.davidcuellar.tech/updates/stable.json`. No public stable
+release has been published. Windows direct-download signing remains a separate
+credential gate: LeagueSaga has no Windows signing secrets configured.
 
 ## Release account setup
 
@@ -45,11 +47,11 @@ Before tagging the first release, a repository administrator needs to:
    `dev.envarium.desktop` and a Developer ID Application identity; supply a
    Windows Authenticode certificate matching the intended publisher; supply a
    Linux artifact-signing GPG key with a verified fingerprint.
-3. Generate and securely retain the Tauri updater signing key pair. Select a
-   maintained HTTPS update-feed URL and implement the signed response/artifact
-   hosting for each target, architecture, and release channel. The matching
-   public key is embedded in release builds. A URL and key alone do not publish
-   or maintain an update feed.
+3. Retain the existing encrypted Envarium updater key and its password in secure
+   backups. The reviewed public key and canonical stable endpoint live in
+   `desktop/src-tauri/tauri.release.conf.json`; native release builds and feed
+   verification share that configuration. Do not regenerate the key for a new
+   build: installed applications trust the existing key.
 4. Choose the release version/channel and exact reviewed commit. Build a draft
    from its tag, then complete the signed install, upgrade, retained-data
    reinstall, deep-link, and uninstall matrix before publishing it.
@@ -68,11 +70,10 @@ The release workflow consumes these environment secret names:
 | Windows signing | `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD` |
 | Linux signing | `LINUX_GPG_PRIVATE_KEY`, `LINUX_GPG_PASSPHRASE`, `LINUX_GPG_KEY_ID` |
 | Updater signing | `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` |
-| Embedded updater trust and feed | `ENVARIUM_UPDATER_PUBLIC_KEY`, `ENVARIUM_UPDATER_ENDPOINT` |
 
-Public-key and endpoint values are not themselves secrets, but the current
-workflow reads them from environment secrets. Do not change trust configuration
-after producing a reviewed artifact without rebuilding and revalidating it.
+Public-key and endpoint values are committed public configuration, not secrets.
+Do not change trust configuration after producing a reviewed artifact without
+rebuilding and revalidating it.
 
 ### Apple API key configuration
 
@@ -123,7 +124,9 @@ The certificate identifies the publisher, rather than one bundle ID. An
 **Apple Development** or Mac App Store distribution identity is not a substitute
 for Developer ID distribution. Envarium retains its own bundle identifier
 `dev.envarium.desktop`, entitlements, and notarized build artifacts. Every new
-distributed build still goes through notarization.
+distributed build still goes through notarization. Tauri notarizes the app; the
+release workflow separately notarizes and staples the signed DMG, then checks
+Gatekeeper for both the executable application and the downloadable disk image.
 
 Configure the matching Apple credentials in Envarium's protected
 `desktop-release` environment; existing credentials in another repository are
@@ -134,6 +137,72 @@ updater signatures are a separate trust mechanism from Apple's code signature.
 
 See [Apple's Developer ID certificate guidance](https://developer.apple.com/help/account/certificates/create-developer-id-certificates/)
 and [Tauri's macOS signing documentation](https://v2.tauri.app/distribute/sign/macos/).
+
+## Maintained updater feed
+
+The site build fetches GitHub release metadata and updater signatures. Only a
+published, non-prerelease stable tag is eligible. It requires Mac arm64, Mac
+Intel, Linux x86_64 AppImage, and Windows x86_64 NSIS payloads, signatures from
+the committed Envarium updater key, and exact asset URLs in this repository.
+Missing, duplicate, foreign-key, or incomplete targets fail the deployment.
+The build authenticates each signature's signed metadata; the release workflow
+and installed native updater additionally verify the complete payload bytes.
+
+A small, immutable Pages Worker serves `/updates/stable.json`: HTTP 204 before
+the first published stable release, otherwise Tauri's static JSON catalog.
+It has no runtime credentials, database, user mutations, or GitHub requests.
+Only this route invokes the Worker; the website remains static. Preview feeds
+always return 204. Publishing, editing, withdrawing, or deleting a GitHub release
+rebuilds the production site from master. A failed build retains the previously
+deployed feed. Binaries remain hosted by GitHub, and drafts are never offered.
+See [ADR-0028](adr/0028-published-release-updater-feed.md).
+
+The release workflow verifies every updater payload before uploading it and
+again before creating the draft. Mac archives gain architecture-specific names
+before matrix outputs are merged, preventing the two `Envarium.app.tar.gz`
+files from overwriting one another. Raw application directories are excluded
+from the release upload.
+
+## Linux artifact trust
+
+The dedicated RSA-3072 signing key expires on October 18, 2029. Its fingerprint is:
+
+```text
+2380BA10D0E6322DA0B3CD4D985DD308E9EE0B65
+```
+
+Download the [public Linux signing key](https://envarium.davidcuellar.tech/signing/envarium-linux.asc)
+and compare the fingerprint over an authenticated channel before importing it.
+The release job requires AppImage embedded signing to succeed, creates detached
+ASCII GPG signatures for AppImage, deb, and rpm files, and verifies each detached
+signature against the expected full fingerprint. For example:
+
+```bash
+gpg --import envarium-linux.asc
+gpg --fingerprint 2380BA10D0E6322DA0B3CD4D985DD308E9EE0B65
+gpg --verify Envarium_1.0.0_amd64.AppImage.asc Envarium_1.0.0_amd64.AppImage
+```
+
+Detached signatures authenticate the downloaded files. They do not configure an
+APT/RPM repository's metadata trust. Tauri updater signatures remain separate
+and mandatory for automated updates.
+
+## Windows signing availability
+
+A trusted Windows code-signing identity for the same publisher may sign multiple
+applications if its provider permits it. LeagueSaga currently has no
+`WINDOWS_CSC_LINK` or `WINDOWS_CSC_KEY_PASSWORD` secret, and its documented Store
+route receives Microsoft signing after app certification. That service does not
+supply a reusable private certificate for Envarium's direct MSI/NSIS downloads.
+A new Envarium Store listing would also need its own package identity and review.
+
+For the existing direct-download workflow, provide a trusted Authenticode
+certificate/private key and password through `WINDOWS_CERTIFICATE` (base64 PFX)
+and `WINDOWS_CERTIFICATE_PASSWORD`. A hardware or cloud signing identity instead
+requires the provider's supported signing integration; do not export a
+non-exportable key or substitute a self-signed test certificate. The workflow
+checks the signing EKU, expiry, private-key presence, and final installer
+Authenticode status/expected thumbprint. Missing credentials fail explicitly.
 
 ## Release channels
 
@@ -152,7 +221,7 @@ deliberately unsigned and are never updater-authoritative.
 
 The protected `desktop-release` environment supplies Apple credentials,
 `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD`, Linux GPG key material,
-updater signing keys, and updater endpoint/public-key configuration. Reviewers
+and updater signing keys. Reviewers
 confirm that no secret appears in logs or artifacts. The AppImage receives an
 embedded GPG signature; signed updater payloads and GitHub attestations cover
 every Linux bundle. Repository-specific deb/rpm metadata signing may be added

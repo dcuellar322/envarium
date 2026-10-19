@@ -144,3 +144,46 @@ a local debug build.
   unsigned local build.
 - The daemon intentionally outlives the desktop adapter so CLI, browser, MCP,
   and detached terminal sessions remain available.
+
+## October 19, 2026 — updater trust and release signing
+
+This vertical slice addresses Phase 15's signed updater and notarized packaging
+deliverables, plus Phase 18's cross-platform artifact trust. ADR-0028 records
+the narrow Pages response adapter needed for HTTP 204 before first publication.
+It does not introduce a daemon cloud dependency or move lifecycle policy to Rust.
+
+- Generated an encrypted, Envarium-specific updater key; verified the pinned
+  Tauri signer's output independently and rejected modified payload bytes.
+  Private key/password backups use mode 0600 in a mode 0700 directory outside
+  the checkout; GitHub stores them in the reviewed `desktop-release` environment.
+- Committed the public updater configuration, shared by native release builds,
+  release verification, and feed generation. The canonical stable feed excludes
+  drafts/prereleases and fails closed on missing/duplicate platforms, foreign
+  URLs, malformed signatures, or another signing key.
+- Added the bounded immutable feed Worker and publication/withdrawal rebuilds.
+  The empty catalog returns HTTP 204 without inventing a version or test release.
+- Prevented Mac architecture archive collisions, excluded raw application trees,
+  and added complete updater payload verification before upload and attestation.
+- Generated a dedicated RSA-3072 Linux identity, verified a live GPG signature,
+  configured release secrets, and published its public key/fingerprint in site
+  sources. Linux jobs require embedded AppImage signing and verify detached
+  signatures for each installer against the full expected fingerprint.
+- Confirmed LeagueSaga has no Windows signing secrets configured. Its Store
+  route relies on Microsoft's per-app certification/signing. No reusable Windows
+  private certificate was found. Direct MSI/NSIS release signing remains gated
+  on an appropriate publisher identity; self-signed test keys are not substituted.
+
+Focused site tests cover valid/tampered/foreign-key signatures, platform
+completeness, draft exclusion, HTTP 204/200/HEAD/method handling, static asset
+fallback, and architecture-specific collection names. Site lint/type/build/content
+validation and workflow lint passed locally. The production Mac app was accepted by Apple (submission
+`03b57029-75b8-4daa-a87a-1df609a37a56`); strict/deep code-signature verification,
+stapled-ticket validation, and Gatekeeper assessment passed with the expected
+Cuellar Labs LLC Developer ID and hardened runtime. The separately signed DMG was also accepted (submission
+`5f431bd9-5afb-44c2-a6f0-98bf088291ba`), stapled, accepted by Gatekeeper as
+Notarized Developer ID, and verified by `hdiutil`. Apple ticket-service checks
+retry transient failures at most three times and still fail on persistent errors.
+All 21 Rust tests, strict Clippy, 28 site tests, five release-tool tests, and
+Worker compile validation passed locally. Exact-commit hosted quality results
+remain a release gate; ordinary CI does not establish that protected
+Windows/Linux release jobs used credentials.

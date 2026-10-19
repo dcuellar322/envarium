@@ -1,4 +1,7 @@
 import { DEFAULT_SITE_URL, PRODUCT_NAME } from '../src/config/site'
+import { authenticateUpdaterSignature } from '../src/lib/releases/updaterSignature'
+import { updaterPublicKey } from '../src/lib/releases/updaterConfig'
+import { updaterTargets, type UpdaterFeed } from '../src/lib/releases/updater'
 
 const origin = process.env.SMOKE_SITE_URL ?? DEFAULT_SITE_URL
 const canonicalOrigin = process.env.SMOKE_CANONICAL_URL ?? origin
@@ -24,7 +27,21 @@ for (const route of routes) {
   if (!body.includes(`<link rel="canonical" href="${canonical.href}"`))
     problems.push(`${url.href}: canonical link missing or incorrect`)
 }
+const updater = await fetch(new URL('/updates/stable.json', origin))
+if (updater.status !== 204) {
+  if (updater.status !== 200) problems.push(`Updater feed returned HTTP ${updater.status}`)
+  else {
+    const feed = await updater.json() as UpdaterFeed
+    for (const target of updaterTargets) {
+      const platform = feed.platforms?.[target]
+      if (!platform?.url.startsWith(`https://github.com/dcuellar322/envarium/releases/download/v${feed.version}/`))
+        problems.push(`Updater feed has missing or foreign asset for ${target}`)
+      try { authenticateUpdaterSignature(platform?.signature ?? '', updaterPublicKey) }
+      catch { problems.push(`Updater feed has invalid signature for ${target}`) }
+    }
+  }
+}
 if (problems.length > 0) throw new Error(`Production smoke failed:\n- ${problems.join('\n- ')}`)
 console.log(
-  `Production smoke passed for ${routes.length} routes at ${origin} (canonical: ${canonicalOrigin}).`,
+  `Production smoke passed for ${routes.length} pages and the updater feed at ${origin} (canonical: ${canonicalOrigin}).`,
 )

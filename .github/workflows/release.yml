@@ -141,11 +141,21 @@ jobs:
           WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
           WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
         run: |
+          $ErrorActionPreference = 'Stop'
+          if (!$env:WINDOWS_CERTIFICATE -or !$env:WINDOWS_CERTIFICATE_PASSWORD) {
+            throw 'Configure a trusted Windows code-signing certificate and its password in desktop-release. Microsoft Store signing is not a reusable certificate.'
+          }
           $path = Join-Path $env:RUNNER_TEMP envarium-signing.pfx
-          [IO.File]::WriteAllBytes($path, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
-          $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
-          $certificate = Import-PfxCertificate -FilePath $path -CertStoreLocation Cert:\CurrentUser\My -Password $password
-          "thumbprint=$($certificate.Thumbprint)" >> $env:GITHUB_OUTPUT
+          try {
+            [IO.File]::WriteAllBytes($path, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
+            $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
+            $certificates = @(Import-PfxCertificate -FilePath $path -CertStoreLocation Cert:\CurrentUser\My -Password $password)
+            $signers = @($certificates | Where-Object { $_.HasPrivateKey -and $_.NotAfter -gt (Get-Date) -and $_.EnhancedKeyUsageList.ObjectId -contains '1.3.6.1.5.5.7.3.3' })
+            if ($signers.Count -ne 1) { throw 'Expected one unexpired Windows code-signing identity with a private key.' }
+            "thumbprint=$($signers[0].Thumbprint)" >> $env:GITHUB_OUTPUT
+          } finally {
+            Remove-Item $path -Force -ErrorAction SilentlyContinue
+          }
       - uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
         if: runner.os == 'Linux'
         with:
@@ -161,13 +171,42 @@ jobs:
           APPLE_API_ISSUER: ${{ vars.APPLE_API_ISSUER }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          ENVARIUM_UPDATER_PUBLIC_KEY: ${{ secrets.ENVARIUM_UPDATER_PUBLIC_KEY }}
-          ENVARIUM_UPDATER_ENDPOINT: ${{ secrets.ENVARIUM_UPDATER_ENDPOINT }}
           TAURI_CONFIG: ${{ runner.os == 'Windows' && format('{"bundle":{"windows":{"certificateThumbprint":"{0}","digestAlgorithm":"sha256","timestampUrl":"http://timestamp.digicert.com"}}}', steps.windows-signing.outputs.thumbprint) || '' }}
           SIGN: ${{ runner.os == 'Linux' && '1' || '' }}
           SIGN_KEY: ${{ runner.os == 'Linux' && secrets.LINUX_GPG_KEY_ID || '' }}
           APPIMAGETOOL_SIGN_PASSPHRASE: ${{ runner.os == 'Linux' && secrets.LINUX_GPG_PASSPHRASE || '' }}
           APPIMAGETOOL_FORCE_SIGN: ${{ runner.os == 'Linux' && '1' || '' }}
+      - name: Verify notarized Mac application
+        if: runner.os == 'macOS'
+        run: |
+          codesign --verify --deep --strict desktop/src-tauri/target/release/bundle/macos/Envarium.app
+          xcrun stapler validate desktop/src-tauri/target/release/bundle/macos/Envarium.app
+          spctl --assess --type execute --verbose=2 desktop/src-tauri/target/release/bundle/macos/Envarium.app
+      - name: Notarize and verify the signed Mac disk image
+        if: runner.os == 'macOS'
+        run: node scripts/notarize-macos-dmg.mjs
+        env:
+          APPLE_API_KEY: ${{ vars.APPLE_API_KEY }}
+          APPLE_API_ISSUER: ${{ vars.APPLE_API_ISSUER }}
+      - name: Verify Windows Authenticode signatures
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          EXPECTED_THUMBPRINT: ${{ steps.windows-signing.outputs.thumbprint }}
+        run: |
+          $files = Get-ChildItem desktop/src-tauri/target/release/bundle -Recurse -File | Where-Object { $_.Extension -in '.msi', '.exe' }
+          if (!$files) { throw 'No Windows installers found.' }
+          foreach ($file in $files) {
+            $signature = Get-AuthenticodeSignature $file.FullName
+            if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Thumbprint -ne $env:EXPECTED_THUMBPRINT) {
+              throw "Invalid or unexpected Authenticode signature: $($file.Name)"
+            }
+          }
+      - name: Verify and collect desktop release artifacts
+        run: pnpm --dir site exec tsx scripts/collect-desktop-artifacts.ts ${{ matrix.artifact }}
+        env:
+          SIGN_KEY: ${{ runner.os == 'Linux' && secrets.LINUX_GPG_KEY_ID || '' }}
+          APPIMAGETOOL_SIGN_PASSPHRASE: ${{ runner.os == 'Linux' && secrets.LINUX_GPG_PASSPHRASE || '' }}
       - name: Remove Apple notarization private key
         if: always() && runner.os == 'macOS'
         run: node -e 'require("node:fs").rmSync(require("node:path").join(process.env.RUNNER_TEMP,"envarium-notarization.p8"),{force:true})'
@@ -181,7 +220,7 @@ jobs:
         with:
           name: envarium-desktop-${{ matrix.artifact }}
           path: |
-            desktop/src-tauri/target/release/bundle/**/*
+            desktop-artifacts/*
             desktop-${{ matrix.artifact }}.cyclonedx.json
           if-no-files-found: error
 
