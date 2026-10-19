@@ -202,3 +202,35 @@ fuzzily match unrelated tokens, so an empty result set is not used as a content
 assertion. Repository, architecture, and generated-contract checks passed.
 Production verification follows deployment and is saved under ignored
 `output/playwright/docs-editorial/live/` artifacts.
+
+## Marketing and downloads editorial review — 2026-10-19
+
+This slice supports Phase 18's documentation, contributor build, and distribution
+criteria. Review the homepage, all feature pages, downloads, and public roadmap
+against source behavior and GitHub release availability. Keep internal reports
+excluded and Windows/WSL2 explicitly coming soon. No application architecture
+decision changes.
+
+Replace internal implementation terminology with project tasks. Correct plugin
+trust and sandbox claims, scope rebuild support to Compose, and distinguish local
+storage from optional external integrations. Make source builds actionable while
+there are no published GitHub releases. Do not display desktop installer steps
+for missing packages or CLI archive fallbacks. Document actual SBOM names and
+Homebrew availability, with Windows/WinGet still coming soon. Limit the roadmap
+to available source workflows and distribution priorities without speculative
+hosted services, internal release gates, or dates.
+
+Acceptance: site generation, types, lint, unit and browser checks; reviewed macOS
+and Linux visual baselines; working source-build links; desktop/mobile live
+crawls, search, sitemap and AI publication checks after the production workflow.
+Installer signing and clean-machine support remain separate release criteria.
+
+Local verification passed: `make site-quality` (39 unit tests, 121 built pages),
+final Astro/lint checks, repository/architecture/generated-contract checks,
+95 browser tests with 21 intentional skips, and six visual checks on each of
+macOS and the pinned Linux CI image. The macOS homepage reference was updated
+and reviewed. A screenshot review also widened the roadmap action buttons to
+keep their labels on one line. Both desktop and mobile full-page/link crawls
+passed again after that adjustment. Production verification receipts and screenshots
+are saved under ignored `output/playwright/marketing-editorial/live/` artifacts
+after deployment.

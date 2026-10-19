@@ -113,6 +113,21 @@ test('Windows and WSL2 are coming soon throughout installation', async ({ page }
   }
 })
 
+test('unpublished desktop packages lead to usable source build instructions', async ({ page }) => {
+  for (const platform of ['macos', 'linux']) {
+    await page.goto(`/download/${platform}/`)
+    await expect(page.locator('a[href*="releases/download/"]')).toHaveCount(0)
+    await expect(page.locator('aside ol')).toHaveCount(0)
+    await page.getByRole('link', { name: 'CLI build instructions' }).click()
+    await expect(page).toHaveURL(/\/download\/cli\/#build-from-source$/)
+    await expect(page.getByText('make build', { exact: false })).toBeVisible()
+    await page.goto(`/download/${platform}/`)
+    await page.getByRole('link', { name: 'Desktop build instructions' }).click()
+    await expect(page).toHaveURL(/\/docs\/desktop-installation\/#build-from-source$/)
+    await expect(page.getByText('make desktop-build', { exact: false })).toBeVisible()
+  }
+})
+
 test('search navigation opens search, handles no matches, and closes with Escape', async ({ page, isMobile }) => {
   await page.goto('/')
   if (isMobile) {

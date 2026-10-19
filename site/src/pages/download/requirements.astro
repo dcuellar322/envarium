@@ -3,7 +3,7 @@ import { platformGuides } from '@/content/download/platforms'
 import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
 ---
 
-<ContentPageLayout title="System requirements" eyebrow="Before downloading" description="Envarium runs without a cloud account. Runtime integrations are optional and reported as capabilities rather than hidden installation assumptions.">
+<ContentPageLayout title="System requirements" eyebrow="Before downloading" description="Envarium runs without a cloud account. Docker is needed only for Compose projects. Native projects use the development tools already installed on your machine.">
   <div class="requirements-grid">{platformGuides.map((guide) => <article class="panel"><h2>{guide.shortName}{guide.comingSoon && ' · Coming soon'}</h2><p>{guide.requirements}</p><span>{guide.primaryFormat}</span><a href={`/download/${guide.slug}/`}>{guide.comingSoon ? 'Platform status' : 'Install guide'} →</a></article>)}</div>
   <section class="shared panel"><h2>Shared requirements</h2><dl><div><dt>Docker</dt><dd>Optional. Install Docker Engine/Desktop and the Compose plugin only for Compose projects.</dd></div><div><dt>Git</dt><dd>Required for repository metadata, worktrees, source-control status, and repository-scoped actions.</dd></div><div><dt>Browser</dt><dd>A current Chromium, Firefox, or Safari-family browser for the loopback web UI.</dd></div><div><dt>Local storage</dt><dd>Space for the SQLite control database, bounded logs, metric history, and desktop preferences.</dd></div></dl></section>
 </ContentPageLayout>

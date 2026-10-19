@@ -15,7 +15,7 @@ const { release, asset, label, channel = 'stable' } = Astro.props
 <article class:list={['release-card', 'panel', !asset && 'unavailable']}>
   <div class="card-heading">
     <div>
-      <p class="eyebrow">Recommended</p>
+      <p class="eyebrow">{asset ? 'Recommended package' : 'Package availability'}</p>
       <h2>{label}</h2>
     </div>
     {release && <span class="version">{release.tag}</span>}
@@ -39,8 +39,8 @@ const { release, asset, label, channel = 'stable' } = Astro.props
   ) : (
     <div class="unavailable-copy">
       <strong>{`No published ${channel} package for this selection.`}</strong>
-      <p>Choose another platform, architecture, or release channel, or build from source on macOS or Linux.</p>
-      <div><a class="button" href="https://github.com/dcuellar322/envarium/releases">Watch GitHub Releases</a><a class="button quiet" href="/download/cli/#build-from-source">Build from source</a></div>
+      <p>{release ? 'Check another architecture or platform, or build from source on macOS or Linux.' : `No ${channel} release is published. You can build from source on macOS or Linux.`}</p>
+      <div><a class="button" href="https://github.com/dcuellar322/envarium/releases">Check GitHub Releases</a><a class="button quiet" href="/download/cli/#build-from-source">Build from source</a></div>
     </div>
   )}
 </article>

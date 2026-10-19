@@ -18,8 +18,8 @@ const stable = (releaseManifest as ReleaseManifest).channels.stable
       <DownloadButton />
       <a class="button" href={REPOSITORY_URL}>View on GitHub <span aria-hidden="true">↗</span></a>
     </div>
-    <p class="release-note"><span class:list={{ available: Boolean(stable) }}></span> {stable ? `${stable.tag} stable · macOS · Linux` : 'No public binaries yet · build from source on macOS or Linux'}</p>
-    <p class="platform-note">Windows and WSL2: <a href="/download/windows/">coming soon</a>.</p>
+    <p class="release-note"><span class:list={{ available: Boolean(stable) }}></span> {stable ? `${stable.tag} stable` : 'No stable binaries yet · build from source on macOS or Linux'}</p>
+    <p class="platform-note"><a href="/download/windows/">Windows</a> and <a href="/download/wsl/">WSL2</a>: coming soon.</p>
   </div>
   <figure class="product-frame">
     <div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>Envarium · Dashboard</span></div>
@@ -31,7 +31,7 @@ const stable = (releaseManifest as ReleaseManifest).channels.stable
       loading="eager"
       fetchpriority="high"
     />
-    <figcaption>Real product UI · deterministic Playwright fixture</figcaption>
+    <figcaption>Product screenshot with example projects.</figcaption>
   </figure>
 </section>
 

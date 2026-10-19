@@ -20,7 +20,7 @@ const asset = recommendAsset(release, selectedGuide.releasePlatform, architectur
 <ContentPageLayout
   title="Download Envarium"
   eyebrow="Install Envarium"
-  description={`Choose a platform and check package availability. ${release ? 'Published packages are linked below.' : 'No public binaries are published yet; you can build from source on macOS or Linux.'} Windows and WSL2 are coming soon.`}
+  description={`Choose a platform and check package availability. ${release ? 'Published packages are linked below.' : 'No stable binaries are published yet; you can build from source on macOS or Linux.'} Windows and WSL2 are coming soon.`}
 >
   <section class="download-grid">
     <aside class="selector panel" aria-label="Download selection">
@@ -45,7 +45,7 @@ const asset = recommendAsset(release, selectedGuide.releasePlatform, architectur
       ) : (
         <ReleaseDownloadCard release={manifest.channels[optionChannel]} asset={recommendAsset(manifest.channels[optionChannel], guide.releasePlatform, optionArchitecture)} label={`${guide.shortName} · ${optionArchitecture} · ${optionChannel}`} channel={optionChannel} />
       )}
-      <div class="requirements panel"><p class="eyebrow">{guide.comingSoon ? 'Planned requirements' : 'Before you install'}</p><h2>{guide.primaryFormat}</h2><p>{guide.requirements}</p><a href={`/download/${guide.slug}/`}>{guide.comingSoon ? 'Platform status' : 'Platform install guide'} →</a></div>
+      <div class="requirements panel"><p class="eyebrow">{guide.comingSoon ? 'Target requirements' : 'Before you install'}</p><h2>{guide.primaryFormat}</h2><p>{guide.requirements}</p><a href={`/download/${guide.slug}/`}>{guide.comingSoon ? 'Platform status' : 'Platform install guide'} →</a></div>
     </template>
   ))))}
   <section class="all-platforms" aria-labelledby="all-platforms-title">

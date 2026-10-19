@@ -11,19 +11,19 @@ const published = stable
 <section class="release container" aria-labelledby="latest-release-title">
   <div>
     <p class="eyebrow">Release status</p>
-    <h2 id="latest-release-title">{stable ? `Stable ${stable.tag}` : 'Source available. Binaries pending.'}</h2>
+    <h2 id="latest-release-title">{stable ? `Stable ${stable.tag}` : 'Build from source.'}</h2>
   </div>
   <div class="panel release-card">
     {stable ? (
       <>
         <div><strong>{stable.title}</strong><span>Published {published} · {stable.assets.length} release artifacts</span></div>
-        <p>{stable.summary ?? 'Read the reviewed GitHub release notes for highlights and upgrade guidance.'}</p>
+        <p>{stable.summary ?? 'Read the GitHub release notes for highlights and upgrade guidance.'}</p>
         <nav aria-label="Latest release links"><a href={`/changelog/${stable.tag}/`}>What changed</a><a href="/download/">Download</a><a href="/download/verify/">Verify</a></nav>
       </>
     ) : (
       <>
-        <div><strong>Build from source while installers are being prepared.</strong><span>macOS and Linux source builds are available. Windows and WSL2 are coming soon.</span></div>
-        <nav aria-label="Current availability"><a href="/download/cli/#build-from-source">Build from source</a><a href="/changelog/">Release policy</a></nav>
+        <div><strong>No stable installers have been published.</strong><span>Build the CLI and browser UI on macOS or Linux, or follow the desktop build guide. Windows and WSL2 are coming soon.</span></div>
+        <nav aria-label="Current availability"><a href="/download/cli/#build-from-source">Build the CLI</a><a href="/docs/desktop-installation/">Build the desktop app</a><a href="/changelog/">Release history</a></nav>
       </>
     )}
   </div>

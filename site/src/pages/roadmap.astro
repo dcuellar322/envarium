@@ -1,29 +1,31 @@
 ---
 import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+import releaseManifest from '@/data/release-manifest.json'
+import type { ReleaseManifest } from '@/lib/releases/types'
 
+const stable = (releaseManifest as ReleaseManifest).channels.stable
 const lanes = [
-  { status: 'Implemented in source', tone: 'done', note: 'Available in the repository today; public binary availability is tracked separately.', items: ['Project discovery and explicit trust', 'Compose and native-process lifecycle', 'Logs, health, ports, Git, terminals, and resources', 'Permissioned MCP tools and provider-neutral agent workflows', 'Desktop, web, CLI, plugin, and federation adapters'] },
-  { status: 'Committed for public release', tone: 'next', note: 'Required launch work with no date promise until signed artifacts and platform validation are ready.', items: ['Reviewed stable GitHub Release', 'Signed desktop installers and CLI archives', 'Windows and WSL2 support — coming soon', 'Homebrew publication after stable validation', 'Clean-machine installation and upgrade verification'] },
-  { status: 'Exploratory', tone: 'later', note: 'Direction, not a commitment. These items require evidence and a reviewed plan change.', items: ['Additional package ecosystems based on demand', 'Broader federation workflows', 'Community integration adapters', 'Optional hosted coordination that preserves local-first boundaries'] },
+  { status: 'Available today', tone: 'done', note: stable ? `Stable ${stable.tag} is published. Check downloads for platform packages, or build from source.` : 'Build on macOS or Linux today. Stable installers have not been published.', items: ['Review and approve discovered project commands', 'Start and stop Compose services and local processes', 'Inspect logs, health, ports, Git status, and resource usage', 'Run related projects and separate worktrees', 'Use project terminals and permissioned coding-agent tools'] },
+  { status: 'Release priorities', tone: 'next', note: 'Upcoming distribution and platform support. No release date has been announced.', items: ['Signed macOS and Linux desktop installers', 'CLI archives with checksums, signatures, and SBOMs', 'Windows and WSL2 support — coming soon', 'Homebrew installation for a published stable release', 'Reliable installation, upgrades, and removal on supported systems'] },
 ]
 ---
 
-<ContentPageLayout title="Roadmap" eyebrow="Project status" description="What you can build today and what still needs release testing. Windows and WSL2 are coming soon; follow GitHub issues for progress.">
+<ContentPageLayout title="Roadmap" eyebrow="Project status" description="What you can use from source today and where release work is focused. Windows and WSL2 are coming soon; follow GitHub issues for progress.">
   <div class="roadmap">{lanes.map((lane) => <section class={`lane panel ${lane.tone}`}><div><span>{lane.status}</span><p>{lane.note}</p></div><ul>{lane.items.map((item) => <li>{item}</li>)}</ul></section>)}</div>
-  <aside class="source panel"><div><strong>Follow development on GitHub.</strong><span>Issues track proposed work and known problems. Release dates depend on packaging and platform testing.</span></div><a class="button" href="https://github.com/dcuellar322/envarium/issues">Browse issues</a><a class="button quiet" href="/community/">Propose a direction</a></aside>
+  <aside class="source panel"><div><strong>Follow development on GitHub.</strong><span>Report a problem or propose a feature through the community links. Check release notes for published packages.</span></div><a class="button" href="https://github.com/dcuellar322/envarium/issues">Browse issues</a><a class="button quiet" href="/community/">Propose a feature</a></aside>
 </ContentPageLayout>
 
 <style>
-  .roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
+  .roadmap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.9rem; }
   .lane { overflow: hidden; }
   .lane > div { min-height: 10rem; padding: 1.4rem; border-bottom: 1px solid var(--sy-border-subtle); }
   .lane > div > span { font-size: 1.1rem; font-weight: 800; }
   .lane.done > div > span { color: var(--sy-status-success); }
   .lane.next > div > span { color: var(--sy-accent-primary); }
-  .lane.later > div > span { color: var(--sy-status-warning); }
   .lane p, .source span { color: var(--sy-text-muted); }
   .lane ul { display: grid; gap: 0.8rem; margin: 0; padding: 1.4rem 1.4rem 1.4rem 2.6rem; }
   .source { display: flex; align-items: center; gap: 0.7rem; margin-top: 2rem; padding: 1.2rem; }
   .source div { display: grid; margin-right: auto; }
+  .source > a { flex-shrink: 0; }
   @media (max-width: 860px) { .roadmap { grid-template-columns: 1fr; } .lane > div { min-height: 0; } .source { align-items: stretch; flex-direction: column; } }
 </style>
