@@ -234,3 +234,36 @@ keep their labels on one line. Both desktop and mobile full-page/link crawls
 passed again after that adjustment. Production verification receipts and screenshots
 are saved under ignored `output/playwright/marketing-editorial/live/` artifacts
 after deployment.
+
+## Integration and community editorial review — 2026-10-19
+
+This slice maps to Phase 18's integration documentation and contributor onboarding
+criteria. Review integration pages, community, contributing, and changelog against
+the installers, permission profiles, platform launchers, Makefile, issue forms,
+and GitHub Releases. Preserve the existing publication exclusions, stable URLs,
+and Windows/WSL2 coming-soon status. No architecture decision changes.
+
+Explain project-local installation versus authorization allowlists, installer
+file changes and manual removal, read-only stdio client configuration, custom
+data directories, and human approval of AI-assisted revisions. Correct the VS
+Code launcher requirements and replace adapter terminology with setup tasks.
+Make community reports actionable and contributor checks explicit. Remove
+internal release-validation wording and unsupported availability assurances.
+Historical release pages must link to their own GitHub release and label the
+channel selector as latest downloads, rather than implying it selects that tag.
+
+Acceptance requires site quality, repository/architecture/generated checks,
+browser and visual checks, source/configuration links, truthful empty changelog
+and RSS, an isolated historical-release build, and production page/search,
+publication and screenshot verification after commit, push, and deployment.
+
+Local verification passed: `make site-quality` (39 unit tests, no Astro
+diagnostics, 121 HTML pages), repository/architecture/generated-contract checks,
+103 browser checks with 21 intentional skips, and six visual checks on each of
+macOS and the pinned Linux CI image. Updated community references and integration
+and contributor screenshots were reviewed. An isolated build of the actual
+changelog pages with two synthetic prereleases verifies exact historical GitHub
+links, explicitly latest-channel downloads, missing-note fallback, and two RSS
+items. The production release manifest remains empty and unchanged. Fixture
+evidence is under ignored `output/playwright/community-editorial/local/`;
+production receipts and screenshots follow under its `live/` directory.

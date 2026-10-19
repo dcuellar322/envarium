@@ -3,7 +3,7 @@ import { integrations } from '@/content/marketing/integrations'
 import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
 ---
 
-<ContentPageLayout title="Integrations that preserve your workflow" eyebrow="Toolchain" description="Use your existing Docker configuration, start commands, and editor. Connect coding agents through permission-scoped MCP tools.">
+<ContentPageLayout title="Connect your development tools" eyebrow="Integrations" description="Use your existing Docker configuration, start commands, and editor. Give coding agents access to the project operations you choose. Windows and WSL2 support is coming soon.">
   <div class="integration-grid">{integrations.map((integration) => <a class="panel" href={`/integrations/${integration.slug}/`}><h2>{integration.name}</h2><p>{integration.summary}</p><span>Integration guide →</span></a>)}</div>
 </ContentPageLayout>
 

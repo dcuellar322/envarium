@@ -10,17 +10,34 @@ interface Props { integration: Integration }
 const { integration } = Astro.props as Props
 const agentIntegration = integration.slug === 'codex' || integration.slug === 'claude-code' || integration.slug === 'mcp'
 const installCommand = integration.slug === 'codex' ? 'envarium agent install codex --profile observe' : integration.slug === 'claude-code' ? 'envarium agent install claude --profile observe' : integration.slug === 'mcp' ? 'envarium mcp serve --transport stdio --profile observe' : undefined
+const installedFiles = integration.slug === 'codex'
+  ? ['.codex/config.toml', '.agents/skills/envarium-operate/SKILL.md', 'AGENTS.md']
+  : integration.slug === 'claude-code'
+    ? ['.mcp.json', '.claude/skills/envarium-operate/SKILL.md', 'AGENTS.md', 'CLAUDE.md']
+    : []
+const clientConfig = JSON.stringify({ type: 'stdio', command: '/absolute/path/to/envarium', args: ['mcp', 'serve', '--transport', 'stdio', '--profile', 'observe'] }, null, 2)
 ---
 
 <ContentPageLayout title={`${integration.name} integration`} eyebrow="Integration" description={integration.description}>
+  <p class="prerequisite">First, <a href="/download/">install or build Envarium</a> on macOS or Linux. Windows and WSL2 support is coming soon.</p>
   <section class="setup-grid"><div><p class="eyebrow">Setup</p><h2>Set up the integration.</h2></div><ol>{integration.setup.map((step) => <li>{step}</li>)}</ol></section>
-  {installCommand && <section class="command panel"><div><h2>Start with observation only.</h2><p>Expand to <code>develop</code> after reviewing project scope and the mutation tools that become available.</p></div><pre tabindex="0"><code>{installCommand}</code></pre></section>}
-  {agentIntegration && <div class="agent-grid"><article class="panel"><h2>Permission profiles</h2><p><strong>observe</strong> reads bounded state. <strong>develop</strong> adds lifecycle and approved actions. <strong>maintain</strong> adds rebuild and proposal creation. <strong>admin</strong> is explicit and never the default.</p></article><article class="panel"><h2>Safe workflow</h2><p>List projects, read status, queue one mutation with a stable request ID, wait for the durable operation, then verify health and redacted errors.</p></article><article class="panel"><h2>Authorization failures</h2><p>A missing tool means the profile or project scope does not grant it. Change the reviewed local configuration; prompt text cannot grant capability.</p></article><article class="panel"><h2>Remove the integration</h2><p>Remove the client MCP entry created by the installer. This does not delete Envarium projects, local data, or the daemon.</p></article></div>}
+  {installCommand && <section class="command panel"><div><h2>Start with read-only access.</h2><p>{integration.slug === 'mcp' ? 'Let your MCP client launch this server over stdio. Replace the example binary path below; the exact configuration wrapper depends on your client.' : 'Run this from the repository root. The default installation writes project-local configuration and guidance; review the changed files before using them.'}</p></div><pre tabindex="0" data-mcp-config={integration.slug === 'mcp' ? '' : undefined}><code>{integration.slug === 'mcp' ? clientConfig : installCommand}</code></pre></section>}
+  {agentIntegration && <div class="agent-grid">
+    <article class="panel"><h2>Limit project access</h2><p>Add <code>--project PROJECT_ID</code> to the server arguments or installer command for each project the client may access. Without this allowlist, it can access all registered projects permitted by its profile. Project-local configuration alone does not restrict project access.</p><p>Use <code>envarium project list</code> to find project IDs. For a custom data directory, pass <code>--data-dir /absolute/path/to/data</code> before <code>agent install</code> or <code>mcp serve</code> so the CLI and client use the same projects.</p></article>
+    <article class="panel"><h2>Permission profiles</h2><p><strong>observe</strong> allows reads. <strong>develop</strong> adds service operations and approved actions, excluding destructive actions. <strong>maintain</strong> adds deploy, rebuild, and configuration proposals. <strong>admin</strong> adds destructive operations and approval of discovered configuration. AI-generated revisions still require human approval.</p></article>
+    <article class="panel"><h2>Check the result</h2><p>Read project status before changing services. Give each change its own request ID, wait for the operation result, then check health and logs. Reuse a request ID only when retrying the same request.</p></article>
+    <article class="panel"><h2>Authorization failures</h2><p>Check the server’s permission profile, project allowlist, and the client’s loaded tool list. Requests outside that scope are denied. After changing configuration, reload the client connection. Prompt text cannot grant permissions.</p></article>
+    {installedFiles.length > 0 && <article class="panel"><h2>Files changed by the installer</h2><p>The default project installation writes or updates:</p><ul>{installedFiles.map((file) => <li><code>{file}</code></li>)}</ul><p>Review the diff and preserve any existing configuration. With <code>--scope user</code>, the MCP entry goes in <code>{integration.slug === 'codex' ? '~/.codex/config.toml' : '~/.claude.json'}</code> and the skill goes in your home directory. Project guidance is not added in that mode.</p></article>}
+    <article class="panel"><h2>Remove the integration</h2><p>{installedFiles.length > 0 ? 'Remove the Envarium MCP entry, its envarium-operate skill, and the marked Envarium guidance block. Keep unrelated configuration and guidance.' : 'Remove the Envarium server entry from your MCP client’s configuration and reload the client.'} Envarium projects and local data are retained.</p>{integration.slug === 'claude-code' && <p>Remove the <code>@AGENTS.md</code> import in <code>CLAUDE.md</code> only if you no longer use it.</p>}</article>
+  </div>}
   <section class="docs-link panel"><div><p class="eyebrow">Documentation</p><h2>Commands and configuration</h2></div><a class="button" href={integration.docsHref}>Open reference</a></section>
 </ContentPageLayout>
 
 <style>
   .setup-grid { display: grid; grid-template-columns: 0.75fr 1.25fr; gap: 3rem; }
+  .prerequisite { margin: 0 0 2rem; color: var(--sy-text-muted); }
+  .prerequisite a { color: var(--sy-accent-primary); }
+  article code { overflow-wrap: anywhere; }
   h2 { margin: 0.35rem 0; font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1; }
   ol { display: grid; gap: 1rem; margin: 0; padding-left: 1.4rem; color: var(--sy-text-muted); }
   li { border-bottom: 1px solid var(--sy-border-subtle); padding: 0 0 0.8rem 0.4rem; }

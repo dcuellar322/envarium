@@ -58,6 +58,30 @@ test('Codex integration documents setup and authorization failures', async ({ pa
   await expect(page.getByText(/remov/i).first()).toBeVisible()
 })
 
+test('generic MCP setup provides a read-only stdio configuration and reference', async ({ page }) => {
+  await page.goto('/integrations/mcp/')
+  const configuration = JSON.parse(await page.locator('[data-mcp-config]').innerText()) as { type: string; command: string; args: string[] }
+  expect(configuration.type).toBe('stdio')
+  expect(configuration.command).toMatch(/^\//)
+  expect(configuration.args.slice(0, 2)).toEqual(['mcp', 'serve'])
+  expect(configuration.args[configuration.args.indexOf('--profile') + 1]).toBe('observe')
+  await page.getByRole('link', { name: 'Open reference', exact: true }).click()
+  await expect(page).toHaveURL(/\/docs\/mcp\/$/)
+  await expect(page.getByRole('heading', { name: 'Install', exact: true })).toBeVisible()
+})
+
+test('unpublished changelog offers source builds and an empty release feed', async ({ page, request }) => {
+  await page.goto('/changelog/')
+  await expect(page.getByRole('heading', { name: 'No public releases yet' })).toBeVisible()
+  await page.getByRole('link', { name: 'Desktop build instructions' }).click()
+  await expect(page).toHaveURL(/\/docs\/desktop-installation\/#build-from-source$/)
+  const feed = await request.get('/changelog/rss.xml')
+  expect(feed.ok()).toBe(true)
+  const xml = await feed.text()
+  expect(xml).toContain('<rss')
+  expect(xml).not.toContain('<item>')
+})
+
 test('community routes questions, bugs, proposals, and security correctly', async ({ page }) => {
   await page.goto('/community/')
   await expect(page.getByRole('link', { name: /Ask a question/ })).toHaveAttribute('href', /question\.yml/)

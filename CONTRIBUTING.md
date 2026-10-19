@@ -33,8 +33,8 @@ After changing documentation or API contracts, run `pnpm site:generate` and
 include `docs/generated/`, `site/public/llms.txt`, and `site/public/llms-full.txt`
 in the same commit. `make quality` and public-site CI both run
 `make site-generate-check` to detect stale generated documentation.
-The repository `Makefile` and CI workflow become the canonical entry points as
-they are introduced. Generated contracts and schemas must be reproducible and
+The repository `Makefile` and CI workflows are the canonical check entry points.
+Generated contracts and schemas must be reproducible and
 clean after generation.
 
 Every completed phase updates `docs/progress/phase-XX.md` with commands,

@@ -2,9 +2,9 @@
 import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
 
 const steps = [
-  { number: '01', title: 'Choose an issue', body: 'Look for a good first issue, reproduce a bug, or suggest a documentation fix. Discuss larger changes in an issue before implementing them.', link: 'https://github.com/dcuellar322/envarium/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22', label: 'Find a starter issue' },
+  { number: '01', title: 'Choose an issue', body: 'Reproduce a bug or suggest a documentation fix. Search existing issues and discuss larger changes before implementing them.', link: 'https://github.com/dcuellar322/envarium/issues', label: 'Browse open issues' },
   { number: '02', title: 'Read the architecture rules', body: 'Begin with AGENTS.md and the accepted ADRs relevant to your change. Create an ADR before reversing an accepted decision.', link: '/docs/architecture/', label: 'Architecture overview' },
-  { number: '03', title: 'Bootstrap locally', body: 'Use the pinned Go, Node, pnpm, and Rust toolchains. The repository bootstrap generates all contracts and installs frontend dependencies.' },
+  { number: '03', title: 'Set up locally', body: 'Install Go and Node from .go-version and .node-version, and the pnpm version in package.json. Desktop builds and the full quality suite also need the Rust toolchain and operating-system dependencies. Bootstrap installs JavaScript dependencies and regenerates Go contracts and web clients.' },
   { number: '04', title: 'Implement and verify', body: 'Add behavior and tests together. Cover failure, cancellation, permission, and reconciliation paths when they apply.' },
   { number: '05', title: 'Submit a small pull request', body: 'Explain the user-visible outcome and architecture impact, include validation evidence, and complete the repository checklist.', link: 'https://github.com/dcuellar322/envarium/compare', label: 'Open a pull request' },
 ]
@@ -15,7 +15,10 @@ const steps = [
 cd envarium
 make bootstrap
 make repository-check</code></pre>}{step.link && <a href={step.link}>{step.label} →</a>}</div></section>)}</div>
-  <section class="rules"><div><p class="eyebrow">Pull request checklist</p><h2>Before you submit</h2></div><div class="panel"><ul><li>Preserve adapter → application → domain dependency direction.</li><li>Keep HTTP, CLI, MCP, UI, Tauri, and provider adapters thin.</li><li>Do not expose unrestricted shell operations or bypass project trust.</li><li>Regenerate API, schema, and agent-readable contracts.</li><li>Update the relevant progress evidence honestly.</li><li>Use a conventional commit with one intent.</li></ul><nav><a href="https://github.com/dcuellar322/envarium/blob/master/CONTRIBUTING.md">Full contributing guide</a><a href="https://github.com/dcuellar322/envarium/blob/master/AGENTS.md">Repository rules</a><a href="/docs/adapter-development/">Adapter guide</a><a href="/docs/adr/">Architecture decisions</a></nav></div></section>
+  <section class="checks panel"><h2>Run the checks for your change</h2><p><code>make repository-check</code> checks repository policy; it does not run application tests. Follow the full contributing guide for the checks relevant to your change. The complete application suite is <code>make quality</code> and includes desktop builds.</p><p>For public-site changes, run:</p><pre><code>make site-quality
+pnpm site:test:e2e
+pnpm site:test:visual</code></pre><p>After changing documentation or contracts, run <code>pnpm site:generate</code> and include updated generated files. Use macOS or Linux for source builds. Windows and WSL2 support is coming soon.</p><a href="/docs/desktop-installation/#build-from-source">Desktop build dependencies →</a></section>
+  <section class="rules"><div><p class="eyebrow">Pull request checklist</p><h2>Before you submit</h2></div><div class="panel"><ul><li>Preserve adapter → application → domain dependency direction.</li><li>Keep HTTP, CLI, MCP, UI, Tauri, and provider adapters thin.</li><li>Do not expose unrestricted shell operations or bypass project trust.</li><li>Regenerate API, schema, and agent-readable documentation when it changes.</li><li>Report the checks you ran, their results, and anything you could not verify.</li><li>Use a conventional commit with one intent.</li></ul><nav><a href="https://github.com/dcuellar322/envarium/blob/master/CONTRIBUTING.md">Full contributing guide</a><a href="https://github.com/dcuellar322/envarium/blob/master/AGENTS.md">Repository rules</a><a href="/docs/adapter-development/">Adapter guide</a><a href="/docs/adr/">Architecture decisions</a></nav></div></section>
   <div class="conduct panel"><strong>Community conduct</strong><span>Participation is governed by the Contributor Covenant. Be respectful, specific, and constructive.</span><a href="https://github.com/dcuellar322/envarium/blob/master/CODE_OF_CONDUCT.md">Read the code of conduct →</a></div>
 </ContentPageLayout>
 
@@ -25,7 +28,10 @@ make repository-check</code></pre>}{step.link && <a href={step.link}>{step.label
   .step > span { color: var(--sy-accent-primary); font: 800 1rem var(--sy-font-mono); }
   .step h2 { margin: 0; }
   .step p { color: var(--sy-text-muted); }
-  .step a, .rules a, .conduct a { color: var(--sy-accent-primary); font-weight: 760; text-decoration: none; }
+  .step a, .rules a, .conduct a, .checks a { color: var(--sy-accent-primary); font-weight: 760; text-decoration: none; }
+  .checks { margin-top: 2rem; padding: 1.4rem; }
+  .checks h2 { margin-top: 0; }
+  .checks p { color: var(--sy-text-muted); }
   pre { overflow: auto; border: 1px solid var(--sy-border-subtle); border-radius: 0.7rem; background: var(--sy-bg-canvas); padding: 1rem; color: var(--sy-text-primary); }
   .rules { display: grid; grid-template-columns: 0.75fr 1.25fr; gap: 2rem; margin-top: 5rem; }
   .rules h2 { max-width: 10ch; margin: 0.4rem 0; font-size: clamp(2.4rem, 4vw, 4rem); line-height: 1; }
