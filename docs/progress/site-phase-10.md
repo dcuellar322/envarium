@@ -118,3 +118,28 @@ navigation, preventing preview-only success. This uses the
 
 Deployment and live verification results are reported with the completed
 workflow run. Signed binary installation remains a separate release gate.
+
+## Publication boundary — 2026-10-19
+
+This documentation slice maps to Phase 18's public documentation and contributor
+onboarding criteria. Keep maintainer evidence in Git without publishing it as
+product documentation. Acceptance requires excluded HTML and raw Markdown
+routes to return 404, no excluded sitemap or Pagefind entries, no excluded
+content in either AI export, retained public guides and contributor references,
+and a verified production deployment.
+
+The shared publication policy excludes every current and future `progress/`
+report, website launch policy/checklist, rebrand checklist, and internal
+capability review. Remove internal-report links from public indexes; remaining
+source-relative links to excluded documents resolve to GitHub. Static build
+validation and regression tests enforce the boundary. Production verification
+is recorded after the deployment completes.
+
+Local verification: `make site-quality` passed with zero Astro diagnostics,
+37 unit tests, and 120 validated HTML pages (42 internal documents excluded).
+The cross-browser suite passed 91 tests with 21 intentional skips, including
+120-page desktop/mobile crawls and publication/search checks. All six macOS
+visual baselines passed unchanged. Repository, architecture, and generated
+contract checks passed. All 38 progress sources and four excluded maintainer
+records remain in Git. Live verification follows the production workflow and
+is saved under ignored `output/playwright/publication/live/` artifacts.

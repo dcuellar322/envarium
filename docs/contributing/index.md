@@ -17,7 +17,6 @@ editing code.
 - [Engineering conventions](../conventions/README.md)
 - [Adapter development](../adapter-development.md)
 - [Release engineering](../release.md)
-- [Phase evidence](../progress/phase-00.md)
 
 One pull request should implement one roadmap phase or one coherent vertical
 slice, add tests with the behavior, and report unverified criteria honestly.

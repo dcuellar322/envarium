@@ -19,6 +19,10 @@ describe('documentation links', () => {
   it('links repository files outside docs to their source', () => {
     expect(documentationHref(source('index.md'), '../AGENTS.md')).toBe('https://github.com/dcuellar322/envarium/blob/master/AGENTS.md')
   })
+  it('keeps links to unpublished maintainer documents on GitHub', () => {
+    expect(documentationHref(source('contributing/index.md'), '../progress/phase-00.md')).toBe('https://github.com/dcuellar322/envarium/blob/master/docs/progress/phase-00.md')
+    expect(documentationHref(source('index.md'), 'public-site.md#privacy')).toBe('https://github.com/dcuellar322/envarium/blob/master/docs/public-site.md#privacy')
+  })
   it('fails the build for a missing Markdown destination', () => {
     expect(() => documentationHref(source('index.md'), 'missing-document.md')).toThrow('Missing documentation link')
   })

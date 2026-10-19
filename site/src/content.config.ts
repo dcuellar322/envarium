@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content'
 import { glob } from 'astro/loaders'
 import { z } from 'astro/zod'
 import { docsSchema } from '@astrojs/starlight/schema'
+import { publicDocumentationPatterns } from './lib/docs/publication'
 
 const docMetadata = z.object({
   category: z
@@ -17,7 +18,7 @@ const docMetadata = z.object({
 export const collections = {
   docs: defineCollection({
     loader: glob({
-      pattern: '**/*.{md,mdx}',
+      pattern: publicDocumentationPatterns,
       base: '../docs',
       generateId: ({ entry }) => {
         const path = entry.replace(/\.(md|mdx)$/, '').replace(/(^|\/)README$/, '$1index')

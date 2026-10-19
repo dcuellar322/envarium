@@ -128,3 +128,19 @@ missing destinations. Do not fork the root documentation to repair site links.
 The exhaustive page journey checks routes, fragments, images, heading counts,
 overflow, and uncaught browser errors; set `SITE_AUDIT_SCREENSHOTS=1` to capture
 every built page on desktop and mobile under `output/playwright/site-audit/`.
+
+## Documentation publication boundary
+
+The repository also holds internal implementation records. The shared policy in
+`site/src/lib/docs/publication.ts` excludes `docs/progress/`, the website launch
+contract and checklist, the rebrand checklist, and the internal capability
+review before Starlight loads content. This removes their HTML and raw Markdown
+routes, Pagefind search entries, sitemap URLs, and both AI exports. Keep those
+source files in the repository; website exclusion does not make a public
+repository private.
+
+Publish user guides, reference material, architecture, ADRs, security boundaries,
+and contribution instructions. Keep numbered implementation reports, acceptance
+ledgers, operational checklists, and test logs in the excluded maintainer paths.
+Both AI exports use the same policy. Build validation and browser tests check
+that excluded routes stay unavailable and search still finds public guides.

@@ -1,7 +1,8 @@
 import { readdir, readFile, stat } from 'node:fs/promises'
 import { extname, relative, resolve } from 'node:path'
 import { DEFAULT_SITE_URL, PRODUCT_NAME } from '../src/config/site'
-import { siteRoot } from './paths'
+import { docsRoot, siteRoot } from './paths'
+import { isPublicDocumentation } from '../src/lib/docs/publication'
 
 const dist = resolve(siteRoot, 'dist')
 
@@ -47,6 +48,23 @@ if (largestJs && largestJs.size > 200_000) problems.push(`JavaScript asset ${rel
 
 for (const route of ['index.html', 'download/index.html', 'docs/index.html', 'community/index.html', 'changelog/index.html', 'llms.txt', 'llms-full.txt', 'sitemap-index.xml']) {
   if (!files.includes(resolve(dist, route))) problems.push(`missing required build output ${route}`)
+}
+
+// Check publication output, not just navigation: removed documents must have no
+// HTML, raw Markdown, sitemap entry, or source section in either AI export.
+const internalSources = (await filesUnder(docsRoot)).filter((path) => /\.mdx?$/.test(path) && !isPublicDocumentation(relative(docsRoot, path)))
+const sitemap = (await Promise.all(files.filter((path) => /sitemap.*\.xml$/.test(path)).map((path) => readFile(path, 'utf8')))).join('\n')
+const exports = await Promise.all(['llms.txt', 'llms-full.txt'].map((name) => readFile(resolve(dist, name), 'utf8')))
+for (const source of internalSources) {
+  const route = `/docs/${relative(docsRoot, source).replace(/\.mdx?$/, '')}`
+  for (const output of [`${route}/index.html`, `${route}.md`, `${route}.html`]) {
+    if (files.includes(resolve(dist, output.slice(1)))) problems.push(`internal document published: ${output}`)
+  }
+  if (sitemap.includes(`${route}/`)) problems.push(`internal document in sitemap: ${route}`)
+  const sourceText = await readFile(source, 'utf8')
+  const title = /^title:\s*["']?(.+?)["']?$/m.exec(sourceText)?.[1]
+  if (title && exports.some((content) => content.includes(`\n# ${title}\n`) || content.includes(`[${title}](`))) problems.push(`internal document content in AI export: ${title}`)
+  if (exports.some((content) => content.includes(`${DEFAULT_SITE_URL}${route}`))) problems.push(`internal document in AI export: ${route}`)
 }
 
 if (problems.length > 0) throw new Error(`Build validation failed:\n- ${problems.join('\n- ')}`)

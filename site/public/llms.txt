@@ -58,7 +58,6 @@ Source: https://github.com/dcuellar322/envarium
 - [Contributor documentation](https://envarium.davidcuellar.tech/docs/contributing/): Architecture rules, accepted decisions, adapter boundaries, release evidence, and the focused contribution path.
 - [Engineering conventions](https://envarium.davidcuellar.tech/docs/conventions/): Naming, error, logging, testing, migration, API, and generation rules for contributors.
 - [Desktop and headless installation](https://envarium.davidcuellar.tech/docs/desktop-installation/): Install, upgrade, uninstall, or build Envarium for desktop and CLI-only use.
-- [Envarium rebrand checklist](https://envarium.davidcuellar.tech/docs/envarium-rebrand-checklist/): Repository-complete and external follow-up work for adopting the Envarium name.
 - [Optional peer federation](https://envarium.davidcuellar.tech/docs/federation/): Configure explicit post-v1 peer inventory and reviewed remote lifecycle operations.
 - [Generated CLI envelope schemas](https://envarium.davidcuellar.tech/docs/generated/cli-schemas/): Versioned command output schemas emitted by the production Envarium binary.
 - [Generated project manifest schema index](https://envarium.davidcuellar.tech/docs/generated/manifest-schema/): Top-level project manifest fields generated from the committed canonical JSON Schema.
@@ -77,9 +76,6 @@ Source: https://github.com/dcuellar322/envarium
 - [Platform support](https://envarium.davidcuellar.tech/docs/platform-support/): Supported operating systems, packages, native capabilities, and WSL2 boundaries.
 - [Plugin SDK and compatibility policy](https://envarium.davidcuellar.tech/docs/plugin-sdk/): Build and test capability-scoped out-of-process Envarium plugins.
 - [Privacy](https://envarium.davidcuellar.tech/docs/privacy/): What Envarium stores locally, sends only by choice, and excludes from telemetry.
-- [Public site launch checklist](https://envarium.davidcuellar.tech/docs/public-site-launch-checklist/): Repository, release, Cloudflare, DNS, GitHub, security, accessibility, and production smoke gates for the canonical site.
-- [Public site launch contract](https://envarium.davidcuellar.tech/docs/public-site/): Canonical identity, domain, audience, privacy, and launch boundaries for the Envarium website.
-- [Arcane capability review](https://envarium.davidcuellar.tech/docs/reference/arcane-capability-review/): A complete mapping of Arcane's documented capabilities to Envarium's project-first local development model.
 - [Reference](https://envarium.davidcuellar.tech/docs/reference/): Exact Envarium commands, schemas, API operations, settings, tools, compatibility, and platform contracts.
 - [Release engineering](https://envarium.davidcuellar.tech/docs/release/): Channels, signing, artifacts, attestations, SBOMs, and the reviewed release process.
 - [Threat model and v1 security review](https://envarium.davidcuellar.tech/docs/security/threat-model/): Assets, trust boundaries, mitigations, residual risks, and release security review.

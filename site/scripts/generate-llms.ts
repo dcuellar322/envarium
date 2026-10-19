@@ -2,6 +2,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises'
 import { relative, resolve, sep } from 'node:path'
 import { canonicalUrl, PRODUCT_NAME, REPOSITORY_URL } from '../src/config/site'
 import { docsRoot, publicRoot } from './paths'
+import { isPublicDocumentation } from '../src/lib/docs/publication'
 
 interface Document { path: string; title: string; description: string; body: string }
 
@@ -27,7 +28,7 @@ function parseDocument(path: string, source: string): Document {
 }
 
 export async function generateLLMS(): Promise<void> {
-  const docs = await Promise.all((await markdownFiles(docsRoot)).sort().map(async (path) => parseDocument(path, await readFile(path, 'utf8'))))
+  const docs = await Promise.all((await markdownFiles(docsRoot)).filter((path) => isPublicDocumentation(relative(docsRoot, path).split(sep).join('/'))).sort().map(async (path) => parseDocument(path, await readFile(path, 'utf8'))))
   const index = [
     `# ${PRODUCT_NAME}`,
     '',
@@ -38,7 +39,7 @@ export async function generateLLMS(): Promise<void> {
     '',
     '## Documentation',
     '',
-    ...docs.filter((doc) => !doc.path.startsWith('progress/')).map((doc) => `- [${doc.title}](${canonicalUrl(doc.path ? `/docs/${doc.path}/` : '/docs/').href}): ${doc.description}`),
+    ...docs.map((doc) => `- [${doc.title}](${canonicalUrl(doc.path ? `/docs/${doc.path}/` : '/docs/').href}): ${doc.description}`),
     '',
     '## Agent integration',
     '',

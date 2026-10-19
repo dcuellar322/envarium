@@ -18,7 +18,6 @@ Reference pages describe exact contracts rather than task sequences:
 - [Plugin protocol](../plugin-sdk.md)
 - [Supported platforms](../platform-support.md)
 - [Compatibility policy](../compatibility.md)
-- [Arcane capability review](arcane-capability-review.md)
 
 Machine-generated pages under [`generated/`](../generated/cli-schemas.md) are
 rebuilt from the production binary and canonical schemas during CI.
