@@ -2,12 +2,47 @@ package adapters
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"syscall"
 	"testing"
 	"time"
 
 	gnet "github.com/shirou/gopsutil/v4/net"
 )
+
+func TestListenerNamesAreSharedOnlyWithinOneFreshInventory(t *testing.T) {
+	t.Parallel()
+	calls := 0
+	name := ""
+	listeners := &OSListeners{
+		connections: func(context.Context, string) ([]gnet.ConnectionStat, error) {
+			return []gnet.ConnectionStat{
+				{Type: syscall.SOCK_STREAM, Status: "LISTEN", Laddr: gnet.Addr{Port: 8000}, Pid: 42},
+				{Type: syscall.SOCK_STREAM, Status: "LISTEN", Laddr: gnet.Addr{Port: 8001}, Pid: 42},
+				{Type: syscall.SOCK_DGRAM, Laddr: gnet.Addr{Port: 8002}, Pid: 42},
+			}, nil
+		},
+		processName: func(context.Context, int32) string { calls++; return name },
+		now:         time.Now,
+	}
+	for index, current := range []string{"", "server", "replacement"} {
+		name = current
+		facts, err := listeners.Facts(context.Background())
+		if err != nil || len(facts) != 3 || calls != index+1 {
+			t.Fatal("duplicate name reads or lost bindings", calls, facts, err)
+		}
+		expected := current
+		if expected == "" {
+			expected = "unknown process"
+		}
+		for _, fact := range facts {
+			if !strings.Contains(fact.Evidence, fmt.Sprintf("owned by %s (pid 42)", expected)) {
+				t.Fatal("name was cached between inventories", fact)
+			}
+		}
+	}
+}
 
 func TestOSListenersObservesPortableTCPAndUDPBindings(t *testing.T) {
 	t.Parallel()

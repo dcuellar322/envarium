@@ -20,7 +20,17 @@ func (s *ResourceService) Overview(ctx context.Context) (domain.ResourceOverview
 	if err != nil {
 		return domain.ResourceOverview{}, err
 	}
-	ids := projectIDs(projects)
+	s.stateMu.RLock()
+	observedAt, states, warnings := s.lastAt, cloneStates(s.states), append([]string(nil), s.warnings...)
+	s.stateMu.RUnlock()
+	// Inactive snapshots do not consume historical points. In particular, an
+	// empty raw series must not scan other projects' samples on every refresh.
+	ids := make([]string, 0, len(projects))
+	for _, project := range projects {
+		if states[project.ID].Active {
+			ids = append(ids, project.ID)
+		}
+	}
 	latest, err := s.metrics.LatestMetricPoints(ctx, ids)
 	if err != nil {
 		return domain.ResourceOverview{}, err
@@ -31,9 +41,6 @@ func (s *ResourceService) Overview(ctx context.Context) (domain.ResourceOverview
 	}
 	inventory := s.storageSnapshot()
 	footprint, footprintErr := s.metrics.ResourceFootprint(ctx)
-	s.stateMu.RLock()
-	observedAt, states, warnings := s.lastAt, cloneStates(s.states), append([]string(nil), s.warnings...)
-	s.stateMu.RUnlock()
 	warnings = append(warnings, inventory.Warnings...)
 	if observedAt.IsZero() {
 		warnings = append(warnings, "Resource observation is pending.")
@@ -168,14 +175,6 @@ func projectStorageMap(inventory domain.StorageInventory) map[string]domain.Proj
 	result := make(map[string]domain.ProjectStorage, len(inventory.Projects))
 	for _, value := range inventory.Projects {
 		result[value.ProjectID] = value
-	}
-	return result
-}
-
-func projectIDs(projects []domain.ProjectDescriptor) []string {
-	result := make([]string, 0, len(projects))
-	for _, project := range projects {
-		result = append(result, project.ID)
 	}
 	return result
 }

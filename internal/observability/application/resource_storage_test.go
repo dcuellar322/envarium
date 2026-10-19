@@ -2,11 +2,53 @@ package application
 
 import (
 	"context"
+	"errors"
+	"slices"
 	"testing"
 	"time"
 
 	"envarium.dev/envarium/internal/observability/domain"
 )
+
+func TestOverviewReadsOnlyActiveMetricsAndReconcilesActivity(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	now := time.Now().UTC()
+	metrics := &metricRepositoryFake{latest: map[string][]domain.MetricPoint{
+		"one": {{ProjectID: "one", Timestamp: now, CPUPercent: 17, CPUAvailable: true, MemoryBytes: 512, MemoryAvailable: true}},
+	}}
+	service := newResourceServiceForTest(t, resourceProjectSourceFake{projects: []domain.ProjectDescriptor{{ID: "one"}, {ID: "two"}, {ID: "unknown"}}}, &resourceRuntimeFake{}, metrics, &storageInspectorFake{}, ResourceConfig{})
+	service.samplerRunning, service.lastAt = true, now
+	service.states["one"] = domain.RuntimeSnapshot{Active: true, State: "running"}
+	service.states["two"] = domain.RuntimeSnapshot{State: "stopped", Partial: true}
+	overview, err := service.Overview(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(metrics.latestIDs, []string{"one"}) || !slices.Equal(metrics.recentIDs, []string{"one"}) {
+		t.Fatal("overview read inactive history", metrics.latestIDs, metrics.recentIDs)
+	}
+	if len(overview.Projects) != 3 || !overview.Projects[0].Active || overview.Projects[0].Metric.CPUPercent != 17 {
+		t.Fatal("active values/catalog rows lost", overview.Projects)
+	}
+	for _, project := range overview.Projects {
+		if project.ProjectID == "two" && (!project.Metric.Partial || project.Active || project.Metric.CPUAvailable) {
+			t.Fatal("inactive partial state changed", project)
+		}
+	}
+	service.states["one"] = domain.RuntimeSnapshot{State: "stopped"}
+	service.states["two"] = domain.RuntimeSnapshot{Active: true, State: "running"}
+	if _, err := service.Overview(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(metrics.latestIDs, []string{"two"}) || !slices.Equal(metrics.recentIDs, []string{"two"}) {
+		t.Fatal("activity change did not refresh metric scope", metrics.latestIDs, metrics.recentIDs)
+	}
+	metrics.readErr = context.Canceled
+	if _, err := service.Overview(ctx); !errors.Is(err, context.Canceled) {
+		t.Fatal("metric cancellation was hidden", err)
+	}
+}
 
 type blockingStorage struct {
 	started chan struct{}

@@ -52,6 +52,9 @@ type metricRepositoryFake struct {
 	historyResolution int
 	historyLimit      int
 	maintainCalls     atomic.Int64
+	latestIDs         []string
+	recentIDs         []string
+	readErr           error
 }
 
 func (f *metricRepositoryFake) WriteMetricPoints(_ context.Context, points []domain.MetricPoint) error {
@@ -61,11 +64,17 @@ func (f *metricRepositoryFake) WriteMetricPoints(_ context.Context, points []dom
 	return nil
 }
 
-func (f *metricRepositoryFake) LatestMetricPoints(context.Context, []string) (map[string][]domain.MetricPoint, error) {
-	return f.latest, nil
+func (f *metricRepositoryFake) LatestMetricPoints(_ context.Context, ids []string) (map[string][]domain.MetricPoint, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.latestIDs = append([]string(nil), ids...)
+	return f.latest, f.readErr
 }
 
-func (f *metricRepositoryFake) RecentProjectMetricPoints(context.Context, []string, int) (map[string][]domain.MetricPoint, error) {
+func (f *metricRepositoryFake) RecentProjectMetricPoints(_ context.Context, ids []string, _ int) (map[string][]domain.MetricPoint, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.recentIDs = append([]string(nil), ids...)
 	return f.recent, nil
 }
 

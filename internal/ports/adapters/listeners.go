@@ -39,6 +39,8 @@ func (s *OSListeners) Facts(ctx context.Context) ([]domain.Fact, error) {
 	}
 	observedAt := s.now().UTC()
 	seen := make(map[string]struct{})
+	// Names annotate this inventory only; re-read every PID on the next call.
+	names := make(map[int32]string)
 	result := make([]domain.Fact, 0, len(connections))
 	for _, connection := range connections {
 		protocol, ok := listenerProtocol(connection)
@@ -54,7 +56,12 @@ func (s *OSListeners) Facts(ctx context.Context) ([]domain.Fact, error) {
 		seen[id] = struct{}{}
 		name := "unknown process"
 		if pid > 0 && s.processName != nil {
-			if observed := s.processName(ctx, connection.Pid); observed != "" {
+			observed, found := names[connection.Pid]
+			if !found {
+				observed = s.processName(ctx, connection.Pid)
+				names[connection.Pid] = observed
+			}
+			if observed != "" {
 				name = observed
 			}
 		}

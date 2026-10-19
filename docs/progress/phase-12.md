@@ -32,6 +32,15 @@ coarse page categories, so acceptance can verify dashboard request cadence and
 reject a sample containing navigation. No credentials, query strings, paths or
 stable identifiers are included. The updated UI suite has 93 tests in 37 files.
 
+A steady native-dashboard CPU profile attributed 0.21 of 2.75 sampled CPU
+seconds to latest-metric queries. Overview now limits those reads and budget
+history reads to active sampler states, since inactive output already omits
+them. All catalog rows, storage and partial-state metadata remain visible;
+activity transitions are reconciled on each read. OS listener annotations share
+one current name lookup per PID within each inventory, with no cache across
+calls. Both changes preserve the existing sampling/presentation intervals and
+have regression coverage for transitions, cancellation and unavailable names.
+
 ## Implemented
 
 - Added one process-wide, cancellable resource sampler with a four-project

@@ -272,3 +272,11 @@ alone.
 Use opaque token-based surfaces for the persistent sidebar and top bar rather
 than continuously compositing blurred content behind them. Preserve their
 geometry, contrast and controls; transient modal emphasis remains separate.
+
+Resource overview reads capture the sampler's current state once and query
+latest/history points only for projects marked active in that snapshot. Inactive
+rows already omit those values; keep their storage, state, budget and warning
+metadata, and retain explicit history reads and all independent sampling.
+Resolve each OS listener owner's display name once within an inventory call,
+including unknown names. Retain no PID/name cache across calls; socket ownership
+and bindings still come from each fresh kernel inventory.
