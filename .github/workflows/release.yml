@@ -120,6 +120,20 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
       - run: pnpm install --frozen-lockfile
       - run: rustup show
+      - name: Stage Apple notarization API key
+        if: runner.os == 'macOS'
+        run: |
+          if [ -z "$APPLE_CERTIFICATE" ] || [ -z "$APPLE_CERTIFICATE_PASSWORD" ]; then
+            echo '::error::Configure the Apple signing certificate and its export password in desktop-release.'
+            exit 1
+          fi
+          node scripts/stage-apple-api-key.mjs
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_API_KEY: ${{ vars.APPLE_API_KEY }}
+          APPLE_API_ISSUER: ${{ vars.APPLE_API_ISSUER }}
+          APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
       - id: windows-signing
         if: runner.os == 'Windows'
         shell: pwsh
@@ -142,10 +156,9 @@ jobs:
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_SIGNING_IDENTITY: ${{ vars.APPLE_SIGNING_IDENTITY }}
+          APPLE_API_KEY: ${{ vars.APPLE_API_KEY }}
+          APPLE_API_ISSUER: ${{ vars.APPLE_API_ISSUER }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           ENVARIUM_UPDATER_PUBLIC_KEY: ${{ secrets.ENVARIUM_UPDATER_PUBLIC_KEY }}
@@ -155,6 +168,9 @@ jobs:
           SIGN_KEY: ${{ runner.os == 'Linux' && secrets.LINUX_GPG_KEY_ID || '' }}
           APPIMAGETOOL_SIGN_PASSPHRASE: ${{ runner.os == 'Linux' && secrets.LINUX_GPG_PASSPHRASE || '' }}
           APPIMAGETOOL_FORCE_SIGN: ${{ runner.os == 'Linux' && '1' || '' }}
+      - name: Remove Apple notarization private key
+        if: always() && runner.os == 'macOS'
+        run: node -e 'require("node:fs").rmSync(require("node:path").join(process.env.RUNNER_TEMP,"envarium-notarization.p8"),{force:true})'
       - uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           path: desktop/src-tauri/target/release/bundle

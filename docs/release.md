@@ -5,7 +5,7 @@ category: contributor
 audience: [maintainer, contributor]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-10-17
+lastVerified: 2026-10-19
 ---
 
 Tagged releases are built only from validated `v*` tags by
@@ -24,6 +24,15 @@ These are workflow capabilities, not evidence of a published signed release.
 On October 17, 2026, the repository had no published releases and no configured
 `desktop-release` environment. Only the two Cloudflare repository secrets were
 present. Passing ordinary CI does not exercise protected release credentials.
+
+On October 19, the `desktop-release` environment was configured with the
+repository owner's required review and a `v*`-tags-only deployment policy. The
+existing Apple API key authenticated successfully with the notarization service;
+the private API key and exported certificate were installed as encrypted
+environment secrets, and the owner added the certificate export password in
+GitHub. Updater configuration and other-platform signing credentials remain
+separate setup gates. No signed
+release has been built or published by this setup work.
 
 ## Release account setup
 
@@ -50,11 +59,12 @@ Before tagging the first release, a repository administrator needs to:
    **drafts** for review; it does not submit or publish either package. Tap
    write access and WinGet submission/review are separate final steps.
 
-The existing release workflow consumes these environment secret names:
+The release workflow consumes these environment secret names:
 
 | Purpose | Secrets |
 |---|---|
-| Apple signing and notarization | `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID` |
+| Apple signing | `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD` |
+| Apple notarization private key | `APPLE_API_KEY_BASE64` |
 | Windows signing | `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD` |
 | Linux signing | `LINUX_GPG_PRIVATE_KEY`, `LINUX_GPG_PASSPHRASE`, `LINUX_GPG_KEY_ID` |
 | Updater signing | `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` |
@@ -63,6 +73,47 @@ The existing release workflow consumes these environment secret names:
 Public-key and endpoint values are not themselves secrets, but the current
 workflow reads them from environment secrets. Do not change trust configuration
 after producing a reviewed artifact without rebuilding and revalidating it.
+
+### Apple API key configuration
+
+The **Key ID** and **Issuer ID** identify the credential and team; they are not
+secret authenticators. The downloaded `.p8` private key is secret. Signing is a
+separate operation: it also requires the Developer ID Application certificate
+and its private key, usually exported together as a password-protected `.p12`.
+An API key cannot replace that signing identity.
+
+Configure these **environment variables** in `desktop-release`:
+
+| Variable | Value |
+|---|---|
+| `APPLE_API_KEY` | The Apple Key ID, not private-key contents |
+| `APPLE_API_ISSUER` | The App Store Connect Issuer ID |
+| `APPLE_SIGNING_IDENTITY` | The full Developer ID Application identity name |
+
+Configure these **environment secrets**, using local files or GitHub's secret
+entry form without pasting private material into chat:
+
+| Secret | Value |
+|---|---|
+| `APPLE_API_KEY_BASE64` | Base64-encoded contents of `AuthKey_<KeyID>.p8` |
+| `APPLE_CERTIFICATE` | Base64-encoded exported `.p12`, including its private key |
+| `APPLE_CERTIFICATE_PASSWORD` | The password chosen when exporting that `.p12` |
+
+Base64 is an encoding, not encryption; GitHub Secrets supplies encrypted storage.
+The release job validates the API identifiers and P-256 key, stages the decoded
+key exclusively in the ephemeral macOS runner's temporary directory with mode
+`0600`, and passes only its path as `APPLE_API_KEY_PATH`. An always-run cleanup
+step removes that file before artifact collection. Missing/malformed credentials
+fail explicitly. This workflow uses API authentication rather than Apple ID and
+app-specific-password authentication.
+
+The same team API key can be reused for notarization if its permissions allow
+it; a different API key per application is not required. A matching filename
+alone does not prove access: validate with the notarization service before using
+the key. If the `.p8` file has been lost, Apple permits only one download of a
+new key; create a replacement rather than assuming the IDs recover its contents.
+See [Tauri's notarization setup](https://v2.tauri.app/distribute/sign/macos/#notarization)
+and [Apple's Notary API authentication guidance](https://developer.apple.com/documentation/NotaryAPI/submitting-software-for-notarization-over-the-web).
 
 ## Reusing an existing Apple signing identity
 

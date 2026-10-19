@@ -3,10 +3,35 @@ title: "Phase 15: Desktop application"
 description: Implementation evidence for Envarium product phase 15.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 ## Implemented
+
+### October 19 Apple credential setup
+
+The release workflow now accepts App Store Connect API-key authentication,
+using non-secret Key ID/Issuer ID/signing identity environment variables and
+encrypted private-key/certificate secrets. A tested staging adapter validates
+the P-256 key, refuses existing files/symlinks, creates an owner-readable private
+file only in the ephemeral runner directory, exports only its path, and removes
+it on setup failure or after the build. Tests cover valid staging, permissions,
+missing/malformed input, overwrite refusal and failure cleanup. The existing
+exact-commit quality and reviewed-tag gates remain unchanged.
+
+The protected GitHub environment now requires the owner's review and accepts
+only `v*` tags. The reused LeagueSaga API key authenticated with Apple's
+notarization history endpoint; no private key contents were printed or committed.
+The owner added the certificate-password secret directly in GitHub; its presence
+was verified without reading its value. A real signed/notarized artifact remains
+unverified. Updater feed/key configuration and other-platform signing are still
+separate release gates; ordinary CI does not satisfy those external criteria.
+Local verification passed the four release-quality/key-staging tests and
+actionlint 1.7.12 for both changed workflows. The actual existing API key also
+passed the staging adapter's parsing and owner-only-permissions checks in a
+temporary directory that was removed afterward.
+
+### Original desktop implementation
 
 - Added a pinned Tauri 2/Rust native shell and generated platform icon assets
   from the Envarium mark.
