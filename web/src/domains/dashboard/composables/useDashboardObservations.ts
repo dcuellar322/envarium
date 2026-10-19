@@ -85,6 +85,8 @@ export function useDashboardObservations(projects: Ref<Project[]>) {
   )
   const queries = [runtime, git, actions, resources]
   const isFetching = computed(() => queries.some((query) => query.isFetching.value))
-  const isStale = computed(() => !active.value || queries.some((query) => query.isStale.value))
+  // Cache staleness schedules reads; it does not mean a healthy observation is
+  // unavailable. Toggling page layout on cache timers also repaints the backdrop.
+  const isStale = computed(() => !active.value || queries.some((query) => query.isError.value))
   return { data, isFetching, isStale }
 }

@@ -67,14 +67,16 @@ platform or currently installed bundle has been revalidated.
 - [x] Configure the Namecheap CNAME for `envarium.davidcuellar.tech`. The user
       added it and an October 18 resolver check returns
       `envarium-dcuellar.pages.dev`.
+- [x] Activate the registered Pages hostname and its TLS certificate. After
+      retrying validation, `https://envarium.davidcuellar.tech` returns HTTP 200
+      with normal certificate verification on October 18.
 - [ ] Update remaining registrar settings, Cloudflare Pages project/custom domains,
       redirects, certificates, canonical origin, CSP allowlists, analytics/search
       console properties, sitemap submission, and uptime monitors. The remaining
-      immediate check is Cloudflare custom-hostname/TLS activation. The CNAME
-      resolves correctly, but the October 18 HTTPS check still failed its TLS
-      handshake. Keep the existing nameservers; a Cloudflare-proxied record is
-      not required for this externally hosted subdomain. Confirm the registered
-      Pages custom domain becomes active and HTTPS succeeds.
+      domain and TLS activation are complete. Review the remaining external
+      discovery and monitoring integrations separately. Keep the existing
+      nameservers; a Cloudflare-proxied record is not required for this
+      externally hosted subdomain.
 - [x] Redirect every former public URL path-for-path where control is retained.
       While canonical DNS/TLS activation is pending, the legacy hostname uses a
       temporary redirect to `envarium-dcuellar.pages.dev/<path>`. Deployment switches

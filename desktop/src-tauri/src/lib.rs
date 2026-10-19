@@ -52,6 +52,12 @@ pub fn run() {
     let builder = builder.plugin(updater::plugin());
 
     builder
+        .on_page_load(|view, payload| {
+            if payload.event() == tauri::webview::PageLoadEvent::Finished {
+                let window = view.window();
+                visibility::update(&window, window.is_focused().unwrap_or(false));
+            }
+        })
         .setup(|app| {
             let handle = app.handle().clone();
             handle.manage(DesktopState {

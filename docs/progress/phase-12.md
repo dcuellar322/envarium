@@ -23,6 +23,15 @@ tests. Installed resource measurements and hosted CI are the remaining acceptanc
 checks for this follow-up; the preceding worktree measurements remain the prior
 baseline rather than evidence for this new build.
 
+The subsequent refinement retains actual stale/partial/error warnings without
+using healthy cache expiration to toggle page layout. Persistent chrome uses
+opaque theme surfaces instead of backdrop blur; all 17 visual cases still pass.
+Native navigation reapplies the actual focus fact after loading. A bounded,
+non-authorizing local HTTP presentation label distinguishes native/browser and
+coarse page categories, so acceptance can verify dashboard request cadence and
+reject a sample containing navigation. No credentials, query strings, paths or
+stable identifiers are included. The updated UI suite has 93 tests in 37 files.
+
 ## Implemented
 
 - Added one process-wide, cancellable resource sampler with a four-project

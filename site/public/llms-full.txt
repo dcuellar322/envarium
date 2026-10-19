@@ -1191,6 +1191,20 @@ mutations never inherit its resource policy. Shared presentation queries must
 also share their observer/timer, not merely a query cache key. Card rendering
 may skip timestamp-only changes while retaining every displayed value and live
 action inputs. Monitoring and presentation freshness intervals stay unchanged.
+Query-cache expiration is not itself a failed observation: healthy periodic
+refreshes must not toggle a stale-data banner and page layout on every cache
+timer. Retain that banner for paused presentation and actual read failures;
+source-reported stale/partial resource warnings remain visible independently.
+Reapply the native presentation fact after navigation finishes, so an old
+page's focus signal cannot be lost on reload. Performance verification may tag
+local UI requests with a bounded client/page-category label, validated against a
+fixed allowlist before logging. This label grants no authority and contains no
+URL query, repository path, credential or stable user identifier. Acceptance
+must verify actual dashboard polling and page stability, not window visibility
+alone.
+Use opaque token-based surfaces for the persistent sidebar and top bar rather
+than continuously compositing blurred content behind them. Preserve their
+geometry, contrast and controls; transient modal emphasis remains separate.
 
 ---
 
@@ -3743,14 +3757,16 @@ platform or currently installed bundle has been revalidated.
 - [x] Configure the Namecheap CNAME for `envarium.davidcuellar.tech`. The user
       added it and an October 18 resolver check returns
       `envarium-dcuellar.pages.dev`.
+- [x] Activate the registered Pages hostname and its TLS certificate. After
+      retrying validation, `https://envarium.davidcuellar.tech` returns HTTP 200
+      with normal certificate verification on October 18.
 - [ ] Update remaining registrar settings, Cloudflare Pages project/custom domains,
       redirects, certificates, canonical origin, CSP allowlists, analytics/search
       console properties, sitemap submission, and uptime monitors. The remaining
-      immediate check is Cloudflare custom-hostname/TLS activation. The CNAME
-      resolves correctly, but the October 18 HTTPS check still failed its TLS
-      handshake. Keep the existing nameservers; a Cloudflare-proxied record is
-      not required for this externally hosted subdomain. Confirm the registered
-      Pages custom domain becomes active and HTTPS succeeds.
+      domain and TLS activation are complete. Review the remaining external
+      discovery and monitoring integrations separately. Keep the existing
+      nameservers; a Cloudflare-proxied record is not required for this
+      externally hosted subdomain.
 - [x] Redirect every former public URL path-for-path where control is retained.
       While canonical DNS/TLS activation is pending, the legacy hostname uses a
       temporary redirect to `envarium-dcuellar.pages.dev/<path>`. Deployment switches
@@ -8043,6 +8059,15 @@ checks, 91 UI tests, all six real browser flows, 17 visual cases, and 20 Rust
 tests. Installed resource measurements and hosted CI are the remaining acceptance
 checks for this follow-up; the preceding worktree measurements remain the prior
 baseline rather than evidence for this new build.
+
+The subsequent refinement retains actual stale/partial/error warnings without
+using healthy cache expiration to toggle page layout. Persistent chrome uses
+opaque theme surfaces instead of backdrop blur; all 17 visual cases still pass.
+Native navigation reapplies the actual focus fact after loading. A bounded,
+non-authorizing local HTTP presentation label distinguishes native/browser and
+coarse page categories, so acceptance can verify dashboard request cadence and
+reject a sample containing navigation. No credentials, query strings, paths or
+stable identifiers are included. The updated UI suite has 93 tests in 37 files.
 
 ## Implemented
 

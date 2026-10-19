@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 
 	"envarium.dev/envarium/internal/foundation/correlation"
@@ -36,6 +37,25 @@ func withCorrelation(logger *slog.Logger, next http.Handler) http.Handler {
 			"method", r.Method,
 			"path", r.URL.Path,
 			"duration", time.Since(startedAt),
+			"presentation", presentationLabel(r.Header.Get("X-Envarium-Presentation")),
 		)
 	})
+}
+
+// This untrusted hint is diagnostic metadata, never an identity or permission.
+// Log only coarse allowlisted categories, never arbitrary caller content.
+func presentationLabel(value string) string {
+	if len(value) > 32 {
+		return ""
+	}
+	client, page, ok := strings.Cut(value, ":")
+	if !ok || client != "native" && client != "browser" {
+		return ""
+	}
+	switch page {
+	case "dashboard", "projects", "ports", "resources", "logs", "discovery", "workspaces", "fleet", "team", "agents", "plugins", "settings", "diagnostics", "other":
+		return value
+	default:
+		return ""
+	}
 }

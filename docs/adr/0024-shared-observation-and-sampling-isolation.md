@@ -258,3 +258,17 @@ mutations never inherit its resource policy. Shared presentation queries must
 also share their observer/timer, not merely a query cache key. Card rendering
 may skip timestamp-only changes while retaining every displayed value and live
 action inputs. Monitoring and presentation freshness intervals stay unchanged.
+Query-cache expiration is not itself a failed observation: healthy periodic
+refreshes must not toggle a stale-data banner and page layout on every cache
+timer. Retain that banner for paused presentation and actual read failures;
+source-reported stale/partial resource warnings remain visible independently.
+Reapply the native presentation fact after navigation finishes, so an old
+page's focus signal cannot be lost on reload. Performance verification may tag
+local UI requests with a bounded client/page-category label, validated against a
+fixed allowlist before logging. This label grants no authority and contains no
+URL query, repository path, credential or stable user identifier. Acceptance
+must verify actual dashboard polling and page stability, not window visibility
+alone.
+Use opaque token-based surfaces for the persistent sidebar and top bar rather
+than continuously compositing blurred content behind them. Preserve their
+geometry, contrast and controls; transient modal emphasis remains separate.

@@ -10,7 +10,7 @@ pub fn update<R: Runtime>(window: &Window<R>, active: bool) {
 
 fn script(active: bool) -> String {
     format!(
-        "window.__envariumNativeActive={active};window.dispatchEvent(new Event('envarium:activity'));"
+        "window.__envariumNativeDesktop=true;window.__envariumNativeActive={active};window.dispatchEvent(new Event('envarium:activity'));"
     )
 }
 
@@ -20,5 +20,6 @@ mod tests {
     fn activity_script_contains_only_a_boolean_presentation_fact() {
         assert!(super::script(false).contains("__envariumNativeActive=false;"));
         assert!(super::script(true).contains("__envariumNativeActive=true;"));
+        assert!(super::script(false).contains("__envariumNativeDesktop=true;"));
     }
 }

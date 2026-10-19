@@ -35,6 +35,7 @@ const project: Project = {
 type NativeWindow = Window & { __envariumNativeActive?: boolean }
 let client: QueryClient
 let observed: Ref<ProjectSnapshot[]>
+let stale: Ref<boolean>
 function nativeActivity(active: boolean) {
   ;(window as NativeWindow).__envariumNativeActive = active
   window.dispatchEvent(new Event('envarium:activity'))
@@ -45,6 +46,7 @@ function mountDashboard(items = [project]) {
     setup() {
       const snapshots = useDashboardObservations(ref(items))
       observed = snapshots.data
+      stale = snapshots.isStale
       return () => h('div', snapshots.data.value[0]?.runtime?.state ?? 'pending')
     },
   })
@@ -169,4 +171,20 @@ test('many project cards share three kind-specific transport requests', async ()
     expect(ids).toHaveLength(11)
     expect(signal).toBeInstanceOf(AbortSignal)
   }
+})
+
+test('cache expiration does not oscillate layout; paused and failed reads still report stale data', async () => {
+  mountDashboard()
+  await waitFor(() => expect(client.isFetching()).toBe(0))
+  await client.invalidateQueries({ refetchType: 'none' })
+  expect(stale.value).toBe(false)
+  api.loadProjectGitStatus.mockRejectedValueOnce(new Error('offline'))
+  await client.invalidateQueries({ queryKey: ['project-observations', 'git-status'] })
+  await waitFor(() => expect(stale.value).toBe(true))
+  expect(observed.value[0]?.warnings).toContain('Git observation unavailable')
+  await client.invalidateQueries({ queryKey: ['project-observations', 'git-status'] })
+  await waitFor(() => expect(stale.value).toBe(false))
+  nativeActivity(false)
+  await nextTick()
+  expect(stale.value).toBe(true)
 })

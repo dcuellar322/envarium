@@ -129,8 +129,7 @@ const tools = [
   height: 100vh;
   padding: 22px 16px;
   border-right: 1px solid var(--border);
-  background: color-mix(in srgb, var(--panel) 86%, transparent);
-  backdrop-filter: blur(18px);
+  background: color-mix(in srgb, var(--panel) 86%, var(--bg));
   z-index: 30;
 }
 .brand {

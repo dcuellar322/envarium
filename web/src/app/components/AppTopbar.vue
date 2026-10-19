@@ -82,8 +82,7 @@ const activeCount = computed(
   gap: 14px;
   padding: 0 28px;
   border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg) 74%, transparent);
-  backdrop-filter: blur(18px);
+  background: var(--bg);
 }
 .command-search {
   display: flex;

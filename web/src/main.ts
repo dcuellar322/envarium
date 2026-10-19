@@ -2,11 +2,13 @@ import { VueQueryPlugin } from '@tanstack/vue-query'
 import { createApp } from 'vue'
 
 import App from './app/App.vue'
+import { observePresentationRequests } from './api/presentation'
 import { bootstrapBrowserSession } from './domains/session/bootstrap'
 import { queryClient } from './queryClient'
 import './styles/base.css'
 
 async function start() {
+  observePresentationRequests()
   await bootstrapBrowserSession().catch(() => undefined)
   const { router } = await import('./router')
   const app = createApp(App)
