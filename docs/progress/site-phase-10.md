@@ -143,3 +143,25 @@ visual baselines passed unchanged. Repository, architecture, and generated
 contract checks passed. All 38 progress sources and four excluded maintainer
 records remain in Git. Live verification follows the production workflow and
 is saved under ignored `output/playwright/publication/live/` artifacts.
+
+### Hosting cache correction
+
+The first production verification caught cached HTTP 200 responses for retired
+HTML and Markdown URLs, despite their absence from the new build and search.
+The account has no DNS zone for this externally hosted domain, so zone cache
+purging is unavailable. ADR-0029 extends the existing small Pages Worker to
+return uncached 404 responses before retired assets can be fetched. The same
+publication policy generates the guarded paths and narrow invocation routes.
+Regression tests simulate a stale asset store and cover aliases, descendants,
+HEAD, public-route delegation, and asset failures. Final verification must
+repeat the original URLs without cache-busting query strings.
+
+The correction passes `make site-quality` (39 unit tests, 121 HTML pages after
+adding ADR-0029), final lint/type/content/build checks, and repository,
+architecture, and generated-contract checks. Three browser tests against the
+actual local Pages runtime verify all 42 retired HTML/Markdown pairs, both AI
+exports, sitemap, public search, and the full 121-page crawl. Additional runtime
+checks verify 404/no-store/noindex, bodyless HEAD, public HTTP 200, and the
+unchanged empty updater HTTP 204. The pinned local runtime supports compatibility
+date 2026-08-27; that date was used for the local edge check. Generated Wrangler
+state is excluded from lint and type checks.

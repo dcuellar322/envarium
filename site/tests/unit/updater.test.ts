@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import type { GitHubRelease } from '../../src/lib/releases/types'
 import { buildUpdaterFeed, publishedUpdaterRelease, updaterAssetTarget } from '../../src/lib/releases/updater'
 import { authenticateUpdaterSignature, verifyUpdaterPayload } from '../../src/lib/releases/updaterSignature'
-import { updaterWorkerSource } from '../../src/lib/releases/updaterWorker'
+import { pagesWorkerSource } from '../../src/lib/hosting/pagesWorker'
 import { desktopArtifactName } from '../../src/lib/releases/desktopArtifacts'
 
 // Ephemeral keys exercise the actual Minisign wire format without a private fixture.
@@ -88,7 +88,7 @@ describe('published stable feed', () => {
 
 describe('Pages updater response', () => {
   async function worker(feed: ReturnType<typeof buildUpdaterFeed>) {
-    const source = updaterWorkerSource(feed)
+    const source = pagesWorkerSource(feed)
     return (await import(/* @vite-ignore */ `data:text/javascript;base64,${Buffer.from(source).toString('base64')}`)).default
   }
   it('returns HTTP 204 with no synthetic version before publication; limits methods', async () => {

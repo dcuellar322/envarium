@@ -3,11 +3,12 @@ import { resolve } from 'node:path'
 import { isPreview } from '../src/config/site'
 import { siteRoot } from './paths'
 import type { UpdaterFeed } from '../src/lib/releases/updater'
-import { updaterWorkerSource } from '../src/lib/releases/updaterWorker'
+import { pagesWorkerSource } from '../src/lib/hosting/pagesWorker'
+import { internalDocumentationInvocationRoutes, internalDocumentationPaths } from '../src/lib/docs/publication'
 
 const feed = JSON.parse(await readFile(resolve(siteRoot, 'src/data/updater-manifest.json'), 'utf8')) as UpdaterFeed | null
-await writeFile(resolve(siteRoot, 'dist/_worker.js'), updaterWorkerSource(isPreview ? null : feed))
-await writeFile(resolve(siteRoot, 'dist/_routes.json'), JSON.stringify({ version: 1, include: ['/updates/stable.json'], exclude: [] }))
+await writeFile(resolve(siteRoot, 'dist/_worker.js'), pagesWorkerSource(isPreview ? null : feed, internalDocumentationPaths))
+await writeFile(resolve(siteRoot, 'dist/_routes.json'), JSON.stringify({ version: 1, include: ['/updates/stable.json', ...internalDocumentationInvocationRoutes], exclude: [] }))
 
 if (isPreview) {
   await appendFile(

@@ -19,3 +19,7 @@ export const publicDocumentationPatterns = [
   '**/*.{md,mdx}',
   ...internalDocumentation.map((entry) => `!${entry}${entry.endsWith('/') ? '**' : ''}`),
 ]
+
+/** Retired URL stems also cover HTML and raw Markdown aliases at the edge. */
+export const internalDocumentationPaths = internalDocumentation.map((entry) => `/docs/${entry.replace(/\.mdx?$/, '').replace(/\/$/, '')}`)
+export const internalDocumentationInvocationRoutes = internalDocumentationPaths.flatMap((path) => [path, `${path}/*`, `${path}.md`, `${path}.html`])

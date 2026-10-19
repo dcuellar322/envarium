@@ -4,7 +4,7 @@ import prettier from 'eslint-config-prettier'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig(
-  { ignores: ['.astro/**', 'coverage/**', 'dist/**', 'playwright-report/**', 'test-results/**'] },
+  { ignores: ['.astro/**', '.wrangler/**', 'coverage/**', 'dist/**', 'playwright-report/**', 'test-results/**'] },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {

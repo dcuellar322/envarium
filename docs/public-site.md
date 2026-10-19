@@ -144,3 +144,8 @@ and contribution instructions. Keep numbered implementation reports, acceptance
 ledgers, operational checklists, and test logs in the excluded maintainer paths.
 Both AI exports use the same policy. Build validation and browser tests check
 that excluded routes stay unavailable and search still finds public guides.
+
+The generated Pages Worker also returns uncached 404s for excluded routes before
+static assets are requested. This prevents cached copies from an older deployment
+from keeping a removed document accessible; see ADR-0029. Its invocation routes
+come from the same policy and do not intercept ordinary public pages.

@@ -2,7 +2,7 @@ import { readdir, readFile, stat } from 'node:fs/promises'
 import { extname, relative, resolve } from 'node:path'
 import { DEFAULT_SITE_URL, PRODUCT_NAME } from '../src/config/site'
 import { docsRoot, siteRoot } from './paths'
-import { isPublicDocumentation } from '../src/lib/docs/publication'
+import { internalDocumentationInvocationRoutes, isPublicDocumentation } from '../src/lib/docs/publication'
 
 const dist = resolve(siteRoot, 'dist')
 
@@ -49,6 +49,12 @@ if (largestJs && largestJs.size > 200_000) problems.push(`JavaScript asset ${rel
 for (const route of ['index.html', 'download/index.html', 'docs/index.html', 'community/index.html', 'changelog/index.html', 'llms.txt', 'llms-full.txt', 'sitemap-index.xml']) {
   if (!files.includes(resolve(dist, route))) problems.push(`missing required build output ${route}`)
 }
+
+const invocation = JSON.parse(await readFile(resolve(dist, '_routes.json'), 'utf8')) as { include: string[]; exclude: string[] }
+for (const route of internalDocumentationInvocationRoutes) {
+  if (!invocation.include.includes(route)) problems.push(`missing retired-document invocation route: ${route}`)
+}
+if (invocation.include.includes('/*') || invocation.include.length + invocation.exclude.length > 100) problems.push('Pages Worker invocation must remain bounded')
 
 // Check publication output, not just navigation: removed documents must have no
 // HTML, raw Markdown, sitemap entry, or source section in either AI export.
