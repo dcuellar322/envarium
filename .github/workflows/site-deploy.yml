@@ -136,12 +136,18 @@ jobs:
           domains="$(curl --fail-with-body --silent --show-error "$endpoint" \
             --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
             --header 'Content-Type: application/json')"
+          jq -e '.success == true' <<< "$domains" >/dev/null
           if ! jq -e --arg domain "$ENVARIUM_DOMAIN" 'any(.result[]?; .name == $domain)' <<< "$domains" >/dev/null; then
             response="$(curl --fail-with-body --silent --show-error --request POST "$endpoint" \
               --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
               --header 'Content-Type: application/json' \
               --data "$(jq -nc --arg name "$ENVARIUM_DOMAIN" '{name: $name}')")"
             jq -e '.success == true' <<< "$response" >/dev/null
+          elif ! jq -e --arg domain "$ENVARIUM_DOMAIN" 'any(.result[]?; .name == $domain and .status == "active")' <<< "$domains" >/dev/null; then
+            response="$(curl --fail-with-body --silent --show-error --request PATCH "$endpoint/$ENVARIUM_DOMAIN" \
+              --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN")"
+            jq -e '.success == true' <<< "$response" >/dev/null
+            echo "Retried canonical custom-domain validation after checking its current status." >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Report registrar DNS readiness
         if: steps.deployment.outputs.configured == 'true'
