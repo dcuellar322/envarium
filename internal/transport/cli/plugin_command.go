@@ -31,7 +31,12 @@ func newPluginListCommand(options *rootOptions, refresh bool) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		items, err := client.Plugins(command.Context(), refresh)
+		key, err := identifier.New("cli")
+		if err != nil {
+			return err
+		}
+
+		items, err := client.Plugins(command.Context(), refresh, key)
 		if err != nil {
 			return err
 		}
@@ -59,7 +64,12 @@ func newPluginTrustCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		item, err := client.TrustPlugin(command.Context(), args[0], fingerprint)
+		key, err := identifier.New("cli")
+		if err != nil {
+			return err
+		}
+
+		item, err := client.TrustPlugin(command.Context(), args[0], fingerprint, key)
 		if err != nil {
 			return err
 		}
@@ -85,7 +95,12 @@ func newPluginEnableCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		item, err := client.EnablePlugin(command.Context(), args[0], scopes)
+		key, err := identifier.New("cli")
+		if err != nil {
+			return err
+		}
+
+		item, err := client.EnablePlugin(command.Context(), args[0], scopes, key)
 		if err != nil {
 			return err
 		}
@@ -105,7 +120,12 @@ func newPluginDisableCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		item, err := client.DisablePlugin(command.Context(), args[0])
+		key, err := identifier.New("cli")
+		if err != nil {
+			return err
+		}
+
+		item, err := client.DisablePlugin(command.Context(), args[0], key)
 		if err != nil {
 			return err
 		}
@@ -122,7 +142,12 @@ func newPluginHealthCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		item, err := client.CheckPlugin(command.Context(), args[0])
+		key, err := identifier.New("cli")
+		if err != nil {
+			return err
+		}
+
+		item, err := client.CheckPlugin(command.Context(), args[0], key)
 		if err != nil {
 			return err
 		}
@@ -167,7 +192,12 @@ func newPluginInspectCommand(options *rootOptions) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		result, err := client.InspectPlugin(command.Context(), args[0], project.Id)
+		key, err := identifier.New("cli")
+		if err != nil {
+			return err
+		}
+
+		result, err := client.InspectPlugin(command.Context(), args[0], project.Id, key)
 		if err != nil {
 			return err
 		}

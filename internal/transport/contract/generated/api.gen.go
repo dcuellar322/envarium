@@ -4054,13 +4054,43 @@ type CancelOperationParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
 
+// RefreshPluginsParams defines parameters for RefreshPlugins.
+type RefreshPluginsParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// DisablePluginParams defines parameters for DisablePlugin.
+type DisablePluginParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// EnablePluginParams defines parameters for EnablePlugin.
+type EnablePluginParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// CheckPluginHealthParams defines parameters for CheckPluginHealth.
+type CheckPluginHealthParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
 // ListPluginLogsParams defines parameters for ListPluginLogs.
 type ListPluginLogsParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
+// InspectProjectWithPluginParams defines parameters for InspectProjectWithPlugin.
+type InspectProjectWithPluginParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
 // CreatePluginOperationParams defines parameters for CreatePluginOperation.
 type CreatePluginOperationParams struct {
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+}
+
+// TrustPluginParams defines parameters for TrustPlugin.
+type TrustPluginParams struct {
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 }
 
@@ -4675,31 +4705,31 @@ type ClientInterface interface {
 	// RefreshPlugins Re-read plugin manifests without executing plugin code
 	//
 	// Corresponds with POST /plugins/refresh (the `RefreshPlugins` operationId).
-	RefreshPlugins(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RefreshPlugins(ctx context.Context, params *RefreshPluginsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DisablePlugin Disable a plugin and revoke all granted scopes
 	//
 	// Corresponds with POST /plugins/{pluginId}/disable (the `DisablePlugin` operationId).
-	DisablePlugin(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DisablePlugin(ctx context.Context, pluginId PluginId, params *DisablePluginParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// EnablePluginWithBody Grant reviewed scopes and enable a compatible plugin
 	//
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /plugins/{pluginId}/enable (the `EnablePlugin` operationId).
-	EnablePluginWithBody(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	EnablePluginWithBody(ctx context.Context, pluginId PluginId, params *EnablePluginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// EnablePlugin Grant reviewed scopes and enable a compatible plugin
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /plugins/{pluginId}/enable (the `EnablePlugin` operationId).
-	EnablePlugin(ctx context.Context, pluginId PluginId, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	EnablePlugin(ctx context.Context, pluginId PluginId, params *EnablePluginParams, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CheckPluginHealth Start one supervised plugin health check
 	//
 	// Corresponds with POST /plugins/{pluginId}/health (the `CheckPluginHealth` operationId).
-	CheckPluginHealth(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CheckPluginHealth(ctx context.Context, pluginId PluginId, params *CheckPluginHealthParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListPluginLogs List bounded redacted plugin supervision logs
 	//
@@ -4709,7 +4739,7 @@ type ClientInterface interface {
 	// InspectProjectWithPlugin Inspect one trusted project through reviewed plugin scopes
 	//
 	// Corresponds with POST /plugins/{pluginId}/projects/{projectId}/inspection (the `InspectProjectWithPlugin` operationId).
-	InspectProjectWithPlugin(ctx context.Context, pluginId PluginId, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	InspectProjectWithPlugin(ctx context.Context, pluginId PluginId, projectId ProjectId, params *InspectProjectWithPluginParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreatePluginOperationWithBody Queue one reviewed typed plugin action
 	//
@@ -4730,14 +4760,14 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /plugins/{pluginId}/trust (the `TrustPlugin` operationId).
-	TrustPluginWithBody(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	TrustPluginWithBody(ctx context.Context, pluginId PluginId, params *TrustPluginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// TrustPlugin Trust the exact reviewed plugin package fingerprint
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /plugins/{pluginId}/trust (the `TrustPlugin` operationId).
-	TrustPlugin(ctx context.Context, pluginId PluginId, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	TrustPlugin(ctx context.Context, pluginId PluginId, params *TrustPluginParams, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetPortRegistry Reconcile declared, reserved, and bound local ports
 	//
@@ -5974,8 +6004,8 @@ func (c *Client) ListPlugins(ctx context.Context, reqEditors ...RequestEditorFn)
 // RefreshPlugins Re-read plugin manifests without executing plugin code
 //
 // Corresponds with POST /plugins/refresh (the `RefreshPlugins` operationId).
-func (c *Client) RefreshPlugins(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRefreshPluginsRequest(c.Server)
+func (c *Client) RefreshPlugins(ctx context.Context, params *RefreshPluginsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRefreshPluginsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5989,8 +6019,8 @@ func (c *Client) RefreshPlugins(ctx context.Context, reqEditors ...RequestEditor
 // DisablePlugin Disable a plugin and revoke all granted scopes
 //
 // Corresponds with POST /plugins/{pluginId}/disable (the `DisablePlugin` operationId).
-func (c *Client) DisablePlugin(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDisablePluginRequest(c.Server, pluginId)
+func (c *Client) DisablePlugin(ctx context.Context, pluginId PluginId, params *DisablePluginParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDisablePluginRequest(c.Server, pluginId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -6006,8 +6036,8 @@ func (c *Client) DisablePlugin(ctx context.Context, pluginId PluginId, reqEditor
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /plugins/{pluginId}/enable (the `EnablePlugin` operationId).
-func (c *Client) EnablePluginWithBody(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewEnablePluginRequestWithBody(c.Server, pluginId, contentType, body)
+func (c *Client) EnablePluginWithBody(ctx context.Context, pluginId PluginId, params *EnablePluginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnablePluginRequestWithBody(c.Server, pluginId, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6023,8 +6053,8 @@ func (c *Client) EnablePluginWithBody(ctx context.Context, pluginId PluginId, co
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /plugins/{pluginId}/enable (the `EnablePlugin` operationId).
-func (c *Client) EnablePlugin(ctx context.Context, pluginId PluginId, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewEnablePluginRequest(c.Server, pluginId, body)
+func (c *Client) EnablePlugin(ctx context.Context, pluginId PluginId, params *EnablePluginParams, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnablePluginRequest(c.Server, pluginId, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6038,8 +6068,8 @@ func (c *Client) EnablePlugin(ctx context.Context, pluginId PluginId, body Enabl
 // CheckPluginHealth Start one supervised plugin health check
 //
 // Corresponds with POST /plugins/{pluginId}/health (the `CheckPluginHealth` operationId).
-func (c *Client) CheckPluginHealth(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCheckPluginHealthRequest(c.Server, pluginId)
+func (c *Client) CheckPluginHealth(ctx context.Context, pluginId PluginId, params *CheckPluginHealthParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCheckPluginHealthRequest(c.Server, pluginId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -6068,8 +6098,8 @@ func (c *Client) ListPluginLogs(ctx context.Context, pluginId PluginId, params *
 // InspectProjectWithPlugin Inspect one trusted project through reviewed plugin scopes
 //
 // Corresponds with POST /plugins/{pluginId}/projects/{projectId}/inspection (the `InspectProjectWithPlugin` operationId).
-func (c *Client) InspectProjectWithPlugin(ctx context.Context, pluginId PluginId, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewInspectProjectWithPluginRequest(c.Server, pluginId, projectId)
+func (c *Client) InspectProjectWithPlugin(ctx context.Context, pluginId PluginId, projectId ProjectId, params *InspectProjectWithPluginParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInspectProjectWithPluginRequest(c.Server, pluginId, projectId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -6119,8 +6149,8 @@ func (c *Client) CreatePluginOperation(ctx context.Context, pluginId PluginId, p
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /plugins/{pluginId}/trust (the `TrustPlugin` operationId).
-func (c *Client) TrustPluginWithBody(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewTrustPluginRequestWithBody(c.Server, pluginId, contentType, body)
+func (c *Client) TrustPluginWithBody(ctx context.Context, pluginId PluginId, params *TrustPluginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTrustPluginRequestWithBody(c.Server, pluginId, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6136,8 +6166,8 @@ func (c *Client) TrustPluginWithBody(ctx context.Context, pluginId PluginId, con
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /plugins/{pluginId}/trust (the `TrustPlugin` operationId).
-func (c *Client) TrustPlugin(ctx context.Context, pluginId PluginId, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewTrustPluginRequest(c.Server, pluginId, body)
+func (c *Client) TrustPlugin(ctx context.Context, pluginId PluginId, params *TrustPluginParams, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTrustPluginRequest(c.Server, pluginId, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8955,7 +8985,7 @@ func NewListPluginsRequest(server string) (*http.Request, error) {
 }
 
 // NewRefreshPluginsRequest constructs an http.Request for the RefreshPlugins method
-func NewRefreshPluginsRequest(server string) (*http.Request, error) {
+func NewRefreshPluginsRequest(server string, params *RefreshPluginsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -8978,11 +9008,24 @@ func NewRefreshPluginsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
 	return req, nil
 }
 
 // NewDisablePluginRequest constructs an http.Request for the DisablePlugin method
-func NewDisablePluginRequest(server string, pluginId PluginId) (*http.Request, error) {
+func NewDisablePluginRequest(server string, pluginId PluginId, params *DisablePluginParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9012,22 +9055,35 @@ func NewDisablePluginRequest(server string, pluginId PluginId) (*http.Request, e
 		return nil, err
 	}
 
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
 	return req, nil
 }
 
 // NewEnablePluginRequest calls the generic EnablePlugin builder with application/json body
-func NewEnablePluginRequest(server string, pluginId PluginId, body EnablePluginJSONRequestBody) (*http.Request, error) {
+func NewEnablePluginRequest(server string, pluginId PluginId, params *EnablePluginParams, body EnablePluginJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewEnablePluginRequestWithBody(server, pluginId, "application/json", bodyReader)
+	return NewEnablePluginRequestWithBody(server, pluginId, params, "application/json", bodyReader)
 }
 
 // NewEnablePluginRequestWithBody constructs an http.Request for the EnablePlugin method, with any body, and a specified content type
-func NewEnablePluginRequestWithBody(server string, pluginId PluginId, contentType string, body io.Reader) (*http.Request, error) {
+func NewEnablePluginRequestWithBody(server string, pluginId PluginId, params *EnablePluginParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9059,11 +9115,24 @@ func NewEnablePluginRequestWithBody(server string, pluginId PluginId, contentTyp
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
+
 	return req, nil
 }
 
 // NewCheckPluginHealthRequest constructs an http.Request for the CheckPluginHealth method
-func NewCheckPluginHealthRequest(server string, pluginId PluginId) (*http.Request, error) {
+func NewCheckPluginHealthRequest(server string, pluginId PluginId, params *CheckPluginHealthParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9091,6 +9160,19 @@ func NewCheckPluginHealthRequest(server string, pluginId PluginId) (*http.Reques
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
 	}
 
 	return req, nil
@@ -9158,7 +9240,7 @@ func NewListPluginLogsRequest(server string, pluginId PluginId, params *ListPlug
 }
 
 // NewInspectProjectWithPluginRequest constructs an http.Request for the InspectProjectWithPlugin method
-func NewInspectProjectWithPluginRequest(server string, pluginId PluginId, projectId ProjectId) (*http.Request, error) {
+func NewInspectProjectWithPluginRequest(server string, pluginId PluginId, projectId ProjectId, params *InspectProjectWithPluginParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9193,6 +9275,19 @@ func NewInspectProjectWithPluginRequest(server string, pluginId PluginId, projec
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
 	}
 
 	return req, nil
@@ -9266,18 +9361,18 @@ func NewCreatePluginOperationRequestWithBody(server string, pluginId PluginId, p
 }
 
 // NewTrustPluginRequest calls the generic TrustPlugin builder with application/json body
-func NewTrustPluginRequest(server string, pluginId PluginId, body TrustPluginJSONRequestBody) (*http.Request, error) {
+func NewTrustPluginRequest(server string, pluginId PluginId, params *TrustPluginParams, body TrustPluginJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewTrustPluginRequestWithBody(server, pluginId, "application/json", bodyReader)
+	return NewTrustPluginRequestWithBody(server, pluginId, params, "application/json", bodyReader)
 }
 
 // NewTrustPluginRequestWithBody constructs an http.Request for the TrustPlugin method, with any body, and a specified content type
-func NewTrustPluginRequestWithBody(server string, pluginId PluginId, contentType string, body io.Reader) (*http.Request, error) {
+func NewTrustPluginRequestWithBody(server string, pluginId PluginId, params *TrustPluginParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9308,6 +9403,19 @@ func NewTrustPluginRequestWithBody(server string, pluginId PluginId, contentType
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "Idempotency-Key", params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Idempotency-Key", headerParam0)
+
+	}
 
 	return req, nil
 }
@@ -12301,35 +12409,35 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /plugins/refresh (the `RefreshPlugins` operationId).
-	RefreshPluginsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RefreshPluginsResponse, error)
+	RefreshPluginsWithResponse(ctx context.Context, params *RefreshPluginsParams, reqEditors ...RequestEditorFn) (*RefreshPluginsResponse, error)
 
 	// DisablePluginWithResponse Disable a plugin and revoke all granted scopes
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /plugins/{pluginId}/disable (the `DisablePlugin` operationId).
-	DisablePluginWithResponse(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*DisablePluginResponse, error)
+	DisablePluginWithResponse(ctx context.Context, pluginId PluginId, params *DisablePluginParams, reqEditors ...RequestEditorFn) (*DisablePluginResponse, error)
 
 	// EnablePluginWithBodyWithResponse Grant reviewed scopes and enable a compatible plugin
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /plugins/{pluginId}/enable (the `EnablePlugin` operationId).
-	EnablePluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error)
+	EnablePluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, params *EnablePluginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error)
 
 	// EnablePluginWithResponse Grant reviewed scopes and enable a compatible plugin
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /plugins/{pluginId}/enable (the `EnablePlugin` operationId).
-	EnablePluginWithResponse(ctx context.Context, pluginId PluginId, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error)
+	EnablePluginWithResponse(ctx context.Context, pluginId PluginId, params *EnablePluginParams, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error)
 
 	// CheckPluginHealthWithResponse Start one supervised plugin health check
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /plugins/{pluginId}/health (the `CheckPluginHealth` operationId).
-	CheckPluginHealthWithResponse(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*CheckPluginHealthResponse, error)
+	CheckPluginHealthWithResponse(ctx context.Context, pluginId PluginId, params *CheckPluginHealthParams, reqEditors ...RequestEditorFn) (*CheckPluginHealthResponse, error)
 
 	// ListPluginLogsWithResponse List bounded redacted plugin supervision logs
 	//
@@ -12343,7 +12451,7 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /plugins/{pluginId}/projects/{projectId}/inspection (the `InspectProjectWithPlugin` operationId).
-	InspectProjectWithPluginWithResponse(ctx context.Context, pluginId PluginId, projectId ProjectId, reqEditors ...RequestEditorFn) (*InspectProjectWithPluginResponse, error)
+	InspectProjectWithPluginWithResponse(ctx context.Context, pluginId PluginId, projectId ProjectId, params *InspectProjectWithPluginParams, reqEditors ...RequestEditorFn) (*InspectProjectWithPluginResponse, error)
 
 	// CreatePluginOperationWithBodyWithResponse Queue one reviewed typed plugin action
 	//
@@ -12364,14 +12472,14 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /plugins/{pluginId}/trust (the `TrustPlugin` operationId).
-	TrustPluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error)
+	TrustPluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, params *TrustPluginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error)
 
 	// TrustPluginWithResponse Trust the exact reviewed plugin package fingerprint
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /plugins/{pluginId}/trust (the `TrustPlugin` operationId).
-	TrustPluginWithResponse(ctx context.Context, pluginId PluginId, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error)
+	TrustPluginWithResponse(ctx context.Context, pluginId PluginId, params *TrustPluginParams, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error)
 
 	// GetPortRegistryWithResponse Reconcile declared, reserved, and bound local ports
 	//
@@ -16946,8 +17054,8 @@ func (c *ClientWithResponses) ListPluginsWithResponse(ctx context.Context, reqEd
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /plugins/refresh (the `RefreshPlugins` operationId).
-func (c *ClientWithResponses) RefreshPluginsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RefreshPluginsResponse, error) {
-	rsp, err := c.RefreshPlugins(ctx, reqEditors...)
+func (c *ClientWithResponses) RefreshPluginsWithResponse(ctx context.Context, params *RefreshPluginsParams, reqEditors ...RequestEditorFn) (*RefreshPluginsResponse, error) {
+	rsp, err := c.RefreshPlugins(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16959,8 +17067,8 @@ func (c *ClientWithResponses) RefreshPluginsWithResponse(ctx context.Context, re
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /plugins/{pluginId}/disable (the `DisablePlugin` operationId).
-func (c *ClientWithResponses) DisablePluginWithResponse(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*DisablePluginResponse, error) {
-	rsp, err := c.DisablePlugin(ctx, pluginId, reqEditors...)
+func (c *ClientWithResponses) DisablePluginWithResponse(ctx context.Context, pluginId PluginId, params *DisablePluginParams, reqEditors ...RequestEditorFn) (*DisablePluginResponse, error) {
+	rsp, err := c.DisablePlugin(ctx, pluginId, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16972,8 +17080,8 @@ func (c *ClientWithResponses) DisablePluginWithResponse(ctx context.Context, plu
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /plugins/{pluginId}/enable (the `EnablePlugin` operationId).
-func (c *ClientWithResponses) EnablePluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error) {
-	rsp, err := c.EnablePluginWithBody(ctx, pluginId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) EnablePluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, params *EnablePluginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error) {
+	rsp, err := c.EnablePluginWithBody(ctx, pluginId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16985,8 +17093,8 @@ func (c *ClientWithResponses) EnablePluginWithBodyWithResponse(ctx context.Conte
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /plugins/{pluginId}/enable (the `EnablePlugin` operationId).
-func (c *ClientWithResponses) EnablePluginWithResponse(ctx context.Context, pluginId PluginId, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error) {
-	rsp, err := c.EnablePlugin(ctx, pluginId, body, reqEditors...)
+func (c *ClientWithResponses) EnablePluginWithResponse(ctx context.Context, pluginId PluginId, params *EnablePluginParams, body EnablePluginJSONRequestBody, reqEditors ...RequestEditorFn) (*EnablePluginResponse, error) {
+	rsp, err := c.EnablePlugin(ctx, pluginId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -16998,8 +17106,8 @@ func (c *ClientWithResponses) EnablePluginWithResponse(ctx context.Context, plug
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /plugins/{pluginId}/health (the `CheckPluginHealth` operationId).
-func (c *ClientWithResponses) CheckPluginHealthWithResponse(ctx context.Context, pluginId PluginId, reqEditors ...RequestEditorFn) (*CheckPluginHealthResponse, error) {
-	rsp, err := c.CheckPluginHealth(ctx, pluginId, reqEditors...)
+func (c *ClientWithResponses) CheckPluginHealthWithResponse(ctx context.Context, pluginId PluginId, params *CheckPluginHealthParams, reqEditors ...RequestEditorFn) (*CheckPluginHealthResponse, error) {
+	rsp, err := c.CheckPluginHealth(ctx, pluginId, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -17024,8 +17132,8 @@ func (c *ClientWithResponses) ListPluginLogsWithResponse(ctx context.Context, pl
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /plugins/{pluginId}/projects/{projectId}/inspection (the `InspectProjectWithPlugin` operationId).
-func (c *ClientWithResponses) InspectProjectWithPluginWithResponse(ctx context.Context, pluginId PluginId, projectId ProjectId, reqEditors ...RequestEditorFn) (*InspectProjectWithPluginResponse, error) {
-	rsp, err := c.InspectProjectWithPlugin(ctx, pluginId, projectId, reqEditors...)
+func (c *ClientWithResponses) InspectProjectWithPluginWithResponse(ctx context.Context, pluginId PluginId, projectId ProjectId, params *InspectProjectWithPluginParams, reqEditors ...RequestEditorFn) (*InspectProjectWithPluginResponse, error) {
+	rsp, err := c.InspectProjectWithPlugin(ctx, pluginId, projectId, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -17063,8 +17171,8 @@ func (c *ClientWithResponses) CreatePluginOperationWithResponse(ctx context.Cont
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /plugins/{pluginId}/trust (the `TrustPlugin` operationId).
-func (c *ClientWithResponses) TrustPluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error) {
-	rsp, err := c.TrustPluginWithBody(ctx, pluginId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) TrustPluginWithBodyWithResponse(ctx context.Context, pluginId PluginId, params *TrustPluginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error) {
+	rsp, err := c.TrustPluginWithBody(ctx, pluginId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -17076,8 +17184,8 @@ func (c *ClientWithResponses) TrustPluginWithBodyWithResponse(ctx context.Contex
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /plugins/{pluginId}/trust (the `TrustPlugin` operationId).
-func (c *ClientWithResponses) TrustPluginWithResponse(ctx context.Context, pluginId PluginId, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error) {
-	rsp, err := c.TrustPlugin(ctx, pluginId, body, reqEditors...)
+func (c *ClientWithResponses) TrustPluginWithResponse(ctx context.Context, pluginId PluginId, params *TrustPluginParams, body TrustPluginJSONRequestBody, reqEditors ...RequestEditorFn) (*TrustPluginResponse, error) {
+	rsp, err := c.TrustPlugin(ctx, pluginId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -21596,28 +21704,28 @@ type ServerInterface interface {
 	ListPlugins(w http.ResponseWriter, r *http.Request)
 	// RefreshPlugins Re-read plugin manifests without executing plugin code
 	// (POST /plugins/refresh)
-	RefreshPlugins(w http.ResponseWriter, r *http.Request)
+	RefreshPlugins(w http.ResponseWriter, r *http.Request, params RefreshPluginsParams)
 	// DisablePlugin Disable a plugin and revoke all granted scopes
 	// (POST /plugins/{pluginId}/disable)
-	DisablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId)
+	DisablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, params DisablePluginParams)
 	// EnablePlugin Grant reviewed scopes and enable a compatible plugin
 	// (POST /plugins/{pluginId}/enable)
-	EnablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId)
+	EnablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, params EnablePluginParams)
 	// CheckPluginHealth Start one supervised plugin health check
 	// (POST /plugins/{pluginId}/health)
-	CheckPluginHealth(w http.ResponseWriter, r *http.Request, pluginId PluginId)
+	CheckPluginHealth(w http.ResponseWriter, r *http.Request, pluginId PluginId, params CheckPluginHealthParams)
 	// ListPluginLogs List bounded redacted plugin supervision logs
 	// (GET /plugins/{pluginId}/logs)
 	ListPluginLogs(w http.ResponseWriter, r *http.Request, pluginId PluginId, params ListPluginLogsParams)
 	// InspectProjectWithPlugin Inspect one trusted project through reviewed plugin scopes
 	// (POST /plugins/{pluginId}/projects/{projectId}/inspection)
-	InspectProjectWithPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, projectId ProjectId)
+	InspectProjectWithPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, projectId ProjectId, params InspectProjectWithPluginParams)
 	// CreatePluginOperation Queue one reviewed typed plugin action
 	// (POST /plugins/{pluginId}/projects/{projectId}/operations)
 	CreatePluginOperation(w http.ResponseWriter, r *http.Request, pluginId PluginId, projectId ProjectId, params CreatePluginOperationParams)
 	// TrustPlugin Trust the exact reviewed plugin package fingerprint
 	// (POST /plugins/{pluginId}/trust)
-	TrustPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId)
+	TrustPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, params TrustPluginParams)
 	// GetPortRegistry Reconcile declared, reserved, and bound local ports
 	// (GET /ports)
 	GetPortRegistry(w http.ResponseWriter, r *http.Request)
@@ -22019,25 +22127,25 @@ func (_ Unimplemented) ListPlugins(w http.ResponseWriter, r *http.Request) {
 
 // RefreshPlugins Re-read plugin manifests without executing plugin code
 // (POST /plugins/refresh)
-func (_ Unimplemented) RefreshPlugins(w http.ResponseWriter, r *http.Request) {
+func (_ Unimplemented) RefreshPlugins(w http.ResponseWriter, r *http.Request, params RefreshPluginsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // DisablePlugin Disable a plugin and revoke all granted scopes
 // (POST /plugins/{pluginId}/disable)
-func (_ Unimplemented) DisablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId) {
+func (_ Unimplemented) DisablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, params DisablePluginParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // EnablePlugin Grant reviewed scopes and enable a compatible plugin
 // (POST /plugins/{pluginId}/enable)
-func (_ Unimplemented) EnablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId) {
+func (_ Unimplemented) EnablePlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, params EnablePluginParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // CheckPluginHealth Start one supervised plugin health check
 // (POST /plugins/{pluginId}/health)
-func (_ Unimplemented) CheckPluginHealth(w http.ResponseWriter, r *http.Request, pluginId PluginId) {
+func (_ Unimplemented) CheckPluginHealth(w http.ResponseWriter, r *http.Request, pluginId PluginId, params CheckPluginHealthParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -22049,7 +22157,7 @@ func (_ Unimplemented) ListPluginLogs(w http.ResponseWriter, r *http.Request, pl
 
 // InspectProjectWithPlugin Inspect one trusted project through reviewed plugin scopes
 // (POST /plugins/{pluginId}/projects/{projectId}/inspection)
-func (_ Unimplemented) InspectProjectWithPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, projectId ProjectId) {
+func (_ Unimplemented) InspectProjectWithPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, projectId ProjectId, params InspectProjectWithPluginParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -22061,7 +22169,7 @@ func (_ Unimplemented) CreatePluginOperation(w http.ResponseWriter, r *http.Requ
 
 // TrustPlugin Trust the exact reviewed plugin package fingerprint
 // (POST /plugins/{pluginId}/trust)
-func (_ Unimplemented) TrustPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId) {
+func (_ Unimplemented) TrustPlugin(w http.ResponseWriter, r *http.Request, pluginId PluginId, params TrustPluginParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -23594,8 +23702,39 @@ func (siw *ServerInterfaceWrapper) ListPlugins(w http.ResponseWriter, r *http.Re
 // RefreshPlugins operation middleware
 func (siw *ServerInterfaceWrapper) RefreshPlugins(w http.ResponseWriter, r *http.Request) {
 
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params RefreshPluginsParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.RefreshPlugins(w, r)
+		siw.Handler.RefreshPlugins(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -23620,8 +23759,36 @@ func (siw *ServerInterfaceWrapper) DisablePlugin(w http.ResponseWriter, r *http.
 		return
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DisablePluginParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DisablePlugin(w, r, pluginId)
+		siw.Handler.DisablePlugin(w, r, pluginId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -23646,8 +23813,36 @@ func (siw *ServerInterfaceWrapper) EnablePlugin(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params EnablePluginParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.EnablePlugin(w, r, pluginId)
+		siw.Handler.EnablePlugin(w, r, pluginId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -23672,8 +23867,36 @@ func (siw *ServerInterfaceWrapper) CheckPluginHealth(w http.ResponseWriter, r *h
 		return
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CheckPluginHealthParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CheckPluginHealth(w, r, pluginId)
+		siw.Handler.CheckPluginHealth(w, r, pluginId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -23749,8 +23972,36 @@ func (siw *ServerInterfaceWrapper) InspectProjectWithPlugin(w http.ResponseWrite
 		return
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params InspectProjectWithPluginParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.InspectProjectWithPlugin(w, r, pluginId, projectId)
+		siw.Handler.InspectProjectWithPlugin(w, r, pluginId, projectId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -23838,8 +24089,36 @@ func (siw *ServerInterfaceWrapper) TrustPlugin(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params TrustPluginParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey IdempotencyKey
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.TrustPlugin(w, r, pluginId)
+		siw.Handler.TrustPlugin(w, r, pluginId, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {

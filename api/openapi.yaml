@@ -1396,6 +1396,8 @@ paths:
     post:
       operationId: refreshPlugins
       summary: Re-read plugin manifests without executing plugin code
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
       responses:
         "200":
           description: Reconciled plugin registrations
@@ -1411,6 +1413,7 @@ paths:
       operationId: trustPlugin
       summary: Trust the exact reviewed plugin package fingerprint
       parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
         - $ref: "#/components/parameters/PluginId"
       requestBody:
         required: true
@@ -1430,6 +1433,7 @@ paths:
       operationId: enablePlugin
       summary: Grant reviewed scopes and enable a compatible plugin
       parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
         - $ref: "#/components/parameters/PluginId"
       requestBody:
         required: true
@@ -1449,6 +1453,7 @@ paths:
       operationId: disablePlugin
       summary: Disable a plugin and revoke all granted scopes
       parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
         - $ref: "#/components/parameters/PluginId"
       responses:
         "200":
@@ -1463,6 +1468,7 @@ paths:
       operationId: checkPluginHealth
       summary: Start one supervised plugin health check
       parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
         - $ref: "#/components/parameters/PluginId"
       responses:
         "200":
@@ -1496,6 +1502,7 @@ paths:
       operationId: inspectProjectWithPlugin
       summary: Inspect one trusted project through reviewed plugin scopes
       parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
         - $ref: "#/components/parameters/PluginId"
         - $ref: "#/components/parameters/ProjectId"
       responses:

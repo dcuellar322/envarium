@@ -9,9 +9,9 @@ import (
 )
 
 // Plugins lists registrations and optionally refreshes deterministic discovery.
-func (c *Client) Plugins(ctx context.Context, refresh bool) ([]generated.PluginRegistration, error) {
+func (c *Client) Plugins(ctx context.Context, refresh bool, key string) ([]generated.PluginRegistration, error) {
 	if refresh {
-		response, err := c.generated.RefreshPluginsWithResponse(ctx)
+		response, err := c.generated.RefreshPluginsWithResponse(ctx, &generated.RefreshPluginsParams{IdempotencyKey: key})
 		if err != nil {
 			return nil, fmt.Errorf("refresh plugins: %w", err)
 		}
@@ -31,8 +31,8 @@ func (c *Client) Plugins(ctx context.Context, refresh bool) ([]generated.PluginR
 }
 
 // TrustPlugin records one exact reviewed package fingerprint.
-func (c *Client) TrustPlugin(ctx context.Context, id, fingerprint string) (generated.PluginRegistration, error) {
-	response, err := c.generated.TrustPluginWithResponse(ctx, id, generated.PluginTrustRequest{Fingerprint: fingerprint})
+func (c *Client) TrustPlugin(ctx context.Context, id, fingerprint, key string) (generated.PluginRegistration, error) {
+	response, err := c.generated.TrustPluginWithResponse(ctx, id, &generated.TrustPluginParams{IdempotencyKey: key}, generated.PluginTrustRequest{Fingerprint: fingerprint})
 	if err != nil {
 		return generated.PluginRegistration{}, fmt.Errorf("trust plugin: %w", err)
 	}
@@ -43,12 +43,12 @@ func (c *Client) TrustPlugin(ctx context.Context, id, fingerprint string) (gener
 }
 
 // EnablePlugin enables a trusted plugin with explicit reviewed scopes.
-func (c *Client) EnablePlugin(ctx context.Context, id string, scopes []string) (generated.PluginRegistration, error) {
+func (c *Client) EnablePlugin(ctx context.Context, id string, scopes []string, key string) (generated.PluginRegistration, error) {
 	values := make([]generated.PluginEnableRequestGrantedScopes, len(scopes))
 	for index, scope := range scopes {
 		values[index] = generated.PluginEnableRequestGrantedScopes(scope)
 	}
-	response, err := c.generated.EnablePluginWithResponse(ctx, id, generated.PluginEnableRequest{GrantedScopes: values})
+	response, err := c.generated.EnablePluginWithResponse(ctx, id, &generated.EnablePluginParams{IdempotencyKey: key}, generated.PluginEnableRequest{GrantedScopes: values})
 	if err != nil {
 		return generated.PluginRegistration{}, fmt.Errorf("enable plugin: %w", err)
 	}
@@ -59,8 +59,8 @@ func (c *Client) EnablePlugin(ctx context.Context, id string, scopes []string) (
 }
 
 // DisablePlugin disables a plugin and revokes its grants.
-func (c *Client) DisablePlugin(ctx context.Context, id string) (generated.PluginRegistration, error) {
-	response, err := c.generated.DisablePluginWithResponse(ctx, id)
+func (c *Client) DisablePlugin(ctx context.Context, id, key string) (generated.PluginRegistration, error) {
+	response, err := c.generated.DisablePluginWithResponse(ctx, id, &generated.DisablePluginParams{IdempotencyKey: key})
 	if err != nil {
 		return generated.PluginRegistration{}, fmt.Errorf("disable plugin: %w", err)
 	}
@@ -71,8 +71,8 @@ func (c *Client) DisablePlugin(ctx context.Context, id string) (generated.Plugin
 }
 
 // CheckPlugin runs one supervised health exchange.
-func (c *Client) CheckPlugin(ctx context.Context, id string) (generated.PluginRegistration, error) {
-	response, err := c.generated.CheckPluginHealthWithResponse(ctx, id)
+func (c *Client) CheckPlugin(ctx context.Context, id, key string) (generated.PluginRegistration, error) {
+	response, err := c.generated.CheckPluginHealthWithResponse(ctx, id, &generated.CheckPluginHealthParams{IdempotencyKey: key})
 	if err != nil {
 		return generated.PluginRegistration{}, fmt.Errorf("check plugin: %w", err)
 	}
@@ -95,8 +95,8 @@ func (c *Client) PluginLogs(ctx context.Context, id string, limit int) ([]genera
 }
 
 // InspectPlugin reads structured facts through reviewed scopes.
-func (c *Client) InspectPlugin(ctx context.Context, id, projectID string) (generated.PluginInspection, error) {
-	response, err := c.generated.InspectProjectWithPluginWithResponse(ctx, id, projectID)
+func (c *Client) InspectPlugin(ctx context.Context, id, projectID, key string) (generated.PluginInspection, error) {
+	response, err := c.generated.InspectProjectWithPluginWithResponse(ctx, id, projectID, &generated.InspectProjectWithPluginParams{IdempotencyKey: key})
 	if err != nil {
 		return generated.PluginInspection{}, fmt.Errorf("inspect with plugin: %w", err)
 	}

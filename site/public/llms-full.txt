@@ -5476,6 +5476,11 @@ to run while `daemon.lock` exists. Stop Envarium first; do not delete a live
 lock. The automatic backup is non-overwriting, so a failed prior attempt stays
 available for inspection rather than being replaced.
 
+`data inspect` reports both the stored and supported schema versions. If the
+stored version is newer, both migration preview and `data migrate --write`
+refuse with exit status 4 (`DATABASE_SCHEMA_NEWER` in JSON output). They do
+not label unsupported data current, create a backup, or start a daemon.
+
 Projects, accepted manifest snapshots, audit history, operations, workspaces,
 plugin registrations, and diagnostics remain in SQLite. Portable manifests
 remain in repositories. Browser settings remain in that browser, and desktop

@@ -18,7 +18,7 @@ func (h *handler) ListPlugins(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, items)
 }
 
-func (h *handler) RefreshPlugins(w http.ResponseWriter, r *http.Request) {
+func (h *handler) RefreshPlugins(w http.ResponseWriter, r *http.Request, _ generated.RefreshPluginsParams) {
 	items, err := h.plugins.Refresh(r.Context())
 	if err != nil {
 		writeApplicationError(w, r, err)
@@ -27,7 +27,7 @@ func (h *handler) RefreshPlugins(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, items)
 }
 
-func (h *handler) TrustPlugin(w http.ResponseWriter, r *http.Request, pluginID generated.PluginId) {
+func (h *handler) TrustPlugin(w http.ResponseWriter, r *http.Request, pluginID generated.PluginId, _ generated.TrustPluginParams) {
 	var request generated.PluginTrustRequest
 	if err := decodePluginBody(w, r, &request, 4<<10); err != nil {
 		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request body invalid", "Provide the exact reviewed 64-character plugin fingerprint.")
@@ -41,7 +41,7 @@ func (h *handler) TrustPlugin(w http.ResponseWriter, r *http.Request, pluginID g
 	writeJSON(w, http.StatusOK, item)
 }
 
-func (h *handler) EnablePlugin(w http.ResponseWriter, r *http.Request, pluginID generated.PluginId) {
+func (h *handler) EnablePlugin(w http.ResponseWriter, r *http.Request, pluginID generated.PluginId, _ generated.EnablePluginParams) {
 	var request generated.PluginEnableRequest
 	if err := decodePluginBody(w, r, &request, 8<<10); err != nil {
 		writeProblem(w, r, http.StatusBadRequest, "REQUEST_INVALID", "Request body invalid", "Provide only reviewed scopes requested by this plugin.")
@@ -59,7 +59,7 @@ func (h *handler) EnablePlugin(w http.ResponseWriter, r *http.Request, pluginID 
 	writeJSON(w, http.StatusOK, item)
 }
 
-func (h *handler) DisablePlugin(w http.ResponseWriter, r *http.Request, pluginID generated.PluginId) {
+func (h *handler) DisablePlugin(w http.ResponseWriter, r *http.Request, pluginID generated.PluginId, _ generated.DisablePluginParams) {
 	item, err := h.plugins.Disable(r.Context(), pluginID)
 	if err != nil {
 		writeApplicationError(w, r, err)
@@ -68,7 +68,7 @@ func (h *handler) DisablePlugin(w http.ResponseWriter, r *http.Request, pluginID
 	writeJSON(w, http.StatusOK, item)
 }
 
-func (h *handler) CheckPluginHealth(w http.ResponseWriter, r *http.Request, pluginID generated.PluginId) {
+func (h *handler) CheckPluginHealth(w http.ResponseWriter, r *http.Request, pluginID generated.PluginId, _ generated.CheckPluginHealthParams) {
 	item, err := h.plugins.Health(r.Context(), pluginID)
 	if err != nil {
 		writeApplicationError(w, r, err)
@@ -90,7 +90,7 @@ func (h *handler) ListPluginLogs(w http.ResponseWriter, r *http.Request, pluginI
 	writeJSON(w, http.StatusOK, logs)
 }
 
-func (h *handler) InspectProjectWithPlugin(w http.ResponseWriter, r *http.Request, pluginID generated.PluginId, projectID generated.ProjectId) {
+func (h *handler) InspectProjectWithPlugin(w http.ResponseWriter, r *http.Request, pluginID generated.PluginId, projectID generated.ProjectId, _ generated.InspectProjectWithPluginParams) {
 	result, err := h.plugins.Inspect(r.Context(), pluginID, projectID)
 	if err != nil {
 		writeApplicationError(w, r, err)

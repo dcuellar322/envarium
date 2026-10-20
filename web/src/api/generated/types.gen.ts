@@ -3821,6 +3821,9 @@ export type ListPluginsResponse = ListPluginsResponses[keyof ListPluginsResponse
 
 export type RefreshPluginsData = {
     body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
     path?: never;
     query?: never;
     url: '/plugins/refresh';
@@ -3846,6 +3849,9 @@ export type RefreshPluginsResponse = RefreshPluginsResponses[keyof RefreshPlugin
 
 export type TrustPluginData = {
     body: PluginTrustRequest;
+    headers: {
+        'Idempotency-Key': string;
+    };
     path: {
         pluginId: string;
     };
@@ -3873,6 +3879,9 @@ export type TrustPluginResponse = TrustPluginResponses[keyof TrustPluginResponse
 
 export type EnablePluginData = {
     body: PluginEnableRequest;
+    headers: {
+        'Idempotency-Key': string;
+    };
     path: {
         pluginId: string;
     };
@@ -3900,6 +3909,9 @@ export type EnablePluginResponse = EnablePluginResponses[keyof EnablePluginRespo
 
 export type DisablePluginData = {
     body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
     path: {
         pluginId: string;
     };
@@ -3927,6 +3939,9 @@ export type DisablePluginResponse = DisablePluginResponses[keyof DisablePluginRe
 
 export type CheckPluginHealthData = {
     body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
     path: {
         pluginId: string;
     };
@@ -3983,6 +3998,9 @@ export type ListPluginLogsResponse = ListPluginLogsResponses[keyof ListPluginLog
 
 export type InspectProjectWithPluginData = {
     body?: never;
+    headers: {
+        'Idempotency-Key': string;
+    };
     path: {
         pluginId: string;
         projectId: string;

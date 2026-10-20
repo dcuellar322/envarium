@@ -65,6 +65,12 @@ func newDataMigrateCommand(options *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if status.CurrentVersion > status.TargetVersion {
+				return conflictError("DATABASE_SCHEMA_NEWER", fmt.Sprintf(
+					"database schema version %d is newer than this binary supports (%d); install a compatible Envarium version before migrating this data",
+					status.CurrentVersion, status.TargetVersion,
+				))
+			}
 			if apply && status.MigrationRequired {
 				status, err = bootstrap.MigrateData(command.Context(), options.dataDir)
 				if err != nil {

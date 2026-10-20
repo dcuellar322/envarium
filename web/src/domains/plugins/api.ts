@@ -14,7 +14,7 @@ import type {
 } from '../../api/generated/types.gen'
 import { mutationHeaders } from '../session/bootstrap'
 
-function headers(): Record<string, string> {
+function headers() {
   return mutationHeaders(`ui_${crypto.randomUUID()}`)
 }
 

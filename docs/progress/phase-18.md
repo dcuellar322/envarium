@@ -335,3 +335,53 @@ directory switch passes with the repaired path, and both the generated app
 bundle and bundled Go binary report `1.0.0-beta.rc.2`. Workflow actionlint and
 documentation regeneration pass. The RC1 CLI archives/checksums/SBOM job passed;
 the workflow correctly withheld a draft because native bundles failed.
+
+## 2026-10-20 RC2 installer qualification
+
+The immutable `v1.0.0-beta.rc.2` tag at `a8a87a6` passed exact-commit hosted CI
+and the protected signing/notarization workflow. Artifact-level installer,
+browser workflow, Linux package, migration, and retained-data checks are
+recorded in the [RC2 qualification report](rc2-installer-qualification-2026-10-20.md).
+
+Publication remains on hold: `data migrate --write` incorrectly reports an
+unsupported newer schema as current even though daemon startup safely refuses
+it, and documented plugin refresh/trust commands fail idempotency validation.
+Real project-scoped MCP start/stop, observe-profile denial, and persisted agent
+audit events pass against the packaged Intel binary. Clean-machine native
+desktop integration and signed updater acceptance
+also remain open. Source-build and container evidence must not be read as
+completion of those human release gates; Windows/WSL2 remains deferred.
+
+## 2026-10-20 CLI repairs for RC3
+
+This slice addresses the two RC2 qualification failures under Phase 18's
+primary-workflow and preserved-data exit criteria. No accepted architecture
+decision changes; the plugin OpenAPI headers now describe the existing server
+requirement rather than adding a new authorization rule.
+
+- Migration preview and write commands reject a stored schema newer than the
+  binary supports with `DATABASE_SCHEMA_NEWER` and conflict exit status 4.
+  Read-only `data inspect` continues to report both versions for diagnosis.
+- Plugin refresh, trust, enable, disable, health, and inspection now carry an
+  explicit caller-generated idempotency key through the typed HTTP client.
+  The OpenAPI source and regenerated Go/TypeScript bindings require that header.
+  Browser mutation-header helpers retain their inferred required-key type.
+- Regression coverage exercises all human/JSON and preview/write combinations
+  against newer data, checks the stable failure and unchanged database bytes,
+  and forbids backup/daemon side effects. A real CLI/IPC/daemon test runs the
+  sample plugin's refresh/trust/grants/health/inspection/operation/revocation
+  flow and checks trust confirmation and changed-fingerprint refusal.
+
+The RC2 report remains historical evidence. RC3 must pass exact-commit CI and
+the protected signed build before artifact-level qualification. Clean-machine
+native desktop and signed updater gates remain explicit and are not closed
+by these code repairs.
+
+Local preparation verification passes the full Go suite, focused CLI/API
+regressions, Go vet/GolangCI (zero issues), architecture/repository checks,
+frontend formatting/lint/typechecking, and all 93 frontend tests. Go and
+TypeScript clients and documentation were regenerated; content validation
+passes. `govulncheck` reports no reachable/imported vulnerabilities. An initial
+race run under concurrent local checks hit the existing cancellation test's
+five-second database-setup deadline; its retry and the hosted race gate remain
+part of qualification rather than being represented as a clean initial run.

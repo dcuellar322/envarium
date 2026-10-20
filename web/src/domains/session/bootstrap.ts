@@ -22,7 +22,7 @@ export async function bootstrapBrowserSession(): Promise<void> {
   configureClient()
 }
 
-export function mutationHeaders(idempotencyKey: string): Record<string, string> {
+export function mutationHeaders(idempotencyKey: string) {
   const csrfToken = window.sessionStorage.getItem(csrfStorageKey)
   return {
     'Idempotency-Key': idempotencyKey,

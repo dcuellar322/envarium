@@ -629,7 +629,7 @@ export const listPlugins = <ThrowOnError extends boolean = false>(options?: Opti
 /**
  * Re-read plugin manifests without executing plugin code
  */
-export const refreshPlugins = <ThrowOnError extends boolean = false>(options?: Options<RefreshPluginsData, ThrowOnError>): RequestResult<RefreshPluginsResponses, RefreshPluginsErrors, ThrowOnError> => (options?.client ?? client).post<RefreshPluginsResponses, RefreshPluginsErrors, ThrowOnError>({ url: '/plugins/refresh', ...options });
+export const refreshPlugins = <ThrowOnError extends boolean = false>(options: Options<RefreshPluginsData, ThrowOnError>): RequestResult<RefreshPluginsResponses, RefreshPluginsErrors, ThrowOnError> => (options.client ?? client).post<RefreshPluginsResponses, RefreshPluginsErrors, ThrowOnError>({ url: '/plugins/refresh', ...options });
 
 /**
  * Trust the exact reviewed plugin package fingerprint
