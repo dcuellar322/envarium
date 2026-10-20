@@ -385,3 +385,27 @@ passes. `govulncheck` reports no reachable/imported vulnerabilities. An initial
 race run under concurrent local checks hit the existing cancellation test's
 five-second database-setup deadline; its retry and the hosted race gate remain
 part of qualification rather than being represented as a clean initial run.
+
+The full local serialized race retry and hosted unrestricted race run passed.
+Commit `7ffbbd5` passes all required hosted workflows. Actual RC3 CLI binaries
+pass the repaired migration/plugin paths and MCP permission/audit checks on
+Intel macOS, Linux x86_64 and emulated Linux arm64. Signed Linux packages pass
+Ubuntu 22.04, Debian 12 and Fedora 44 installation/removal/reinstall with
+nonempty data retained. The signed Intel app passes six browser workflows,
+staged reinstall, and an actual RC2-to-RC3 upgrade preserving exact durable
+project/manifest/audit/settings rows.
+
+RC3's arm64 job failed twice after Apple accepted notarization: subsequent
+validation found no stapled app ticket, so no draft was created. The pinned
+[Tauri signing implementation](https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.11.4/crates/tauri-macos-sign/src/lib.rs)
+does not inspect the stapler process exit status. A narrow release-only
+`xcrun` wrapper retries attachment and validates the app ticket before returning
+to the bundler. This acts before disk-image/updater-archive creation, with
+the independent post-build verification gates unchanged. Tests cover SDK
+delegation, attachment/validation failures, bounded retries, and cancellation.
+
+The product tag remains at `7ffbbd5`. A manual rebuild can use the corrected,
+CI-qualified packaging workflow while still checking out that immutable tag;
+quality checks require success for both source and workflow revisions, and
+the release metadata/attestation distinguish them. Complete rebuilt-artifact
+qualification and clean-machine human gates remain required.

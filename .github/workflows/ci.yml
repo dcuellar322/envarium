@@ -199,7 +199,7 @@ jobs:
       - run: make build
       - run: ./scripts/test-mcp-inspector.sh
       - run: ./bin/envarium version
-      - run: node --test scripts/release-quality.test.mjs scripts/stage-apple-api-key.test.mjs scripts/notarize-macos-dmg.test.mjs
+      - run: node --test scripts/release-quality.test.mjs scripts/stage-apple-api-key.test.mjs scripts/notarize-macos-dmg.test.mjs scripts/release-xcrun.test.cjs
       - uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
         with:
           distribution: goreleaser

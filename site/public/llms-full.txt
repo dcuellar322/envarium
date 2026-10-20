@@ -5946,6 +5946,23 @@ desktop compatibility check, and architecture-specific updater archives, so a
 candidate retains its prerelease identity and can upgrade to the later stable
 version. Draft candidates never enter the stable updater feed.
 
+Mac release builds use a reviewed, release-only `xcrun` wrapper to retry
+stapling and validate the application ticket before Tauri finishes packaging
+the app into disk images and updater archives. Other `xcrun` operations pass
+through unchanged. Persistent ticket failures still fail the mandatory
+post-build code-signature, ticket, and Gatekeeper checks; they never produce
+a draft. Stapler-only diagnostics are retained on the ephemeral runner for
+failed-build diagnosis, without logging notarization credentials.
+
+For a manually dispatched rebuild of an existing immutable tag, product code
+is checked out from that tag. Mac packaging tools are first staged from the
+exact workflow commit into the runner's temporary directory. Required quality
+workflows must pass for both revisions when they differ. `metadata.json`
+records the tagged product commit; GitHub's attestation authenticates the
+packaging workflow revision and ref. Verify both explicitly rather than
+assuming a manual build's workflow ref is its product tag. Rebuilding through
+a reviewed packaging fix does not move the existing product tag.
+
 The protected `desktop-release` environment supplies Apple credentials,
 Linux GPG key material, and updater signing keys. Reviewers confirm that no
 secret appears in logs or artifacts. The AppImage receives an
