@@ -5,12 +5,13 @@ category: how-to
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-10-19
+lastVerified: 2026-10-20
 ---
 
 No public stable installers are published yet. Build from source on macOS or
 Linux using the instructions below, or check [downloads](/download/) for package
-availability. **Windows and WSL2 support is coming soon.**
+availability. The first release will provide macOS and Linux packages only.
+**Windows and WSL2 support is coming soon.**
 
 ## macOS desktop
 
@@ -92,7 +93,7 @@ The native bundles are written under
 `desktop/src-tauri/target/debug/bundle/`. A source build is intentionally
 unsigned and has no update authority. Maintainers use the protected
 `desktop-release` GitHub environment to supply Apple signing/notarization,
-Windows signing, and Tauri updater credentials; secrets are never committed or
+Linux signing, and Tauri updater credentials; secrets are never committed or
 placed in an application config file.
 
 ## Headless or CLI-only use

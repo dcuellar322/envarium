@@ -8,7 +8,12 @@ import { normalizeManifest } from '../src/lib/releases/normalize'
 // Run against real GoReleaser snapshot output, after prepare-release-files.
 const directory = resolve(process.argv[2] ?? '../dist')
 const names = (await readdir(directory)).filter((name) => classifyReleaseAsset(name))
-assert.equal(names.length, 6, 'all six CLI platform/architecture archives must be recognized')
+assert.deepEqual(names.sort(), [
+  'envarium_Darwin_arm64.tar.gz',
+  'envarium_Darwin_x86_64.tar.gz',
+  'envarium_Linux_arm64.tar.gz',
+  'envarium_Linux_x86_64.tar.gz',
+], 'only the four macOS/Linux CLI archives must be distributed')
 const checksums = await readFile(resolve(directory, 'checksums.txt'), 'utf8')
 for (const name of names) {
   const digest = createHash('sha256')
@@ -34,13 +39,13 @@ const manifest = normalizeManifest(
   ],
   new Map([['v1.0.0-alpha.1', checksums]]),
 )
-assert.equal(manifest.channels.alpha?.assets.length, 6)
+assert.equal(manifest.channels.alpha?.assets.length, 4)
 assert.ok(manifest.channels.alpha?.assets.every((asset) => asset.checksum))
 const missing = missingStableArtifacts(manifest.channels.alpha?.assets ?? [])
 assert.equal(
   missing.length,
-  6,
-  'CLI snapshot must still require all six desktop packages for stable release',
+  5,
+  'CLI snapshot must still require both Mac DMGs and all three Linux desktop packages for stable release',
 )
 assert.ok(missing.every((label) => !label.includes('CLI archive')))
 console.log(

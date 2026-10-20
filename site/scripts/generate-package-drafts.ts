@@ -1,7 +1,7 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import releaseManifest from '../src/data/release-manifest.json' with { type: 'json' }
-import { generateHomebrewCask, generateWingetManifests } from '../src/lib/distribution/generate'
+import { generatePackageDrafts } from '../src/lib/distribution/generate'
 import type { ReleaseManifest } from '../src/lib/releases/types'
 import { siteRoot } from './paths'
 
@@ -13,12 +13,11 @@ if (!stable) throw new Error('Package drafts require a published stable release'
 if (expectedTag && stable.tag !== expectedTag) throw new Error(`Refusing package generation: expected ${expectedTag}, release manifest contains ${stable.tag}`)
 
 const output = resolve(siteRoot, '.generated/package-drafts')
+const drafts = generatePackageDrafts(stable)
 await rm(output, { force: true, recursive: true })
-await mkdir(resolve(output, 'homebrew/Casks'), { recursive: true })
-await writeFile(resolve(output, 'homebrew/Casks/envarium.rb'), generateHomebrewCask(stable))
-const winget = generateWingetManifests(stable)
-const wingetDirectory = resolve(output, `winget/manifests/d/DavidCuellar/Envarium/${stable.version}`)
-await mkdir(wingetDirectory, { recursive: true })
-await Promise.all(Object.entries(winget).map(([name, body]) => writeFile(resolve(wingetDirectory, name), body)))
-await writeFile(resolve(output, 'REVIEW.md'), `# Envarium ${stable.tag} package drafts\n\nGenerated only from the validated stable release manifest. Review URLs, SHA-256 values, fresh install, upgrade, uninstall, and publisher identity before submitting either manifest upstream.\n`)
+for (const [name, body] of Object.entries(drafts)) {
+  const path = resolve(output, name)
+  await mkdir(dirname(path), { recursive: true })
+  await writeFile(path, body)
+}
 console.log(`Generated reviewed package drafts for ${stable.tag} in ${output}`)

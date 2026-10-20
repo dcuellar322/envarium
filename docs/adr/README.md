@@ -53,3 +53,5 @@ the old one.
 - [ADR-0028: Published release updater feed](0028-published-release-updater-feed.md)
 
 - [ADR-0029: Retired documentation routes](0029-retired-documentation-routes.md)
+
+- [ADR-0030: First release platform scope](0030-first-release-platform-scope.md)

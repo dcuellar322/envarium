@@ -3,7 +3,7 @@ title: "Phase 18: Cross-platform hardening and open-source v1.0"
 description: Implementation evidence for Envarium product phase 18.
 category: contributor
 audience: [contributor, maintainer]
-lastVerified: 2026-10-17
+lastVerified: 2026-10-20
 ---
 
 ## Implemented
@@ -232,3 +232,87 @@ The historical evidence above is retained. Current repairs and external
 acceptance gates are recorded in the [repair evidence](security-cleanup-2026-10-18.md)
 and [acceptance ledger](acceptance-status.md). Prelaunch manifest migration was
 retired under ADR-0025; ordered database migrations remain supported.
+
+## 2026-10-20 first-release platform scope
+
+This slice implements [ADR-0030](../adr/0030-first-release-platform-scope.md).
+Release qualification now covers macOS and Linux; Windows/WSL2 and WinGet
+remain coming soon. It addresses the platform and distribution portion of
+Phase 18's exit criteria without claiming signed installer acceptance.
+
+- The protected release workflow builds macOS arm64/Intel and Linux x86_64
+  desktop bundles only. GoReleaser and nightly snapshots emit four macOS/Linux
+  CLI archives. Windows adapter/sidecar CI remains visible but nonblocking.
+  Local quality gates require Linux cross-compilation; Windows cross-compilation
+  is available separately through `make platform-check-windows`.
+- Stable artifact validation requires both Mac DMGs, Linux AppImage/deb/rpm,
+  and all four CLI archives with checksums. The authenticated updater requires
+  the two Mac architectures and Linux x86_64, ignoring Windows assets.
+- Package draft generation produces a reviewed Homebrew cask without invoking
+  WinGet generation. Distribution monitoring leaves WinGet unavailable.
+- Updated the roadmap, release checklist, platform/installation docs, ADR index,
+  public-site/rebrand checklists, README, and acceptance ledger to match.
+- Regression coverage uses a complete macOS/Linux-only release fixture, checks
+  every missing supported artifact/updater target/signature, and verifies
+  Windows assets do not enter the feed or package drafts. The real CLI archive
+  smoke check requires exactly four platform/architecture archives.
+
+Verification:
+
+- Contract generation is clean (`make generate-check`); repository and
+  architecture checks, Go formatting/vet/GolangCI, Vue lint/typecheck, all Go
+  tests, plugin SDK checks, empty-database migrations, and the revised Linux
+  cross-compilation gate pass. `govulncheck` reports no reachable/imported
+  vulnerabilities (three advisories remain in unused required modules).
+- `go test -race -p 2 ./...` passes. The initial unrestricted race run hit a
+  plugin helper's 15-second startup deadline; the reduced-parallelism full run
+  passed without implementation or test changes.
+- All 93 frontend tests across 37 files pass with coverage on the pinned Node
+  26.7.0 runtime and two workers. An initial run on the system's older Node
+  timed out in the unchanged Docker-unavailable UI test under concurrent load;
+  that test also passes in isolation.
+- All six application browser workflows and 17 visual checks pass, including
+  real Docker Compose and native worktree lifecycle flows.
+- Site checks, lint, all 40 unit tests with coverage, production build, and
+  content validation pass (122 HTML pages). Workflow actionlint, GoReleaser
+  configuration validation, and all five release/signing-script tests pass.
+- An unpublished GoReleaser snapshot builds exactly four macOS/Linux CLI
+  archives; release staging, aggregate checksums, normalization, and the stable
+  desktop completeness smoke check pass against those actual archives.
+  Distribution monitoring leaves WinGet unavailable.
+- Documentation generation is identical on repeat across all eight generated
+  references/indexes. The standard `site-generate-check` compares to HEAD and
+  therefore reports the intentional uncommitted documentation changes; the
+  remaining quality checks run with that target omitted. A clean-checkout
+  `make quality` remains required after committing the generated updates.
+- Desktop formatting, strict Clippy, all 21 Rust tests, the native macOS sidecar,
+  and macOS debug `.app`/DMG packaging pass. Production web/Go builds and the
+  MCP Inspector tools/resources/prompts smoke test pass.
+- The full site browser run records 219 passes, 84 intentional skips, and one
+  WebKit keyboard-scroll assertion failure on the unchanged download
+  verification page. That exact case passes in isolation (2.5 seconds) without
+  source/test changes. All seven site visual comparisons pass without baseline
+  updates. The full mobile accessibility crawl and public-page link/layout
+  crawl pass.
+
+Signed builds, hosted CI for the changed commit, and macOS/Linux clean-machine
+install/update/migration/reinstall/uninstall remain release acceptance gates.
+Windows/WSL2 launch and signing are deferred; no release is published by this
+repository change.
+
+## 2026-10-20 signed release candidate preparation
+
+The first candidate uses the existing beta channel as `v1.0.0-beta.rc.1`.
+The release workflow now propagates its validated tag version to the native
+app configuration, bundled sidecar, Rust compatibility check, and updater
+archive names. This prevents a candidate from identifying itself as stable
+`1.0.0` and preserves the subsequent upgrade to the stable release. Regression
+coverage checks the prerelease archive name and rejects a different bundled
+prerelease version. Signing/notarization evidence will come from the protected
+release workflow on the exact CI-qualified tag.
+
+Focused preparation checks pass: release-channel Go tests verify the exact
+`GITHUB_OUTPUT` version, workflow actionlint passes, all 22 Rust tests pass
+with `ENVARIUM_VERSION=1.0.0-beta.rc.1`, and site tests (40), type/content checks,
+lint, and documentation regeneration pass. The first candidate will remain a
+draft prerelease for installer qualification; it is not a stable publication.

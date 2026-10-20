@@ -24,11 +24,11 @@ async function checked(channel: DistributionChannel, url: string, platform: 'mac
 }
 
 const homebrewUrl = 'https://raw.githubusercontent.com/dcuellar322/homebrew-tap/master/Casks/envarium.rb'
-const wingetUrl = stable ? `https://raw.githubusercontent.com/microsoft/winget-pkgs/master/manifests/d/DavidCuellar/Envarium/${stable.version}/DavidCuellar.Envarium.installer.yaml` : ''
 const next: DistributionStatus = {
   schemaVersion: 'envarium.distribution-status/v1',
   homebrew: await checked(current.homebrew, homebrewUrl, 'macos'),
-  winget: await checked(current.winget, wingetUrl, 'windows'),
+  // Windows/WSL2 remain coming soon; do not query or activate WinGet yet.
+  winget: { ...current.winget, available: false, verifiedVersion: undefined, lastChecked: undefined },
 }
 await writeFile(statusPath, `${JSON.stringify(next, null, 2)}\n`)
 console.log(`Homebrew: ${next.homebrew.available ? next.homebrew.verifiedVersion : 'unavailable'}; WinGet: ${next.winget.available ? next.winget.verifiedVersion : 'unavailable'}`)

@@ -23,7 +23,7 @@ function signer() {
   }
 }
 
-const names = ['Envarium_1.0.0_aarch64.app.tar.gz', 'Envarium_1.0.0_x64.app.tar.gz', 'Envarium_1.0.0_amd64.AppImage', 'Envarium_1.0.0_x64-setup.exe']
+const names = ['Envarium_1.0.0_aarch64.app.tar.gz', 'Envarium_1.0.0_x64.app.tar.gz', 'Envarium_1.0.0_amd64.AppImage']
 function release(): GitHubRelease {
   return {
     tag_name: 'v1.0.0', body: 'Reviewed release', draft: false, prerelease: false,
@@ -67,7 +67,13 @@ describe('published stable feed', () => {
     const candidate = release()
     const feed = buildUpdaterFeed(candidate, signatures, key.publicKey)!
     expect(feed.version).toBe('1.0.0')
-    expect(Object.keys(feed.platforms)).toHaveLength(4)
+    expect(Object.keys(feed.platforms).sort()).toEqual(['darwin-aarch64', 'darwin-x86_64', 'linux-x86_64'])
+    for (const missing of names) {
+      expect(() => buildUpdaterFeed({ ...candidate, assets: candidate.assets.filter((asset) => asset.name !== missing) }, signatures, key.publicKey)).toThrow(/Missing updater target/)
+      const incomplete = new Map(signatures)
+      incomplete.delete(missing)
+      expect(() => buildUpdaterFeed(candidate, incomplete, key.publicKey)).toThrow(/Missing updater signature/)
+    }
     expect(() => buildUpdaterFeed(candidate, new Map(), key.publicKey)).toThrow(/Missing updater signature/)
     expect(() => buildUpdaterFeed({ ...candidate, assets: candidate.assets.slice(2) }, signatures, key.publicKey)).toThrow(/Missing updater target/)
     expect(() => buildUpdaterFeed({ ...candidate, assets: [...candidate.assets, candidate.assets[0]!] }, signatures, key.publicKey)).toThrow(/Duplicate/)
@@ -81,8 +87,13 @@ describe('published stable feed', () => {
   })
 
   it('ignores unsupported targets and CLI downloads', () => {
-    for (const name of ['README.txt', 'envarium_Darwin_arm64.tar.gz', 'Envarium_universal.app.tar.gz', 'Envarium_arm64.AppImage', 'Envarium_x64.deb', 'Envarium_x64.msi'])
+    for (const name of ['README.txt', 'envarium_Darwin_arm64.tar.gz', 'Envarium_universal.app.tar.gz', 'Envarium_arm64.AppImage', 'Envarium_x64.deb', 'Envarium_x64.msi', 'Envarium_1.0.0_x64-setup.exe'])
       expect(updaterAssetTarget(name)).toBeUndefined()
+    const key = signer()
+    const signatures = new Map(names.map((name) => [name, key.sign(Buffer.from(name))]))
+    const candidate = release()
+    const windows = { name: 'Envarium_1.0.0_x64-setup.exe', size: 100, browser_download_url: 'https://example.test/windows.exe' }
+    expect(buildUpdaterFeed({ ...candidate, assets: [...candidate.assets, windows] }, signatures, key.publicKey)).toEqual(buildUpdaterFeed(candidate, signatures, key.publicKey))
   })
 })
 
@@ -119,6 +130,7 @@ describe('desktop artifact collection names', () => {
   it('separates Mac architectures and their signatures without uploading raw bundles', () => {
     expect(desktopArtifactName('Envarium.app.tar.gz', 'macos-arm64', '1.0.0')).toBe(names[0])
     expect(desktopArtifactName('Envarium.app.tar.gz.sig', 'macos-amd64', '1.0.0')).toBe(`${names[1]}.sig`)
+    expect(desktopArtifactName('Envarium.app.tar.gz', 'macos-arm64', '1.0.0-beta.rc.1')).toBe('Envarium_1.0.0-beta.rc.1_aarch64.app.tar.gz')
     expect(desktopArtifactName('Envarium_1.0.0_amd64.AppImage', 'linux-amd64', '1.0.0')).toBe(names[2])
     expect(desktopArtifactName('Envarium.app', 'macos-amd64', '1.0.0')).toBeUndefined()
     expect(() => desktopArtifactName('Envarium.app.tar.gz', 'linux-amd64', '1.0.0')).toThrow()

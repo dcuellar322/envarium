@@ -13,16 +13,13 @@ builds:
         -X envarium.dev/envarium/internal/foundation/buildinfo.version={{.Version}}
         -X envarium.dev/envarium/internal/foundation/buildinfo.commit={{.ShortCommit}}
         -X envarium.dev/envarium/internal/foundation/buildinfo.builtAt={{.Date}}
-    goos: [darwin, linux, windows]
+    goos: [darwin, linux]
     goarch: [amd64, arm64]
 
 archives:
   - id: envarium
-    name_template: 'envarium_{{ if eq .Os "darwin" }}Darwin{{ else if eq .Os "linux" }}Linux{{ else }}Windows{{ end }}_{{ if eq .Arch "amd64" }}x86_64{{ else }}{{ .Arch }}{{ end }}'
+    name_template: 'envarium_{{ if eq .Os "darwin" }}Darwin{{ else }}Linux{{ end }}_{{ if eq .Arch "amd64" }}x86_64{{ else }}{{ .Arch }}{{ end }}'
     formats: [tar.gz]
-    format_overrides:
-      - goos: windows
-        formats: [zip]
     files:
       - LICENSE
       - README.md

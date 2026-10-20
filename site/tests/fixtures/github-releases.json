@@ -38,20 +38,17 @@
       "assets": [
         { "name": "Envarium_1.0.0_aarch64.dmg", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/Envarium_1.0.0_aarch64.dmg", "size": 41943040 },
         { "name": "Envarium_1.0.0_x64.dmg", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/Envarium_1.0.0_x64.dmg", "size": 41943040 },
-        { "name": "Envarium_1.0.0_x64_en-US.msi", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/Envarium_1.0.0_x64_en-US.msi", "size": 39845888 },
         { "name": "Envarium_1.0.0_amd64.AppImage", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/Envarium_1.0.0_amd64.AppImage", "size": 44040192 },
         { "name": "Envarium_1.0.0_amd64.deb", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/Envarium_1.0.0_amd64.deb", "size": 36700160 },
         { "name": "Envarium_1.0.0_amd64.rpm", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/Envarium_1.0.0_amd64.rpm", "size": 36700160 },
         { "name": "envarium_Darwin_arm64.tar.gz", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/envarium_Darwin_arm64.tar.gz", "size": 15728640 },
         { "name": "envarium_Darwin_x86_64.tar.gz", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/envarium_Darwin_x86_64.tar.gz", "size": 15728640 },
         { "name": "envarium_Linux_arm64.tar.gz", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/envarium_Linux_arm64.tar.gz", "size": 15728640 },
-        { "name": "envarium_Linux_x86_64.tar.gz", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/envarium_Linux_x86_64.tar.gz", "size": 15728640 },
-        { "name": "envarium_Windows_arm64.zip", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/envarium_Windows_arm64.zip", "size": 15728640 },
-        { "name": "envarium_Windows_x86_64.zip", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/envarium_Windows_x86_64.zip", "size": 15728640 }
+        { "name": "envarium_Linux_x86_64.tar.gz", "browser_download_url": "https://github.com/dcuellar322/envarium/releases/download/v1.0.0/envarium_Linux_x86_64.tar.gz", "size": 15728640 }
       ]
     }
   ],
   "checksums": {
-    "v1.0.0": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  Envarium_1.0.0_aarch64.dmg\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  Envarium_1.0.0_x64.dmg\ncccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  Envarium_1.0.0_x64_en-US.msi\ndddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd  Envarium_1.0.0_amd64.AppImage\neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee  Envarium_1.0.0_amd64.deb\nffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  Envarium_1.0.0_amd64.rpm\n1111111111111111111111111111111111111111111111111111111111111111  envarium_Darwin_arm64.tar.gz\n2222222222222222222222222222222222222222222222222222222222222222  envarium_Darwin_x86_64.tar.gz\n3333333333333333333333333333333333333333333333333333333333333333  envarium_Linux_arm64.tar.gz\n4444444444444444444444444444444444444444444444444444444444444444  envarium_Linux_x86_64.tar.gz\n5555555555555555555555555555555555555555555555555555555555555555  envarium_Windows_arm64.zip\n6666666666666666666666666666666666666666666666666666666666666666  envarium_Windows_x86_64.zip"
+    "v1.0.0": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  Envarium_1.0.0_aarch64.dmg\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  Envarium_1.0.0_x64.dmg\ndddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd  Envarium_1.0.0_amd64.AppImage\neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee  Envarium_1.0.0_amd64.deb\nffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  Envarium_1.0.0_amd64.rpm\n1111111111111111111111111111111111111111111111111111111111111111  envarium_Darwin_arm64.tar.gz\n2222222222222222222222222222222222222222222222222222222222222222  envarium_Darwin_x86_64.tar.gz\n3333333333333333333333333333333333333333333333333333333333333333  envarium_Linux_arm64.tar.gz\n4444444444444444444444444444444444444444444444444444444444444444  envarium_Linux_x86_64.tar.gz"
   }
 }

@@ -41,13 +41,20 @@ describe('release artifact contract', () => {
   })
 
   it('does not accept incomplete stable matrices', () => {
-    expect(missingStableArtifacts([{ platform: 'macos', architecture: 'arm64', packageType: 'dmg' }])).toContain('Windows amd64 signed installer')
+    const missing = missingStableArtifacts([{ platform: 'macos', architecture: 'arm64', packageType: 'dmg' }])
+    expect(missing).toContain('Linux amd64 AppImage')
+    expect(missing).toContain('macOS amd64 desktop DMG')
+    expect(missing.some((label) => label.includes('Windows'))).toBe(false)
   })
 
   it('enforces the same complete, checksummed matrix on release workflow files', () => {
     const fixture = releaseFixture as { releases: GitHubRelease[] }
     const fileNames = fixture.releases.find((candidate) => candidate.tag_name === 'v1.0.0')!.assets.map((asset) => asset.name)
     expect(() => validateReleaseFileSet({ channel: 'stable', fileNames, checksummedNames: new Set(fileNames) })).not.toThrow()
+    expect(fileNames.every((name) => classifyReleaseAsset(name)?.platform !== 'windows')).toBe(true)
+    for (const missing of fileNames) {
+      expect(() => validateReleaseFileSet({ channel: 'stable', fileNames: fileNames.filter((name) => name !== missing), checksummedNames: new Set(fileNames) })).toThrow(/missing required artifacts/)
+    }
     expect(() => validateReleaseFileSet({ channel: 'stable', fileNames: fileNames.slice(1), checksummedNames: new Set(fileNames) })).toThrow(/missing required artifacts/)
     expect(() => validateReleaseFileSet({ channel: 'stable', fileNames, checksummedNames: new Set(fileNames.slice(1)) })).toThrow(/missing checksums/)
     expect(() => validateReleaseFileSet({ channel: 'stable', fileNames: [...fileNames, fileNames[0]!], checksummedNames: new Set(fileNames) })).toThrow(/duplicate asset names/)

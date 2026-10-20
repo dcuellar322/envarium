@@ -40,6 +40,13 @@ end
 `
 }
 
+export function generatePackageDrafts(release: ReleaseChannel): Record<string, string> {
+  return {
+    'homebrew/Casks/envarium.rb': generateHomebrewCask(release),
+    'REVIEW.md': `# Envarium ${release.tag} package drafts\n\nGenerated only from the validated stable release manifest. Review URLs, SHA-256 values, fresh install, upgrade, uninstall, and publisher identity before submitting the Homebrew cask upstream. Windows/WSL2 and WinGet are coming soon.\n`,
+  }
+}
+
 function wingetType(asset: ReleaseAsset): 'wix' | 'nullsoft' {
   return asset.packageType === 'msi' ? 'wix' : 'nullsoft'
 }

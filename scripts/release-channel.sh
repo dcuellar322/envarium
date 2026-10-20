@@ -17,4 +17,5 @@ esac
 printf '%s\n' "$channel"
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
 	printf 'tag=%s\nchannel=%s\n' "$tag" "$channel" >> "$GITHUB_OUTPUT"
+	printf 'version=%s\n' "${tag#v}" >> "$GITHUB_OUTPUT"
 fi

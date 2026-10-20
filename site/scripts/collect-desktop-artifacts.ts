@@ -10,7 +10,7 @@ const platform = process.argv[2]
 if (!platform) throw new Error('Specify the desktop matrix artifact platform')
 const bundle = resolve(repositoryRoot, 'desktop/src-tauri/target/release/bundle')
 const output = resolve(repositoryRoot, 'desktop-artifacts')
-const version = (JSON.parse(await readFile(resolve(repositoryRoot, 'desktop/src-tauri/tauri.conf.json'), 'utf8')) as { version: string }).version
+const version = process.env.ENVARIUM_VERSION || (JSON.parse(await readFile(resolve(repositoryRoot, 'desktop/src-tauri/tauri.conf.json'), 'utf8')) as { version: string }).version
 const publicKey = updaterPublicKey
 await mkdir(output, { recursive: false })
 let count = 0

@@ -5,15 +5,19 @@ category: contributor
 audience: [maintainer, contributor]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-10-19
+lastVerified: 2026-10-20
 ---
 
 Tagged releases are built only from validated `v*` tags by
 `.github/workflows/release.yml`.
-The workflow cross-compiles CLI archives with GoReleaser, emits SHA-256
-checksums and per-archive SBOMs, builds native Tauri bundles on each operating
-system and both macOS architectures, signs updater payloads, applies Apple
-notarization and Windows Authenticode signing, generates desktop CycloneDX
+The first release targets **macOS and Linux only**, following
+[ADR-0030](adr/0030-first-release-platform-scope.md). Windows and WSL2 remain
+coming soon and do not gate release qualification.
+
+The workflow cross-compiles macOS/Linux CLI archives with GoReleaser, emits
+SHA-256 checksums and per-archive SBOMs, builds native Tauri bundles for both
+macOS architectures and Linux x86_64, signs updater payloads,
+applies Apple notarization and Linux GPG signing, generates desktop CycloneDX
 SBOMs, attests the combined artifact set, and creates a draft GitHub release
 for final human review.
 Before that draft is created, the public-site release contract validates the
@@ -35,8 +39,8 @@ Before tagging the first release, a repository administrator needs to:
    Never paste private keys or passwords into chat, source, issues, or logs.
 2. Supply Apple Developer signing/notarization credentials for
    `dev.envarium.desktop` and a Developer ID Application identity; supply a
-   Windows Authenticode certificate matching the intended publisher; supply a
-   Linux artifact-signing GPG key with a verified fingerprint.
+   Linux artifact-signing GPG key with a verified fingerprint. Windows signing
+   credentials are deferred until Windows enters release scope.
 3. Retain the Envarium updater key and its password in secure
    backups. The reviewed public key and canonical stable endpoint live in
    `desktop/src-tauri/tauri.release.conf.json`; native release builds and feed
@@ -45,11 +49,12 @@ Before tagging the first release, a repository administrator needs to:
 4. Choose the release version/channel and exact reviewed commit. Build a draft
    from its tag, then complete the signed install, upgrade, retained-data
    reinstall, deep-link, and uninstall matrix before publishing it.
-5. Select a Homebrew tap and WinGet publisher/package ownership. Create the
-   `package-distribution-review` environment with reviewers. After publishing a
-   stable release, the package workflow uploads checksummed Homebrew/WinGet
-   **drafts** for review; it does not submit or publish either package. Tap
-   write access and WinGet submission/review are separate final steps.
+5. Select a Homebrew tap and create the `package-distribution-review`
+   environment with reviewers. After publishing a
+   stable release, the package workflow uploads checksummed Homebrew
+   **drafts** for review; it does not submit or publish the cask. Tap
+   write access and submission/review are separate final steps. WinGet drafts,
+   publisher ownership, and submission remain deferred with Windows support.
 
 The release workflow consumes these environment secret names:
 
@@ -57,7 +62,6 @@ The release workflow consumes these environment secret names:
 |---|---|
 | Apple signing | `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD` |
 | Apple notarization private key | `APPLE_API_KEY_BASE64` |
-| Windows signing | `WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD` |
 | Linux signing | `LINUX_GPG_PRIVATE_KEY`, `LINUX_GPG_PASSPHRASE`, `LINUX_GPG_KEY_ID` |
 | Updater signing | `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` |
 
@@ -132,11 +136,13 @@ and [Tauri's macOS signing documentation](https://v2.tauri.app/distribute/sign/m
 
 The site build fetches GitHub release metadata and updater signatures. Only a
 published, non-prerelease stable tag is eligible. It requires Mac arm64, Mac
-Intel, Linux x86_64 AppImage, and Windows x86_64 NSIS payloads, signatures from
+Intel and Linux x86_64 AppImage payloads, signatures from
 the committed Envarium updater key, and exact asset URLs in this repository.
 Missing, duplicate, foreign-key, or incomplete targets fail the deployment.
-The build authenticates each signature's signed metadata; the release workflow
-and installed native updater additionally verify the complete payload bytes.
+Windows assets are ignored by the updater catalog and are not required for
+release completeness. The build authenticates each supported signature's
+signed metadata; the release workflow and installed native updater additionally
+verify the complete payload bytes.
 
 A small, immutable Pages Worker serves `/updates/stable.json`: HTTP 204 before
 the first published stable release, otherwise Tauri's static JSON catalog.
@@ -180,18 +186,21 @@ and mandatory for automated updates.
 
 ## Windows signing availability
 
-**Windows and WSL2 support is coming soon.** Direct MSI/NSIS downloads require a
-trusted publisher signing identity and verified installers. Microsoft Store
+**Windows and WSL2 support is coming soon.** Neither is built, published, or
+required by the first-release workflow, updater feed, or package drafts.
+Direct MSI/NSIS downloads will require a trusted publisher signing identity
+and verified installers. Microsoft Store
 certification does not supply a reusable private certificate for direct
 downloads; a Store distribution would need its own package identity and review.
 
-For the existing direct-download workflow, provide a trusted Authenticode
+Before adding Windows to the release workflow, provide a trusted Authenticode
 certificate/private key and password through `WINDOWS_CERTIFICATE` (base64 PFX)
 and `WINDOWS_CERTIFICATE_PASSWORD`. A hardware or cloud signing identity instead
 requires the provider's supported signing integration; do not export a
 non-exportable key or substitute a self-signed test certificate. The workflow
-checks the signing EKU, expiry, private-key presence, and final installer
-Authenticode status/expected thumbprint. Missing credentials fail explicitly.
+must check the signing EKU, expiry, private-key presence, and final installer
+Authenticode status/expected thumbprint. Those checks and clean-machine
+installer validation are prerequisites for the future Windows launch.
 
 ## Release channels
 
@@ -208,10 +217,15 @@ manual dispatch cannot build an arbitrary branch under a release name. Tags
 with unknown prerelease labels are rejected. Nightly workflow artifacts are
 deliberately unsigned and are never updater-authoritative.
 
+Release candidates use the beta channel, for example `v1.0.0-beta.rc.1`.
+The validated tag supplies the version for the native app, bundled Go sidecar,
+desktop compatibility check, and architecture-specific updater archives, so a
+candidate retains its prerelease identity and can upgrade to the later stable
+version. Draft candidates never enter the stable updater feed.
+
 The protected `desktop-release` environment supplies Apple credentials,
-`WINDOWS_CERTIFICATE`, `WINDOWS_CERTIFICATE_PASSWORD`, Linux GPG key material,
-and updater signing keys. Reviewers
-confirm that no secret appears in logs or artifacts. The AppImage receives an
+Linux GPG key material, and updater signing keys. Reviewers confirm that no
+secret appears in logs or artifacts. The AppImage receives an
 embedded GPG signature; signed updater payloads and GitHub attestations cover
 every Linux bundle. Repository-specific deb/rpm metadata signing may be added
 by a downstream package repository without changing application trust.
@@ -219,8 +233,10 @@ by a downstream package repository without changing application trust.
 ## Release candidate checklist
 
 1. Run `make quality` from a clean checkout and confirm generated files stay clean.
-2. Confirm native `CI` jobs pass on macOS, Linux, and Windows.
-3. Exercise the primary workflow matrix in [platform support](platform-support.md).
+2. Confirm required `CI`, public-site CI, and Security workflows pass for the
+   exact commit. Native macOS/Linux checks are required; Windows adapter and
+   sidecar jobs remain nonblocking coverage for the upcoming platform.
+3. Exercise the macOS/Linux primary workflow matrix in [platform support](platform-support.md).
 4. Test fresh install, alpha/beta upgrade, current-version reinstall, old-binary
    newer-schema refusal, restore-based downgrade, uninstall retaining data, and
    reinstall attaching to retained data.
@@ -229,10 +245,13 @@ by a downstream package repository without changing application trust.
    inspect the draft release before publishing.
 
 Verify downloads with `checksums.txt`, the published Sigstore bundle, platform
-signature tools (`codesign`/`spctl` or `Get-AuthenticodeSignature`), and GitHub's
+signature tools (`codesign`/`spctl` on macOS and GPG on Linux), and GitHub's
 artifact attestation verification. Compare the included SBOM to the artifact
 name and release tag. Reject any updater artifact without its Tauri signature.
 
-The release workflow never publishes partial success: the CLI build and all
-four native desktop matrix builds must complete before the draft release job
-runs.
+The release workflow never publishes partial success: the four macOS/Linux CLI
+archives and all three native desktop builds (macOS arm64, macOS Intel, and
+Linux x86_64) must complete before the draft release job runs. Stable validation
+requires both Mac DMGs, Linux AppImage/deb/rpm, and every CLI archive with
+checksums, plus all three authenticated updater payloads. Windows artifacts
+and credentials are not part of this gate.

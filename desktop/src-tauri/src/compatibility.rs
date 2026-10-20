@@ -6,7 +6,7 @@ pub const API_VERSION: &str = "v1";
 pub const MIN_DATABASE_SCHEMA_VERSION: i64 = 13;
 
 pub fn verify(sidecar: &BuildInfo, daemon: &SystemInfo) -> Result<(), String> {
-    let desktop = Version::parse(env!("CARGO_PKG_VERSION"))
+    let desktop = Version::parse(env!("ENVARIUM_DESKTOP_VERSION"))
         .map_err(|_| "desktop package has an invalid version".to_owned())?;
     let sidecar_version = parse_product_version(&sidecar.version, "bundled sidecar")?;
     let daemon_version = parse_product_version(&daemon.version, "running daemon")?;
@@ -66,8 +66,8 @@ mod tests {
     fn accepts_exact_product_contract() {
         assert!(
             verify(
-                &build(env!("CARGO_PKG_VERSION")),
-                &system(env!("CARGO_PKG_VERSION"))
+                &build(env!("ENVARIUM_DESKTOP_VERSION")),
+                &system(env!("ENVARIUM_DESKTOP_VERSION"))
             )
             .is_ok()
         );
@@ -75,16 +75,21 @@ mod tests {
 
     #[test]
     fn rejects_daemon_before_any_native_mutation() {
-        assert!(verify(&build(env!("CARGO_PKG_VERSION")), &system("9.0.0")).is_err());
-        let mut wrong_schema = system(env!("CARGO_PKG_VERSION"));
+        assert!(verify(&build(env!("ENVARIUM_DESKTOP_VERSION")), &system("9.0.0")).is_err());
+        let mut wrong_schema = system(env!("ENVARIUM_DESKTOP_VERSION"));
         wrong_schema.database_schema_version = MIN_DATABASE_SCHEMA_VERSION - 1;
-        assert!(verify(&build(env!("CARGO_PKG_VERSION")), &wrong_schema).is_err());
+        assert!(verify(&build(env!("ENVARIUM_DESKTOP_VERSION")), &wrong_schema).is_err());
     }
 
     #[test]
     fn accepts_compatible_v1_daemon_and_additive_schema() {
         let mut daemon = system("1.9.0");
         daemon.database_schema_version = MIN_DATABASE_SCHEMA_VERSION + 2;
-        assert!(verify(&build(env!("CARGO_PKG_VERSION")), &daemon).is_ok());
+        assert!(verify(&build(env!("ENVARIUM_DESKTOP_VERSION")), &daemon).is_ok());
+    }
+
+    #[test]
+    fn rejects_different_bundled_prerelease_before_mutation() {
+        assert!(verify(&build("1.0.0-beta.rc.other"), &system("1.0.0")).is_err());
     }
 }

@@ -3,11 +3,16 @@ title: "ADR-0028: Published release updater feed"
 description: Serve a bounded, signed-artifact update catalog without a runtime release proxy.
 category: concept
 audience: [contributor, maintainer]
-lastVerified: 2026-10-19
+lastVerified: 2026-10-20
 ---
 
 - Status: Accepted
 - Date: 2026-10-19
+
+The release platform completeness requirement is superseded by
+[ADR-0030](0030-first-release-platform-scope.md): the first release requires
+macOS arm64/Intel and Linux x86_64 updater payloads only. Windows and WSL2
+remain coming soon. The feed trust and hosting decisions below still apply.
 
 ## Context
 

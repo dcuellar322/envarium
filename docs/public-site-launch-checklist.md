@@ -4,7 +4,7 @@ description: Repository, release, Cloudflare, DNS, GitHub, security, accessibili
 category: contributor
 audience: [maintainer]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-20
 ---
 
 This checklist separates repository-complete work from external activation.
@@ -71,13 +71,15 @@ make repository-check
 
 - [ ] Publish a reviewed stable GitHub Release with every required desktop and
   CLI artifact, checksum, platform signature, attestation, updater signature,
-  and SBOM.
+  and SBOM for macOS and Linux. Windows and WSL2 remain coming soon under
+  [ADR-0030](adr/0030-first-release-platform-scope.md).
 - [ ] Confirm the homepage, changelog, download choices, and RSS feed refresh
   from the published release without guessed filenames.
 - [ ] Run clean-machine install, upgrade, verification, and uninstall smoke
-  tests on supported macOS, Windows, Linux, and WSL paths.
-- [ ] Generate Homebrew and WinGet drafts from the reviewed tag, submit them
+  tests on supported macOS and Linux paths.
+- [ ] Generate Homebrew drafts from the reviewed tag, submit them
   upstream, and merge only after fresh install and upgrade verification.
+  WinGet remains deferred with Windows support.
 - [ ] Run the distribution monitor and confirm package methods appear only
   when published records match stable.
 

@@ -5,11 +5,14 @@ category: reference
 audience: [user, contributor]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-10-19
+lastVerified: 2026-10-20
 ---
 
-**Windows and WSL2 support is coming soon.** Adapters exist in the source,
-but public support requires installer and clean-machine validation. The table
+The first release targets **macOS and Linux only**. macOS desktop bundles cover
+Apple Silicon and Intel; Linux desktop bundles cover x86_64. CLI archives cover
+arm64 and x86_64 on both systems. **Windows and WSL2 support is coming soon.**
+Adapters exist in the source, but public support requires installer and
+clean-machine validation. The table
 below distinguishes current source-build targets from planned platform baselines.
 Check [downloads](/download/) for published packages; no public stable binaries
 are available yet.
@@ -33,10 +36,19 @@ plugin conformance, data backup/migration, desktop attach, autostart, native
 notification, upgrade, uninstall-with-data-retained, and clean reinstall.
 
 The GitHub `CI` workflow executes native adapter tests on macOS, Linux, and
-Windows and builds the sidecar on all three. The release workflow builds each
-native installer, produces SBOMs, signs applicable platform and updater
-artifacts, and creates attestations. The detailed operator checklist is in
+Windows and builds the sidecar on all three. Windows jobs are nonblocking
+source coverage; they do not qualify a Windows release or prevent macOS/Linux
+release qualification. The release workflow builds only macOS/Linux bundles,
+produces SBOMs, signs platform and updater artifacts, and creates attestations.
+The primary workflow matrix above is required on macOS/Linux for the first
+release; Windows/WSL2 qualification is deferred under
+[ADR-0030](adr/0030-first-release-platform-scope.md). The operator checklist is in
 [release engineering](release.md).
+
+`make quality` includes Linux cross-compilation through `make platform-check`.
+Windows cross-compilation remains available
+separately with `make platform-check-windows` for contributors working on the
+upcoming platform.
 
 ## WSL2 behavior
 

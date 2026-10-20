@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   snapshot:
-    name: Cross-platform CLI archives
+    name: macOS and Linux CLI archives
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -42,7 +42,6 @@ jobs:
           name: envarium-nightly-${{ github.sha }}
           path: |
             dist/*.tar.gz
-            dist/*.zip
             dist/*.cyclonedx.json
             dist/checksums.txt
           if-no-files-found: error

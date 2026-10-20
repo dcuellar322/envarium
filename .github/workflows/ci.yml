@@ -54,6 +54,8 @@ jobs:
   platforms:
     name: ${{ matrix.name }} adapters
     runs-on: ${{ matrix.os }}
+    # Windows/WSL2 are coming soon; retain source coverage without gating release.
+    continue-on-error: ${{ matrix.os == 'windows-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -151,6 +153,7 @@ jobs:
   sidecar-cross-platform:
     name: ${{ matrix.name }} desktop sidecar
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.os == 'windows-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -205,6 +208,6 @@ jobs:
       - name: Stage the same top-level assets as the release upload
         run: |
           mkdir -p .cache/release-smoke
-          cp dist/*.tar.gz dist/*.zip dist/*.json dist/checksums.txt .cache/release-smoke/
+          cp dist/*.tar.gz dist/*.json dist/checksums.txt .cache/release-smoke/
       - run: pnpm --dir site releases:prepare-files .cache/release-smoke alpha
       - run: pnpm --dir site exec tsx scripts/test-cli-packaging.ts ../.cache/release-smoke

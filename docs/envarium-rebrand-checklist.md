@@ -156,7 +156,9 @@ platform or currently installed bundle has been revalidated.
       unit and race tests, real Compose browser flows, visual tests, vulnerability
       scanning, MCP inspection, cross-platform Go compilation, and the macOS
       desktop build all pass.
-- [ ] Build signed CLI and desktop artifacts on macOS, Linux, and Windows.
+- [ ] Build macOS/Linux CLI archives and signed desktop artifacts for the first
+      release. Windows/WSL2 signing and installation remain deferred under
+      [ADR-0030](adr/0030-first-release-platform-scope.md).
 - [ ] Install fresh, verify future Envarium upgrade/data-retention behavior,
       exercise Envarium deep links, connect MCP clients, and uninstall cleanly.
       A public upgrade from Switchyard is intentionally outside release scope.

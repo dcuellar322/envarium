@@ -54,7 +54,6 @@ export interface RequiredArtifact {
 export const stableArtifactRequirements: RequiredArtifact[] = [
   { platform: 'macos', packageTypes: ['dmg'], architecture: 'arm64', label: 'macOS arm64 desktop DMG' },
   { platform: 'macos', packageTypes: ['dmg'], architecture: 'amd64', label: 'macOS amd64 desktop DMG' },
-  { platform: 'windows', packageTypes: ['msi', 'nsis'], architecture: 'amd64', label: 'Windows amd64 signed installer' },
   { platform: 'linux', packageTypes: ['appimage'], architecture: 'amd64', label: 'Linux amd64 AppImage' },
   { platform: 'linux', packageTypes: ['deb'], architecture: 'amd64', label: 'Linux amd64 deb' },
   { platform: 'linux', packageTypes: ['rpm'], architecture: 'amd64', label: 'Linux amd64 rpm' },
@@ -62,8 +61,6 @@ export const stableArtifactRequirements: RequiredArtifact[] = [
   { platform: 'macos', packageTypes: ['tar.gz'], architecture: 'amd64', label: 'macOS amd64 CLI archive' },
   { platform: 'linux', packageTypes: ['tar.gz'], architecture: 'arm64', label: 'Linux arm64 CLI archive' },
   { platform: 'linux', packageTypes: ['tar.gz'], architecture: 'amd64', label: 'Linux amd64 CLI archive' },
-  { platform: 'windows', packageTypes: ['zip'], architecture: 'arm64', label: 'Windows arm64 CLI archive' },
-  { platform: 'windows', packageTypes: ['zip'], architecture: 'amd64', label: 'Windows amd64 CLI archive' },
 ]
 
 export function missingStableArtifacts(assets: ArtifactIdentity[]): string[] {

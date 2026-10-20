@@ -8,10 +8,13 @@
 > **Architecture:** Local-first modular monolith with strict domain boundaries  
 > **Agent strategy:** MCP-first, provider-neutral, schema-constrained, least-privilege  
 > **Document status:** Implementation blueprint  
-> **Last updated:** 2026-10-18
+> **Last updated:** 2026-10-20
 > **Current acceptance status:** [Acceptance ledger](docs/progress/acceptance-status.md).
 > Phase 0–19 checkboxes below preserve the original planning baseline; the
 > ledger separates implemented/tested behavior from signed-release/manual gates.
+> **First release scope:** macOS and Linux under
+> [ADR-0030](docs/adr/0030-first-release-platform-scope.md). Windows and WSL2
+> remain coming soon and do not gate release qualification.
 
 ---
 
@@ -2610,7 +2613,10 @@ Autonomous source modification remains the coding agent's responsibility, not th
 
 ## Phase 18 — Cross-platform hardening and open-source v1.0
 
-**Objective:** Complete Linux and Windows/WSL adapters, documentation, security review, and stable compatibility promises.
+**Objective:** Qualify macOS and Linux for the first release, complete documentation, security review, and stable compatibility promises, and retain Windows/WSL adapters for later qualification.
+
+The first-release platform scope follows ADR-0030. Windows/WSL source coverage
+is nonblocking; signed installation and clean-machine support remain deferred.
 
 ### Scope and deliverables
 
@@ -2622,11 +2628,11 @@ Autonomous source modification remains the coding agent's responsibility, not th
 - Publish CLI, manifest, API, MCP, and plugin compatibility policies.
 - Create migration tools from alpha/beta data.
 - Improve first-run onboarding, documentation, examples, and issue triage.
-- Publish signed v1.0 artifacts and SBOMs.
+- Publish signed macOS/Linux v1.0 artifacts and SBOMs.
 
 ### Exit criteria
 
-- [ ] Documented primary workflows pass on supported macOS, Linux, and Windows versions.
+- [ ] Documented primary workflows pass on supported macOS and Linux versions; Windows/WSL release qualification is deferred.
 - [ ] Upgrade preserves projects, manifests, audit history, and settings.
 - [ ] Security review has no unresolved critical findings.
 - [ ] v1.0 contracts and deprecation policy are public.

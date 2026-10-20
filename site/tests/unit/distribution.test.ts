@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { generateHomebrewCask, generateWingetManifests } from '../../src/lib/distribution/generate'
+import { generateHomebrewCask, generatePackageDrafts, generateWingetManifests } from '../../src/lib/distribution/generate'
 import { packageRecordMatches } from '../../src/lib/distribution/status'
 import type { ReleaseChannel } from '../../src/lib/releases/types'
 
@@ -14,6 +14,16 @@ const release: ReleaseChannel = {
 }
 
 describe('package draft generation', () => {
+  it('generates Homebrew drafts without requiring or publishing Windows installers', () => {
+    const macOnly = { ...release, assets: release.assets.filter((asset) => asset.platform === 'macos') }
+    const drafts = generatePackageDrafts(macOnly)
+    expect(Object.keys(drafts).sort()).toEqual(['REVIEW.md', 'homebrew/Casks/envarium.rb'])
+    expect(drafts['homebrew/Casks/envarium.rb']).toContain(macOnly.assets[0]!.downloadUrl)
+    expect(drafts['REVIEW.md']).toContain('Windows/WSL2 and WinGet are coming soon')
+    expect(generatePackageDrafts(release)).toEqual(drafts)
+    expect(() => generatePackageDrafts({ ...macOnly, assets: macOnly.assets.slice(1) })).toThrow(/checksummed artifact/)
+  })
+
   it('cleans the actual desktop identity only on explicit zap', () => {
     const { identifier } = JSON.parse(readFileSync(new URL('../../../desktop/src-tauri/tauri.conf.json', import.meta.url), 'utf8')) as { identifier: string }
     const cask = generateHomebrewCask(release)
