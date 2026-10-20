@@ -316,3 +316,7 @@ Focused preparation checks pass: release-channel Go tests verify the exact
 with `ENVARIUM_VERSION=1.0.0-beta.rc.1`, and site tests (40), type/content checks,
 lint, and documentation regeneration pass. The first candidate will remain a
 draft prerelease for installer qualification; it is not a stable publication.
+
+Linux desktop release packaging is pinned to Ubuntu 22.04, matching the
+documented baseline and avoiding an accidental glibc requirement increase from
+GitHub's `ubuntu-latest` migration to Ubuntu 26. Source CI remains current.

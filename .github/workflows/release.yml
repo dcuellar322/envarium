@@ -99,7 +99,7 @@ jobs:
             bundles: app,dmg
           - name: Linux
             artifact: linux-amd64
-            os: ubuntu-latest
+            os: ubuntu-22.04
             bundles: appimage,deb,rpm
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

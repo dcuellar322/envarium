@@ -5735,6 +5735,9 @@ macOS architectures and Linux x86_64, signs updater payloads,
 applies Apple notarization and Linux GPG signing, generates desktop CycloneDX
 SBOMs, attests the combined artifact set, and creates a draft GitHub release
 for final human review.
+Linux desktop packaging uses Ubuntu 22.04, the oldest supported Ubuntu base,
+to avoid requiring a newer host glibc. Source CI can use current runners.
+See [Tauri's Linux packaging guidance](https://v2.tauri.app/distribute/debian/).
 Before that draft is created, the public-site release contract validates the
 complete stable platform matrix and replaces build-specific digest files with
 one aggregate `checksums.txt` covering every uploaded artifact.
