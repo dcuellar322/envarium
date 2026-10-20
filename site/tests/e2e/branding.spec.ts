@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { strFromU8, unzipSync } from 'fflate'
 
 for (const theme of ['dark', 'light'] as const) {
   test(`the identity and palette stay consistent in ${theme} mode`, async ({ page }) => {
@@ -31,6 +32,12 @@ test('brand downloads and install icons resolve to real assets', async ({ page, 
   const archive = await request.get((await download.getAttribute('href'))!)
   expect(archive.ok()).toBe(true)
   expect((await archive.body()).subarray(0, 2).toString()).toBe('PK')
+  const files = unzipSync(await archive.body())
+  expect(Object.keys(files).some((name) => name.includes('/references/'))).toBe(false)
+  expect(strFromU8(files['envarium-v1/README.md']!)).not.toMatch(/\bphases?\b|generation prompt|creation notes/i)
+  expect(strFromU8(files['envarium-v1/LICENSE']!)).toContain('Apache License')
+  expect(strFromU8(files['envarium-v1/NOTICE']!)).toContain('Envarium contributors')
+  expect(await (await request.get('/brand/README.md')).text()).toBe(strFromU8(files['envarium-v1/README.md']!))
   await expect(page.locator('.interface-grid a')).toHaveCount(12)
   for (const href of await page.locator('a[download]').evaluateAll((links) => links.map((link) => link.getAttribute('href')!))) {
     expect((await request.get(href)).ok(), href).toBe(true)

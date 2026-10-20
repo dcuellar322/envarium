@@ -5578,7 +5578,9 @@ unless the user explicitly exports or sends them.
 Deterministic discovery reads only bounded allowlisted repository files and
 does not execute code. Optional AI onboarding or diagnosis sends the exact
 previewed, bounded, redacted evidence bundle to the provider the user selected;
-provider use is not required for any deterministic workflow. Provider terms
+provider use is not required for any deterministic workflow. External coding
+clients have their own data-sharing controls; MCP access does not make those
+clients subject to Envarium’s provider-preview flow. Provider terms
 and retention apply after that explicit request.
 
 Support bundles always exclude source, database contents, resolved secrets,
@@ -5591,7 +5593,8 @@ provider use. Novel secret formats remain a residual risk, so bundles should
 still be reviewed and shared privately.
 Plugins are external programs with separately reviewed fingerprints and scopes;
 their own network or data behavior remains the plugin publisher's
-responsibility within permissions granted by the user.
+responsibility. Plugins run under the local OS user; Envarium’s API capability
+checks are not an operating-system sandbox.
 
 Optional peer federation sends only the bounded identity, trusted-project, and
 registered-environment fields documented in the federation guide. It excludes
@@ -5609,6 +5612,9 @@ Anonymous usage metrics are off by default and have no vendor-controlled
 destination. Opt-in requires an explicit HTTPS endpoint and displays the full
 payload: a random anonymous installation ID, Envarium version, operating
 system, architecture, fixed operation-category counters, and generation time.
+While enabled, metrics are sent periodically to the configured endpoint. The
+installation ID links payloads from the same installation, and the endpoint
+can process request metadata such as the source IP address.
 It contains no project, machine, action, plugin, provider, path, command, log,
 diagnostic, or error detail. Disabling metrics clears the installation ID and
 all pending counters. A signed team policy may prohibit opt-in.

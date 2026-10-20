@@ -20,15 +20,16 @@ const colors = [
 ]
 ---
 
-<ContentPageLayout title="The Envarium identity" eyebrow="Brand and attribution" description={`The official logo, icons, and palette for ${PRODUCT_NAME}. Download the complete kit or individual assets for your project, article, or integration.`}>
+<ContentPageLayout title="Envarium brand assets" eyebrow="Logos and attribution" description={`Logos, icons, colors, and usage guidance for ${PRODUCT_NAME}. Download the kit or individual assets to identify Envarium in articles, integrations, and documentation.`}>
   <section class="identity panel" aria-labelledby="identity-title">
     <img class="mark" src="/brand/marks/envarium-gradient.svg" alt="" width="112" height="112" />
-    <div><p class="eyebrow">One place for every environment.</p><h2 id="identity-title">A shared language for local development.</h2><p>Three environment rails meet in a rounded E. A small cursor cutout connects the mark to the terminal. Use the Envarium name and identity clearly, without implying endorsement or official distribution.</p></div>
+    <div><p class="eyebrow">Logos and icons</p><h2 id="identity-title">Choose the right asset for the background.</h2><p>Use the full logo when the name needs to be visible and the standalone mark where Envarium is already identified. Choose a supplied light, dark, or monochrome version and preserve its proportions.</p></div>
   </section>
   <div class="downloads">
     <a class="button primary" href="/brand/envarium-brand-kit.zip" download>Download the complete brand kit <span aria-hidden="true">↓</span></a>
-    <span>SVG · PNG · ICO · ICNS · 12 interface icons</span>
+    <span>SVG · PNG · ICO · ICNS · {brandIconNames.length} interface icons · license and notices</span>
   </div>
+  <p class="brand-note">The kit contains artwork, not application packages. Windows and WSL2 support is coming soon. <a href="/brand/README.md">Read the asset usage guide</a>.</p>
 
   <section class="brand-section" aria-labelledby="logos-title">
     <h2 id="logos-title">Logo</h2>
@@ -50,7 +51,7 @@ const colors = [
 
   <section class="brand-section" aria-labelledby="palette-title">
     <h2 id="palette-title">Core palette</h2>
-    <p>Keep the logo gradient blue to violet in every theme. Interface text uses accessible shades of these colors on light and high-contrast surfaces.</p>
+    <p>The gradient runs from signal blue to violet. Use the supplied monochrome assets when needed, and check text contrast against the actual background.</p>
     <div class="swatches">{colors.map((color) => <div class="panel swatch"><span style={`background:${color.value}`} aria-hidden="true"></span><strong>{color.name}</strong><code>{color.value}</code></div>)}</div>
   </section>
 
@@ -60,7 +61,7 @@ const colors = [
     <div class="interface-grid">{brandIconNames.map((name) => <a class="panel" href={`/brand/interface/${name}.svg`} download aria-label={`Download ${name} icon SVG`}><BrandIcon name={name} /><span>{name}</span><span aria-hidden="true">↓</span></a>)}</div>
   </section>
 
-  <div class="guidance brand-section"><section><h2>Do</h2><ul><li>Use “Envarium — Local Development Command Center” on first reference.</li><li>Preserve the mark's proportions and blue-to-violet gradient.</li><li>Link to the canonical website or source repository.</li><li>State clearly when a package, integration, or article is community-maintained.</li><li>Preserve the Apache-2.0 license and required notices.</li><li>Use screenshots only when they contain no private paths or data.</li></ul></section><section><h2>Do not</h2><ul><li>Imply endorsement, partnership, or official distribution.</li><li>Stretch, rotate, recolor, or add effects to the mark.</li><li>Use the mark for an incompatible fork or unrelated command center.</li><li>Present guessed download URLs or unsigned artifacts as official.</li><li>Alter the name to create a confusingly similar service.</li></ul></section></div>
+  <div class="guidance brand-section"><section><h2>Use and attribution</h2><ul><li>Identify Envarium clearly and link to its website or source repository.</li><li>Preserve the mark’s proportions, padding, and supplied colors.</li><li>Label community-maintained integrations and unofficial builds.</li><li>Keep the accompanying license and notices when redistributing the kit.</li><li>Review screenshots for private paths and data before publishing.</li></ul><p><a href="/brand/LICENSE">Apache-2.0 license</a> · <a href="/brand/NOTICE">Notices</a>. Section 6 of the license covers trademark use.</p></section><section><h2>Avoid confusion</h2><ul><li>Do not imply endorsement, partnership, or official distribution.</li><li>Use the supplied variants instead of stretching, rotating, or adding effects to the mark.</li><li>Clearly distinguish forks and modified distributions.</li><li>Link to published packages; do not invent download URLs or call unsigned local builds official releases.</li></ul></section></div>
 </ContentPageLayout>
 
 <style>
@@ -70,6 +71,8 @@ const colors = [
   .identity p:not(.eyebrow), .brand-section > p, .icon-card p, .downloads > span { color: var(--sy-text-muted); }
   .downloads { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-top: 1.5rem; }
   .downloads > span { font-size: 0.85rem; }
+  .brand-note, .guidance p { color: var(--sy-text-muted); }
+  .brand-note a, .guidance a { color: var(--sy-accent-primary); }
   .brand-section { margin-top: 3.5rem; }
   .logo-grid, .guidance { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
   .logo-card { overflow: hidden; }

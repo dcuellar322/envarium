@@ -159,7 +159,7 @@ vuln:
 
 .PHONY: brand-check
 brand-check:
-	node --test scripts/brand-raster.test.mjs
+	node --test scripts/brand-raster.test.mjs scripts/brand-archive.test.mjs
 	node scripts/sync-brand.mjs --check
 
 quality: brand-check generate-check site-generate-check repository-check lint typecheck test test-race test-plugin-sdk migrate-check platform-check vuln test-e2e test-visual build test-mcp-inspector desktop-quality desktop-build

@@ -267,3 +267,37 @@ links, explicitly latest-channel downloads, missing-note fallback, and two RSS
 items. The production release manifest remains empty and unchanged. Fixture
 evidence is under ignored `output/playwright/community-editorial/local/`;
 production receipts and screenshots follow under its `live/` directory.
+
+## About, security, privacy, and brand editorial review — 2026-10-19
+
+This slice supports Phase 18's public documentation and security-boundary
+criteria. Check the four pages and linked policies against current storage,
+provider consent, periodic metrics, support-bundle, plugin, release and asset
+contracts. Keep Windows/WSL2 coming soon and preserve internal evidence in Git.
+No application architecture decision changes.
+
+Replace general slogans with project tasks and useful references. Scope claims
+about local storage, redaction, API permissions and provider previews; document
+periodic telemetry after opt-in and the installation identifier. Correct the
+unpublished stable-release support language. Keep the original brand creation
+guide and prompts under source references; publish only usage guidance, artwork,
+license and notices. Generate ZIPs deterministically from explicit public asset
+directories, rejecting internal milestones in the public guide. Add archive
+curation, cross-time-zone reproducibility, download and privacy/security journey
+checks. Expand accessibility coverage to all four pages.
+
+Acceptance requires generation and site quality, repository/architecture/contract
+checks, browser and visual checks, preservation of source references, and live
+page/search/archive/publication verification with screenshots after deployment.
+
+Local evidence: `make site-quality` passes four brand/archive tests, 39 site
+unit tests, type/lint checks, generation, build, and validation of 121 HTML pages.
+Repository, architecture, and generated-contract checks pass. Browser checks
+pass 117 cases with 27 intentional engine/viewport skips. Six visual checks pass
+on each of macOS and the pinned Linux CI image; updated light/dark brand
+references and manual About, Security, and Privacy screenshots were reviewed.
+The original brand README is preserved verbatim in source creation notes.
+Archive tests prove internal references are excluded and ZIP bytes match across
+time zones. Workflow path filters include the new archive tools. Ignored evidence
+is under `output/playwright/trust-editorial/`; deployment and live verification
+receipts belong in its `live/` directory.

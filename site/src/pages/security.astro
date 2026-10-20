@@ -1,11 +1,16 @@
 ---
 import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
+import releaseManifest from '@/data/release-manifest.json'
+import type { ReleaseManifest } from '@/lib/releases/types'
+const stable = (releaseManifest as ReleaseManifest).channels.stable
 ---
 
-<ContentPageLayout title="Security" eyebrow="Private reporting · local-first boundaries" description="Report vulnerabilities privately and understand the product security baseline before trusting a repository, plugin, agent, or release artifact.">
-  <section class="report panel"><div><span>Private channel</span><h2>Do not open a public issue.</h2><p>Include affected versions, impact, the smallest safe reproduction, and a suggested mitigation when available. Do not attach secrets or unrelated private repository material.</p></div><a class="button primary" href="https://github.com/dcuellar322/envarium/security/advisories/new">Open a private advisory</a></section>
-  <section class="baseline"><div><p class="eyebrow">Security baseline</p><h2>Trust is explicit and bounded.</h2></div><ul class="panel"><li>Repositories are untrusted until approved; deterministic discovery never executes commands.</li><li>Browser access is loopback-only, authenticated, CSRF-protected, and origin-checked.</li><li>Secrets use operating-system storage and shared redaction before display, persistence, export, or provider use.</li><li>Agent and plugin capabilities are permission-checked and audited; no generic shell MCP tool exists.</li><li>Destructive actions require a risk level, preview, and explicit authorization.</li><li>Release artifacts expose checksums, signing, provenance, and SBOM guidance beside downloads.</li></ul></section>
-  <nav class="links"><a href="https://github.com/dcuellar322/envarium/blob/master/SECURITY.md">Supported versions</a><a href="/docs/security/threat-model/">Threat model</a><a href="/download/verify/">Verify downloads</a><a href="/privacy/">Privacy boundaries</a></nav>
+<ContentPageLayout title="Security" eyebrow="Vulnerability reporting" description="Report suspected vulnerabilities privately and review Envarium’s trust boundaries before approving a repository, plugin, coding agent, or download.">
+  <section class="report panel"><div><span>Private reporting</span><h2>Report a vulnerability.</h2><p>Use GitHub’s private reporting form. Include the affected version or source commit, impact, and a small reproduction. Keep exploit details and credentials out of public issues.</p></div><a class="button primary" href="https://github.com/dcuellar322/envarium/security/advisories/new">Report privately</a></section>
+  <section class="baseline"><div><p class="eyebrow">Project access</p><h2>Review before granting trust.</h2></div><ul class="panel"><li>Repository discovery reads allowlisted files without executing project commands. Review the discovered configuration before approving it.</li><li>The local browser API requires an authenticated loopback session and checks request origins. Privileged clients use user-scoped local IPC.</li><li>Credentials use the operating-system secret store. Redaction reduces accidental disclosure in supported logs, exports, and provider evidence.</li><li>MCP clients use permission profiles and optional project allowlists. Plugin access to Envarium uses reviewed capabilities. Changes through these interfaces are permission-checked and audited.</li><li>Review operation previews and the permissions you grant before allowing destructive changes.</li></ul></section>
+  <section class="limits"><article class="panel"><h2>Trusted programs retain OS access.</h2><p>Plugins, project commands, and external coding clients run under your operating-system account. Envarium’s capability checks govern its own API; they do not sandbox those programs or protect against a compromised account with equivalent access.</p></article><article class="panel"><h2>Redaction has limits.</h2><p>Terminal output, application logs, and unfamiliar secret formats can contain sensitive information. Inspect diagnostic previews and exported files before sharing them. Optional providers apply their own retention terms after receiving data.</p></article></section>
+  <section class="release panel"><h2>Check the exact version you use.</h2><p>{stable ? `Stable ${stable.tag} is published. Review its release notes and verification evidence before installing.` : 'No stable release packages have been published. Source builds are not signed release artifacts.'} Windows and WSL2 support is coming soon. Passing tests or building from source is not a security certification.</p><a href="/download/verify/">Download verification guide →</a></section>
+  <nav class="links"><a href="https://github.com/dcuellar322/envarium/blob/master/SECURITY.md">Security policy and version support</a><a href="/docs/security/threat-model/">Security model and limitations</a><a href="/docs/mcp/">Agent permissions</a><a href="/privacy/">Data and privacy</a></nav>
 </ContentPageLayout>
 
 <style>
@@ -18,7 +23,13 @@ import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
   .baseline h2 { max-width: 9ch; margin: 0.4rem 0; font-size: clamp(2.4rem, 4vw, 4rem); line-height: 1; }
   .baseline ul { margin: 0; padding: 1.5rem 1.5rem 1.5rem 3rem; }
   .baseline li { margin-block: 0.75rem; color: var(--sy-text-muted); }
+  .limits { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+  .limits article, .release { padding: 1.4rem; }
+  .limits h2, .release h2 { margin-top: 0; font-size: 1.2rem; }
+  .limits p, .release p { color: var(--sy-text-muted); }
+  .release { margin-top: 1rem; }
+  .release a { color: var(--sy-accent-primary); }
   .links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
   .links a { color: var(--sy-accent-primary); font-weight: 760; text-decoration: none; }
-  @media (max-width: 720px) { .report { align-items: stretch; flex-direction: column; } .baseline { grid-template-columns: 1fr; } }
+  @media (max-width: 720px) { .report { align-items: stretch; flex-direction: column; } .baseline, .limits { grid-template-columns: 1fr; } }
 </style>

@@ -3,10 +3,11 @@ import ContentPageLayout from '@/layouts/ContentPageLayout.astro'
 import { REPOSITORY_URL } from '@/config/site'
 ---
 
-<ContentPageLayout title="About Envarium" eyebrow="About the project" description="Envarium brings local project commands, service status, logs, and ports into one application. It is open source under Apache-2.0 and runs without a cloud account.">
-  <section class="story"><div><p class="eyebrow">Why it exists</p><h2>Local development has a coordination problem.</h2></div><div><p>Starting a project is rarely one command. It means remembering runtimes, Compose services, ports, logs, health checks, Git state, terminal context, and which tools may safely act. Envarium makes that operational state visible and consistent across projects.</p><p>The desktop app, browser interface, CLI, and MCP tools connect to the same local Go daemon. They share project definitions and operation history.</p></div></section>
-  <section class="values"><article class="panel"><h2>Local first</h2><p>No account or hosted control plane is required. The daemon binds locally and users control every export or provider request.</p></article><article class="panel"><h2>Deterministic first</h2><p>Core discovery, lifecycle, diagnosis, and reconciliation work without AI. Provider assistance stays optional, bounded, and reviewed.</p></article><article class="panel"><h2>Open by design</h2><p>The source is Apache-2.0, contracts are generated, architecture decisions are recorded, and release provenance is inspectable.</p></article></section>
-  <aside class="credit panel"><div><strong>Created by David Cuellar, built in public.</strong><span>Contributors retain credit through repository history and release notes. Third-party notices remain versioned with the source.</span></div><a class="button primary" href={REPOSITORY_URL}>Explore the source</a><a class="button" href={`${REPOSITORY_URL}/blob/master/NOTICE`}>Attributions</a><a class="button" href="/contributing/">Contribute</a></aside>
+<ContentPageLayout title="About Envarium" eyebrow="About the project" description="Start local services, read their logs, and track ports and project status from one application. Envarium is open source under Apache-2.0 and requires no Envarium account.">
+  <section class="story"><div><p class="eyebrow">Why it exists</p><h2>See what is running.</h2></div><div><p>Keep a repository’s start commands, Compose services, ports, health checks, and logs together. Inspect a failed service, find a port conflict, or open a project terminal without collecting that information from separate tools.</p><p>The desktop app, browser interface, CLI, and MCP tools connect to the same local Go service. They share project definitions and operation history.</p></div></section>
+  <section class="values"><article class="panel"><h2>No required cloud account</h2><p>Envarium stores project state locally. Your workloads and optional integrations may use the network; review those connections in the privacy guide.</p><a href="/privacy/">Data and optional connections →</a></article><article class="panel"><h2>Works without AI</h2><p>Discover projects, manage services, and inspect failures without an AI provider. Optional AI assistance uses evidence you review, and generated configuration requires human approval.</p><a href="/features/agents-mcp/">Coding-agent access →</a></article><article class="panel"><h2>Source you can inspect</h2><p>Read the code, build it yourself, and review the documented APIs and architecture decisions. Contributions use the same published repository guidelines.</p><a href="/contributing/">Build and contribute →</a></article></section>
+  <p class="availability">Use Envarium on macOS or Linux. <a href="/download/">Check installation options</a>; Windows and WSL2 support is coming soon.</p>
+  <aside class="credit panel"><div><strong>Created by David Cuellar.</strong><span>Repository history records code and documentation contributions. The license and notices are included with the source.</span></div><a class="button primary" href={REPOSITORY_URL}>Explore the source</a><a class="button" href={`${REPOSITORY_URL}/blob/master/NOTICE`}>Attributions</a><a class="button" href="/contributing/">Contribute</a></aside>
 </ContentPageLayout>
 
 <style>
@@ -16,7 +17,10 @@ import { REPOSITORY_URL } from '@/config/site'
   .values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-top: 5rem; }
   .values article { padding: 1.4rem; }
   .values p, .credit span { color: var(--sy-text-muted); }
+  .values a, .availability a { color: var(--sy-accent-primary); font-weight: 760; }
+  .availability { margin-top: 2rem; color: var(--sy-text-muted); }
   .credit { display: flex; align-items: center; gap: 0.7rem; margin-top: 3rem; padding: 1.2rem; }
   .credit div { display: grid; margin-right: auto; }
+  .credit > a { flex-shrink: 0; }
   @media (max-width: 760px) { .story, .values { grid-template-columns: 1fr; } .credit { align-items: stretch; flex-direction: column; } }
 </style>

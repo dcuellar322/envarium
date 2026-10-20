@@ -82,6 +82,24 @@ test('unpublished changelog offers source builds and an empty release feed', asy
   expect(xml).not.toContain('<item>')
 })
 
+test('privacy guidance links to the actual optional-sharing and support contracts', async ({ page }) => {
+  await page.goto('/privacy/')
+  await page.getByRole('link', { name: 'Peer sharing' }).click()
+  await expect(page).toHaveURL(/\/docs\/federation\/$/)
+  await page.goto('/privacy/')
+  await page.getByRole('link', { name: 'Preview and create a support bundle' }).click()
+  await expect(page).toHaveURL(/\/docs\/support-bundles\/$/)
+  await expect(page.getByText('envarium doctor --bundle --preview', { exact: false })).toBeVisible()
+})
+
+test('security reporting and download verification are reachable', async ({ page }) => {
+  await page.goto('/security/')
+  await expect(page.getByRole('link', { name: 'Report privately', exact: true })).toHaveAttribute('href', 'https://github.com/dcuellar322/envarium/security/advisories/new')
+  await page.getByRole('link', { name: 'Download verification guide' }).click()
+  await expect(page).toHaveURL(/\/download\/verify\/$/)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Verify an Envarium download')
+})
+
 test('community routes questions, bugs, proposals, and security correctly', async ({ page }) => {
   await page.goto('/community/')
   await expect(page.getByRole('link', { name: /Ask a question/ })).toHaveAttribute('href', /question\.yml/)

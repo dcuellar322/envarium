@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { equalNativePixels } from './brand-raster.mjs'
+import { createPublicBrandArchive } from './brand-archive.mjs'
 
 // SVGs and palette.json in the approved kit own the identity. Consumers are
 // copied/generated here; --check compares without changing the checkout.
@@ -113,7 +114,13 @@ for (const directory of ['logos', 'marks', 'interface', 'app', 'web', 'tray']) {
 }
 await copy('preview.png', 'site/public/brand/preview.png')
 await copy('README.md', 'site/public/brand/README.md')
-await emit('site/public/brand/envarium-brand-kit.zip', await readFile(`${kit}.zip`))
+const license = await readFile(join(root, 'LICENSE'))
+const notice = await readFile(join(root, 'NOTICE'))
+const archive = await createPublicBrandArchive(kit, license, notice)
+await emit('design/brand/envarium-v1.zip', archive)
+await emit('site/public/brand/envarium-brand-kit.zip', archive)
+await emit('site/public/brand/LICENSE', license)
+await emit('site/public/brand/NOTICE', notice)
 for (const [source, target] of [
   ['marks/envarium-gradient.svg', 'web/public/envarium-icon.svg'],
   ['marks/envarium-gradient.svg', 'web/public/brand/mark.svg'],

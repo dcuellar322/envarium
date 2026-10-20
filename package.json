@@ -10,7 +10,7 @@
   },
   "scripts": {
     "brand:sync": "node scripts/sync-brand.mjs",
-    "brand:check": "node --test scripts/brand-raster.test.mjs && node scripts/sync-brand.mjs --check",
+    "brand:check": "node --test scripts/brand-raster.test.mjs scripts/brand-archive.test.mjs && node scripts/sync-brand.mjs --check",
     "build": "pnpm --filter @envarium/web build",
     "desktop": "tauri",
     "desktop:prepare": "pnpm --dir web build && node desktop/scripts/build-sidecar.mjs",
