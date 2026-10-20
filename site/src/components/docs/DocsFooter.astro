@@ -13,14 +13,14 @@ const markdownUrl = route.id === 'docs/' || route.id === 'docs' ? '/docs/index.m
 const verified = route.entry.data.lastVerified
 ---
 
-<section class="doc-actions" aria-label="Documentation page actions">
+<section class="doc-actions" aria-label="Documentation page actions" data-pagefind-ignore>
   <div>
     <strong>Use this page</strong>
     {verified && <span>Last verified {new Date(verified).toLocaleDateString('en-US', { dateStyle: 'medium', timeZone: 'UTC' })}</span>}
   </div>
   <a href={markdownUrl}>Copy-ready Markdown</a>
-  <a href={sourceUrl}>Open source</a>
-  <button type="button" data-copy-canonical data-canonical={canonicalUrl(Astro.url.pathname).href}>Copy canonical link</button>
+  <a href={sourceUrl}>View source</a>
+  <button type="button" data-copy-canonical data-canonical={canonicalUrl(Astro.url.pathname).href}>Copy page link</button>
   <a href={reportUrl}>Report a docs issue</a>
   <span class="copy-status" aria-live="polite" data-copy-status></span>
 </section>
@@ -76,7 +76,7 @@ const verified = route.entry.data.lastVerified
       const status = button.parentElement?.querySelector<HTMLElement>('[data-copy-status]')
       try {
         await navigator.clipboard.writeText(value)
-        if (status) status.textContent = 'Canonical link copied.'
+        if (status) status.textContent = 'Page link copied.'
       } catch {
         if (status) status.textContent = 'Copy was blocked by your browser. Copy the address from the address bar instead.'
       }

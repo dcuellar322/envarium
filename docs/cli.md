@@ -378,6 +378,7 @@ migration preview are read-only. `data migrate --write` requires the daemon to
 be stopped and creates a verified non-overwriting pre-migration backup before
 changing schema. `data backup --output <path>` refuses to overwrite its output.
 
-Prelaunch manifest migration was retired before launch. Use deterministic
-onboarding to produce a reviewed stable v1 manifest. Database backup and
-migration commands retain the normal JSON envelope and semantic error behavior.
+There is no manifest-version conversion command. Use deterministic onboarding
+to review a new `envarium.dev/v1` manifest for an unsupported document version.
+Database backup and migration commands retain the normal JSON envelope and
+semantic error behavior.

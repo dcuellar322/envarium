@@ -4,7 +4,7 @@ description: Schema, precedence, provenance, services, actions, health, ports, a
 category: reference
 audience: [user, integrator, contributor]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 searchTerms: [project.yml, envarium manifest, local overlay, manifest schema]
 ---
 
@@ -43,6 +43,6 @@ envarium manifest explain <project>
 envarium manifest diff <project>
 ```
 
-Only the stable `envarium.dev/v1` document is accepted. Prelaunch alpha manifests
-must be replaced through deterministic onboarding; see
+Only `envarium.dev/v1` documents are accepted. Use deterministic onboarding to
+review a replacement for an unsupported manifest version; see
 [compatibility](compatibility.md).

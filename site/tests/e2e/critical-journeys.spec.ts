@@ -189,6 +189,18 @@ test('search navigation opens search, handles no matches, and closes with Escape
   await expect(page.getByRole('dialog', { name: 'Search' })).not.toBeVisible()
 })
 
+test('missing pages offer working documentation search', async ({ page }) => {
+  const response = await page.goto('/missing-envarium-document/')
+  expect(response?.status()).toBe(404)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found.')
+  await page.getByRole('link', { name: 'Search docs', exact: true }).click()
+  const search = page.getByRole('textbox', { name: 'Search' })
+  await expect(search).toBeFocused()
+  await search.fill('Privacy')
+  await page.getByRole('link', { name: /^Privacy/ }).first().click()
+  await expect(page).toHaveURL(/\/docs\/privacy\/$/)
+})
+
 test('installation remains useful without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false })
   const page = await context.newPage()
@@ -209,9 +221,9 @@ for (const blocked of [false, true]) {
       } })
     }, blocked)
     await page.goto('/docs/cli/')
-    await page.getByRole('button', { name: 'Copy canonical link' }).click()
+    await page.getByRole('button', { name: 'Copy page link' }).click()
     await expect(page.locator('[data-copy-status]')).toHaveText(blocked
       ? 'Copy was blocked by your browser. Copy the address from the address bar instead.'
-      : 'Canonical link copied.')
+      : 'Page link copied.')
   })
 }

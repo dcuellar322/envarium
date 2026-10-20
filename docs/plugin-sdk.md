@@ -58,8 +58,7 @@ actions, health, or operation receipts rather than terminal text.
 guessing or fallback execution. A mismatch remains discoverable as an
 actionable error and is never enabled.
 
-Alpha protocol identifiers are unsupported by the v1 host and must be rebuilt
-with the current SDK. These compatibility promises apply to published stable
+These compatibility promises apply to published stable
 releases; development builds may change before the first stable release:
 
 - fields may be added only when older peers can safely ignore or default them;

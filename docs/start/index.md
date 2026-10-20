@@ -11,7 +11,7 @@ sidebar:
   order: 1
 ---
 
-The first success path is deliberately small:
+Follow these steps to start and inspect one local project:
 
 1. [Choose the supported installation for this machine](install.md).
 2. Run `envarium doctor` and resolve only capabilities your project needs.

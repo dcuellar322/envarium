@@ -3,7 +3,7 @@ title: "ADR-0015: Platform support order"
 description: Implement OS adapters in an explicit order behind platform-neutral contracts.
 category: concept
 audience: [contributor, maintainer]
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 - Status: Accepted
@@ -23,7 +23,8 @@ packages. Domain and application packages remain platform-neutral.
 
 ## Consequences
 
-Early releases may have explicitly documented platform gaps. Cross-platform
-contracts are designed early but adapters are implemented in roadmap order.
-Unsupported capability is a typed, explainable state rather than silent
-failure.
+Source builds currently target macOS and Linux. Windows and WSL2 support is
+coming soon; source adapters and passing CI do not establish installer or
+clean-machine support. See [platform support](../platform-support.md) for
+availability and platform boundaries. An unsupported capability returns a
+typed, explainable state rather than silent failure.

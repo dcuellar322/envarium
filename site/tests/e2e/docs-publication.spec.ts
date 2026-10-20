@@ -45,13 +45,14 @@ test('search indexes public guides without internal phase reports or maintainer 
     // checking only the first visible result in the search dialog.
     const modulePath = '/pagefind/pagefind.js'
     const pagefind = await import(/* @vite-ignore */ modulePath)
-    const searches = await Promise.all(['Envarium CLI contract', 'Phase', 'acceptance', 'launch checklist', 'rebrand', 'Arcane'].map(async (query) => {
+    const searches = await Promise.all(['Envarium CLI contract', 'Phase', 'acceptance', 'launch checklist', 'rebrand', 'Arcane', '"Copy-ready Markdown"'].map(async (query) => {
       const search = await pagefind.search(query)
       return { query, urls: (await Promise.all(search.results.map((result: { data: () => Promise<{ url: string }> }) => result.data()))).map((result: { url: string }) => result.url) }
     }))
     return searches
   })
   expect(results[0]?.urls.some((url: string) => new URL(url, page.url()).pathname === '/docs/cli/')).toBe(true)
+  expect(results.find((result) => result.query === '"Copy-ready Markdown"')?.urls).toEqual([])
   for (const result of results) {
     for (const url of result.urls) expect(isInternalRoute(new URL(url, page.url()).pathname), `${result.query}: ${url}`).toBe(false)
   }

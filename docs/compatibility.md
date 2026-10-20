@@ -46,8 +46,9 @@ backup before changing durable data.
 
 Only `envarium.dev/v1` manifests are accepted. There is no manifest-version
 conversion command. Use deterministic onboarding to review a new manifest
-when an older document uses an unsupported schema. Incompatible plugin executables must be
-rebuilt against the stable SDK; the host never runs an incompatible plugin.
+when an older document uses an unsupported schema. Rebuild incompatible plugin
+executables against a compatible SDK; the host rejects unsupported plugin
+protocol versions.
 
 Ordered embedded database migrations remain supported for the active local
 installation, including verified pre-migration backups. See

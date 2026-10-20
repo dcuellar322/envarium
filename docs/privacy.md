@@ -24,10 +24,10 @@ Support bundles always exclude source, database contents, resolved secrets,
 arbitrary environment values, terminal output, and project application logs.
 The exact manifest is previewable before a private archive is written, and the
 archive contains only allowlisted system/configuration facts plus recent
-redacted internal daemon warnings and errors. Logs and diagnostic evidence
-share the same redaction pipeline before display, persistence, export, or
-provider use. Novel secret formats remain a residual risk, so bundles should
-still be reviewed and shared privately.
+redacted internal daemon warnings and errors. Supported log, diagnostic, and
+provider-evidence paths apply redaction. Interactive terminal output and
+unfamiliar secret formats can still expose private data; review output and
+bundles before sharing them.
 Plugins are external programs with separately reviewed fingerprints and scopes;
 their own network or data behavior remains the plugin publisher's
 responsibility. Plugins run under the local OS user; Envarium’s API capability
@@ -45,9 +45,9 @@ projects, repository paths and contents, machine credentials, fleet records,
 operations, logs, terminals, environment values, and runtime state. Decryption
 occurs in the CLI process and import is previewed before confirmation.
 
-Anonymous usage metrics are off by default and have no vendor-controlled
+Optional usage metrics are off by default and have no vendor-controlled
 destination. Opt-in requires an explicit HTTPS endpoint and displays the full
-payload: a random anonymous installation ID, Envarium version, operating
+payload: a random installation ID, Envarium version, operating
 system, architecture, fixed operation-category counters, and generation time.
 While enabled, metrics are sent periodically to the configured endpoint. The
 installation ID links payloads from the same installation, and the endpoint

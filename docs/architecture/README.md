@@ -99,7 +99,7 @@ application interface or a typed event.
 | `plugins` | External package discovery, executable trust, scopes, supervision, and typed actions |
 | `fleet` | Authenticated peer identities, bounded inventory, grants, remote operations, and audit |
 | `team` | Publisher trust, signed portable bundles, restrictive policy, registry metadata, and encrypted sync |
-| `telemetry` | Explicit consent, fixed anonymous counters, payload preview, delivery, and opt-out deletion |
+| `telemetry` | Explicit consent, fixed usage counters, payload preview, periodic delivery, and opt-out deletion |
 | `settings` | Revisioned local preferences, safe project roots, adapter choices, and restart-effect reporting |
 | `platform` | OS capabilities without product policy |
 

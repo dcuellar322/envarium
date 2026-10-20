@@ -5,13 +5,15 @@ category: tutorial
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-10-18
+lastVerified: 2026-10-19
 sidebar:
   order: 4
 ---
 
 Native projects can use uv, npm, pnpm, Make, or another explicit executable.
-Envarium does not require Docker for this path.
+Envarium does not require Docker for this path. Use a macOS or Linux source
+build; **Windows and WSL2 support is coming soon**. See
+[platform support](../platform-support.md) for availability.
 
 ## 1. Review discovery
 
@@ -44,8 +46,8 @@ envarium status <project>
 ```
 
 Envarium captures stdout and stderr separately, sends graceful termination
-to the process group or Job Object, and escalates only after the configured
-timeout. Success ends with no managed child process left behind.
+to the managed process group on macOS and Linux, and escalates only after the
+configured timeout. Success ends with no managed child process left behind.
 
 ## Parallel checkouts
 

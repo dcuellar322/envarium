@@ -498,10 +498,11 @@ packages. Domain and application packages remain platform-neutral.
 
 ## Consequences
 
-Early releases may have explicitly documented platform gaps. Cross-platform
-contracts are designed early but adapters are implemented in roadmap order.
-Unsupported capability is a typed, explainable state rather than silent
-failure.
+Source builds currently target macOS and Linux. Windows and WSL2 support is
+coming soon; source adapters and passing CI do not establish installer or
+clean-machine support. See [platform support](../platform-support.md) for
+availability and platform boundaries. An unsupported capability returns a
+typed, explainable state rather than silent failure.
 
 ---
 
@@ -1643,7 +1644,7 @@ application interface or a typed event.
 | `plugins` | External package discovery, executable trust, scopes, supervision, and typed actions |
 | `fleet` | Authenticated peer identities, bounded inventory, grants, remote operations, and audit |
 | `team` | Publisher trust, signed portable bundles, restrictive policy, registry metadata, and encrypted sync |
-| `telemetry` | Explicit consent, fixed anonymous counters, payload preview, delivery, and opt-out deletion |
+| `telemetry` | Explicit consent, fixed usage counters, payload preview, periodic delivery, and opt-out deletion |
 | `settings` | Revisioned local preferences, safe project roots, adapter choices, and restart-effect reporting |
 | `platform` | OS capabilities without product policy |
 
@@ -3456,9 +3457,10 @@ migration preview are read-only. `data migrate --write` requires the daemon to
 be stopped and creates a verified non-overwriting pre-migration backup before
 changing schema. `data backup --output <path>` refuses to overwrite its output.
 
-Prelaunch manifest migration was retired before launch. Use deterministic
-onboarding to produce a reviewed stable v1 manifest. Database backup and
-migration commands retain the normal JSON envelope and semantic error behavior.
+There is no manifest-version conversion command. Use deterministic onboarding
+to review a new `envarium.dev/v1` manifest for an unsupported document version.
+Database backup and migration commands retain the normal JSON envelope and
+semantic error behavior.
 
 ---
 
@@ -3507,8 +3509,9 @@ backup before changing durable data.
 
 Only `envarium.dev/v1` manifests are accepted. There is no manifest-version
 conversion command. Use deterministic onboarding to review a new manifest
-when an older document uses an unsupported schema. Incompatible plugin executables must be
-rebuilt against the stable SDK; the host never runs an incompatible plugin.
+when an older document uses an unsupported schema. Rebuild incompatible plugin
+executables against a compatible SDK; the host rejects unsupported plugin
+protocol versions.
 
 Ordered embedded database migrations remain supported for the active local
 installation, including verified pre-migration backups. See
@@ -5223,8 +5226,8 @@ envarium manifest explain <project>
 envarium manifest diff <project>
 ```
 
-Only the stable `envarium.dev/v1` document is accepted. Prelaunch alpha manifests
-must be replaced through deterministic onboarding; see
+Only `envarium.dev/v1` documents are accepted. Use deterministic onboarding to
+review a replacement for an unsupported manifest version; see
 [compatibility](compatibility.md).
 
 ---
@@ -5545,8 +5548,7 @@ actions, health, or operation receipts rather than terminal text.
 guessing or fallback execution. A mismatch remains discoverable as an
 actionable error and is never enabled.
 
-Alpha protocol identifiers are unsupported by the v1 host and must be rebuilt
-with the current SDK. These compatibility promises apply to published stable
+These compatibility promises apply to published stable
 releases; development builds may change before the first stable release:
 
 - fields may be added only when older peers can safely ignore or default them;
@@ -5587,10 +5589,10 @@ Support bundles always exclude source, database contents, resolved secrets,
 arbitrary environment values, terminal output, and project application logs.
 The exact manifest is previewable before a private archive is written, and the
 archive contains only allowlisted system/configuration facts plus recent
-redacted internal daemon warnings and errors. Logs and diagnostic evidence
-share the same redaction pipeline before display, persistence, export, or
-provider use. Novel secret formats remain a residual risk, so bundles should
-still be reviewed and shared privately.
+redacted internal daemon warnings and errors. Supported log, diagnostic, and
+provider-evidence paths apply redaction. Interactive terminal output and
+unfamiliar secret formats can still expose private data; review output and
+bundles before sharing them.
 Plugins are external programs with separately reviewed fingerprints and scopes;
 their own network or data behavior remains the plugin publisher's
 responsibility. Plugins run under the local OS user; Envarium’s API capability
@@ -5608,9 +5610,9 @@ projects, repository paths and contents, machine credentials, fleet records,
 operations, logs, terminals, environment values, and runtime state. Decryption
 occurs in the CLI process and import is previewed before confirmation.
 
-Anonymous usage metrics are off by default and have no vendor-controlled
+Optional usage metrics are off by default and have no vendor-controlled
 destination. Opt-in requires an explicit HTTPS endpoint and displays the full
-payload: a random anonymous installation ID, Envarium version, operating
+payload: a random installation ID, Envarium version, operating
 system, architecture, fixed operation-category counters, and generation time.
 While enabled, metrics are sent periodically to the configured endpoint. The
 installation ID links payloads from the same installation, and the endpoint
@@ -5915,8 +5917,8 @@ AI output are not trusted merely because they are local.
 | Another local user invokes privileged API | mode `0600` Unix socket; Windows named-pipe DACL grants only LocalSystem and current-user SID | administrators can inspect or control a user's processes by OS design |
 | PID reuse or orphaned child escapes lifecycle | executable/start/cwd fingerprint, process groups on Unix, Job Objects with kill-on-close on Windows, bounded graceful-to-force stop | externally started processes remain observed rather than silently adopted |
 | Terminal becomes generic browser shell | server-resolved trusted launch plans, owner-scoped session attachment, bounded input/output, memory-only scrollback, audit metadata | terminal output can contain application data and is visible to its authorized owner |
-| Secret reaches logs/provider/support bundle | credential references, redaction before every sink, bounded diagnostic evidence, preview, no source by default | novel secret formats need an explicit redaction pattern |
-| Plugin or agent exceeds permission | exact protocol, executable fingerprint trust, capability/scope intersection, per-project profiles, typed tools, audit, no generic MCP shell | a deliberately granted write scope carries the documented capability risk |
+| Secret reaches logs/provider/support bundle | credential references, supported redaction paths, bounded provider preview, repository source excluded from support bundles | terminal output and unfamiliar secret formats may contain private data; review before sharing |
+| Plugin or agent exceeds permission | exact protocol, executable fingerprint trust, capability/scope intersection, per-project profiles, typed tools, audit, no generic MCP shell | trusted executables retain OS authority; API permissions do not sandbox them |
 | Prompt/log injection changes authority | evidence treated as inert untrusted text, schema validation, evidence citations, deterministic-first results, human review | a provider can return poor advice but cannot authorize an action |
 | Update or artifact tampering | protected release environment, platform signing, updater signatures, SHA-256 checksums, keyless Sigstore bundle, SBOM, GitHub artifact attestation | signing-account compromise requires key rotation and release revocation |
 | Migration corrupts or strands data | single-daemon lock, compatibility preflight, quick-check, non-overwriting consistent backup, post-backup verification, newer-schema refusal | disk loss affecting both source and same-disk backup requires external backups |
@@ -6079,7 +6081,7 @@ Source: https://envarium.davidcuellar.tech/docs/start/
 
 Go from a supported installation to one trusted, observable local project.
 
-The first success path is deliberately small:
+Follow these steps to start and inspect one local project:
 
 1. [Choose the supported installation for this machine](install.md).
 2. Run `envarium doctor` and resolve only capabilities your project needs.
@@ -6197,7 +6199,9 @@ Source: https://envarium.davidcuellar.tech/docs/start/native-process/
 Review an argument-array command, start its process tree, follow output, and stop without orphans.
 
 Native projects can use uv, npm, pnpm, Make, or another explicit executable.
-Envarium does not require Docker for this path.
+Envarium does not require Docker for this path. Use a macOS or Linux source
+build; **Windows and WSL2 support is coming soon**. See
+[platform support](../platform-support.md) for availability.
 
 ## 1. Review discovery
 
@@ -6230,8 +6234,8 @@ envarium status <project>
 ```
 
 Envarium captures stdout and stderr separately, sends graceful termination
-to the process group or Job Object, and escalates only after the configured
-timeout. Success ends with no managed child process left behind.
+to the managed process group on macOS and Linux, and escalates only after the
+configured timeout. Success ends with no managed child process left behind.
 
 ## Parallel checkouts
 
@@ -6255,7 +6259,7 @@ envarium ports list
 The registry keeps three facts distinct:
 
 - a manifest or Compose **declaration**;
-- a Envarium **reservation or lease**, including stopped projects;
+- an Envarium **reservation or lease**, including stopped projects;
 - a live operating-system or Docker **binding**.
 
 Open the conflict drawer in the port registry to see the project, service,
@@ -6455,7 +6459,7 @@ optional capability. All team configuration bundles require signatures; there is
 configuration mode. `allowedRegistryPublishers` applies only to curated
 registry metadata; local native plugin trust remains a separate owner decision.
 Team policy can restrict remote inventory and lifecycle
-actions, registry publishers, and whether a user may opt in to anonymous
+actions, registry publishers, and whether a user may opt in to usage
 metrics. It never broadens the built-in permission model.
 
 A signed plugin registry supplies metadata, HTTPS download locations, and
@@ -6507,25 +6511,27 @@ Start with `envarium doctor`, then `envarium debug logs --level warn` and
 before writing or sharing an archive. Keep diagnostic output private even
 after automated redaction.
 
+Use macOS or Linux for current source builds. **Windows and WSL2 support is
+coming soon**; see [platform support](platform-support.md) for the intended
+Windows and WSL2 behavior and current availability.
+
 - **Daemon will not start:** another matching daemon may own `daemon.lock` or
   the Unix socket/named pipe. Do not delete a live lock. Stop the process shown
   in the lock or let normal stale-lock recovery run.
 - **Docker disconnected:** verify `docker version`, `docker compose version`,
   and the selected Docker context as the same user running Envarium.
 - **Terminal unavailable:** Linux needs a PTY-capable supported distribution;
-  external launch also needs a supported terminal emulator. Windows requires
-  a supported ConPTY host and Windows Terminal for external handoff.
+  external launch also needs a supported terminal emulator.
 - **Ports unavailable:** host policy may prevent process ownership details.
   Bindings without an accessible PID remain honest partial observations.
 - **Manifest rejected:** unknown fields and unsupported versions fail closed.
-  Replace prelaunch alpha manifests through deterministic onboarding, then validate the stable v1 manifest.
+  Only `envarium.dev/v1` manifests are accepted. Use project onboarding to
+  review a replacement for an unsupported manifest version.
 - **Database newer than binary:** install the matching/newer Envarium build or
   restore a pre-migration backup to a separate data directory. Never force an
   old binary to open it.
 - **Plugin disabled after update:** executable or manifest fingerprints changed.
   Refresh, inspect the new capabilities/scopes, then explicitly trust again.
-- **WSL attach fails:** Windows named pipes and WSL Unix sockets are separate.
-  Run the Linux binary inside WSL and use its `envarium ui` URL.
 
 Issue reports should include platform, Envarium version, expected/actual
 behavior, minimal reproduction, and only redacted diagnostic facts. Never

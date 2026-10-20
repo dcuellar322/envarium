@@ -301,3 +301,33 @@ Archive tests prove internal references are excluded and ZIP bytes match across
 time zones. Workflow path filters include the new archive tools. Ignored evidence
 is under `output/playwright/trust-editorial/`; deployment and live verification
 receipts belong in its `live/` directory.
+
+## Final public-site and CI review — 2026-10-19
+
+This coherent documentation slice supports Phase 18's public documentation and
+contributor-build criteria. Review all built public pages, policies, search,
+downloads, internal and external links; preserve the unpublished maintainer
+records in Git and keep Windows/WSL2 coming soon. Correct current claims rather
+than changing application behavior or accepted architecture decisions.
+
+Acceptance: review publication copy and link targets; remove remaining
+unsupported-platform and telemetry wording; keep documentation action controls
+out of search content and make the error-page search link open search. Run
+generation, site quality, browser/visual and repository/contract checks. Commit,
+push, and deploy; verify the canonical site and search with desktop/mobile
+screenshots. Wait for every workflow triggered by the final commit, including
+repository CI and Security, and resolve any failures before reporting success.
+
+Local evidence: site quality passes four brand tests and 39 site unit tests,
+type/lint checks, build, and validation of 121 HTML pages. Repository,
+architecture, generated-contract, and staged site-generation checks pass.
+Browser checks pass 121 cases with 27 intentional engine/viewport skips,
+including the new missing-page search recovery and footer-index exclusion.
+All six visual checks pass on macOS and on the pinned Linux CI image without
+baseline changes. The docs actions and 404 recovery were also reviewed in a
+real browser. External-link verification covers 285 published URLs: repository
+tree validation for 179 source/edit paths, and 18 distinct HTTP targets serving
+106 links with query variants and checked issue-template paths. No broken
+targets were found. Ignored local logs, link results, and screenshots are under
+`output/playwright/final-site/local/`; final workflow receipts and live
+page/search/screenshots belong under its `live/` directory.

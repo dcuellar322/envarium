@@ -4,7 +4,7 @@ description: Verify signed templates and policy packs and encrypt portable local
 category: how-to
 audience: [user, integrator, maintainer]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 ---
 
 Envarium can share portable project templates, policy packs, curated plugin
@@ -75,7 +75,7 @@ optional capability. All team configuration bundles require signatures; there is
 configuration mode. `allowedRegistryPublishers` applies only to curated
 registry metadata; local native plugin trust remains a separate owner decision.
 Team policy can restrict remote inventory and lifecycle
-actions, registry publishers, and whether a user may opt in to anonymous
+actions, registry publishers, and whether a user may opt in to usage
 metrics. It never broadens the built-in permission model.
 
 A signed plugin registry supplies metadata, HTTPS download locations, and

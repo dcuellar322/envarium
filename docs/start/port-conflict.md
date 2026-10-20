@@ -5,7 +5,7 @@ category: tutorial
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-07-17
+lastVerified: 2026-10-19
 sidebar:
   order: 6
 ---
@@ -19,7 +19,7 @@ envarium ports list
 The registry keeps three facts distinct:
 
 - a manifest or Compose **declaration**;
-- a Envarium **reservation or lease**, including stopped projects;
+- an Envarium **reservation or lease**, including stopped projects;
 - a live operating-system or Docker **binding**.
 
 Open the conflict drawer in the port registry to see the project, service,
