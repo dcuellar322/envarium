@@ -2,14 +2,21 @@ import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import { unified } from '@astrojs/markdown-remark'
 import remarkDocumentationLinks from './src/lib/docs/remark-links.ts'
+import rehypeKeyboardNavigation, { focusScrollableContent } from './src/lib/docs/keyboard-navigation.ts'
 import { isPreview, PRODUCT_NAME, REPOSITORY_URL, SITE_DESCRIPTION, siteUrl } from './src/config/site.ts'
 
 export default defineConfig({
   site: siteUrl.href,
   output: 'static',
-  markdown: { processor: unified({ remarkPlugins: [remarkDocumentationLinks] }) },
+  markdown: { processor: unified({ remarkPlugins: [remarkDocumentationLinks], rehypePlugins: [rehypeKeyboardNavigation] }) },
   integrations: [
     starlight({
+      expressiveCode: {
+        plugins: [{
+          name: 'Keyboard scrolling',
+          hooks: { postprocessRenderedBlockGroup: ({ renderData }) => { focusScrollableContent(renderData.groupAst) } },
+        }],
+      },
       title: PRODUCT_NAME,
       description: SITE_DESCRIPTION,
       favicon: '/favicon.svg',

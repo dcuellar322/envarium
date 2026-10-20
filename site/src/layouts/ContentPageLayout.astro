@@ -11,6 +11,7 @@ const { title, eyebrow = 'Envarium', description } = Astro.props
 ---
 
 <BaseLayout title={title} description={description}>
+  <Fragment slot="head"><slot name="head" /></Fragment>
   <header class="page-hero container">
     <p class="eyebrow">{eyebrow}</p>
     <h1>{title}</h1>

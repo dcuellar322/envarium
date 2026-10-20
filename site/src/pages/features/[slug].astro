@@ -21,7 +21,7 @@ const media = feature.slug === 'projects' ? dashboard : feature.slug === 'ports-
 
 <ContentPageLayout title={feature.title} eyebrow="Envarium capability" description={feature.description}>
   <Fragment slot="actions"><div class="hero-actions"><a class="button primary" href="/download/">Installation options</a><a class="button" href={feature.docsHref}>Read the documentation</a></div></Fragment>
-  <figure class="product-shot panel"><Image src={media} alt={`Envarium product view demonstrating ${feature.title.toLowerCase()}.`} widths={[640, 960, 1440]} sizes="(max-width: 900px) 94vw, 75vw" /><figcaption>Product screenshot with example projects.</figcaption></figure>
+  <figure class="product-shot panel"><Image src={media} alt={`Envarium product view demonstrating ${feature.title.toLowerCase()}.`} widths={[640, 960, 1280, 1440]} sizes="(min-width: 1212px) 1164px, calc(100vw - 3rem)" /><figcaption>Product screenshot with example projects.</figcaption></figure>
   <section class="proof"><div><p class="eyebrow">Using Envarium</p><h2>What you can do</h2></div><ul>{feature.proof.map((item) => <li><span aria-hidden="true">✓</span>{item}</li>)}</ul></section>
 
 </ContentPageLayout>

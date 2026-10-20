@@ -31,7 +31,7 @@ const alternatives = !guide.comingSoon && release?.assets.filter((candidate) => 
     </div>
     <aside class="panel"><p class="eyebrow">{guide.comingSoon ? 'Target requirements' : desktopPackage ? 'Install path' : 'Build from source'}</p>{guide.comingSoon ? <p>{guide.requirements}</p> : desktopPackage ? <ol>{guide.install.map((step) => <li>{step}</li>)}</ol> : <><p>No stable desktop installer is available for this selection. Build the CLI and browser UI, or build the desktop app with Rust and the platform dependencies.</p><p><a href="/download/cli/#build-from-source">CLI build instructions →</a></p><p><a href="/docs/desktop-installation/#build-from-source">Desktop build instructions →</a></p></>}<h2>Verify release packages</h2><p>{guide.verify}</p><a href="/download/verify/">Open verification guide →</a></aside>
   </div>
-  {!guide.comingSoon && <section class="after-install panel"><div><p class="eyebrow">After installation</p><h2>Check your installation.</h2><p>After installation, <code>envarium doctor</code> reports platform capabilities and <code>envarium ui</code> opens the local browser UI. Envarium does not require an account.</p></div><pre><code>envarium doctor
+  {!guide.comingSoon && <section class="after-install panel"><div><p class="eyebrow">After installation</p><h2>Check your installation.</h2><p>After installation, <code>envarium doctor</code> reports platform capabilities and <code>envarium ui</code> opens the local browser UI. Envarium does not require an account.</p></div><pre tabindex="0"><code>envarium doctor
 envarium ui</code></pre></section>}
 </ContentPageLayout>
 

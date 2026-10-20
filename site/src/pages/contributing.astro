@@ -11,11 +11,11 @@ const steps = [
 ---
 
 <ContentPageLayout title="Contribute to Envarium" eyebrow="Contributing" description="Help with a bug report, a documentation fix, or a code change. Start with an issue, set up the project locally, and run the checks before submitting a pull request.">
-  <div class="steps">{steps.map((step) => <section class="step panel"><span>{step.number}</span><div><h2>{step.title}</h2><p>{step.body}</p>{step.number === '03' && <pre><code>git clone https://github.com/dcuellar322/envarium.git
+  <div class="steps">{steps.map((step) => <section class="step panel"><span>{step.number}</span><div><h2>{step.title}</h2><p>{step.body}</p>{step.number === '03' && <pre tabindex="0"><code>git clone https://github.com/dcuellar322/envarium.git
 cd envarium
 make bootstrap
 make repository-check</code></pre>}{step.link && <a href={step.link}>{step.label} →</a>}</div></section>)}</div>
-  <section class="checks panel"><h2>Run the checks for your change</h2><p><code>make repository-check</code> checks repository policy; it does not run application tests. Follow the full contributing guide for the checks relevant to your change. The complete application suite is <code>make quality</code> and includes desktop builds.</p><p>For public-site changes, run:</p><pre><code>make site-quality
+  <section class="checks panel"><h2>Run the checks for your change</h2><p><code>make repository-check</code> checks repository policy; it does not run application tests. Follow the full contributing guide for the checks relevant to your change. The complete application suite is <code>make quality</code> and includes desktop builds.</p><p>For public-site changes, run:</p><pre tabindex="0"><code>make site-quality
 pnpm site:test:e2e
 pnpm site:test:visual</code></pre><p>After changing documentation or contracts, run <code>pnpm site:generate</code> and include updated generated files. Use macOS or Linux for source builds. Windows and WSL2 support is coming soon.</p><a href="/docs/desktop-installation/#build-from-source">Desktop build dependencies →</a></section>
   <section class="rules"><div><p class="eyebrow">Pull request checklist</p><h2>Before you submit</h2></div><div class="panel"><ul><li>Preserve adapter → application → domain dependency direction.</li><li>Keep HTTP, CLI, MCP, UI, Tauri, and provider adapters thin.</li><li>Do not expose unrestricted shell operations or bypass project trust.</li><li>Regenerate API, schema, and agent-readable documentation when it changes.</li><li>Report the checks you ran, their results, and anything you could not verify.</li><li>Use a conventional commit with one intent.</li></ul><nav><a href="https://github.com/dcuellar322/envarium/blob/master/CONTRIBUTING.md">Full contributing guide</a><a href="https://github.com/dcuellar322/envarium/blob/master/AGENTS.md">Repository rules</a><a href="/docs/adapter-development/">Adapter guide</a><a href="/docs/adr/">Architecture decisions</a></nav></div></section>
@@ -23,8 +23,8 @@ pnpm site:test:visual</code></pre><p>After changing documentation or contracts, 
 </ContentPageLayout>
 
 <style>
-  .steps { display: grid; gap: 0.75rem; }
-  .step { display: grid; grid-template-columns: 5rem 1fr; gap: 1rem; padding: 1.4rem; }
+  .steps { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.75rem; }
+  .step { display: grid; grid-template-columns: 5rem minmax(0, 1fr); gap: 1rem; padding: 1.4rem; }
   .step > span { color: var(--sy-accent-primary); font: 800 1rem var(--sy-font-mono); }
   .step h2 { margin: 0; }
   .step p { color: var(--sy-text-muted); }
@@ -40,5 +40,5 @@ pnpm site:test:visual</code></pre><p>After changing documentation or contracts, 
   .rules nav { display: grid; gap: 0.45rem; margin-top: 1.2rem; }
   .conduct { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; margin-top: 3rem; padding: 1.2rem; }
   .conduct span { color: var(--sy-text-muted); }
-  @media (max-width: 720px) { .rules, .conduct { grid-template-columns: 1fr; } .step { grid-template-columns: 2.5rem 1fr; } }
+  @media (max-width: 720px) { .rules, .conduct { grid-template-columns: 1fr; } .step { grid-template-columns: 2.5rem minmax(0, 1fr); } }
 </style>

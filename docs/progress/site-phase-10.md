@@ -341,3 +341,59 @@ accepted trust model.
 
 The follow-up `make site-quality` passes, and a visible-copy scan of all 121
 rebuilt pages finds no remaining retired wording or anonymous-metrics claims.
+
+## Mobile, accessibility, and performance review — 2026-10-19
+
+This documentation-site slice supports Phase 18's accessible public
+documentation and contributor workflow criteria. Audit responsive layouts,
+touch and keyboard navigation, focus/contrast, reduced motion, blocked browser
+storage, and cold mobile load performance. Keep Windows/WSL2 coming soon in
+visible content and machine-readable metadata. Preserve the static-site and
+documentation-publication boundaries; no accepted architecture changes.
+
+Use pinned Lighthouse 13.5.0 with Chrome 156 for before/after mobile lab
+measurements on six representative pages, and browser checks for responsive
+behavior, accessibility and search. The web-perf skill's Chrome DevTools MCP
+connector is unavailable, so the measurements use the standalone Lighthouse
+CLI. Do not interpret lab scores as field Core Web Vitals or manual
+screen-reader certification. Add regression checks for observed interaction
+failures. Acceptance requires site/generation/repository checks, browser and
+visual coverage, live verification with screenshots, and all workflows on the
+final commit passing, including repository CI and Security.
+
+The review found and fixed script-dependent layout changes on the homepage
+and download selector, distorted feature screenshots, narrow code-grid
+overflow on Contributing and download verification, missing mobile-menu
+dismissal/focus behavior, and theme failures when browser storage is blocked.
+The menu now provides a 44px touch target and scrolls within short landscape
+viewports. Skip navigation explicitly targets a focusable main element.
+Download and feature images use responsive sizes matching their layouts.
+Windows/WSL2 remain coming soon; structured metadata no longer advertises
+those platforms or an invented release version.
+
+The complete mobile accessibility scan also found non-focusable scrolling
+code and tables. Authored command blocks now have focus targets, and the
+Markdown/Expressive Code build hooks add them to rendered documentation,
+including no-JavaScript output. Arrow-key regressions exercise both commands
+and tables. Browser tests use macOS WebKit's Option-Tab navigation and allow
+native focus scrolling to settle before checking arrow-key movement.
+
+Local verification completed on October 20: `make site-quality`, repository
+policy, architecture and generated-contract checks, generated site exports,
+and macOS/Linux visual checks pass. All 121 pages fit a 320px viewport; the
+complete mobile axe scan reports zero WCAG-tagged violations. Sixteen public
+templates pass in both themes on desktop and mobile, including expanded-menu
+and search-result states. The remaining mobile/keyboard regressions pass in
+Chromium, Firefox, WebKit and mobile Chromium after the native-keyboard test
+adjustments. The no-script installation fallback passes in all four projects.
+
+Three repeat live baseline measurements reproduce download CLS 0.254 and
+homepage CLS 0.082. The corrected local homepage, download and projects
+feature pages measure CLS 0 and score 100 in all four Lighthouse categories.
+These local scores establish the fix before publication; repeat measurements
+on the canonical production origin after deployment for the final comparison.
+A zero-length local Pagefind metadata artifact also prompted a deployment
+validation guard: fault checks reject empty metadata and an empty index,
+then accept the restored 85-document index. Final live/CI evidence is recorded
+in the ignored audit output after push and deployment; it is not claimed here
+before those workflows complete.

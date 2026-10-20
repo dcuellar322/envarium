@@ -2,6 +2,9 @@
 import SiteFooter from '@/components/shared/SiteFooter.astro'
 import SiteHeader from '@/components/shared/SiteHeader.astro'
 import StructuredData from '@/components/seo/StructuredData.astro'
+import { platformGuides } from '@/content/download/platforms'
+import releaseManifest from '@/data/release-manifest.json'
+import type { ReleaseManifest } from '@/lib/releases/types'
 import {
   canonicalUrl,
   isPreview,
@@ -31,6 +34,7 @@ const {
 const pageTitle = title ? `${title} | ${PRODUCT_NAME}` : PRODUCT_NAME
 const canonical = canonicalUrl(Astro.url.pathname)
 const socialImage = canonicalUrl(image)
+const stable = (releaseManifest as ReleaseManifest).channels.stable
 const defaultStructuredData = [
   {
     '@context': 'https://schema.org',
@@ -45,11 +49,11 @@ const defaultStructuredData = [
     '@type': 'SoftwareApplication',
     name: SHORT_NAME,
     applicationCategory: 'DeveloperApplication',
-    operatingSystem: 'macOS, Linux, Windows, WSL2',
+    operatingSystem: platformGuides.filter((guide) => !guide.comingSoon).map((guide) => guide.shortName).join(', '),
     description: SITE_DESCRIPTION,
     url: canonicalUrl('/').href,
     downloadUrl: canonicalUrl('/download/').href,
-    softwareVersion: '1.0',
+    ...(stable ? { softwareVersion: stable.tag } : {}),
     license: 'https://www.apache.org/licenses/LICENSE-2.0',
     codeRepository: REPOSITORY_URL,
     image: canonicalUrl('/envarium-512.png').href,
@@ -87,7 +91,7 @@ const defaultStructuredData = [
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={socialImage} />
-    <meta property="og:image:alt" content="Envarium — one place for every environment." />
+    <meta property="og:image:alt" content={PRODUCT_NAME} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
@@ -99,7 +103,7 @@ const defaultStructuredData = [
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <SiteHeader />
-    <main id="main-content">
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
     <SiteFooter />

@@ -26,8 +26,8 @@ const stable = (releaseManifest as ReleaseManifest).channels.stable
     <Image
       src={dashboard}
       alt="Envarium dashboard showing running, stopped, and Docker-unavailable projects with Git, endpoint, and resource status."
-      widths={[640, 960, 1440]}
-      sizes="(max-width: 820px) 94vw, 52vw"
+      widths={[640, 768, 960, 1280, 1440]}
+      sizes="(max-width: 1040px) calc(100vw - 2rem), (max-width: 1212px) 52vw, 620px"
       loading="eager"
       fetchpriority="high"
     />

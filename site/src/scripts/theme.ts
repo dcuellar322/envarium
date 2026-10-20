@@ -1,6 +1,11 @@
 const storageKey = 'envarium-site-theme'
 const root = document.documentElement
-const stored = window.localStorage.getItem(storageKey)
+let stored: string | null = null
+try {
+  stored = window.localStorage.getItem(storageKey)
+} catch {
+  // Browser storage can be disabled; the system theme still applies.
+}
 
 if (stored === 'dark' || stored === 'light') {
   root.dataset.theme = stored
@@ -12,7 +17,11 @@ document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((but
     const systemLight = window.matchMedia('(prefers-color-scheme: light)').matches
     const next = current === 'dark' || (!current && !systemLight) ? 'light' : 'dark'
     root.dataset.theme = next
-    window.localStorage.setItem(storageKey, next)
+    try {
+      window.localStorage.setItem(storageKey, next)
+    } catch {
+      // Keep the selected theme for this page when persistence is unavailable.
+    }
     button.setAttribute('aria-label', `Use ${next === 'dark' ? 'light' : 'dark'} theme`)
   })
 })

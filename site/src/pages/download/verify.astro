@@ -12,14 +12,14 @@ const methods = [
 ---
 
 <ContentPageLayout title="Verify an Envarium download" eyebrow="Download integrity" description="Treat the GitHub Release, cryptographic digest, platform identity, attestation, and SBOM as separate evidence. Reject a package when required evidence is missing or inconsistent.">
-  <div class="method-grid">{methods.map((method) => <article class="panel"><h2>{method.title}</h2><p>{method.text}</p><pre><code>{method.command}</code></pre></article>)}</div>
+  <div class="method-grid">{methods.map((method) => <article class="panel"><h2>{method.title}</h2><p>{method.text}</p><pre tabindex="0"><code>{method.command}</code></pre></article>)}</div>
   <p>Use this guide for published release packages. Check <a href="/download/">current package availability</a> first; Windows and WSL2 are coming soon. For Linux, follow the <a href="/docs/release/#linux-artifact-trust">signing-key and fingerprint instructions</a>.</p>
   <section class="updater panel"><div><p class="eyebrow">Updater signatures</p><h2>Platform signing does not replace updater signing.</h2><p>Envarium verifies updates against the public key embedded in the desktop app. It rejects payloads with missing or invalid updater signatures even when the operating-system package signature is valid.</p></div><a class="button" href="/docs/release/">Release security details</a></section>
   <section class="packages panel"><div><p class="eyebrow">Package managers</p><h2>Verify the package record against the stable release.</h2><p>Homebrew instructions appear only when the published package version matches the stable GitHub Release. Windows and WinGet support are coming soon. Inspect the package manifest URL and SHA-256, then compare the installed version with <code>envarium version</code>. Use a direct package only when it is listed on the download page.</p></div><a class="button" href="/download/">Distribution status</a></section>
 </ContentPageLayout>
 
 <style>
-  .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .method-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
   article { padding: 1.3rem; }
   article h2 { margin-top: 0; font-size: 1.1rem; }
   article p, .updater p:not(.eyebrow) { color: var(--sy-text-muted); font-size: 0.87rem; }
@@ -28,5 +28,5 @@ const methods = [
   .updater div, .packages div { margin-right: auto; }
   .updater h2, .packages h2 { margin: 0.35rem 0; }
   .packages p:not(.eyebrow) { color: var(--sy-text-muted); }
-  @media (max-width: 720px) { .method-grid { grid-template-columns: 1fr; } .updater, .packages { align-items: stretch; flex-direction: column; } }
+  @media (max-width: 720px) { .method-grid { grid-template-columns: minmax(0, 1fr); } .updater, .packages { align-items: stretch; flex-direction: column; } }
 </style>

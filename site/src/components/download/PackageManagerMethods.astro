@@ -14,7 +14,7 @@ const methods = [
 {methods.length > 0 && (
   <section class="package-methods" aria-labelledby="package-methods-title">
     <div><p class="eyebrow">Package managers</p><h2 id="package-methods-title">Install the same reviewed stable release.</h2></div>
-    <div class="method-grid">{methods.map((method) => <article class="panel"><span>{method.platform}</span><h3>{method.name}</h3><pre><code>{method.installCommand}</code></pre><div><small>Verified {method.verifiedVersion}</small><a href={method.packageUrl}>Package record →</a></div></article>)}</div>
+    <div class="method-grid">{methods.map((method) => <article class="panel"><span>{method.platform}</span><h3>{method.name}</h3><pre tabindex="0"><code>{method.installCommand}</code></pre><div><small>Verified {method.verifiedVersion}</small><a href={method.packageUrl}>Package record →</a></div></article>)}</div>
   </section>
 )}
 

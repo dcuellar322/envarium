@@ -33,9 +33,9 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
       <button class="theme-toggle" type="button" data-theme-toggle aria-label="Change color theme">◐</button>
       <a class="button primary compact" href="/download/">Download</a>
       <details class="mobile-menu">
-        <summary aria-label="Open navigation menu">Menu</summary>
+        <summary aria-label="Navigation menu">Menu</summary>
         <nav aria-label="Mobile navigation">
-          {navigation.map((item) => <a href={item.href}>{item.label}</a>)}
+          {navigation.map((item) => <a href={item.href} aria-current={active(item.href) ? 'page' : undefined}>{item.label}</a>)}
           <a href="/docs/?search">Search documentation</a>
           <a href={REPOSITORY_URL}>GitHub</a>
         </nav>
@@ -132,6 +132,11 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
   }
 
   .mobile-menu summary {
+    display: grid;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    place-items: center;
+    border-radius: 0.55rem;
     list-style: none;
     cursor: pointer;
     font-weight: 750;
@@ -143,10 +148,13 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
 
   .mobile-menu nav {
     position: absolute;
-    top: 2.6rem;
+    top: calc(100% + 0.5rem);
     right: 0;
     display: grid;
     width: 13rem;
+    max-height: calc(100dvh - 6.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     border: 1px solid var(--sy-border-subtle);
     border-radius: var(--sy-radius-md);
     background: var(--sy-bg-surface);
@@ -204,4 +212,5 @@ const active = (href: string) => pathname === href || pathname.startsWith(href)
 
 <script>
   import '@/scripts/theme'
+  import '@/scripts/navigation'
 </script>

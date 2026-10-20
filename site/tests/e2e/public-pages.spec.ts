@@ -1,20 +1,12 @@
-import { mkdir, readdir, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { expect, test } from '@playwright/test'
-
-async function htmlRoutes(directory: string, prefix = ''): Promise<string[]> {
-  const entries = await readdir(directory, { withFileTypes: true })
-  return (await Promise.all(entries.map(async (entry) => {
-    const path = `${prefix}/${entry.name}`
-    if (entry.isDirectory()) return htmlRoutes(resolve(directory, entry.name), path)
-    return entry.name.endsWith('.html') ? [path.replace(/index\.html$/, '')] : []
-  }))).flat().sort()
-}
+import { publicRoutes } from '../public-routes'
 
 test('every built page renders, fits, and has working internal links', async ({ page, request, browserName, isMobile }) => {
   test.skip(browserName !== 'chromium', 'full crawl runs on desktop and mobile Chromium; journeys cover other engines')
   test.setTimeout(240_000)
-  const routes = await htmlRoutes(resolve('dist'))
+  const routes = await publicRoutes()
   const viewport = isMobile ? 'mobile' : 'desktop'
   const output = resolve('../output/playwright/site-audit', viewport)
   const capture = process.env.SITE_AUDIT_SCREENSHOTS === '1'

@@ -22,19 +22,20 @@ const asset = recommendAsset(release, selectedGuide.releasePlatform, architectur
   eyebrow="Install Envarium"
   description={`Choose a platform and check package availability. ${release ? 'Published packages are linked below.' : 'No stable binaries are published yet; you can build from source on macOS or Linux.'} Windows and WSL2 are coming soon.`}
 >
+  <Fragment slot="head"><noscript><style is:inline>[data-download-selector] { display: none !important; }</style></noscript></Fragment>
   <section class="download-grid">
     <aside class="selector panel" aria-label="Download selection">
-      <form method="get" data-download-selector hidden>
+      <form method="get" data-download-selector>
         <label>Release channel<select name="channel"><option value="stable" selected={channel === 'stable'}>Stable</option><option value="alpha">Alpha</option><option value="beta">Beta</option><option value="nightly">Nightly</option></select></label>
         <fieldset><legend>Operating system</legend>{platformGuides.map((guide) => <label class="choice"><input type="radio" name="platform" value={guide.slug} checked={selectedGuide?.slug === guide.slug} /> <span><strong>{guide.shortName}{guide.comingSoon && ' · Coming soon'}</strong><small>{guide.primaryFormat}</small></span></label>)}</fieldset>
         <fieldset><legend>Architecture</legend><label class="choice"><input type="radio" name="architecture" value="arm64" checked={architecture === 'arm64'} /> <span><strong>arm64</strong><small>Apple silicon and ARM systems</small></span></label><label class="choice"><input type="radio" name="architecture" value="amd64" /> <span><strong>amd64</strong><small>Intel and AMD 64-bit systems</small></span></label></fieldset>
         <button class="button" type="submit">Update recommendation</button>
       </form>
       <p>Changing your selection never starts a download.</p>
-      <p data-download-fallback>Choose a platform guide below for installation instructions. The package selector requires JavaScript.</p>
+      <noscript><p data-download-fallback>Choose a platform guide below for installation instructions. The package selector requires JavaScript.</p></noscript>
     </aside>
     <div class="result" data-download-result aria-live="polite" aria-atomic="true">
-      <ReleaseDownloadCard release={release} asset={asset} label={`${selectedGuide?.shortName ?? 'Platform'} · ${architecture}`} />
+      <ReleaseDownloadCard release={release} asset={asset} label={`${selectedGuide?.shortName ?? 'Platform'} · ${architecture} · ${channel}`} />
       {selectedGuide && <div class="requirements panel"><p class="eyebrow">Before you install</p><h2>{selectedGuide.primaryFormat}</h2><p>{selectedGuide.requirements}</p><a href={`/download/${selectedGuide.slug}/`}>Platform install guide →</a></div>}
     </div>
   </section>
@@ -71,7 +72,7 @@ const asset = recommendAsset(release, selectedGuide.releasePlatform, architectur
   .choice span { display: grid; }
   .choice strong { color: var(--sy-text-primary); }
   .choice small { color: var(--sy-text-soft); font-weight: 500; }
-  .selector > p { margin-bottom: 0; color: var(--sy-text-soft); font-size: 0.7rem; }
+  .selector p { margin-bottom: 0; color: var(--sy-text-soft); font-size: 0.7rem; }
   .result { display: grid; gap: 1rem; }
   .requirements { padding: 1.4rem; }
   .requirements h2 { margin: 0.3rem 0; font-size: 1.25rem; }
@@ -111,8 +112,6 @@ const asset = recommendAsset(release, selectedGuide.releasePlatform, architectur
       const template = document.querySelector<HTMLTemplateElement>(`[data-download-option="${values.channel}-${values.platform}-${values.architecture}"]`)
       if (template) result.replaceChildren(template.content.cloneNode(true))
     }
-    document.querySelector<HTMLElement>('[data-download-fallback]')?.setAttribute('hidden', '')
-    form.hidden = false
     render()
     form.addEventListener('submit', (event) => {
       event.preventDefault()

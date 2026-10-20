@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-for (const [name, route] of [['homepage', '/'], ['download', '/download/'], ['docs', '/docs/'], ['community', '/community/']] as const) {
+for (const [name, route] of [['homepage', '/'], ['download', '/download/'], ['docs', '/docs/'], ['community', '/community/'], ['projects-feature', '/features/projects/']] as const) {
   test(`${name} visual baseline`, async ({ page, browserName, isMobile }) => {
     test.skip(browserName !== 'chromium' || Boolean(isMobile), 'single deterministic visual project')
     expect((await page.goto(route))?.ok()).toBe(true)

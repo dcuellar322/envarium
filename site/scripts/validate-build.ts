@@ -50,6 +50,15 @@ for (const route of ['index.html', 'download/index.html', 'docs/index.html', 'co
   if (!files.includes(resolve(dist, route))) problems.push(`missing required build output ${route}`)
 }
 
+try {
+  const search = JSON.parse(await readFile(resolve(dist, 'pagefind/pagefind-entry.json'), 'utf8')) as { languages?: Record<string, { page_count?: number }> }
+  if (!Object.values(search.languages ?? {}).some((language) => typeof language.page_count === 'number' && language.page_count > 0)) {
+    problems.push('Documentation search index contains no searchable pages')
+  }
+} catch {
+  problems.push('Documentation search metadata is missing or invalid JSON')
+}
+
 const invocation = JSON.parse(await readFile(resolve(dist, '_routes.json'), 'utf8')) as { include: string[]; exclude: string[] }
 for (const route of internalDocumentationInvocationRoutes) {
   if (!invocation.include.includes(route)) problems.push(`missing retired-document invocation route: ${route}`)
