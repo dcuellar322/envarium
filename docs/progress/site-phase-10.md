@@ -331,3 +331,13 @@ tree validation for 179 source/edit paths, and 18 distinct HTTP targets serving
 targets were found. Ignored local logs, link results, and screenshots are under
 `output/playwright/final-site/local/`; final workflow receipts and live
 page/search/screenshots belong under its `live/` directory.
+
+The first deployed full-copy comparison matched all 121 pages to the reviewed
+build and caught one remaining anonymous-metrics claim in ADR-0016. Correct
+that description to match periodic opt-in delivery and its installation ID,
+regenerate the AI export, then repeat CI/deployment and live verification for
+the final commit. This clarifies existing behavior without changing the ADR's
+accepted trust model.
+
+The follow-up `make site-quality` passes, and a visible-copy scan of all 121
+rebuilt pages finds no remaining retired wording or anonymous-metrics claims.

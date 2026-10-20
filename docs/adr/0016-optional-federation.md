@@ -45,8 +45,11 @@ explicit age recipient before leaving a machine. Import is previewable,
 conflict-aware, and never includes secret values, repository contents, logs,
 terminal output, or runtime state.
 
-Anonymous usage metrics remain disabled by default. Enabling them requires an
-explicit HTTPS endpoint and displays the exact bounded aggregate fields.
+Optional usage metrics remain disabled by default. Enabling them requires an
+explicit HTTPS endpoint and displays the exact payload. While enabled, periodic
+deliveries include fixed counters and a random installation ID that links
+reports from the same installation. See [privacy](../privacy.md) for the fields
+and receiving endpoint's visibility.
 Existing local workflows never depend on a remote peer, bundle publisher,
 telemetry endpoint, or cloud account. The browser provides a responsive
 read-only companion view over the controller's already authenticated local
