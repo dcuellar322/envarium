@@ -137,7 +137,7 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.LINUX_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.LINUX_GPG_PASSPHRASE }}
-      - run: pnpm -C ../.. exec tauri build --config tauri.release.conf.json --config "{\"version\":\"$ENVARIUM_VERSION\"}" --bundles ${{ matrix.bundles }} --ci
+      - run: pnpm -C ../.. exec tauri build --config "$GITHUB_WORKSPACE/desktop/src-tauri/tauri.release.conf.json" --config "{\"version\":\"$ENVARIUM_VERSION\"}" --bundles ${{ matrix.bundles }} --ci
         working-directory: desktop/src-tauri
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}

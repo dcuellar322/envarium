@@ -16,7 +16,7 @@
     "desktop:prepare": "pnpm --dir web build && node desktop/scripts/build-sidecar.mjs",
     "desktop:dev": "cd desktop/src-tauri && pnpm -C ../.. exec tauri dev",
     "desktop:build": "cd desktop/src-tauri && pnpm -C ../.. exec tauri build --debug",
-    "desktop:release": "cd desktop/src-tauri && pnpm -C ../.. exec tauri build --config tauri.release.conf.json --ci",
+    "desktop:release": "cd desktop/src-tauri && pnpm -C ../.. exec tauri build --config desktop/src-tauri/tauri.release.conf.json --ci",
     "generate": "pnpm --filter @envarium/web generate",
     "format": "pnpm --filter @envarium/web format",
     "format:check": "pnpm --filter @envarium/web format:check",

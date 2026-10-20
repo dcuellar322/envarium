@@ -320,3 +320,18 @@ draft prerelease for installer qualification; it is not a stable publication.
 Linux desktop release packaging is pinned to Ubuntu 22.04, matching the
 documented baseline and avoiding an accidental glibc requirement increase from
 GitHub's `ubuntu-latest` migration to Ubuntu 26. Source CI remains current.
+
+The first tagged build (`v1.0.0-beta.rc.1`, workflow 39439880867) exposed a
+release-only configuration path bug: `pnpm -C ../..` runs the CLI from the
+repository root, so `tauri.release.conf.json` was not found relative to the
+desktop working directory. Apple key staging and Linux GPG key import passed;
+the native build stopped before signing. The protected workflow now uses the
+absolute workspace configuration path and the local release script uses its
+repository-relative path. The failed tag remains immutable; the repaired
+commit will qualify again in CI before `v1.0.0-beta.rc.2` is built.
+
+An unsigned local smoke build through the exact `pnpm -C ../.. exec tauri`
+directory switch passes with the repaired path, and both the generated app
+bundle and bundled Go binary report `1.0.0-beta.rc.2`. Workflow actionlint and
+documentation regeneration pass. The RC1 CLI archives/checksums/SBOM job passed;
+the workflow correctly withheld a draft because native bundles failed.
