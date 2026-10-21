@@ -5,7 +5,7 @@ category: how-to
 audience: [user]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-10-20
+lastVerified: 2026-10-21
 ---
 
 No public stable installers are published yet. Build from source on macOS or
@@ -158,6 +158,15 @@ An upgrade verifies the existing schema, makes a non-overwriting consistent
 backup before the first migration, and preserves projects, manifest snapshots,
 audit history, operations, workspaces, plugins, diagnostics, and settings.
 Use `envarium data inspect` before and after the upgrade.
+
+Updating or quitting the desktop adapter leaves a compatible running daemon
+available to existing sessions. To activate an upgraded Go daemon, first review
+and stop active project/workspace operations, quit the desktop adapter, and
+gracefully stop your owned `envarium daemon` process. Relaunch the new app, then
+check `envarium --json desktop snapshot`: `data.system.version` must identify the
+new release. `envarium version` identifies the CLI binary and does not prove
+that an already running daemon was updated. This restart is required for older
+private previews to load RC5's Go certificate-trust fixes.
 
 Downgrade is restore-based: keep the current database, copy a pre-migration
 backup to a separate data directory, and run the matching old binary against

@@ -4014,6 +4014,15 @@ backup before the first migration, and preserves projects, manifest snapshots,
 audit history, operations, workspaces, plugins, diagnostics, and settings.
 Use `envarium data inspect` before and after the upgrade.
 
+Updating or quitting the desktop adapter leaves a compatible running daemon
+available to existing sessions. To activate an upgraded Go daemon, first review
+and stop active project/workspace operations, quit the desktop adapter, and
+gracefully stop your owned `envarium daemon` process. Relaunch the new app, then
+check `envarium --json desktop snapshot`: `data.system.version` must identify the
+new release. `envarium version` identifies the CLI binary and does not prove
+that an already running daemon was updated. This restart is required for older
+private previews to load RC5's Go certificate-trust fixes.
+
 Downgrade is restore-based: keep the current database, copy a pre-migration
 backup to a separate data directory, and run the matching old binary against
 that copy. Reinstalling the same or newer compatible v1 bundle attaches to the
@@ -5902,6 +5911,11 @@ release has been published. No public stable release is available yet. Check
 [downloads](/download/) for current availability. **Windows and WSL2 support is
 coming soon.** A successful development build or ordinary CI run does not
 establish installer, signing, or clean-machine support.
+
+The [RC5 qualification report](progress/rc5-installer-qualification-2026-10-21.md)
+records the current signed candidate, actual-artifact checks and outstanding
+human acceptance gates. Older RC3/RC4 candidates remain private because of the
+documented security blockers. Review the report before publishing any release.
 
 ## Release account setup
 

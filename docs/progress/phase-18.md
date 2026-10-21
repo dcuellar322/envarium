@@ -527,3 +527,36 @@ code signatures and Gatekeeper checks remain fail closed. Regression tests cover
 RPM metadata/command ordering, unexpected product changes, command failure and
 cancellation, plus independent ticket-validation retries. Fedora's RPM itself
 confirms RC4 < RC5 < RC10 < stable ordering for the normalized package fields.
+
+## 2026-10-21 RC5 signed artifact qualification
+
+The protected rebuild 39570180023 passes all jobs for product ec89875 and
+packaging eb49bc2, using immutable `v1.0.0-beta.rc.5-packaging.1` without moving
+the RC5 product tag. Its private draft contains 31 assets. Independent checks
+verify 29 aggregate hashes, five version-bound updater signatures and every
+uploaded digest against the exact packaging-workflow attestation. Both Mac
+DMGs/apps pass signing/ticket inspection and Intel Gatekeeper; four CLI archives
+and all desktop Go sidecars contain Go 1.27.3.
+
+Actual Intel Mac, Linux x86_64 and emulated Linux arm64 CLIs pass data/plugin/MCP
+qualification. Ubuntu/Debian deb and Fedora RPM pass install/remove/reinstall,
+retained-data and prior-preview data checks. All six native Linux GUI cases
+pass, including actual AppImage extraction-and-run on all three distributions.
+The normalized RPM header and real native RPM marker verify.
+
+Both native 35-case updater matrices pass, including genuine signed RC3 replay
+rejection, tamper/key/TLS controls and valid installation. All three native Linux
+formats select/download their matching payload and reject cached tampering.
+The real signed Linux app rejects modified bytes, installs RC5 and automatically
+restarts its GUI with exact retained rows, then rejects old/unversioned and
+relabeled signed payloads. Fixture DNS/trust/keys are cleaned up. A staged Mac
+RC2-to-RC5 native update passes codesign, daemon relaunch and exact populated rows.
+
+The compatible old daemon intentionally survives GUI restart. Installation docs
+now explain a safe owned-daemon restart and running-version verification to
+activate the patched Go sidecar. Native Mac clean/quarantined GUI acceptance,
+normal GPU/Wayland/FUSE sessions, desktop integrations, interactive package
+authorization and full uninstall/restore acceptance remain human gates.
+RC3/RC4 remain held; RC5 remains a draft. Windows stays coming soon. See the
+[RC5 qualification report](rc5-installer-qualification-2026-10-21.md) for scope,
+receipts, known advisory and the remaining checklist.

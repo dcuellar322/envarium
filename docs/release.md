@@ -5,7 +5,7 @@ category: contributor
 audience: [maintainer, contributor]
 platforms: [macos, linux, windows, wsl]
 since: 1.0.0
-lastVerified: 2026-10-20
+lastVerified: 2026-10-21
 ---
 
 Tagged releases are built only from validated `v*` tags by
@@ -32,6 +32,11 @@ release has been published. No public stable release is available yet. Check
 [downloads](/download/) for current availability. **Windows and WSL2 support is
 coming soon.** A successful development build or ordinary CI run does not
 establish installer, signing, or clean-machine support.
+
+The [RC5 qualification report](progress/rc5-installer-qualification-2026-10-21.md)
+records the current signed candidate, actual-artifact checks and outstanding
+human acceptance gates. Older RC3/RC4 candidates remain private because of the
+documented security blockers. Review the report before publishing any release.
 
 ## Release account setup
 
