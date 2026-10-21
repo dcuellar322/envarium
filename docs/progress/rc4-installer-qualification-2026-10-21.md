@@ -42,12 +42,13 @@ pass Ubuntu 22.04 and Debian 12 installation/removal/reinstall; Fedora 44 rpm
 passes the same checks, with populated records retained.
 
 Actual native GUI smoke checks pass for Ubuntu and Debian deb, Ubuntu extracted
-AppImage, and Fedora rpm under Xvfb software compositing. They cover rendered
+AppImage, Debian AppImage through the actual extraction-and-run runtime, and
+Fedora rpm under Xvfb software compositing. They cover rendered
 WebKit UI, palette/settings, hide-on-close, single-instance reopening and bundled
 daemon identity/schema. Fedora extracted AppImage still fails its headless
-rendering check. Debian's additional extracted-AppImage run in the extended
-notification/portal environment also fails to reach usable UI; this is not a
-pass. AppImage desktop/FUSE/GPU behavior remains a manual acceptance gate.
+rendering check. Debian's direct extracted-AppRun attempt in the extended notification/portal
+environment fails to reach usable UI; a subsequent run of the actual AppImage
+runtime with a fresh XDG runtime directory passes all GUI smoke checks. AppImage desktop/FUSE/GPU behavior remains a manual acceptance gate.
 
 A staged actual RC2-to-RC4 Mac native updater installation passes signature,
 strict codesign, bundled-daemon relaunch and exact populated database rows.

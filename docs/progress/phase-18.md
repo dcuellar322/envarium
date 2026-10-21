@@ -490,3 +490,11 @@ RC4's original 32-case matrices pass on each native host; its separate replay
 regression remains a deliberate failure. The actual Linux app update and its
 final fixture teardown pass, with container DNS/trust restored and private test
 TLS keys removed. Full hosted CI and a new signed candidate remain required.
+
+
+The new official CLI changes generated native icon outputs. CI's brand drift
+gate caught five stale files; they are regenerated from the unchanged canonical
+brand source. Other platform raster bytes remain as reviewed where their
+rounding already passes the established tolerance. Debian's actual AppImage
+extraction-and-run runtime also passes the complete GUI smoke checks in a fresh
+XDG runtime directory; direct extracted-AppRun portal behavior remains distinct.
