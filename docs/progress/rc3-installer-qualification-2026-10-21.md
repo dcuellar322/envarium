@@ -10,8 +10,24 @@ Candidate: `v1.0.0-beta.rc.3`, product commit
 `7ffbbd5eaaa7fd5c206efe6fe4dc4dc7672ed53c`. The
 [signed build](https://github.com/dcuellar322/envarium/actions/runs/39499086924)
 uses packaging revision `68e38ed70929070c79e9260dc7c521d99b2c9512` at
-`refs/tags/v1.0.0-beta.rc.3-packaging.1`. Both revisions passed required CI.
+`refs/tags/v1.0.0-beta.rc.3-packaging.1`. Both revisions passed required CI at build time.
 The candidate remains a draft prerelease. Windows/WSL2 remains coming soon.
+
+## Publication blocked by new security advisories
+
+The October 21 recheck fails current security gates. RC3 embeds Go 1.27.2,
+`rustls-webpki` 0.103.15 and `webpki-root-certs` 1.0.9. Newly published
+[GO-2026-6809](https://pkg.go.dev/vuln/GO-2026-6809),
+[RUSTSEC-2026-0382](https://rustsec.org/advisories/RUSTSEC-2026-0382.html) and
+[RUSTSEC-2026-0383](https://rustsec.org/advisories/RUSTSEC-2026-0383.html)
+require certificate trust updates. The source is patched to Go 1.27.3,
+`rustls-webpki` 0.103.16 and `webpki-root-certs` 1.0.10. The Vite build dependency
+also moves from 8.2.2 to 8.2.4 for
+[GHSA-587h-7wmj-h5pm](https://github.com/advisories/GHSA-587h-7wmj-h5pm).
+
+**Do not publish RC3.** The native fixes require a new immutable signed candidate
+and qualification of its actual bytes. RC3 tags and artifacts remain unchanged;
+the passing results below describe RC3 and do not qualify the replacement.
 
 ## Results
 

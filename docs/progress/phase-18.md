@@ -443,3 +443,21 @@ Clean-machine, real GPU/Wayland/X11/FUSE, native integration, interactive packag
 authorization, and the complete production-pinned update/restart UI flow remain
 manual gates. The owner reports that RC3 works on Apple Silicon; detailed OS and
 integration coverage were not supplied. RC3 stays a draft; Windows stays deferred.
+
+
+## 2026-10-21 security gate refresh
+
+The new full CI run found certificate-trust advisories published after RC3 was
+built: GO-2026-6809, RUSTSEC-2026-0382 and RUSTSEC-2026-0383. The pinned Go
+patch moves to 1.27.3, rustls-webpki to 0.103.16 and webpki-root-certs to 1.0.10.
+Vite moves to 8.2.4 across the workspace for GHSA-587h-7wmj-h5pm; the dependency
+age exception is limited to that exact security patch. No audit gate or advisory
+is disabled. Native binaries must be rebuilt as a new immutable candidate;
+RC3 must remain a draft even if its earlier qualification checks pass.
+
+Local patch verification passes the full Go suite and reachable-vulnerability
+scan, 22 Rust tests and strict Clippy, 93 frontend tests, 41 site tests, frontend
+and site type/lint checks, and both production builds. JavaScript audit reports
+no known vulnerabilities; Rust audit has zero vulnerabilities and the same five
+previously documented GTK warnings. Hosted CI and a newly signed candidate are
+required before replacing the blocked RC3 in release planning.

@@ -84,7 +84,7 @@ at a time and includes tests and progress evidence.
 
 ## Development
 
-Prerequisites are Go 1.27.2, Node 22.13 or newer, pnpm 11.13.1, and Rust 1.98.0
+Prerequisites are Go 1.27.3, Node 22.13 or newer, pnpm 11.13.1, and Rust 1.98.0
 for the optional native shell. Toolchain versions are pinned in `.go-version`,
 `.node-version`, `rust-toolchain.toml`, `go.mod`, and the root `package.json`.
 
