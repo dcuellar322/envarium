@@ -39,6 +39,10 @@ const releaseDirectory = resolve(repositoryRoot, directoryArgument)
 if (!(await stat(releaseDirectory)).isDirectory())
   throw new Error(`${releaseDirectory} is not a directory`)
 
+const metadata = JSON.parse(await readFile(resolve(releaseDirectory, 'metadata.json'), 'utf8')) as { version?: string; tag?: string }
+if (!metadata.version || metadata.tag !== `v${metadata.version}`)
+  throw new Error('Release metadata must provide the exact tagged version')
+
 const checksumPath = resolve(releaseDirectory, 'checksums.txt')
 const files = (await filesUnder(releaseDirectory)).filter((path) => path !== checksumPath)
 const fileNames = files.map((path) => basename(path))
@@ -55,7 +59,7 @@ for (const path of files) {
   if (!target) continue
   if (targets.has(target)) throw new Error(`Duplicate updater payload for ${target}`)
   targets.add(target)
-  verifyUpdaterPayload(await readFile(path), await readFile(`${path}.sig`, 'utf8'), publicKey)
+  verifyUpdaterPayload(await readFile(path), await readFile(`${path}.sig`, 'utf8'), publicKey, metadata.version)
 }
 if (channelArgument === 'stable') {
   for (const target of updaterTargets)

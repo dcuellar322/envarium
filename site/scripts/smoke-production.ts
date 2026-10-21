@@ -36,7 +36,7 @@ if (updater.status !== 204) {
       const platform = feed.platforms?.[target]
       if (!platform?.url.startsWith(`https://github.com/dcuellar322/envarium/releases/download/v${feed.version}/`))
         problems.push(`Updater feed has missing or foreign asset for ${target}`)
-      try { authenticateUpdaterSignature(platform?.signature ?? '', updaterPublicKey) }
+      try { authenticateUpdaterSignature(platform?.signature ?? '', updaterPublicKey, feed.version) }
       catch { problems.push(`Updater feed has invalid signature for ${target}`) }
     }
   }

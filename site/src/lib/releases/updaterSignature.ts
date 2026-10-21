@@ -7,7 +7,7 @@ function decode(value: string): Buffer {
 }
 
 /** Verify Minisign's authenticated signature metadata; payload verification is separate. */
-export function authenticateUpdaterSignature(encoded: string, publicKey: string): Buffer {
+export function authenticateUpdaterSignature(encoded: string, publicKey: string, expectedVersion: string): Buffer {
   const keyLines = decode(publicKey).toString('utf8').trim().split('\n')
   const lines = decode(encoded).toString('utf8').trim().split('\n')
   const key = Buffer.from(keyLines[1] ?? '', 'base64')
@@ -26,12 +26,17 @@ export function authenticateUpdaterSignature(encoded: string, publicKey: string)
   const metadata = Buffer.concat([signature.subarray(10), Buffer.from(lines[2].slice(17))])
   if (!verify(null, metadata, ed25519, globalSignature))
     throw new Error('Updater signature metadata authentication failed')
+  const versions = lines[2].slice(17).split('\t')
+    .filter((field) => field.startsWith('version:')).map((field) => field.slice(8))
+  if (!expectedVersion || versions.length !== 1 ||
+      versions[0]!.replace(/^v/, '') !== expectedVersion.replace(/^v/, ''))
+    throw new Error('Updater signed version is missing, duplicated, or mismatched')
   return signature.subarray(10)
 }
 
 /** Match the prehashed Ed25519 format emitted by the pinned Tauri signer. */
-export function verifyUpdaterPayload(payload: Uint8Array, signature: string, publicKey: string): void {
-  const messageSignature = authenticateUpdaterSignature(signature, publicKey)
+export function verifyUpdaterPayload(payload: Uint8Array, signature: string, publicKey: string, expectedVersion: string): void {
+  const messageSignature = authenticateUpdaterSignature(signature, publicKey, expectedVersion)
   const key = Buffer.from(decode(publicKey).toString('utf8').trim().split('\n')[1] ?? '', 'base64')
   const ed25519 = createPublicKey({
     key: Buffer.concat([Buffer.from('302a300506032b6570032100', 'hex'), key.subarray(10)]),

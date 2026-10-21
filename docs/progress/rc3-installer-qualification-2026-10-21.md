@@ -29,6 +29,10 @@ also moves from 8.2.2 to 8.2.4 for
 and qualification of its actual bytes. RC3 tags and artifacts remain unchanged;
 the passing results below describe RC3 and do not qualify the replacement.
 
+RC4 contains those dependency patches but is also held for the signed-version
+replay blocker documented in [its report](rc4-installer-qualification-2026-10-21.md).
+Neither historical candidate is approved for publication.
+
 ## Results
 
 | Target | Verified | Remaining limit |

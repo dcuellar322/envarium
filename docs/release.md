@@ -163,6 +163,13 @@ rebuilds the production site from master. A failed build retains the previously
 deployed feed. Binaries remain hosted by GitHub, and drafts are never offered.
 See [ADR-0028](adr/0028-published-release-updater-feed.md).
 
+Every updater signature must bind its advertised release version in Minisign's
+authenticated trusted comment. Production sets `requireSignedVersion`; artifact
+collection, final release validation and feed generation reject unversioned,
+duplicate or mismatched versions. Tauri CLI 2.12.3 writes the app version during
+build signing. Historical RC signatures without a version remain unpublished.
+See [ADR-0032](adr/0032-version-bound-updater-signatures.md).
+
 The release workflow verifies every updater payload before uploading it and
 again before creating the draft. Mac archives gain architecture-specific names
 before matrix outputs are merged, preventing the two `Envarium.app.tar.gz`

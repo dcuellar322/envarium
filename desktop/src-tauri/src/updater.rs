@@ -108,6 +108,7 @@ mod tests {
             "https://envarium.davidcuellar.tech/updates/stable.json"
         );
         assert!(!updater["pubkey"].as_str().unwrap().is_empty());
+        assert_eq!(updater["requireSignedVersion"], true);
         assert_eq!(config["bundle"]["createUpdaterArtifacts"], true);
     }
 

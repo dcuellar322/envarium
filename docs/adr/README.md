@@ -57,3 +57,5 @@ the old one.
 - [ADR-0030: First release platform scope](0030-first-release-platform-scope.md)
 
 - [ADR-0031: Linux updater installer formats](0031-linux-updater-installer-formats.md)
+
+- [ADR-0032: Version-bound updater signatures](0032-version-bound-updater-signatures.md)

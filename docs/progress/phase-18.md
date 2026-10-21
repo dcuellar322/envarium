@@ -461,3 +461,32 @@ and site type/lint checks, and both production builds. JavaScript audit reports
 no known vulnerabilities; Rust audit has zero vulnerabilities and the same five
 previously documented GTK warnings. Hosted CI and a newly signed candidate are
 required before replacing the blocked RC3 in release planning.
+
+
+## 2026-10-21 signed-version replay qualification
+
+RC4 builds successfully from 3fba51b with all required source workflows green,
+updated certificate trust, 31 attested assets and five verified updater payloads.
+Native package/data/CLI and selected GUI checks pass; an actual signed Linux app
+rejects altered bytes, updates itself and invokes its automatic GUI restart in
+a container-only HTTPS/DNS fixture. The compatible old daemon remains alive;
+existing candidate users need a separately reviewed daemon restart to load Go
+security fixes. No real owner daemon or project is stopped.
+
+The added replay test exposes a second release blocker: an old genuine signed
+RC3 payload is accepted under an RC4 feed version. ADR-0032 enables the pinned
+updater's signed-version policy, upgrades the official signer, and requires a
+matching authenticated version during collection, final release validation and
+catalog generation. Legacy/missing/duplicate/mismatched signed versions fail
+closed. The old immutable candidates remain drafts; a newly signed candidate
+must prove the repair against real historical payloads. See the
+[RC4 qualification report](rc4-installer-qualification-2026-10-21.md).
+
+
+The signed-version repair passes 44 site tests, including the real official CLI
+with an ephemeral key, and 22 Rust tests plus strict Clippy. Type/lint checks,
+production site build/content validation and JavaScript dependency audit pass.
+RC4's original 32-case matrices pass on each native host; its separate replay
+regression remains a deliberate failure. The actual Linux app update and its
+final fixture teardown pass, with container DNS/trust restored and private test
+TLS keys removed. Full hosted CI and a new signed candidate remain required.

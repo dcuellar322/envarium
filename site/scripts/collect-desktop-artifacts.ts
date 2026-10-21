@@ -23,8 +23,8 @@ for (const directory of await readdir(bundle, { withFileTypes: true })) {
     const name = desktopArtifactName(entry.name, platform, version)
     if (!name) continue
     const path = resolve(directoryPath, entry.name)
-    if (/\.(app\.tar\.gz|AppImage|msi)$/.test(entry.name) || entry.name.endsWith('-setup.exe')) {
-      verifyUpdaterPayload(await readFile(path), await readFile(`${path}.sig`, 'utf8'), publicKey)
+    if (/\.(app\.tar\.gz|AppImage|deb|rpm|msi)$/.test(entry.name) || entry.name.endsWith('-setup.exe')) {
+      verifyUpdaterPayload(await readFile(path), await readFile(`${path}.sig`, 'utf8'), publicKey, version)
       updaterCount++
     }
     await copyFile(path, resolve(output, name))
@@ -42,6 +42,6 @@ for (const directory of await readdir(bundle, { withFileTypes: true })) {
     }
   }
 }
-if (!count || updaterCount !== (platform === 'windows-amd64' ? 2 : 1))
+if (!count || updaterCount !== (platform === 'windows-amd64' ? 2 : platform === 'linux-amd64' ? 3 : 1))
   throw new Error('Desktop updater artifact set is incomplete')
 console.log(`Collected ${count} installer/signature files; verified ${updaterCount} updater payloads for ${platform}.`)

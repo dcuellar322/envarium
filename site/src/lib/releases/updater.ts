@@ -59,7 +59,7 @@ export function buildUpdaterFeed(
     const signature = signatures.get(asset.name)?.trim()
     if (!signatureAsset || !signature) throw new Error(`Missing updater signature: ${asset.name}`)
     trustedReleaseAssetURL(signatureAsset, release.tag_name)
-    authenticateUpdaterSignature(signature, publicKey)
+    authenticateUpdaterSignature(signature, publicKey, release.tag_name.slice(1))
     platforms[target] = { url: trustedReleaseAssetURL(asset, release.tag_name), signature }
   }
   for (const target of updaterTargets) {

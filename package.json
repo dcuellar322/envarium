@@ -36,7 +36,7 @@
     "site:validate": "pnpm --filter @envarium/site validate"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "2.11.4",
+    "@tauri-apps/cli": "2.12.3",
     "prettier": "3.9.6"
   }
 }

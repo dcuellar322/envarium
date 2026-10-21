@@ -14,9 +14,8 @@ function signer() {
   const encodedKey = Buffer.from(`untrusted comment: test public key\n${key.toString('base64')}\n`).toString('base64')
   return {
     publicKey: encodedKey,
-    sign(payload: Uint8Array) {
+    sign(payload: Uint8Array, comment = 'timestamp:123\tfile:fixture\tversion:1.0.0') {
       const signature = sign(null, createHash('blake2b512').update(payload).digest(), privateKey)
-      const comment = 'timestamp:123\tfile:fixture'
       const globalSignature = sign(null, Buffer.concat([signature, Buffer.from(comment)]), privateKey)
       return Buffer.from(`untrusted comment: test signature\n${Buffer.concat([Buffer.from('ED'), keyID, signature]).toString('base64')}\ntrusted comment: ${comment}\n${globalSignature.toString('base64')}\n`).toString('base64')
     },
@@ -44,13 +43,40 @@ describe('updater signature trust', () => {
     const key = signer()
     const payload = Buffer.from('artifact')
     const signature = key.sign(payload)
-    expect(() => verifyUpdaterPayload(payload, signature, key.publicKey)).not.toThrow()
-    expect(() => verifyUpdaterPayload(Buffer.from('tampered'), signature, key.publicKey)).toThrow(/payload signature/)
-    expect(() => authenticateUpdaterSignature(signature, signer().publicKey)).toThrow()
+    expect(() => verifyUpdaterPayload(payload, signature, key.publicKey, '1.0.0')).not.toThrow()
+    expect(() => verifyUpdaterPayload(Buffer.from('tampered'), signature, key.publicKey, '1.0.0')).toThrow(/payload signature/)
+    expect(() => authenticateUpdaterSignature(signature, signer().publicKey, '1.0.0')).toThrow()
     const changed = Buffer.from(Buffer.from(signature, 'base64').toString().replace('timestamp:123', 'timestamp:456')).toString('base64')
-    expect(() => authenticateUpdaterSignature(changed, key.publicKey)).toThrow(/metadata/)
+    expect(() => authenticateUpdaterSignature(changed, key.publicKey, '1.0.0')).toThrow(/metadata/)
     for (const malformed of ['', '!', 'a'.repeat(8193), Buffer.from('invalid').toString('base64')])
-      expect(() => authenticateUpdaterSignature(malformed, key.publicKey)).toThrow()
+      expect(() => authenticateUpdaterSignature(malformed, key.publicKey, '1.0.0')).toThrow()
+  })
+})
+
+describe('signed release versions', () => {
+  it('refuses legacy, missing, duplicate and replayed signed versions', () => {
+    const key = signer()
+    const payload = Buffer.from('genuine older artifact')
+    for (const comment of [
+      'timestamp:123\tfile:fixture',
+      'timestamp:123\tfile:fixture\tversion:',
+      'timestamp:123\tfile:fixture\tversion:0.9.0',
+      'timestamp:123\tfile:fixture\tversion:1.0.0\tversion:0.9.0',
+    ]) {
+      const signature = key.sign(payload, comment)
+      expect(() => verifyUpdaterPayload(payload, signature, key.publicKey, '1.0.0')).toThrow(/signed version/)
+      const signatures = new Map(names.map((name) => [name, signature]))
+      expect(() => buildUpdaterFeed(release(), signatures, key.publicKey)).toThrow(/signed version/)
+    }
+  })
+
+  it('accepts the exact signed prerelease and rejects an inflated advertised version', () => {
+    const key = signer()
+    const payload = Buffer.from('candidate')
+    const signature = key.sign(payload, 'timestamp:123\tfile:fixture\tversion:1.0.0-beta.rc.5')
+    expect(() => verifyUpdaterPayload(payload, signature, key.publicKey, '1.0.0-beta.rc.5')).not.toThrow()
+    expect(() => verifyUpdaterPayload(payload, signature, key.publicKey, '1.0.0')).toThrow(/signed version/)
+    expect(() => verifyUpdaterPayload(payload, signature, key.publicKey, '1.0.0-beta.rc.6')).toThrow(/signed version/)
   })
 })
 
@@ -106,7 +132,7 @@ describe('published stable feed', () => {
       const entry = feed.platforms[target] ?? feed.platforms['linux-x86_64']
       expect(entry.url).toBe(`https://github.com/dcuellar322/envarium/releases/download/v1.0.0/${name}`)
       expect(entry.signature).toBe(signatures.get(name))
-      expect(() => verifyUpdaterPayload(Buffer.from(name), entry.signature, key.publicKey)).not.toThrow()
+      expect(() => verifyUpdaterPayload(Buffer.from(name), entry.signature, key.publicKey, '1.0.0')).not.toThrow()
     }
   })
 
