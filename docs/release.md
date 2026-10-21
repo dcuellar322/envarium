@@ -139,13 +139,19 @@ and [Tauri's macOS signing documentation](https://v2.tauri.app/distribute/sign/m
 
 The site build fetches GitHub release metadata and updater signatures. Only a
 published, non-prerelease stable tag is eligible. It requires Mac arm64, Mac
-Intel and Linux x86_64 AppImage payloads, signatures from
+Intel and Linux x86_64 AppImage, deb, and rpm payloads, signatures from
 the committed Envarium updater key, and exact asset URLs in this repository.
 Missing, duplicate, foreign-key, or incomplete targets fail the deployment.
 Windows assets are ignored by the updater catalog and are not required for
 release completeness. The build authenticates each supported signature's
 signed metadata; the release workflow and installed native updater additionally
 verify the complete payload bytes.
+
+Linux clients select their installed package format: `linux-x86_64-deb` and
+`linux-x86_64-rpm` point to the matching packages, while `linux-x86_64` remains
+the AppImage target. All five macOS/Linux entries are required. Package clients
+must not fall back to downloading an AppImage that their installer cannot use.
+See [ADR-0031](adr/0031-linux-updater-installer-formats.md).
 
 A small, immutable Pages Worker serves `/updates/stable.json`: HTTP 204 before
 the first published stable release, otherwise Tauri's static JSON catalog.
@@ -273,5 +279,5 @@ The release workflow never publishes partial success: the four macOS/Linux CLI
 archives and all three native desktop builds (macOS arm64, macOS Intel, and
 Linux x86_64) must complete before the draft release job runs. Stable validation
 requires both Mac DMGs, Linux AppImage/deb/rpm, and every CLI archive with
-checksums, plus all three authenticated updater payloads. Windows artifacts
+checksums, plus all five authenticated updater payloads. Windows artifacts
 and credentials are not part of this gate.

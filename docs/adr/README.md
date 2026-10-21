@@ -3,7 +3,7 @@ title: Architecture decision records
 description: Accepted technical decisions and the process for superseding them.
 category: contributor
 audience: [contributor, maintainer, integrator]
-lastVerified: 2026-10-19
+lastVerified: 2026-10-21
 slug: docs/adr
 ---
 
@@ -55,3 +55,5 @@ the old one.
 - [ADR-0029: Retired documentation routes](0029-retired-documentation-routes.md)
 
 - [ADR-0030: First release platform scope](0030-first-release-platform-scope.md)
+
+- [ADR-0031: Linux updater installer formats](0031-linux-updater-installer-formats.md)

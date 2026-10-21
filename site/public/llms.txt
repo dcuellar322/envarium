@@ -38,6 +38,7 @@ Source: https://github.com/dcuellar322/envarium
 - [ADR-0028: Published release updater feed](https://envarium.davidcuellar.tech/docs/adr/0028-published-release-updater-feed/): Serve a bounded, signed-artifact update catalog without a runtime release proxy.
 - [ADR-0029: Retired documentation routes](https://envarium.davidcuellar.tech/docs/adr/0029-retired-documentation-routes/): Return explicit 404 responses for unpublished documentation before stale assets can be served.
 - [ADR-0030: First release platform scope](https://envarium.davidcuellar.tech/docs/adr/0030-first-release-platform-scope/): Qualify and publish macOS and Linux before Windows and WSL2.
+- [ADR-0031: Linux updater payloads match the installed package](https://envarium.davidcuellar.tech/docs/adr/0031-linux-updater-installer-formats/): Publish authenticated AppImage, deb, and rpm updater entries for Linux x86_64.
 - [Architecture decision records](https://envarium.davidcuellar.tech/docs/adr/): Accepted technical decisions and the process for superseding them.
 - [Architecture overview](https://envarium.davidcuellar.tech/docs/architecture/): Process topology, bounded contexts, dependency direction, and accepted Envarium decisions.
 - [Agent integration](https://envarium.davidcuellar.tech/docs/architecture/agent-integration/): Provider-neutral MCP, permission, audit, guidance, and agent-session architecture.

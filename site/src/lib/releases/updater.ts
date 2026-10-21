@@ -3,7 +3,10 @@ import { authenticateUpdaterSignature } from './updaterSignature'
 import type { GitHubRelease, GitHubReleaseAsset } from './types'
 
 const repository = 'dcuellar322/envarium'
-export const updaterTargets = ['darwin-aarch64', 'darwin-x86_64', 'linux-x86_64'] as const
+export const updaterTargets = [
+  'darwin-aarch64', 'darwin-x86_64', 'linux-x86_64',
+  'linux-x86_64-deb', 'linux-x86_64-rpm',
+] as const
 type UpdaterTarget = typeof updaterTargets[number]
 export interface UpdaterFeed {
   version: string
@@ -20,7 +23,11 @@ export function updaterAssetTarget(name: string): UpdaterTarget | undefined {
     if (asset.architecture === 'amd64') return 'darwin-x86_64'
   }
   if (asset.architecture !== 'amd64') return undefined
-  if (asset.platform === 'linux' && asset.packageType === 'appimage') return 'linux-x86_64'
+  if (asset.platform === 'linux') {
+    if (asset.packageType === 'appimage') return 'linux-x86_64'
+    if (asset.packageType === 'deb') return 'linux-x86_64-deb'
+    if (asset.packageType === 'rpm') return 'linux-x86_64-rpm'
+  }
   return undefined
 }
 

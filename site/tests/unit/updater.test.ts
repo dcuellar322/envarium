@@ -23,7 +23,11 @@ function signer() {
   }
 }
 
-const names = ['Envarium_1.0.0_aarch64.app.tar.gz', 'Envarium_1.0.0_x64.app.tar.gz', 'Envarium_1.0.0_amd64.AppImage']
+const names = [
+  'Envarium_1.0.0_aarch64.app.tar.gz', 'Envarium_1.0.0_x64.app.tar.gz',
+  'Envarium_1.0.0_amd64.AppImage', 'Envarium_1.0.0_amd64.deb',
+  'Envarium-1.0.0-1.x86_64.rpm',
+]
 function release(): GitHubRelease {
   return {
     tag_name: 'v1.0.0', body: 'Reviewed release', draft: false, prerelease: false,
@@ -67,7 +71,10 @@ describe('published stable feed', () => {
     const candidate = release()
     const feed = buildUpdaterFeed(candidate, signatures, key.publicKey)!
     expect(feed.version).toBe('1.0.0')
-    expect(Object.keys(feed.platforms).sort()).toEqual(['darwin-aarch64', 'darwin-x86_64', 'linux-x86_64'])
+    expect(Object.keys(feed.platforms).sort()).toEqual([
+      'darwin-aarch64', 'darwin-x86_64', 'linux-x86_64',
+      'linux-x86_64-deb', 'linux-x86_64-rpm',
+    ])
     for (const missing of names) {
       expect(() => buildUpdaterFeed({ ...candidate, assets: candidate.assets.filter((asset) => asset.name !== missing) }, signatures, key.publicKey)).toThrow(/Missing updater target/)
       const incomplete = new Map(signatures)
@@ -86,8 +93,25 @@ describe('published stable feed', () => {
     expect(() => buildUpdaterFeed(candidate, signatures, signer().publicKey)).toThrow()
   })
 
+  it('offers the matching signed installer to native Linux package clients', () => {
+    const key = signer()
+    const signatures = new Map(names.map((name) => [name, key.sign(Buffer.from(name))]))
+    const feed = buildUpdaterFeed(release(), signatures, key.publicKey)!
+    // Tauri tries the installed format first, then the generic OS/architecture.
+    // deb/rpm clients must not fall back to the generic AppImage payload.
+    for (const [format, name] of [
+      ['appimage', names[2]!], ['deb', names[3]!], ['rpm', names[4]!],
+    ] as const) {
+      const target = `linux-x86_64-${format}` as keyof typeof feed.platforms
+      const entry = feed.platforms[target] ?? feed.platforms['linux-x86_64']
+      expect(entry.url).toBe(`https://github.com/dcuellar322/envarium/releases/download/v1.0.0/${name}`)
+      expect(entry.signature).toBe(signatures.get(name))
+      expect(() => verifyUpdaterPayload(Buffer.from(name), entry.signature, key.publicKey)).not.toThrow()
+    }
+  })
+
   it('ignores unsupported targets and CLI downloads', () => {
-    for (const name of ['README.txt', 'envarium_Darwin_arm64.tar.gz', 'Envarium_universal.app.tar.gz', 'Envarium_arm64.AppImage', 'Envarium_x64.deb', 'Envarium_x64.msi', 'Envarium_1.0.0_x64-setup.exe'])
+    for (const name of ['README.txt', 'envarium_Darwin_arm64.tar.gz', 'Envarium_universal.app.tar.gz', 'Envarium_arm64.AppImage', 'Envarium_arm64.deb', 'Envarium_arm64.rpm', 'Envarium_x64.msi', 'Envarium_1.0.0_x64-setup.exe'])
       expect(updaterAssetTarget(name)).toBeUndefined()
     const key = signer()
     const signatures = new Map(names.map((name) => [name, key.sign(Buffer.from(name))]))

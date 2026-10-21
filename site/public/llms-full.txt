@@ -1549,6 +1549,50 @@ clean-machine acceptance evidence. Until then both remain coming soon.
 
 ---
 
+# ADR-0031: Linux updater payloads match the installed package
+
+Source: https://envarium.davidcuellar.tech/docs/adr/0031-linux-updater-installer-formats/
+
+Publish authenticated AppImage, deb, and rpm updater entries for Linux x86_64.
+
+- Status: Accepted
+- Date: 2026-10-21
+- Supersedes: ADR-0028's generic Linux updater payload selection only.
+- Related: ADR-0030's macOS/Linux platform scope remains unchanged.
+
+## Context
+
+RC3 qualification reproduces a format mismatch in the proposed stable catalog.
+The signed Linux binaries identify their installed bundle as AppImage, deb, or
+rpm. The pinned Tauri updater first searches for an installer-specific entry,
+then falls back to the generic OS/architecture entry. Offering only an AppImage
+at `linux-x86_64` makes deb and rpm clients download that AppImage and reject it
+as an invalid package before installation.
+
+## Decision
+
+Keep `linux-x86_64` for the signed AppImage and add required
+`linux-x86_64-deb` and `linux-x86_64-rpm` entries pointing to their respective
+signed packages. Retain the two macOS architecture entries. Require all five
+payload signatures and exact repository asset URLs before creating a stable
+catalog or validating stable release files. Missing Linux installer entries fail
+closed. Windows remains coming soon.
+
+The native updater continues to select its own installer format and verify
+downloaded bytes with the existing public key. No production endpoint or key
+changes, test feeds, package conversion, or binary rebuilding are required.
+
+## Consequences
+
+AppImage clients retain their existing generic target. Package clients receive
+their native installer instead of an incompatible fallback. Linux package
+updates still require normal OS authorization; isolated signature and format
+selection checks do not certify interactive authorization or app restart.
+Clean-machine native desktop, signed update/relaunch, and retained-data manual
+acceptance remain release gates.
+
+---
+
 # Architecture decision records
 
 Source: https://envarium.davidcuellar.tech/docs/adr/
@@ -1603,6 +1647,8 @@ the old one.
 - [ADR-0029: Retired documentation routes](0029-retired-documentation-routes.md)
 
 - [ADR-0030: First release platform scope](0030-first-release-platform-scope.md)
+
+- [ADR-0031: Linux updater installer formats](0031-linux-updater-installer-formats.md)
 
 ---
 
@@ -5859,13 +5905,19 @@ and [Tauri's macOS signing documentation](https://v2.tauri.app/distribute/sign/m
 
 The site build fetches GitHub release metadata and updater signatures. Only a
 published, non-prerelease stable tag is eligible. It requires Mac arm64, Mac
-Intel and Linux x86_64 AppImage payloads, signatures from
+Intel and Linux x86_64 AppImage, deb, and rpm payloads, signatures from
 the committed Envarium updater key, and exact asset URLs in this repository.
 Missing, duplicate, foreign-key, or incomplete targets fail the deployment.
 Windows assets are ignored by the updater catalog and are not required for
 release completeness. The build authenticates each supported signature's
 signed metadata; the release workflow and installed native updater additionally
 verify the complete payload bytes.
+
+Linux clients select their installed package format: `linux-x86_64-deb` and
+`linux-x86_64-rpm` point to the matching packages, while `linux-x86_64` remains
+the AppImage target. All five macOS/Linux entries are required. Package clients
+must not fall back to downloading an AppImage that their installer cannot use.
+See [ADR-0031](adr/0031-linux-updater-installer-formats.md).
 
 A small, immutable Pages Worker serves `/updates/stable.json`: HTTP 204 before
 the first published stable release, otherwise Tauri's static JSON catalog.
@@ -5993,7 +6045,7 @@ The release workflow never publishes partial success: the four macOS/Linux CLI
 archives and all three native desktop builds (macOS arm64, macOS Intel, and
 Linux x86_64) must complete before the draft release job runs. Stable validation
 requires both Mac DMGs, Linux AppImage/deb/rpm, and every CLI archive with
-checksums, plus all three authenticated updater payloads. Windows artifacts
+checksums, plus all five authenticated updater payloads. Windows artifacts
 and credentials are not part of this gate.
 
 ---

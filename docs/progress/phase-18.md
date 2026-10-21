@@ -409,3 +409,37 @@ CI-qualified packaging workflow while still checking out that immutable tag;
 quality checks require success for both source and workflow revisions, and
 the release metadata/attestation distinguish them. Complete rebuilt-artifact
 qualification and clean-machine human gates remain required.
+
+## 2026-10-21 native GUI and isolated updater qualification
+
+The signed RC3 artifact set passes independent integrity and provenance checks.
+Native Linux GUI smoke checks pass for Ubuntu 22.04 and Debian 12 deb/AppImage
+and Fedora 44 rpm under Xvfb software compositing: rendered production WebKit
+UI, keyboard palette, settings navigation, hide-on-close, single-instance
+reopening, and bundled daemon identity/schema. Fedora's extracted AppImage
+fails EGL initialization in the headless environment, including diagnostic
+software-rendering overrides; its normal desktop/FUSE launch remains open.
+
+The exact pinned Tauri updater passes 32 isolated HTTPS checks on each of macOS
+Intel and Linux, including genuine payload acceptance, altered/truncated bytes,
+altered/missing/foreign signatures, cached tampering, TLS/HTTP enforcement,
+same/older versions, and missing targets. A staged Mac app and Linux AppImage
+upgrade from RC2 to RC3; populated data remains unchanged during installation
+and preserves exact durable rows after daemon/native Linux GUI relaunch.
+The fixture host uses Tauri's mock runtime with an explicit disposable install
+path and a temporary test CA; production endpoint/key/configuration is unchanged.
+
+Native-format qualification exposed a release blocker in the proposed feed:
+deb/rpm binaries identify their package format, select the generic AppImage,
+then refuse it as an invalid updater format. ADR-0031 adds required signed
+deb/rpm catalog entries alongside the existing AppImage and two Mac entries.
+The regression tests require all five payloads/signatures. Actual native
+updater probes with matching bundle markers now select the right signed
+package and reject altered cached bytes for every Linux installer format.
+This repairs catalog generation without changing the signed RC3 binaries.
+
+See [the RC3 qualification report](rc3-installer-qualification-2026-10-21.md).
+Clean-machine, real GPU/Wayland/X11/FUSE, native integration, interactive package
+authorization, and the complete production-pinned update/restart UI flow remain
+manual gates. The owner reports that RC3 works on Apple Silicon; detailed OS and
+integration coverage were not supplied. RC3 stays a draft; Windows stays deferred.
