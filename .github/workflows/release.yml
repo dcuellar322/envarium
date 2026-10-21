@@ -107,14 +107,13 @@ jobs:
             bundles: appimage,deb,rpm
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        if: runner.os == 'macOS'
         with:
           ref: ${{ github.sha }}
-      - name: Stage reviewed Mac packaging tool
-        if: runner.os == 'macOS'
+      - name: Stage reviewed release packaging tools
         run: |
           mkdir -p "$RUNNER_TEMP/envarium-release-tools"
           cp scripts/release-xcrun.cjs "$RUNNER_TEMP/envarium-release-tools/xcrun"
+          cp scripts/release-linux.mjs "$RUNNER_TEMP/envarium-release-tools/release-linux.mjs"
           chmod 0755 "$RUNNER_TEMP/envarium-release-tools/xcrun"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -155,7 +154,11 @@ jobs:
           if [ "$RUNNER_OS" = macOS ]; then
             export PATH="$RUNNER_TEMP/envarium-release-tools:$PATH"
           fi
-          pnpm -C ../.. exec tauri build --config "$GITHUB_WORKSPACE/desktop/src-tauri/tauri.release.conf.json" --config "{\"version\":\"$ENVARIUM_VERSION\"}" --bundles ${{ matrix.bundles }} --ci
+          if [ "$RUNNER_OS" = Linux ]; then
+            node "$RUNNER_TEMP/envarium-release-tools/release-linux.mjs"
+          else
+            pnpm -C ../.. exec tauri build --config "$GITHUB_WORKSPACE/desktop/src-tauri/tauri.release.conf.json" --config "{\"version\":\"$ENVARIUM_VERSION\"}" --bundles ${{ matrix.bundles }} --ci
+          fi
         working-directory: desktop/src-tauri
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -172,6 +175,7 @@ jobs:
       - name: Verify notarized Mac application
         if: runner.os == 'macOS'
         run: |
+          export PATH="$RUNNER_TEMP/envarium-release-tools:$PATH"
           codesign --verify --deep --strict desktop/src-tauri/target/release/bundle/macos/Envarium.app
           xcrun stapler validate desktop/src-tauri/target/release/bundle/macos/Envarium.app
           spctl --assess --type execute --verbose=2 desktop/src-tauri/target/release/bundle/macos/Envarium.app

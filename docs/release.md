@@ -200,6 +200,14 @@ Detached signatures authenticate the downloaded files. They do not configure an
 APT/RPM repository's metadata trust. Tauri updater signatures remain separate
 and mandatory for automated updates.
 
+RPM prereleases retain product SemVer in the app and updater signature, while
+RPM uses its own Version/Release fields: `1.0.0-beta.rc.5` becomes package
+`1.0.0-0.beta.rc.5`; stable becomes `1.0.0-1`. The bundle-only RPM step does not
+rebuild the product, verifies unchanged build-output/sidecar bytes, and signs
+the finished RPM for the original full product version. Historical private
+RPM candidates with nonstandard headers may need removal/reinstallation while
+retaining their data. See [ADR-0033](adr/0033-rpm-prerelease-metadata.md).
+
 ## Windows signing availability
 
 **Windows and WSL2 support is coming soon.** Neither is built, published, or

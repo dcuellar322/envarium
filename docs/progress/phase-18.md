@@ -507,3 +507,23 @@ still require a nonempty metadata version. An integration regression exercises
 the actual preparation script and proves mismatched native metadata or missing
 signatures fail without rewriting checksums. All 45 site tests, type and lint
 checks pass locally. Native signature/version requirements remain mandatory.
+
+
+## 2026-10-21 RC5 packaging correction
+
+All required source workflows pass for immutable product tag RC5 at ec89875.
+The first signed build validates Apple Silicon and CLI archives, but the newer
+RPM library rejects the prerelease hyphen in the RPM Version. ADR-0033 records
+a release-only Linux adapter: build the full SemVer once, package RPM using core
+Version and Release 0.prerelease, verify unchanged product build output and
+sidecar bytes, then sign the RPM for the full product version. Stable Release 1
+sorts after candidates. Native marker and actual package/version checks remain
+part of qualification. No immutable product tag or uploaded asset is replaced.
+
+The Intel app also encounters Apple CloudKit network loss (stapler exit 68)
+in its independent post-build validation. That validation now uses the reviewed
+wrapper with bounded retries only for exit 68; missing tickets, cancellation,
+code signatures and Gatekeeper checks remain fail closed. Regression tests cover
+RPM metadata/command ordering, unexpected product changes, command failure and
+cancellation, plus independent ticket-validation retries. Fedora's RPM itself
+confirms RC4 < RC5 < RC10 < stable ordering for the normalized package fields.

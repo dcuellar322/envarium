@@ -59,3 +59,5 @@ the old one.
 - [ADR-0031: Linux updater installer formats](0031-linux-updater-installer-formats.md)
 
 - [ADR-0032: Version-bound updater signatures](0032-version-bound-updater-signatures.md)
+
+- [ADR-0033: RPM prerelease metadata](0033-rpm-prerelease-metadata.md)

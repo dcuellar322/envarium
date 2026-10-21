@@ -26,6 +26,14 @@ function releaseXcrun(
   pause = () => spawnSync('/bin/sleep', ['5'], { stdio: 'inherit' }),
 ) {
   const status = (result) => result.status ?? 1
+  if (args[0] === 'stapler' && args[1] === 'validate' && args.length >= 3) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const result = run(args)
+      if (result.signal || result.error || result.status !== 68) return status(result)
+      if (attempt < 2) pause()
+    }
+    return 68
+  }
   if (args[0] !== 'stapler' || args[1] !== 'staple' || args.length < 3)
     return status(run(args))
 

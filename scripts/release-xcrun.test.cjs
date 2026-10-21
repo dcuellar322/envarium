@@ -51,3 +51,17 @@ test('persistent missing tickets cannot become successful and cancellation stops
     assert.equal(releaseXcrun(staple, () => result, () => assert.fail('unexpected retry')), 1)
   }
 })
+
+
+test('independent validation retries only transient ticket-service failure and stays fail closed', () => {
+  let calls = 0
+  let pauses = 0
+  assert.equal(releaseXcrun(validate, () => ({ status: calls++ === 0 ? 68 : 0 }), () => pauses++), 0)
+  assert.equal(calls, 2)
+  assert.equal(pauses, 1)
+  calls = 0
+  assert.equal(releaseXcrun(validate, () => { calls++; return { status: 68 } }, () => {}), 68)
+  assert.equal(calls, 3)
+  assert.equal(releaseXcrun(validate, () => ({ status: 65 }), () => assert.fail('missing ticket must not retry')), 65)
+  assert.equal(releaseXcrun(validate, () => ({ status: null, signal: 'SIGTERM' }), () => assert.fail('cancellation must not retry')), 1)
+})
