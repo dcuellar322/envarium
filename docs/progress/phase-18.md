@@ -498,3 +498,12 @@ brand source. Other platform raster bytes remain as reviewed where their
 rounding already passes the established tolerance. Debian's actual AppImage
 extraction-and-run runtime also passes the complete GUI smoke checks in a fresh
 XDG runtime directory; direct extracted-AppRun portal behavior remains distinct.
+
+
+The embedded archive CI smoke run uses unsigned CLI-only GoReleaser snapshots,
+whose version intentionally differs from the nearest tag. Exact tag/version
+matching applies whenever a native updater payload is present; CLI-only snapshots
+still require a nonempty metadata version. An integration regression exercises
+the actual preparation script and proves mismatched native metadata or missing
+signatures fail without rewriting checksums. All 45 site tests, type and lint
+checks pass locally. Native signature/version requirements remain mandatory.

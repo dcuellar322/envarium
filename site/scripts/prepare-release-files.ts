@@ -40,8 +40,8 @@ if (!(await stat(releaseDirectory)).isDirectory())
   throw new Error(`${releaseDirectory} is not a directory`)
 
 const metadata = JSON.parse(await readFile(resolve(releaseDirectory, 'metadata.json'), 'utf8')) as { version?: string; tag?: string }
-if (!metadata.version || metadata.tag !== `v${metadata.version}`)
-  throw new Error('Release metadata must provide the exact tagged version')
+if (typeof metadata.version !== 'string' || !metadata.version)
+  throw new Error('Release metadata must provide a version')
 
 const checksumPath = resolve(releaseDirectory, 'checksums.txt')
 const files = (await filesUnder(releaseDirectory)).filter((path) => path !== checksumPath)
@@ -57,6 +57,10 @@ const targets = new Set<string>()
 for (const path of files) {
   const target = updaterAssetTarget(basename(path))
   if (!target) continue
+  // CLI-only GoReleaser snapshots intentionally have a version unlike their tag.
+  // Native updater payloads must always bind the exact tagged version.
+  if (metadata.tag !== `v${metadata.version}`)
+    throw new Error('Updater release metadata must provide the exact tagged version')
   if (targets.has(target)) throw new Error(`Duplicate updater payload for ${target}`)
   targets.add(target)
   verifyUpdaterPayload(await readFile(path), await readFile(`${path}.sig`, 'utf8'), publicKey, metadata.version)
