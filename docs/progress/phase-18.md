@@ -682,10 +682,19 @@ baseline changed.
 The first full 304-case site browser attempt was stopped under overload; the
 complete browser matrix is delegated to the exact-revision hosted site job.
 
-Full hosted workflow results belong to the exact repair PR revision. Signed
-release qualification and the five upstream constraints remain separate from
-these source repairs.
+Full hosted workflow results for the exact repair revision are tracked on
+[PR #55](https://github.com/dcuellar322/envarium/pull/55). Signed release
+qualification and the five upstream constraints remain separate from these
+source repairs.
 
 Candidate `make desktop-build` passes on Intel macOS, producing the debug app
 and DMG with the patched Go sidecar and Tokio dependency. This is packaging
 verification, not a signed release or replacement of the installed application.
+
+The first hosted macOS adapter run caught a race in the new regression fixture:
+the echo child could exit before the master read its output. The fixed fixture
+prints its literal argument and waits for an explicit acknowledgment before
+exiting, while the parent drains the PTY through EOF before waiting for exit.
+Product PTY behavior and the literal-argument/no-side-effect assertions are
+unchanged. The synchronized fixture passes 30 race-enabled repetitions, its
+owning package suite, vet and strict lint.
