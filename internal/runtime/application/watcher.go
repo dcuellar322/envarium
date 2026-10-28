@@ -86,7 +86,7 @@ func (s *Service) refreshWatchSnapshot(ctx context.Context, sink domain.EventSin
 		onError("", err)
 		return
 	}
-	wanted := make(map[string]struct{}, len(projects)+len(failures))
+	wanted := make(map[string]struct{}, len(projects))
 	for _, id := range snapshotIDs(projects, failures) {
 		wanted[id] = struct{}{}
 		project := projects[id]

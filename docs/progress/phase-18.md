@@ -560,3 +560,132 @@ authorization and full uninstall/restore acceptance remain human gates.
 RC3/RC4 remain held; RC5 remains a draft. Windows stays coming soon. See the
 [RC5 qualification report](rc5-installer-qualification-2026-10-21.md) for scope,
 receipts, known advisory and the remaining checklist.
+
+## 2026-10-28 security jobs and issue reconciliation
+
+This maintenance slice maps to Phase 18's security review and supported-platform
+workflow criteria. It preserves ADR-0009's thin Tauri shell, ADR-0025's browser
+proof and rooted discovery boundaries, and ADR-0030's release scope. No accepted
+architecture decision changes, migration or public API/schema change is required.
+
+### Inventory and repairs
+
+The review started from `07bc266ab4aacd84beee79459c6492c8a506786d` and inspected
+every Security workflow job, main CI's vulnerability gate, all open CodeQL,
+Dependabot and secret-scanning alerts, and all 23 open GitHub issues. The
+[Security run](https://github.com/dcuellar322/envarium/actions/runs/40373084343)
+passed CodeQL analysis, secret scanning and Rust auditing, but failed JavaScript
+auditing; dependency review was correctly skipped on a push. A refreshed npm
+audit found 25 advisory entries, including advisories published after that run.
+GitHub secret scanning reported no open alerts.
+
+| Dependency | Reviewed repair |
+|---|---|
+| Zod | Override affected versions to 4.6.6 for constrained-collection exhaustion |
+| Undici | Keep separate major lines, patched to 7.30.1 and 8.12.2 for HTTP/TLS, redirect, integrity and buffering advisories |
+| fast-uri | 3.1.9 for URI normalization and host/scheme confusion advisories |
+| Astro | 7.3.3 for rendering and view-transition advisories |
+| Vitest and coverage | Aligned 4.1.12 releases for mock registration and Windows traversal advisories |
+| chi | 5.4.0 for GHSA-j6qf-3m9c-vwj3; Envarium does not call the affected forwarded-IP helpers |
+| golang.org/x/crypto | 0.56.0 for GO-2026-6354 and GO-2026-6355; SSH is not imported by Envarium |
+| Tokio | 1.53.3 for RUSTSEC-2026-0386 / issue #54 |
+
+The strict ten-day dependency age gate remains enabled. Exact security-version
+exceptions cover the patched fast-uri, Undici and Zod versions only. Both npm
+auditing and dependency review now reject low-or-higher vulnerabilities.
+
+Seven CodeQL allocation-size reports (#2, #3, #9–#13) identified unchecked sums
+used only as capacity hints. Initial capacities now use one existing collection
+length; ordinary append/map growth preserves every entry, argument, overlay and
+failure without computing the flagged sums. No new collection limit is imposed.
+
+Five unchanged CodeQL reports were reviewed independently and dismissed with
+source-backed reasons in GitHub:
+
+- #1: PTY creation is the authenticated typed terminal capability. The resolver
+  requires trusted project metadata; the adapter preserves argument arrays.
+  Only explicitly reviewed shell actions request interpretation. A new real-PTY
+  regression proves semicolons and command substitutions remain literal.
+- #5 and #6: repository selection and settings intentionally stat directories
+  selected by the authenticated local owner. Catalog authorization precedes
+  discovery reads; configured roots reject filesystem roots and enforce
+  canonical containment.
+- #8: `HasFile` probes existence/type for known scanner names after secret-name
+  and containment checks. Content reads use rooted bounded `repositoryfile.Read`.
+- #14: the empty cookie with negative MaxAge deletes a legacy cookie; it issues
+  no bearer secret. Every HTTP/WS request still requires origin-scoped proof.
+
+### Issue disposition and remaining upstream work
+
+Closed 17 obsolete issues with evidence in their bodies: #22–#31 are withdrawn
+GTK3 maintenance advisories; #33–#37 reference absent `unic-*` packages; #42
+already resolves patched event-listener 5.4.2; #49 already resolves patched
+rustls 0.23.46. Issue #54 is repaired by this source change and remains tied to
+its pull request until that change reaches the default branch.
+
+Five issues remain open with current dependency paths and concrete next steps:
+
+- [#32](https://github.com/dcuellar322/envarium/issues/32): proc-macro-error 1.0.4
+  remains a GTK/glib build dependency; no patched compatible release exists.
+- [#38](https://github.com/dcuellar322/envarium/issues/38): GLib 0.18.5 remains
+  affected by VariantStrIter unsoundness. No use was found in product source or
+  inspected consumers; the published fix starts at incompatible GLib 0.20.
+  This reachability assessment does not remediate the dependency.
+- [#51](https://github.com/dcuellar322/envarium/issues/51),
+  [#52](https://github.com/dcuellar322/envarium/issues/52) and
+  [#53](https://github.com/dcuellar322/envarium/issues/53): standalone D-Bus
+  crates moved into zbus 6. Current stable notification/single-instance plugins
+  and notify-rust still require zbus 5; a forced major override is incompatible.
+
+No advisory ignore or dependency-alert dismissal conceals these five constraints.
+Fresh RustSec reports zero vulnerability-class entries and exactly these four
+maintenance warnings plus the GLib soundness warning.
+
+Go's module inventory also retains GO-2026-5932, the unmaintained OpenPGP
+package within x/crypto. Envarium does not import OpenPGP; govulncheck reports
+zero affected imported packages and zero reachable vulnerable symbols. This
+module-only notice has no patched version and is not treated as an executable
+product vulnerability or hidden with an ignore rule.
+
+### Verification
+
+Patched frozen installation and npm audit pass with zero advisories at every
+severity. Frontend lint/typechecking and 93 tests pass. Full site quality passes:
+45 tests, zero Astro diagnostics, production build and content/build validation.
+Rust formatting, strict Clippy and all 22 tests pass. Focused Go security and
+compatibility suites and the real-PTY literal-argument regression pass.
+
+The previous macOS CI failure was `hdiutil: create failed - Resource busy` after
+successful compilation. Its targeted hosted retry passes app/DMG packaging;
+no product change or weakened packaging gate was needed.
+
+The final Go dependency graph passes `go test -p 2 ./...`,
+`go test -race -p 2 ./...`, `go vet ./...` and GolangCI-Lint with zero issues.
+The current vulnerability scan reports zero affected imported packages and zero
+reachable vulnerabilities; only the unused OpenPGP module notice remains.
+`make generate-check site-generate-check fmt-go-check`, frontend formatting,
+architecture/repository checks and the empty-database migration check pass.
+
+The initial broad local run overlapped resource-heavy suites: helper-process,
+operation and Firefox startup checks timed out under severe machine load.
+Stopped overlapping runs and repeated Go checks with bounded build parallelism;
+the clean unit/race results above are from those reruns. Assertions, timeouts,
+visual tolerances and product polling intervals were not relaxed.
+
+The isolated browser rerun passes all six application journeys, including real
+native-process and Compose lifecycle flows, and all 17 application visual
+comparisons. All seven site visual comparisons pass. The focused Firefox axe
+selection reports six intentional skips because axe checks target Chromium;
+these are not counted as Firefox validation. The supported Firefox publication,
+search-index and navigation behavior test passes separately. No screenshot
+baseline changed.
+The first full 304-case site browser attempt was stopped under overload; the
+complete browser matrix is delegated to the exact-revision hosted site job.
+
+Full hosted workflow results belong to the exact repair PR revision. Signed
+release qualification and the five upstream constraints remain separate from
+these source repairs.
+
+Candidate `make desktop-build` passes on Intel macOS, producing the debug app
+and DMG with the patched Go sidecar and Tokio dependency. This is packaging
+verification, not a signed release or replacement of the installed application.

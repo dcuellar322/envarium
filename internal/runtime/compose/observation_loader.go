@@ -30,7 +30,7 @@ func (r configReader) loadObservation(ctx context.Context, project domain.Projec
 	if err != nil {
 		return normalizedConfig{}, err
 	}
-	files := make([]string, 0, len(project.Compose.Files)+1)
+	files := make([]string, 0, len(project.Compose.Files))
 	for _, file := range project.Compose.Files {
 		if !filepath.IsAbs(file) {
 			file = filepath.Join(project.Root, file)

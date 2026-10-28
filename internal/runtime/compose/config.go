@@ -78,7 +78,7 @@ func appendComposeFile(arguments []string, path string) []string {
 			break
 		}
 	}
-	result := make([]string, 0, len(arguments)+2)
+	result := make([]string, 0, len(arguments))
 	result = append(result, arguments[:projectNameIndex]...)
 	result = append(result, "--file", path)
 	result = append(result, arguments[projectNameIndex:]...)

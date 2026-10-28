@@ -111,7 +111,7 @@ func actionEnvironment(overlay map[string]string) []string {
 		"PATH": true, "HOME": true, "TMPDIR": true, "USER": true, "SHELL": true, "LANG": true, "LC_ALL": true, "TERM": true,
 		"SystemRoot": true, "ComSpec": true, "USERPROFILE": true, "PATHEXT": true, "TEMP": true, "TMP": true, "LOCALAPPDATA": true,
 	}
-	values := make(map[string]string, len(allowed)+len(overlay))
+	values := make(map[string]string, len(allowed))
 	for _, entry := range os.Environ() {
 		key, value, found := strings.Cut(entry, "=")
 		if found && allowed[key] {

@@ -33,7 +33,7 @@ func healthProjects(ctx context.Context, source RuntimeSource) (map[string]runti
 }
 
 func healthProjectIDs(projects map[string]runtime.ProjectRuntime, failures map[string]error) []string {
-	ids := make([]string, 0, len(projects)+len(failures))
+	ids := make([]string, 0, len(projects))
 	for id := range projects {
 		ids = append(ids, id)
 	}
