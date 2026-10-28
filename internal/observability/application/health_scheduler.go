@@ -52,7 +52,7 @@ func (s *HealthService) runDueSnapshot(ctx context.Context, projects map[string]
 	now := s.now().UTC()
 	semaphore := make(chan struct{}, 4)
 	var wait sync.WaitGroup
-	wanted := make(map[string]struct{}, len(projects)+len(failures))
+	wanted := make(map[string]struct{}, len(projects))
 	for _, id := range healthProjectIDs(projects, failures) {
 		project, resolveErr := projects[id], failures[id]
 		if resolveErr != nil {

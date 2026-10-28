@@ -4,14 +4,15 @@ packages:
 
 overrides:
   'postcss-nested@6>postcss-selector-parser': 7.1.6 # GHSA-rj75-hqrm-r3gf
-  fast-uri: 3.1.8
+  fast-uri: 3.1.9 # GHSA-w74x-v6f9-j3xg and related URI normalization fixes
   js-yaml: 4.3.2
   sharp: 0.35.5
   http-cache-semantics: 4.3.0
   source-map-js: 1.2.2
   'smol-toml@<1.8.1': 1.9.0
-  'undici@7': 7.29.1
-  'undici@8': 8.11.2
+  'undici@7': 7.30.1 # GHSA-xjj6-f33q-929c and related HTTP/TLS fixes
+  'undici@8': 8.12.2 # GHSA-xjj6-f33q-929c and related HTTP/TLS fixes
+  'zod@<4.6.6': 4.6.6 # GHSA-mrhx-c7xc-m3w5
   'vite@8': 8.2.4 # GHSA-587h-7wmj-h5pm
 
 minimumReleaseAge: 14400
@@ -20,6 +21,10 @@ minimumReleaseAgeStrict: true
 
 # Exact security fixes; retain the age gate for all other versions.
 minimumReleaseAgeExclude:
+  - fast-uri@3.1.9 # GHSA-w74x-v6f9-j3xg and related URI normalization fixes
+  - undici@7.30.1 # GHSA-xjj6-f33q-929c and related HTTP/TLS fixes
+  - undici@8.12.2 # GHSA-xjj6-f33q-929c and related HTTP/TLS fixes
+  - zod@4.6.6 # GHSA-mrhx-c7xc-m3w5
   - '@tauri-apps/cli@2.12.3' # ADR-0032 signed updater versions
   - '@tauri-apps/cli-darwin-arm64@2.12.3' # ADR-0032 matching signer binary
   - '@tauri-apps/cli-darwin-x64@2.12.3' # ADR-0032 matching signer binary

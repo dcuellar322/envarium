@@ -3,9 +3,13 @@
 package adapters
 
 import (
+	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -13,6 +17,46 @@ import (
 	"envarium.dev/envarium/internal/terminal/application"
 	"envarium.dev/envarium/internal/terminal/domain"
 )
+
+func TestUnixPTYPreservesLiteralArgumentsWithoutShellInterpretation(t *testing.T) {
+	t.Parallel()
+	directory := t.TempDir()
+	marker := filepath.Join(directory, "injected")
+	argument := "literal; touch " + marker + " $(touch " + marker + ")"
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	process, err := NewPTY().Start(ctx, application.LaunchPlan{
+		ProjectID: "project", DisplayName: "literal arguments", WorkingDirectory: directory,
+		// Keep the fixture alive until its output has been read. A short-lived
+		// child can lose unread PTY output when macOS closes the slave side.
+		Executable: "/bin/sh", Arguments: []string{"-c", `printf '%s\n' "$1"; read -r acknowledgment`, "literal-argument-fixture", argument},
+	}, domain.Size{Columns: 80, Rows: 24})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = process.Close() })
+	reader := bufio.NewReader(process)
+	output, err := reader.ReadString('\n')
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(output, argument) {
+		t.Fatalf("literal argument changed: %q", output)
+	}
+	if _, err := process.Write([]byte("done\n")); err != nil {
+		t.Fatal(err)
+	}
+	// Drain the echoed acknowledgment before waiting for the slave to close.
+	if _, err := io.Copy(io.Discard, reader); err != nil {
+		t.Fatal(err)
+	}
+	if err := process.Wait(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(marker); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("shell syntax was executed: %v", err)
+	}
+}
 
 func TestUnixPTYSupportsResizeUnicodeColorAndAlternateScreen(t *testing.T) {
 	t.Parallel()

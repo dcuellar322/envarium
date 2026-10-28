@@ -31,7 +31,7 @@ tauri-plugin-single-instance = "=2.4.3"
 # Upstream ZIP 9 security fix; replace with a published patched release when available.
 tauri-plugin-updater = { version = "=2.14.0", git = "https://github.com/tauri-apps/plugins-workspace", rev = "ba98bfadc4c868c9a7e1a226c83af528e1f11b89" }
 url = "=2.5.8"
-tokio = { version = "=1.53.1", features = ["time"] }
+tokio = { version = "=1.53.3", features = ["time"] }
 
 [profile.release]
 codegen-units = 1

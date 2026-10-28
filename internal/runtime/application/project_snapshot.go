@@ -113,7 +113,7 @@ func snapshotProjects(ctx context.Context, source ProjectSource) (map[string]dom
 }
 
 func snapshotIDs(projects map[string]domain.ProjectRuntime, failures map[string]error) []string {
-	ids := make([]string, 0, len(projects)+len(failures))
+	ids := make([]string, 0, len(projects))
 	for id := range projects {
 		ids = append(ids, id)
 	}
